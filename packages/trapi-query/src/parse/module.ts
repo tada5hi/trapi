@@ -33,7 +33,7 @@ export function parseQuery(
             options[Parameter.RELATIONS]
         );
 
-        output.relations = relations;
+        output[Parameter.RELATIONS] = relations;
     }
 
     const keys : Parameter[] = [

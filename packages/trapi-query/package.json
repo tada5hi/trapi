@@ -1,6 +1,6 @@
 {
     "name": "@trapi/query",
-    "version": "2.0.0-alpha.0",
+    "version": "2.0.0-alpha.1",
     "description": "An tiny library which provides utility types/functions for request and response query handling.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",

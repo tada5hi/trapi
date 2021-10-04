@@ -215,7 +215,7 @@ import {
 } from "@trapi/query";
 
 import {
-    applyParsedQuery
+    applyQueryParseOutput
 } from "typeorm-extension";
 
 /**
@@ -279,7 +279,7 @@ export async function getUsers(req: Request, res: Response) {
 
     // group back parsed parameter back,
     // so they can applied on the db query.
-    const parsed = applyParsedQuery(query, {
+    const parsed = applyQueryParseOutput(query, {
         fields: fieldsParsed,
         // only allow filtering users by id & name
         filters: filterParsed,
@@ -325,7 +325,7 @@ import {
 } from "@trapi/query";
 
 import {
-    applyParsedQuery
+    applyQueryParseOutput
 } from "typeorm-extension";
 
 /**
@@ -366,7 +366,7 @@ export async function getUsers(req: Request, res: Response) {
     // -----------------------------------------------------
 
     // apply parsed data on the db query.
-    const parsed = applyParsedQuery(query, output);
+    const parsed = applyQueryParseOutput(query, output);
 
     // -----------------------------------------------------
 
@@ -596,13 +596,13 @@ console.log(output);
 
 ```typescript
 import {
-    RelationsParsed,
+    RelationsParseOutput,
     Parameter,
     parseQueryParameter,
     URLParameter
 } from "@trapi/query";
 
-const output: RelationsParsed = parseQueryParameter(
+const output: RelationsParseOutput = parseQueryParameter(
     // 'relations' || 'include' ||
     // Parameter.RELATIONS | URLParameter.RELATIONS
     'relations',
@@ -754,14 +754,15 @@ export type URLParameterType = `${Parameter}`;
 
 `FieldsParseOptions`
 ```typescript
-export type FieldsParseOptions = ParseOptionsBase<Parameter.FIELDS, Record<string, string[]> | string[]>;
+export type FieldsParseOptions =
+    ParseOptionsBase<Parameter.FIELDS, Record<string, string[]> | string[]>;
 ```
 The type structure looks like this:
 ```text
 {
     aliasMapping?: Record<string, string>,
     allowed?: Record<string, string[]> | string[],
-    relations?: RelationsParsed,
+    relations?: RelationsParseOutput,
     defaultAlias?: string
 }
 ```
@@ -804,7 +805,7 @@ The type structure looks like this:
 {
     aliasMapping?: Record<string, string>,
     allowed?: string[],
-    relations?: RelationsParsed,
+    relations?: RelationsParseOutput,
     defaultAlias?: string
 }
 ```
@@ -871,9 +872,10 @@ export type PaginationParseOutput = {
 #### Relations
 
 `RelationsParseOptions`
+
 ```typescript
-export type ParseOptionsBase =
-    ParseOutputElementBase<Parameter.SORT, string[] | string[][]>;
+export type RelationsParseOptions =
+    ParseOptionsBase<Parameter.SORT, string[] | string[][]>;
 ```
 The type structure looks like this:
 ```text
@@ -905,7 +907,7 @@ The type structure looks like this:
 #### Sort
 `SortParseOptions`
 ```typescript
-export type SortOptions = ParseOptionsBase<Parameter.SORT, string[] | string[][]>;
+export type SortParseOptions = ParseOptionsBase<Parameter.SORT, string[] | string[][]>;
 ```
 
 The type structure looks like this:
@@ -914,7 +916,7 @@ The type structure looks like this:
     aliasMapping?: Record<string, string>,
     allowed?: string[] | string[][],
     defaultAlias?: string
-    relations?: RelationsParsed
+    relations?: RelationsParseOutput
 }
 ```
 

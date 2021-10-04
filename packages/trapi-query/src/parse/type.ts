@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {RelationsParseOutput} from "../parameter/relations";
+import {RelationsParseOutput} from "../parameter";
 import {Parameter, ParameterType, URLParameter} from "../type";
 import {ParseParameterOptions, ParseParameterOutput} from "./parameter";
 

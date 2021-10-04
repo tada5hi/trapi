@@ -17,8 +17,17 @@ import {
 
 describe('src/utils/js-doc.ts', () => {
     const tags : NodeArray<JSDocTag> = [
-        {tagName: {text: 'foo'}},
-        {tagName: {text: 'bar'}, comment: 'comment'}
+        {
+            tagName: {
+                text: 'foo'
+            }
+        },
+        {
+            tagName: {
+                text: 'bar'
+            },
+            comment: 'comment'
+        }
     ] as unknown as NodeArray<JSDocTag>;
 
     const jsDoc : JSDoc[] = [

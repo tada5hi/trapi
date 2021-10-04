@@ -10,6 +10,7 @@ import path from "path";
 
 describe('src/typescript.ts', () => {
     it('should get compiler options', () => {
+
         // with file name specified
         let compilerOptions = getCompilerOptions( './test/data/tsconfig.json');
         expect(compilerOptions).toBeDefined();

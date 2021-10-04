@@ -15,6 +15,7 @@ const metadata : GeneratorOutput = require('../data/metadata.json');
 const specGenerator = createSpecGenerator(metadata, {
     host: 'http://localhost:3000/'
 });
+
 const spec = specGenerator.getSwaggerSpec();
 
 describe(`generating swagger spec from metadata`, () => {

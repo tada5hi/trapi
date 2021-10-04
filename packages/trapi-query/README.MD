@@ -68,7 +68,7 @@ npm install @trapi/query --save
 
 The general idea is to construct a [BuildInput](#buildinput) at the frontend side,
 which will be formatted to a `string` and passed to the backend application as a URL query string.
-The backend application is than always able to process the request.
+As a result the backend application will always able to process the request.
 
 Therefore, two components of this module are required in the frontend application:
 - generic type: `BuildInput<T>`
@@ -146,11 +146,11 @@ export async function getAPIUsers(
 })();
 ```
 
-The next examples will be about how to parse and validate the transformed `BuildInput<T>` on the backend side.
+The next examples will demonstrate how to parse and validate the transformed `BuildInput<T>` on the backend side.
 
 ### Parsing 🔎
-For explanation proposes how to use the query utils,
-two simple entities with a simple relation between them are declared to demonstrate their usage:
+For explanation purposes,
+two simple entities with a basic relation between them are declared to demonstrate their usage:
 
 ```typescript
 import {
@@ -193,7 +193,7 @@ export class Profile {
     user: User;
 }
 ```
-In this example [typeorm](https://www.npmjs.com/package/typeorm) is used for object-relational mapping (ORM) and [typeorm-extension](https://www.npmjs.com/package/typeorm-extension) is used
+In this example [typeorm](https://www.npmjs.com/package/typeorm) is used for `object-relational mapping (ORM)` and [typeorm-extension](https://www.npmjs.com/package/typeorm-extension) is used
 to apply the parsed request query parameters on the db query and [express](https://www.npmjs.com/package/express) to handle requests.
 
 #### Parse - Extended
@@ -386,7 +386,7 @@ export async function getUsers(req: Request, res: Response) {
 
 #### Parse - Third Party Library
 
-It can even be much easier to parse the query key values, because `typeorm-extension` uses `@trapi/query` under the hood ⚡.
+It can even be much shorter to parse the query key values, because `typeorm-extension` uses `@trapi/query` under the hood ⚡.
 This is much shorter than the previous example and has less direct dependencies 😁.
 
 [read more](https://www.npmjs.com/package/typeorm-extension)
@@ -414,7 +414,7 @@ type User = {
     age?: number
 }
 
-const query: string = buildQuery<T>({
+const query: string = buildQuery<User>({
     fields: ['+age'],
     relations: {
         name: '~pe'
@@ -443,7 +443,7 @@ console.log(query);
 
 `string`
 
-The function return a string, which can be parsed with the [parseQuery](#parsequery) function.
+The function returns a string, which can be parsed with the [parseQuery](#parsequery) function.
 
 I.e. `/users?page[limit]=10&page[offset]=0&include=profile&filter[id]=1&fields[user]=id,name`
 
@@ -496,7 +496,7 @@ console.log(output);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `input` | `ParseInput` | Query input data passed i.e. via URL [more](#parseinput). |
+| `input` | `ParseInput` | Query input data passed e.g. via URL [more](#parseinput). |
 | `options` | `ParseOptions` | Options for parsing fields, filter, include, ... [more](#parseoptions)
 
 #### Returns
@@ -651,7 +651,7 @@ console.log(output);
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `input` | `unknown` | Query input data passed i.e. via URL [more](#parseinput). |
+| `input` | `unknown` | Query input data passed e.g. via URL [more](#parseinput). |
 | `options` | `ParseParameterOptions<Parameter>` | Options for parsing fields, filter, include, ... [more](#parseoptions)
 
 #### Returns

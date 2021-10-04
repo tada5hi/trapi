@@ -12,10 +12,17 @@ import {
     RelationsBuildInput,
     SortBuildInput
 } from "../../parameter";
-import {Parameter, URLParameter} from "../../type";
+import {
+    Parameter,
+    ParameterType,
+    URLParameter,
+    URLParameterType
+} from "../../type";
 
-export type BuildParameterInput<T extends Parameter | URLParameter,
-    R extends Record<string, any>> = T extends Parameter.FIELDS | URLParameter.FIELDS ?
+export type BuildParameterInput<
+    T extends ParameterType | URLParameterType,
+    R extends Record<string, any>
+    > = T extends Parameter.FIELDS | URLParameter.FIELDS ?
     FieldsBuildInput<R> :
     T extends Parameter.FILTERS | URLParameter.FILTERS ?
         FiltersBuildInput<R> :

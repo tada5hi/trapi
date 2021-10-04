@@ -40,7 +40,7 @@ The examples in the [Parsing](#parsing-) section, are not available with current
 - [Functions](#functions)
   - [buildQuery](#buildquery)
   - [parseQuery](#parsequery)
-  - [parseQueryParameter]()
+  - [parseQueryParameter](#parsequeryparameter)
 - [Types](#types)
   - [Build](#build)
     - [Options](#buildoptions)

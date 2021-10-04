@@ -11,28 +11,42 @@ import {PaginationParseOptions, PaginationParseOutput} from "../../parameter";
 import {RelationsParseOptions, RelationsParseOutput} from "../../parameter";
 import {SortParseOptions, SortParseOutput} from "../../parameter";
 
-import {Parameter, ParameterType, URLParameter, URLParameterType} from "../../type";
+import {
+    ParameterFieldsType,
+    ParameterFiltersType,
+    ParameterPaginationType,
+    ParameterRelationsType,
+    ParameterSortType,
+    ParameterType,
+    URLParameterFieldsType,
+    URLParameterFiltersType,
+    URLParameterPaginationType,
+    URLParameterRelationsType, URLParameterSortType,
+    URLParameterType
+} from "../../type";
 
-export type ParseParameterOptions<T extends ParameterType | URLParameterType> = T extends Parameter.FIELDS | URLParameter.FIELDS ?
-    FieldsParseOptions :
-    T extends Parameter.FILTERS | URLParameter.FILTERS ?
-        FiltersParseOptions :
-        T extends Parameter.RELATIONS | URLParameter.RELATIONS ?
-            RelationsParseOptions :
-            T extends Parameter.PAGINATION | URLParameter.PAGINATION ?
-                PaginationParseOptions :
-                T extends Parameter.SORT | URLParameter.SORT ?
-                    SortParseOptions :
-                    {};
+export type ParseParameterOptions<T extends ParameterType | URLParameterType> =
+    T extends ParameterFieldsType | URLParameterFieldsType ?
+        FieldsParseOptions :
+            T extends ParameterFiltersType | URLParameterFiltersType ?
+                FiltersParseOptions :
+                T extends ParameterRelationsType | URLParameterRelationsType ?
+                    RelationsParseOptions :
+                    T extends ParameterPaginationType | URLParameterPaginationType ?
+                        PaginationParseOptions :
+                        T extends ParameterSortType | URLParameterSortType ?
+                            SortParseOptions :
+                            {};
 
-export type ParseParameterOutput<T extends ParameterType | URLParameterType> = T extends Parameter.FIELDS | URLParameter.FIELDS ?
-    FieldsParseOutput :
-    T extends Parameter.FILTERS | URLParameter.FILTERS ?
-        FiltersParseOutput :
-        T extends Parameter.RELATIONS | URLParameter.RELATIONS ?
-            RelationsParseOutput :
-            T extends Parameter.PAGINATION | URLParameter.PAGINATION ?
-                PaginationParseOutput :
-                T extends Parameter.SORT | URLParameter.SORT ?
-                    SortParseOutput :
-                    never;
+export type ParseParameterOutput<T extends ParameterType | URLParameterType> =
+    T extends ParameterFieldsType | URLParameterFieldsType ?
+        FieldsParseOutput :
+        T extends ParameterFiltersType | URLParameterFiltersType ?
+                FiltersParseOutput :
+                T extends ParameterRelationsType | URLParameterRelationsType ?
+                    RelationsParseOutput :
+                    T extends ParameterPaginationType | URLParameterPaginationType ?
+                        PaginationParseOutput :
+                        T extends ParameterSortType | URLParameterSortType ?
+                            SortParseOutput :
+                            never;

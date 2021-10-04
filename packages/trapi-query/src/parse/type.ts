@@ -6,46 +6,53 @@
  */
 
 import {RelationsParseOutput} from "../parameter";
-import {Parameter, ParameterType, URLParameter} from "../type";
+import {
+    ParameterFieldsType,
+    ParameterPaginationType,
+    ParameterRelationsType,
+    ParameterType,
+    URLParameterType
+} from "../type";
 import {ParseParameterOptions, ParseParameterOutput} from "./parameter";
 
 export type ParseOptionsBase<
     K extends ParameterType,
     A = string[]
-> = (K extends Parameter.PAGINATION ? {} : {
+> = (K extends ParameterPaginationType ? {} : {
     aliasMapping?: Record<string, string>,
     allowed?: A,
     defaultAlias?: string
-}) & (K extends Parameter.RELATIONS | Parameter.PAGINATION ? {} : {
+}) & (K extends ParameterRelationsType | ParameterPaginationType ? {} : {
     relations?: RelationsParseOutput
 });
 
 //------------------------------------------------
 
 export type ParseInput = {
-    [K in Parameter | URLParameter]?: any
+    [K in ParameterType | URLParameterType]?: any
 }
 
 export type ParseOptions = {
     /**
      * On default all query keys are enabled.
      */
-    [K in Parameter]?: ParseParameterOptions<K> | boolean
+    [K in ParameterType]?: ParseParameterOptions<K> | boolean
 }
 
 export type ParseOutput = {
-    [K in Parameter]?: ParseParameterOutput<K>
+    [K in ParameterType]?: ParseParameterOutput<K>
 }
 
 export type ParseOutputElementBase<
-    K extends Parameter,
+    K extends ParameterType,
     V extends unknown | undefined = undefined
-    > = (K extends Parameter.PAGINATION ? {} : {
-    key: string
-}) & (K extends Parameter.RELATIONS ? {} : {
-    alias?: string
-}) & (K extends Parameter.FIELDS ? {
-    value?: V
-} : {
-    value: V
-});
+    > =
+        (K extends ParameterPaginationType ? {} : {
+            key: string
+        }) & (K extends ParameterRelationsType ? {} : {
+            alias?: string
+        }) & (K extends ParameterFieldsType ? {
+            value?: V
+        } : {
+            value: V
+        });

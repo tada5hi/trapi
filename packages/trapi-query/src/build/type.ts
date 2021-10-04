@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Parameter, URLParameter} from "../type";
+import {ParameterType, URLParameterType} from "../type";
 import {BuildParameterInput} from "./parameter";
 
 export type BuildOptions = {
@@ -15,5 +15,5 @@ export type BuildOptions = {
 export type BuildInput<
     V extends Record<string, any>
 > = {
-    [T in Parameter | URLParameter]?: BuildParameterInput<T, V>
+    [T in ParameterType | URLParameterType]?: BuildParameterInput<T, V>
 }

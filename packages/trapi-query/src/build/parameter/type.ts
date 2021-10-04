@@ -13,23 +13,32 @@ import {
     SortBuildInput
 } from "../../parameter";
 import {
-    Parameter,
+    ParameterFieldsType,
+    ParameterFiltersType,
+    ParameterPaginationType,
+    ParameterRelationsType,
+    ParameterSortType,
     ParameterType,
-    URLParameter,
+    URLParameterFieldsType,
+    URLParameterFiltersType,
+    URLParameterPaginationType,
+    URLParameterRelationsType,
+    URLParameterSortType,
     URLParameterType
 } from "../../type";
 
 export type BuildParameterInput<
     T extends ParameterType | URLParameterType,
     R extends Record<string, any>
-    > = T extends Parameter.FIELDS | URLParameter.FIELDS ?
-    FieldsBuildInput<R> :
-    T extends Parameter.FILTERS | URLParameter.FILTERS ?
-        FiltersBuildInput<R> :
-        T extends Parameter.RELATIONS | URLParameter.RELATIONS ?
-            RelationsBuildInput<R> :
-            T extends Parameter.PAGINATION | URLParameter.PAGINATION ?
-                PaginationBuildInput<R> :
-                T extends Parameter.SORT | URLParameter.SORT ?
-                    SortBuildInput<R> :
-                    never;
+    > =
+    T extends ParameterFieldsType | URLParameterFieldsType ?
+        FieldsBuildInput<R> :
+        T extends ParameterFiltersType | URLParameterFiltersType ?
+            FiltersBuildInput<R> :
+            T extends ParameterRelationsType | URLParameterRelationsType ?
+                RelationsBuildInput<R> :
+                T extends ParameterPaginationType | URLParameterPaginationType ?
+                    PaginationBuildInput<R> :
+                    T extends ParameterSortType | URLParameterSortType ?
+                        SortBuildInput<R> :
+                        T;

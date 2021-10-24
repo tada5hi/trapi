@@ -27,7 +27,7 @@ It extends the specification format between request- & response-handling based o
 ---
 **Important NOTE**
 
-The examples in the [Parsing](#parsing-) section, are not available with current release of the `typeorm-extension@0.3.0` library.
+The examples in the [Parsing](#parsing-) section, are not available with releases `<1.0.0` of the `typeorm-extension`  library.
 
 ---
 

@@ -16,7 +16,7 @@ export function flattenNestedProperties<T>(data: Record<string, any>, prefixPart
                 typeof data[key] === 'string' ||
                 typeof data[key] === 'number' ||
                 typeof data[key] === 'undefined' ||
-                query[key] === null ||
+                data[key] === null ||
                 Array.isArray(data[key]):
                     const destinationKey = [...prefixParts, key].join('.');
                     query[destinationKey] = data[key];

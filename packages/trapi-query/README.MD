@@ -521,13 +521,13 @@ Parse a specific query [Parameter](#parameter) value to an efficient data struct
 ```typescript
 import {
     FieldOperator,
-    FieldsParsed,
+    FieldsParseOutput,
     Parameter,
     parseQueryParameter,
     URLParameter
 } from "@trapi/query";
 
-const output: FieldsParsed = parseQueryParameter(
+const output: FieldsParseOutput = parseQueryParameter(
     // 'fields' ||
     // Parameter.FIELDS | URLParameter.FIELDS
     'fields',
@@ -547,13 +547,13 @@ console.log(output);
 
 ```typescript
 import {
-    FiltersParsed,
+    FiltersParseOutput,
     Parameter,
     parseQueryParameter,
     URLParameter
 } from "@trapi/query";
 
-const output: FiltersParsed = parseQueryParameter(
+const output: FiltersParseOutput = parseQueryParameter(
     // 'filters' | 'filter' |
     // Parameter.FILTERS | URLParameter.FILTERS
     'filters',
@@ -572,13 +572,13 @@ console.log(output);
 
 ```typescript
 import {
-    PaginationParsed,
+    PaginationParseOutput,
     Parameter,
     parseQueryParameter,
     URLParameter
 } from "@trapi/query";
 
-const output: PaginationParsed = parseQueryParameter(
+const output: PaginationParseOutput = parseQueryParameter(
     // 'pagination' | 'page' |
     // Parameter.PAGINATION | URLParameter.PAGINATION
     'pagination',
@@ -621,13 +621,13 @@ console.log(output);
 
 ```typescript
 import {
-    SortParsed,
+    SortParseOutput,
     Parameter,
     parseQueryParameter,
     URLParameter
 } from "@trapi/query";
 
-const output: SortParsed = parseQueryParameter(
+const output: SortParseOutput = parseQueryParameter(
     // 'sort' ||
     // Parameter.SORT || URLParameter.SORT
     'sort',

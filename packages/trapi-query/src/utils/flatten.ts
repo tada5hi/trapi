@@ -23,8 +23,12 @@ export function flattenNestedProperties<T>(data: Record<string, any>, prefixPart
                 break;
             default:
                 // todo: this might be risky, if an entity has 'operator' and 'value' properties :( ^^
+
+                if(typeof data[key] !== 'object') {
+                    continue;
+                }
+
                 if(
-                    typeof data[key] === 'object' &&
                     hasOwnProperty(data[key], 'operator') &&
                     hasOwnProperty(data[key], 'value')
                 ) {

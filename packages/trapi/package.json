@@ -21,7 +21,7 @@
     "author": {
         "name": "Peter Placzek",
         "email": "contact@tada5hi.net",
-        "url": "https:/github.com/Tada5hi"
+        "url": "https://github.com/tada5hi"
     },
     "license": "MIT",
     "devDependencies": {
@@ -36,6 +36,9 @@
         "@trapi/swagger": "^0.2.6",
         "@trapi/utils": "^0.0.2",
         "typescript": "^4.4.3"
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "gitHead": "ac770f3f6e1ec2fd011cdf432b06319c635c01fa"
 }

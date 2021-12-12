@@ -9,3 +9,4 @@ export * from './config';
 export * from './metadata';
 export * from './specification';
 export * from './type';
+export * from './utils';

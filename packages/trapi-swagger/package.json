@@ -41,7 +41,7 @@
     "dependencies": {
         "@trapi/metadata": "^0.1.4",
         "@trapi/metadata-utils": "^0.0.4",
-        "typescript": "^4.4.3",
+        "typescript": "^4.5.3",
         "yamljs": "^0.3.0"
     },
     "repository": {

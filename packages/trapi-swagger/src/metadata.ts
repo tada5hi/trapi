@@ -6,19 +6,53 @@
  */
 
 import {
+    // Utils
     generateMetadata,
     createMetadataGenerator,
+
+    // Types & Interfaces
     GeneratorOutput as MetadataGeneratorOutput,
     Config as MetadataConfig,
-    Cache as MetadataCache
+    Cache as MetadataCache,
+
+    // Internal Decorators
+    RequestConsumes,
+    RequestFileParam,
+    ResponseDescription,
+    ResponseExample,
+    ResponseProduces,
+    SwaggerTags,
+    SwaggerHidden,
+    SwaggerDeprecated,
+    IsDouble,
+    IsFloat,
+    IsLong,
+    IsInt,
 } from "@trapi/metadata";
 
 type MetadataCacheConfig = MetadataCache.Config;
 
 export {
+    // Utils
     generateMetadata,
     createMetadataGenerator,
+
+    // Types & Interfaces
     MetadataGeneratorOutput,
     MetadataCacheConfig,
-    MetadataConfig
+    MetadataConfig,
+
+    // Internal Decorators
+    RequestConsumes,
+    RequestFileParam,
+    ResponseDescription,
+    ResponseExample,
+    ResponseProduces,
+    SwaggerTags,
+    SwaggerHidden,
+    SwaggerDeprecated,
+    IsDouble,
+    IsFloat,
+    IsLong,
+    IsInt,
 }

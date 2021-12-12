@@ -14,7 +14,7 @@ import {SpecificationV3} from "./v3/type";
 import {SwaggerDocFormatType, SwaggerDocFormatData} from "../type";
 import * as path from "path";
 import {promises, writeFile} from "fs";
-import {stringify} from "yamljs";
+import * as YAML from "yamljs";
 import {Specification} from "./type";
 
 export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | SpecificationV3.Spec,
@@ -45,7 +45,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
             data.yaml = {
                 path: path.join(swaggerDir, 'swagger.yaml'),
                 name: 'swagger.yaml',
-                content: stringify(spec, 1000)
+                content: YAML.stringify(spec, 1000)
             };
         }
 

@@ -59,7 +59,12 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
 
         outputDirectory: string().optional().default(undefined),
         outputFileName: string().optional().default(undefined),
-        outputFormat: (string().oneOf([Specification.Specification.VERSION_2, Specification.Specification.VERSION_3]).optional().default(Specification.Specification.VERSION_2)) as SchemaOf<Specification.Specification>,
+
+        specification: (string().oneOf([
+            Specification.SpecificationOption.V2,
+            Specification.SpecificationOption.V3
+        ]).optional().default(Specification.SpecificationOption.V2)) as SchemaOf<Specification.SpecificationOption>,
+        specificationExtra: mixed().optional().default(undefined),
 
         host: string().optional().default(undefined),
         version: string().optional().default(undefined),
@@ -68,7 +73,7 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
         license: string().optional().default(undefined),
         basePath: string().optional().default(undefined),
         securityDefinitions: securityDefinitionsValidator,
-        spec: mixed().optional().default(undefined),
+
         consumes: array().of(string()).optional().default(undefined),
         produces: array().of(string()).optional().default(undefined),
         collectionFormat: string().optional().default(undefined)
@@ -83,7 +88,7 @@ export function extendSwaggerConfig(workingDir: string, conf: Specification.Conf
     conf.name = conf.name || getPackageJsonStringValue(workingDir, 'name');
     conf.description = conf.description || getPackageJsonStringValue(workingDir, 'description');
     conf.license = conf.license || getPackageJsonStringValue(workingDir, 'license', 'MIT');
-    conf.outputFormat = Specification.Specification[conf.outputFormat] || Specification.Specification.VERSION_2;
+    conf.specification = Specification.SpecificationOption[conf.specification] || Specification.SpecificationOption.V2;
 
     return conf;
 }

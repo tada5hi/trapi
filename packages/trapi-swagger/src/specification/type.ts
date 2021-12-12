@@ -199,11 +199,6 @@ export namespace Specification {
         outputFileName?: string;
 
         /**
-         * Inform if the generated spec will be in swagger 2.0 format or i open api 3.0
-         */
-        outputFormat?: Specification;
-
-        /**
          * API host, expressTemplate.g. localhost:3000 or https://myapi.com
          */
         host?: string;
@@ -234,10 +229,17 @@ export namespace Specification {
         basePath?: string;
 
         /**
+         * Inform if the generated spec will be in swagger 2.0 format or regarding the open api 3.0 specification.
+         *
+         * Default: V2
+         */
+        specification?: SpecificationOption;
+
+        /**
          * Extend generated swagger spec with this object
          * Note that generated properties will always take precedence over what get specified here
          */
-        spec?: Record<string, any>;
+        specificationExtra?: Record<string, any>;
 
         /**
          * Security Definitions Object
@@ -264,9 +266,9 @@ export namespace Specification {
         collectionFormat?: string;
     }
 
-    export enum Specification {
-        VERSION_2 = "VERSION_2",
-        VERSION_3 = "VERSION_3"
+    export enum SpecificationOption {
+        V2 = "V2",
+        V3 = "V3"
     }
 
     export interface SecurityDefinitions {

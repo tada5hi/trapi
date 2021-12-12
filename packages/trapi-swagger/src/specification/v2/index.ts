@@ -54,8 +54,8 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             spec.host = host;
         }
 
-        if (this.config.spec) {
-            spec = require('merge').recursive(spec, this.config.spec);
+        if (this.config.specificationExtra) {
+            spec = require('merge').recursive(spec, this.config.specificationExtra);
         }
 
         this.spec = spec;

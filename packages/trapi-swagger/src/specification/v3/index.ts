@@ -32,8 +32,8 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
             tags: [],
         };
 
-        if (this.config.spec) {
-            spec = require('merge').recursive(spec, this.config.spec);
+        if (this.config.specificationExtra) {
+            spec = require('merge').recursive(spec, this.config.specificationExtra);
         }
 
         return spec;

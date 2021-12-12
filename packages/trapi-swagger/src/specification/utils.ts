@@ -8,9 +8,9 @@
 // todo: implement character in regex matching
 import {GeneratorOutput, MetadataGenerator} from "@trapi/metadata";
 import {Specification} from "./type";
+import {AbstractSpecGenerator} from "./abstract";
 import {Version2SpecGenerator} from "./v2";
 import {Version3SpecGenerator} from "./v3";
-import {AbstractSpecGenerator} from "./abstract";
 
 export function removeRepeatingCharacter(str: string, character: string) : string {
     return str.replace('/([^:]\$)\/+/g', "$1");
@@ -28,17 +28,17 @@ export function createSpecGenerator(
     metadata: GeneratorOutput | MetadataGenerator,
     config: Specification.Config = {}
 ) {
-    const data : GeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
+    const data: GeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
 
-    const outputFormat : Specification.Specification = config.outputFormat || Specification.Specification.VERSION_2;
+    const outputFormat: Specification.SpecificationOption = config.specification || Specification.SpecificationOption.V2;
 
-    let specGenerator : AbstractSpecGenerator<any, any>;
+    let specGenerator: AbstractSpecGenerator<any, any>;
 
     switch (outputFormat) {
-        case Specification.Specification.VERSION_2:
+        case Specification.SpecificationOption.V2:
             specGenerator = new Version2SpecGenerator(data, config);
             break;
-        case Specification.Specification.VERSION_3:
+        case Specification.SpecificationOption.V3:
             specGenerator = new Version3SpecGenerator(data, config);
             break;
     }

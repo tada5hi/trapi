@@ -9,4 +9,4 @@ export * from './utils';
 
 export {createMetadataGenerator, MetadataGenerator, generateMetadata} from '@trapi/metadata';
 export {BuildInput, buildQuery} from "@trapi/query";
-export {createSpecGenerator, Version3SpecGenerator, Version2SpecGenerator, Specification} from "@trapi/swagger";
+export {Version3SpecGenerator, Version2SpecGenerator, Specification} from "@trapi/swagger";

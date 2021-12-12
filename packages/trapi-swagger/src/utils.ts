@@ -8,7 +8,7 @@
 import {CompilerOptions} from 'typescript';
 import {Config as MetadataConfig, createMetadataGenerator} from "@trapi/metadata";
 import {createSpecGenerator, Specification} from "./specification";
-import {SwaggerDocFormatData, SwaggerDocFormatType} from "trapi/src/type";
+import {SwaggerDocFormatData, SwaggerDocFormatType} from "./type";
 
 export async function generateDocumentation(
     config: {

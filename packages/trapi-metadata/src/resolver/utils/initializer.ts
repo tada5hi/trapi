@@ -63,7 +63,10 @@ export function getInitializerValue(
             if(typeof initializer === 'undefined') {
                 return undefined;
             } else {
-                if(typeof initializer.parent === 'undefined') {
+                if(
+                    typeof initializer.parent === 'undefined' ||
+                    typeof typeChecker === 'undefined'
+                ) {
                     if(hasOwnProperty(initializer, 'text')) {
                         return initializer.text;
                     }

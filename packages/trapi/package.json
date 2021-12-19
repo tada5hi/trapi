@@ -1,6 +1,6 @@
 {
     "name": "trapi",
-    "version": "0.1.22",
+    "version": "0.1.23",
     "description": "The main package and contains bundled functionality of all other package and a CLI to interact with them.",
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts",
@@ -35,7 +35,7 @@
     },
     "dependencies": {
         "@trapi/metadata": "^0.1.4",
-        "@trapi/query": "^2.0.2",
+        "@trapi/query": "^2.0.3",
         "@trapi/swagger": "^0.2.12",
         "@trapi/utils": "^0.0.2",
         "typescript": "^4.5.4"

@@ -44,7 +44,7 @@ export enum FilterOperator {
 type FilterValue<V> = V extends string | number | boolean ? (V | V[]) : never;
 type FilterValueWithOperator<V> = V extends string | number | boolean ? (FilterValue<V> | FilterValueOperator<V> | Array<FilterValueOperator<V>>) : never;
 
-type FilterValueOperator<V extends string | number | boolean> = `!${V}` | `!~${V}` | `~${V}`;
+type FilterValueOperator<V extends string | number | boolean> = `!${V}` | `!~${V}` | `~${V}` | `<${V}` | `<=${V}` | `>${V}` | `>=${V}`;
 
 export type FiltersBuildInput<T> = {
     [K in keyof T]?: T[K] extends OnlyScalar<T[K]> ?

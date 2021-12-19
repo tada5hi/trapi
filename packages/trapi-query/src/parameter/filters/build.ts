@@ -16,7 +16,11 @@ export function buildQueryFilters<T> (data: FiltersBuildInput<T>) : Record<strin
 const OperatorWeight = {
     [FilterOperator.NEGATION]: 0,
     [FilterOperator.LIKE]: 50,
-    [FilterOperator.IN]: 150
+    [FilterOperator.LESS_THAN_EQUAL]: 150,
+    [FilterOperator.LESS_THAN]: 450,
+    [FilterOperator.MORE_THAN_EQUAL]: 1350,
+    [FilterOperator.MORE_THAN]: 4050,
+    [FilterOperator.IN]: 13105
 }
 
 function transformOperatorConfigToValue<T>(data: FiltersBuildInput<T>) : FiltersBuildInput<T> {

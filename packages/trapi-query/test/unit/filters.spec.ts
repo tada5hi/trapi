@@ -118,6 +118,54 @@ describe('src/filter/index.ts', () => {
             }
         ] as FiltersParseOutput);
 
+        // less than operator
+        data = parseQueryFilters({id: '<10'}, {allowed: ['id']});
+        expect(data).toEqual([
+            {
+                key: 'id',
+                operator: {
+                    [FilterOperatorLabel.LESS_THAN]: true
+                },
+                value: "10"
+            }
+        ] as FiltersParseOutput);
+
+        // less than equal operator
+        data = parseQueryFilters({id: '<=10'}, {allowed: ['id']});
+        expect(data).toEqual([
+            {
+                key: 'id',
+                operator: {
+                    [FilterOperatorLabel.LESS_THAN_EQUAL]: true
+                },
+                value: "10"
+            }
+        ] as FiltersParseOutput);
+
+        // more than operator
+        data = parseQueryFilters({id: '>10'}, {allowed: ['id']});
+        expect(data).toEqual([
+            {
+                key: 'id',
+                operator: {
+                    [FilterOperatorLabel.MORE_THAN]: true
+                },
+                value: "10"
+            }
+        ] as FiltersParseOutput);
+
+        // more than equal operator
+        data = parseQueryFilters({id: '>=10'}, {allowed: ['id']});
+        expect(data).toEqual([
+            {
+                key: 'id',
+                operator: {
+                    [FilterOperatorLabel.MORE_THAN_EQUAL]: true
+                },
+                value: "10"
+            }
+        ] as FiltersParseOutput);
+
         // negation with like operator
         data = parseQueryFilters({name: '!~name'}, {allowed: ['name']});
         expect(data).toEqual([

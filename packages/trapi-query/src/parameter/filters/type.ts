@@ -22,13 +22,23 @@ export type FilterOperatorConfig<V, O> = {
 export enum FilterOperatorLabel {
     NEGATION = 'negation',
     LIKE = 'like',
-    IN = 'in'
+    LESS_THAN_EQUAL = 'lessThanEqual',
+    LESS_THAN = 'lessThan',
+    MORE_THAN_EQUAL = 'moreThanEqual',
+    MORE_THAN = 'moreThan',
+    IN = 'in',
 }
+
+export type FilterOperatorLabelType = `${FilterOperatorLabel}`;
 
 export enum FilterOperator {
     NEGATION = '!',
     LIKE = '~',
-    IN = ','
+    LESS_THAN_EQUAL = '<=',
+    LESS_THAN = '<',
+    MORE_THAN_EQUAL = '>=',
+    MORE_THAN = '>',
+    IN = ',',
 }
 
 type FilterValue<V> = V extends string | number | boolean ? (V | V[]) : never;

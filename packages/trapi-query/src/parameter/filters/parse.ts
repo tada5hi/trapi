@@ -12,7 +12,8 @@ import {
     getFieldDetails,
     isFieldAllowedByRelations
 } from "../../utils";
-import {FilterOperator, FilterOperatorLabel, FiltersParseOptions, FiltersParseOutput, FiltersParseOutputElement} from "./type";
+import {FiltersParseOptions, FiltersParseOutput, FiltersParseOutputElement} from "./type";
+import {determineFilterOperatorLabelsByValue} from "./utils";
 
 // --------------------------------------------------
 
@@ -146,28 +147,14 @@ export function parseQueryFilters(
         }
 
         if(typeof filter.value === 'string') {
-            const negationOperator : boolean = filter.value.charAt(0) === FilterOperator.NEGATION;
-            if(negationOperator) {
-                filter.operator ??= {};
-                filter.operator[FilterOperatorLabel.NEGATION] = negationOperator;
-                filter.value = filter.value.slice(1);
-            }
+            const {value, operators} = determineFilterOperatorLabelsByValue(filter.value);
+            if(operators.length > 0) {
+                filter.value = value;
+                filter.operator = {};
 
-            const likeOperator : boolean = filter.value.charAt(0) === FilterOperator.LIKE;
-            if (likeOperator) {
-                filter.operator ??= {};
-                filter.operator[FilterOperatorLabel.LIKE] = likeOperator;
-                filter.value = filter.value.slice(1);
-            }
-
-            const inOperator : boolean = filter.value.includes(FilterOperator.IN);
-            if(inOperator) {
-                filter.operator ??= {};
-                filter.operator[FilterOperatorLabel.IN] = true;
-            }
-
-            if(typeof filter.operator !== 'undefined') {
-                filter.value = filter.operator[FilterOperatorLabel.IN] ? filter.value.split(',') : filter.value;
+                for(let i=0; i<operators.length; i++) {
+                    filter.operator[operators[i]] = true;
+                }
             }
         }
 

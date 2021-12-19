@@ -22,6 +22,9 @@
     ],
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
     "scripts": {
         "start": "tsc -p tsconfig.build.json -w",
         "build": "npm run clean && tsc -p tsconfig.build.json",

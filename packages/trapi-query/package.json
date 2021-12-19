@@ -4,6 +4,9 @@
     "description": "An tiny library which provides utility types/functions for request and response query handling.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
     "scripts": {
         "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
         "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",

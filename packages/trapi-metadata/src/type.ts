@@ -14,16 +14,25 @@ export interface Config {
      * The entry point to your API.
      */
     entryFile: string | string[];
+
     /**
      * Directory to ignore during TypeScript files scan.
      * Default: []
      */
     ignore?: string[];
+
+    /**
+     * Directory to allow during TypeScript files scan.
+     * Default: []
+     */
+    allow?: string[],
+
     /**
      * Directory to store and cache metadata cache files.
      * Default: false
      */
     cache?: string | boolean | Partial<Cache.Config>;
+
     /**
      * Decorator config.
      * Default: {

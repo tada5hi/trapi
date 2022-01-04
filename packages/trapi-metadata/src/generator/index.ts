@@ -95,8 +95,10 @@ export class MetadataGenerator {
         let endSize : number = 0;
 
         this.program.getSourceFiles().forEach((sf: SourceFile) => {
-            const isIgnored : boolean = this.isIgnoredPath(sf.fileName);
-            if(isIgnored) {
+            if(
+                this.isIgnoredPath(sf.fileName) &&
+                !this.isAllowedPath(sf.fileName)
+            ) {
                 return;
             }
 
@@ -141,6 +143,20 @@ export class MetadataGenerator {
         }
 
         return this.config.ignore.some(item => minimatch(filePath, item));
+    }
+
+    /**
+     * Check if the source file path is in the ignored path list.
+     *
+     * @param filePath
+     * @protected
+     */
+    protected isAllowedPath(filePath: string)  {
+        if(typeof this.config.allow === 'undefined') {
+            return false;
+        }
+
+        return this.config.allow.some(item => minimatch(filePath, item));
     }
 
     // -------------------------------------------------------------------------

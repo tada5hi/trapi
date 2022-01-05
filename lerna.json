@@ -9,7 +9,8 @@
         "publish": {
             "ignoreChanges": [
                 "*.md",
-                "package.json"
+                "package.json",
+                "tslint.json"
             ],
             "message": "chore(release): publish"
         }

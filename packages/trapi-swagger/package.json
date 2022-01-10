@@ -38,7 +38,7 @@
         "@types/jest": "^27.4.0",
         "@types/node": "^16.11.12",
         "@types/yamljs": "^0.2.31",
-        "jest": "^27.4.5",
+        "jest": "^27.4.7",
         "rimraf": "^3.0.2"
     },
     "dependencies": {

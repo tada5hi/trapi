@@ -35,7 +35,7 @@
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
-        "@types/jest": "^27.0.3",
+        "@types/jest": "^27.4.0",
         "@types/node": "^16.11.12",
         "@types/yamljs": "^0.2.31",
         "jest": "^27.4.5",

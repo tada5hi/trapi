@@ -35,7 +35,7 @@
         "@types/minimatch": "^3.0.5",
         "@types/node": "^16.11.12",
         "@types/yup": "^0.29.13",
-        "jest": "^27.4.5",
+        "jest": "^27.4.7",
         "jsonata": "^1.8.5",
         "rimraf": "^3.0.2"
     },

@@ -6,8 +6,14 @@
  */
 
 import { TrapiClientRequestConfig } from '../type';
+import {TrapiClient} from '../module';
+
+export interface Type extends Function {
+    new (config: TrapiClientRequestConfig, ...args: any[]) : TrapiClient;
+}
 
 export type TrapiClientConfig = {
+    clazz?: Type,
     driver?: TrapiClientRequestConfig,
     connectionString?: string
 };

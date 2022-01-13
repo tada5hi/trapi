@@ -21,7 +21,9 @@ export class TrapiClient {
      *
      * @param config
      */
-    constructor(config: TrapiClientConfig) {
+    constructor(config?: TrapiClientConfig) {
+        config ??= {};
+
         this.driver = axios.create(config.driver);
     }
 

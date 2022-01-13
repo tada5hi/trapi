@@ -1,6 +1,6 @@
 {
     "name": "@trapi/client",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A REST client based on axios.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",

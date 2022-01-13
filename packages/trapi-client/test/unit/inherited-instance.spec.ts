@@ -9,7 +9,7 @@ import {setTrapiClientConfig, useTrapiClient} from "../../src";
 import {TestTrapiClient} from "../data/child-class";
 
 describe('src/**/*.ts', () => {
-    it('should create instance with inhertied class', () => {
+    it('should create instance with inherited class', () => {
         setTrapiClientConfig('default', {
             clazz: TestTrapiClient
         });
@@ -17,5 +17,5 @@ describe('src/**/*.ts', () => {
         const instance = useTrapiClient<TestTrapiClient>('default');
 
         expect(instance.test()).toEqual(true);
-    })
+    });
 })

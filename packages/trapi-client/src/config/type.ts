@@ -9,7 +9,7 @@ import { TrapiClientRequestConfig } from '../type';
 import {TrapiClient} from '../module';
 
 export interface Type extends Function {
-    new (config: TrapiClientRequestConfig, ...args: any[]) : TrapiClient;
+    new (config: TrapiClientConfig) : TrapiClient;
 }
 
 export type TrapiClientConfig = {

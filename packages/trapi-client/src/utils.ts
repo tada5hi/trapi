@@ -34,9 +34,9 @@ export function useTrapiClient<T extends TrapiClient>(
     let instance : TrapiClient;
 
     if(config.clazz) {
-        instance = new config.clazz(config.driver);
+        instance = new config.clazz(config);
     } else {
-        instance = new TrapiClient(config.driver);
+        instance = new TrapiClient(config);
     }
 
     instanceMap[key] = instance;

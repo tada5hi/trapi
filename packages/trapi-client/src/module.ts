@@ -11,6 +11,7 @@ import {
 } from '@typescript-auth/core';
 import axios, { AxiosDefaults, AxiosInstance } from 'axios';
 import { TrapiClientRequestConfig, TrapiClientResponse } from './type';
+import {TrapiClientConfig} from "./config";
 
 export class TrapiClient {
     public readonly driver: AxiosInstance;
@@ -20,8 +21,8 @@ export class TrapiClient {
      *
      * @param config
      */
-    constructor(config: TrapiClientRequestConfig) {
-        this.driver = axios.create(config);
+    constructor(config: TrapiClientConfig) {
+        this.driver = axios.create(config.driver);
     }
 
     // ---------------------------------------------------------------------------------

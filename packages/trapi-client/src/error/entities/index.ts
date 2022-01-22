@@ -5,10 +5,4 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Client} from "../../src";
-
-export class TestTrapiClient extends Client {
-    test() {
-        return true;
-    }
-}
+export * from './authorization-header'

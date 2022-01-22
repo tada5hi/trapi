@@ -5,10 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Client} from "../../src";
-
-export class TestTrapiClient extends Client {
-    test() {
-        return true;
-    }
+export enum AuthorizationHeaderType {
+    BEARER = 'Bearer',
+    BASIC = 'Basic',
+    X_API_KEY = 'X-API-Key',
+    API_KEY = 'API-Key',
 }

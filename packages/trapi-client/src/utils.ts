@@ -6,14 +6,13 @@
  */
 
 import {
-    TrapiClientConfig,
-    useTrapiClientConfig,
+    useClientConfig,
 } from './config';
-import { TrapiClient } from './module';
+import { Client } from './module';
 
-const instanceMap: Record<string, TrapiClient> = {};
+const instanceMap: Record<string, Client> = {};
 
-export function setTrapiClient<T extends TrapiClient>(
+export function setClient<T extends Client>(
     key: string = 'default',
     client: T
 ) : T {
@@ -22,21 +21,24 @@ export function setTrapiClient<T extends TrapiClient>(
     return client;
 }
 
-export function useTrapiClient<T extends TrapiClient>(
+export function useClient<T extends Client>(
     key: string = 'default',
 ) : T {
-    const config : TrapiClientConfig = useTrapiClientConfig(key);
+    const config = useClientConfig(key);
 
     if (Object.prototype.hasOwnProperty.call(instanceMap, key)) {
         return instanceMap[key] as T;
     }
 
-    let instance : TrapiClient;
+    let instance : Client;
 
-    if(config.clazz) {
+    if(
+        config &&
+        config.clazz
+    ) {
         instance = new config.clazz(config);
     } else {
-        instance = new TrapiClient(config);
+        instance = new Client(config);
     }
 
     instanceMap[key] = instance;

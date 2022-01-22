@@ -5,23 +5,23 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { TrapiClientConfig } from './type';
+import { ClientConfig } from './type';
 
-const configMap: Map<string, TrapiClientConfig> = new Map<string, TrapiClientConfig>();
+const configMap: Map<string, ClientConfig> = new Map<string, ClientConfig>();
 
-export function setTrapiClientConfig(
+export function setClientConfig(
     key: string = 'default',
-    value: TrapiClientConfig,
+    value: ClientConfig,
 ) {
     configMap.set(key, value);
 
     return value;
 }
 
-export function useTrapiClientConfig<T extends TrapiClientConfig>(
+export function useClientConfig<T extends ClientConfig>(
     key: string = 'default',
 ): T | undefined {
-    const data: TrapiClientConfig | undefined = configMap.get(key);
+    const data: ClientConfig | undefined = configMap.get(key);
     if (typeof data === 'undefined') {
         return undefined;
     }

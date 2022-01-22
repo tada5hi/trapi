@@ -5,15 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    AuthorizationHeader,
-    stringifyAuthorizationHeader,
-} from '@typescript-auth/core';
 import axios, { AxiosDefaults, AxiosInstance } from 'axios';
-import { TrapiClientRequestConfig, TrapiClientResponse } from './type';
-import {TrapiClientConfig} from "./config";
+import { ClientRequestConfig, ClientResponse } from './type';
+import {ClientConfig} from "./config";
+import {AuthorizationHeader, stringifyAuthorizationHeader} from "./header";
 
-export class TrapiClient {
+export class Client {
     public readonly driver: AxiosInstance;
 
     /**
@@ -21,7 +18,7 @@ export class TrapiClient {
      *
      * @param config
      */
-    constructor(config?: TrapiClientConfig) {
+    constructor(config?: ClientConfig) {
         config ??= {};
 
         this.driver = axios.create(config.driver);
@@ -33,7 +30,7 @@ export class TrapiClient {
         return this.driver.defaults;
     }
 
-    public getUri(config?: TrapiClientRequestConfig): string {
+    public getUri(config?: ClientRequestConfig): string {
         return this.driver.getUri(config);
     }
 
@@ -65,50 +62,50 @@ export class TrapiClient {
 
     // ---------------------------------------------------------------------------------
 
-    public request<T, R = TrapiClientResponse<T>>(config: TrapiClientRequestConfig): Promise<R> {
+    public request<T, R = ClientResponse<T>>(config: ClientRequestConfig): Promise<R> {
         return this.driver.request(config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public get<T, R = TrapiClientResponse<T>>(url: string, config?: TrapiClientRequestConfig): Promise<R> {
+    public get<T, R = ClientResponse<T>>(url: string, config?: ClientRequestConfig): Promise<R> {
         return this.driver.get(url, config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public delete<T, R = TrapiClientResponse<T>>(url: string, config?: TrapiClientRequestConfig): Promise<R> {
+    public delete<T, R = ClientResponse<T>>(url: string, config?: ClientRequestConfig): Promise<R> {
         return this.driver.delete(url, config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public head<T, R = TrapiClientResponse<T>>(url: string, config?: TrapiClientRequestConfig): Promise<R> {
+    public head<T, R = ClientResponse<T>>(url: string, config?: ClientRequestConfig): Promise<R> {
         return this.driver.head(url, config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public post<T, R = TrapiClientResponse<T>>(url: string, data?: any, config?: TrapiClientRequestConfig): Promise<R> {
+    public post<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
         return this.driver.post(url, data, config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public put<T, R = TrapiClientResponse<T>>(url: string, data?: any, config?: TrapiClientRequestConfig): Promise<R> {
+    public put<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
         return this.driver.put(url, data, config);
     }
 
     // ---------------------------------------------------------------------------------
 
-    public patch<T, R = TrapiClientResponse<T>>(url: string, data?: any, config?: TrapiClientRequestConfig): Promise<R> {
+    public patch<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
         return this.driver.patch(url, data, config);
     }
 
     //---------------------------------------------------------------------------------
 
     public mountResponseInterceptor(
-        onFulfilled: (value: TrapiClientResponse<any>) => any | Promise<TrapiClientResponse<any>>,
+        onFulfilled: (value: ClientResponse<any>) => any | Promise<ClientResponse<any>>,
         onRejected: (error: any) => any,
     ) : number {
         return this.driver.interceptors.response.use(onFulfilled, onRejected);
@@ -121,7 +118,7 @@ export class TrapiClient {
     //---------------------------------------------------------------------------------
 
     public mountRequestInterceptor(
-        onFulfilled: (value: TrapiClientRequestConfig) => any | Promise<TrapiClientRequestConfig>,
+        onFulfilled: (value: ClientRequestConfig) => any | Promise<ClientRequestConfig>,
         onRejected: (error: any) => any,
     ) : number {
         return this.driver.interceptors.request.use(onFulfilled, onRejected);

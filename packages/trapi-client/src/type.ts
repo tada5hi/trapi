@@ -7,11 +7,11 @@
 
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export interface TrapiClientRequestConfig extends AxiosRequestConfig {
+export interface ClientRequestConfig extends AxiosRequestConfig {
     token?: string | null,
     alias?: string
 }
 
-export interface TrapiClientResponse<T = any> extends AxiosResponse {
+export interface ClientResponse<T = any> extends AxiosResponse {
 
 }

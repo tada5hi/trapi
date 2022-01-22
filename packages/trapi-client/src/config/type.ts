@@ -5,16 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { TrapiClientRequestConfig } from '../type';
-import {TrapiClient} from '../module';
+import { ClientRequestConfig } from '../type';
 
 export interface Type extends Function {
-    new (config?: TrapiClientConfig) : TrapiClient;
+    new (config?: ClientConfig);
 }
 
-export type TrapiClientConfig = {
+export type ClientConfig = {
     clazz?: Type,
-    driver?: TrapiClientRequestConfig,
+    driver?: ClientRequestConfig,
     connectionString?: string,
     extra?: Record<string, any>
 };

@@ -6,6 +6,8 @@
  */
 
 export * from './config';
+export * from './error';
+export * from './header';
 export * from './module';
 export * from './type';
 export * from './utils';

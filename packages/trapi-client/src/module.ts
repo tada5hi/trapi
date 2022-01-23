@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import axios, { AxiosDefaults, AxiosInstance } from 'axios';
-import { ClientRequestConfig, ClientResponse } from './type';
+import axios, { AxiosDefaults } from 'axios';
+import { ClientDriverInstance, ClientRequestConfig, ClientResponse } from './type';
 import {ClientConfig} from "./config";
 import {AuthorizationHeader, stringifyAuthorizationHeader} from "./header";
 
 export class Client {
-    public readonly driver: AxiosInstance;
+    public readonly driver: ClientDriverInstance;
 
     /**
      * API Service

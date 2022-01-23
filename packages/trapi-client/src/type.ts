@@ -5,13 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export interface ClientRequestConfig extends AxiosRequestConfig {
-    token?: string | null,
-    alias?: string
+
 }
 
 export interface ClientResponse<T = any> extends AxiosResponse {
+
+}
+
+export interface ClientDriverInstance extends AxiosInstance {
 
 }

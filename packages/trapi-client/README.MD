@@ -21,14 +21,6 @@ This is a simple REST client based on axios.
 npm install @trapi/client --save
 ```
 
----
-**Important NOTE**
-
-The public API is still in progress and in development ☂ and can still can change therefore until the v2.0.0 release.
-So please stay patient, till it is fully available ⭐.
-
----
-
 ## Usage
 
 ### Config

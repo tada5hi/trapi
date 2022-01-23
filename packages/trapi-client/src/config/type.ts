@@ -14,6 +14,5 @@ export interface Type extends Function {
 export type ClientConfig = {
     clazz?: Type,
     driver?: ClientRequestConfig,
-    connectionString?: string,
     extra?: Record<string, any>
 };

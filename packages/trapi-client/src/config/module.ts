@@ -7,24 +7,36 @@
 
 import { ClientConfig } from './type';
 
-const configMap: Map<string, ClientConfig> = new Map<string, ClientConfig>();
+const configMap: Record<string, ClientConfig> = {};
 
 export function setClientConfig(
     key: string = 'default',
-    value: ClientConfig,
-) {
-    configMap.set(key, value);
+    value?: ClientConfig,
+) : ClientConfig {
+    value = buildClientConfig(value);
+
+    configMap[key] = value;
 
     return value;
 }
 
-export function useClientConfig<T extends ClientConfig>(
+export function useClientConfig(
     key: string = 'default',
-): T | undefined {
-    const data: ClientConfig | undefined = configMap.get(key);
+): ClientConfig {
+    const data: ClientConfig | undefined = configMap[key];
+
     if (typeof data === 'undefined') {
-        return undefined;
+        return buildClientConfig();
     }
 
-    return data as T;
+    return data;
+}
+
+export function buildClientConfig(
+    config?: ClientConfig
+) : ClientConfig {
+    config ??= {};
+    config.extra ??= {};
+
+    return config;
 }

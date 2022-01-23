@@ -6,6 +6,8 @@
  */
 
 import {
+    buildClientConfig,
+    ClientConfig,
     useClientConfig,
 } from './config';
 import { Client } from './module';
@@ -30,18 +32,25 @@ export function useClient<T extends Client>(
         return instanceMap[key] as T;
     }
 
-    let instance : Client;
-
-    if(
-        config &&
-        config.clazz
-    ) {
-        instance = new config.clazz(config);
-    } else {
-        instance = new Client(config);
-    }
+    const instance = createClient(config);
 
     instanceMap[key] = instance;
 
     return instance as T;
+}
+
+export function createClient<T extends Client = Client>(
+    config?: ClientConfig
+) : T {
+    config = buildClientConfig(config);
+
+    let instance : T;
+
+    if(config.clazz) {
+        instance = new config.clazz(config);
+    } else {
+        instance = new Client(config) as T;
+    }
+
+    return instance;
 }

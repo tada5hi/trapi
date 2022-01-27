@@ -15,17 +15,21 @@ import { Client } from './module';
 const instanceMap: Record<string, Client> = {};
 
 export function setClient<T extends Client>(
-    key: string = 'default',
-    client: T
+    client: T,
+    key?: string,
 ) : T {
+    key = key || 'default';
+
     instanceMap[key] = client;
 
     return client;
 }
 
 export function useClient<T extends Client>(
-    key: string = 'default',
+    key?: string,
 ) : T {
+    key = key || 'default';
+
     const config = useConfig(key);
 
     if (Object.prototype.hasOwnProperty.call(instanceMap, key)) {

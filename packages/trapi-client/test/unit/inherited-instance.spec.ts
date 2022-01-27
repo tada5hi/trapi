@@ -16,7 +16,7 @@ describe('src/**/*.ts', () => {
 
         let instance = useClient<TestTrapiClient>('default');
 
-        setClient('default', instance);
+        setClient(instance, 'default');
 
         instance = useClient<TestTrapiClient>('default');
 

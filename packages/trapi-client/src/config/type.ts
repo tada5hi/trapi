@@ -8,11 +8,14 @@
 import { ClientRequestConfig } from '../type';
 
 export interface Type extends Function {
-    new (config?: ClientConfig);
+    new (config?: Config);
 }
 
-export type ClientConfig = {
+export type Config = {
     clazz?: Type,
     driver?: ClientRequestConfig,
-    extra?: Record<string, any>
+    extra?: {
+        connectionString?: string,
+        [key: string]: any
+    }
 };

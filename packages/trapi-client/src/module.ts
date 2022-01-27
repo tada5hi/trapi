@@ -7,7 +7,7 @@
 
 import axios, { AxiosDefaults } from 'axios';
 import { ClientDriverInstance, ClientRequestConfig, ClientResponse } from './type';
-import {ClientConfig} from "./config";
+import {Config} from "./config";
 import {AuthorizationHeader, stringifyAuthorizationHeader} from "./header";
 
 export class Client {
@@ -18,7 +18,7 @@ export class Client {
      *
      * @param config
      */
-    constructor(config?: ClientConfig) {
+    constructor(config?: Config) {
         config ??= {};
 
         this.driver = axios.create(config.driver);

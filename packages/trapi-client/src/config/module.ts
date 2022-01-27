@@ -5,36 +5,39 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ClientConfig } from './type';
+import { Config } from './type';
 
-const configMap: Record<string, ClientConfig> = {};
+const configMap: Record<string, Config> = {};
 
-export function setClientConfig(
-    key: string = 'default',
-    value?: ClientConfig,
-) : ClientConfig {
-    value = buildClientConfig(value);
+export function setConfig(
+    value?: Config,
+    key?: string,
+) : Config {
+    key = key || 'default';
+    value = buildConfig(value);
 
     configMap[key] = value;
 
     return value;
 }
 
-export function useClientConfig(
-    key: string = 'default',
-): ClientConfig {
-    const data: ClientConfig | undefined = configMap[key];
+export function useConfig(
+    key?: string,
+): Config {
+    key = key || 'default';
+
+    const data: Config | undefined = configMap[key];
 
     if (typeof data === 'undefined') {
-        return buildClientConfig();
+        return buildConfig();
     }
 
     return data;
 }
 
-export function buildClientConfig(
-    config?: ClientConfig
-) : ClientConfig {
+export function buildConfig(
+    config?: Config
+) : Config {
     config ??= {};
     config.extra ??= {};
 

@@ -6,9 +6,9 @@
  */
 
 import {
-    buildClientConfig,
-    ClientConfig,
-    useClientConfig,
+    buildConfig,
+    Config,
+    useConfig,
 } from './config';
 import { Client } from './module';
 
@@ -26,7 +26,7 @@ export function setClient<T extends Client>(
 export function useClient<T extends Client>(
     key: string = 'default',
 ) : T {
-    const config = useClientConfig(key);
+    const config = useConfig(key);
 
     if (Object.prototype.hasOwnProperty.call(instanceMap, key)) {
         return instanceMap[key] as T;
@@ -40,9 +40,9 @@ export function useClient<T extends Client>(
 }
 
 export function createClient<T extends Client = Client>(
-    config?: ClientConfig
+    config?: Config
 ) : T {
-    config = buildClientConfig(config);
+    config = buildConfig(config);
 
     let instance : T;
 

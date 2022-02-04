@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021.
+ * Copyright (c) 2022.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -9,8 +9,8 @@ import {
     buildConfig,
     Config,
     useConfig,
-} from './config';
-import { Client } from './module';
+} from '../config';
+import { Client } from '../module';
 
 const instanceMap: Record<string, Client> = {};
 

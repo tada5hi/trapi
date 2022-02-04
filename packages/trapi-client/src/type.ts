@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
 export interface ClientRequestConfig extends AxiosRequestConfig {
 
@@ -16,5 +16,9 @@ export interface ClientResponse<T = any> extends AxiosResponse {
 }
 
 export interface ClientDriverInstance extends AxiosInstance {
+
+}
+
+export interface ClientError extends AxiosError {
 
 }

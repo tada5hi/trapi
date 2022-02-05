@@ -5,12 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {hasOwnProperty} from "../../src";
+import { hasOwnProperty } from '../../src';
 
 describe('src/object.ts', () => {
     it('should determine if property exist', () => {
         const ob : Record<string, any> = {
-            foo: 'bar'
+            foo: 'bar',
         };
 
         expect(hasOwnProperty(ob, 'foo')).toBeTruthy();

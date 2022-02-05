@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Resolver} from "./resolver";
-import {Decorator} from "./decorator";
-import {Cache} from "./cache";
+import { Resolver } from './resolver';
+import { Decorator } from './decorator';
+import { Cache } from './cache';
 
 export interface Config {
     /**
@@ -186,9 +186,3 @@ export interface Response {
     schema?: Resolver.BaseType;
 
 }
-
-
-
-
-
-

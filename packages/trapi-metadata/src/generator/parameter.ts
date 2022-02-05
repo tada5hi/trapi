@@ -6,14 +6,12 @@
  */
 
 import * as ts from 'typescript';
-import {RepresentationManager} from "../decorator/representation";
-import {Decorator} from "../decorator/type";
-import {MetadataGenerator} from './index';
-import {TypeNodeResolver} from '../resolver';
-import {Resolver} from "../resolver";
-import {getInitializerValue} from "../resolver";
-import {ArrayParameter, Parameter} from "../type";
-import {getNodeDecorators} from "../decorator/utils/node";
+import { RepresentationManager } from '../decorator/representation';
+import { Decorator } from '../decorator/type';
+import { MetadataGenerator } from './index';
+import { Resolver, TypeNodeResolver, getInitializerValue } from '../resolver';
+import { ArrayParameter, Parameter } from '../type';
+import { getNodeDecorators } from '../decorator/utils/node';
 
 const supportedParameterKeys : Decorator.ParameterServerType[] = [
     'SERVER_CONTEXT',
@@ -24,7 +22,7 @@ const supportedParameterKeys : Decorator.ParameterServerType[] = [
     'SERVER_HEADERS',
     'SERVER_COOKIES',
     'SERVER_PATH_PARAMS',
-    'SERVER_FILES_PARAM'
+    'SERVER_FILES_PARAM',
 ];
 
 export class ParameterGenerator {
@@ -32,15 +30,15 @@ export class ParameterGenerator {
         private readonly parameter: ts.ParameterDeclaration,
         private readonly method: string,
         private readonly path: string,
-        private readonly current: MetadataGenerator
+        private readonly current: MetadataGenerator,
     ) { }
 
-    public generate(): Parameter{
+    public generate(): Parameter {
         const decorators = getNodeDecorators(this.parameter);
 
-        for(let i=0; i<supportedParameterKeys.length; i++) {
+        for (let i = 0; i < supportedParameterKeys.length; i++) {
             const representation = this.current.decoratorMapper.match(supportedParameterKeys[i], decorators);
-            if(typeof representation === 'undefined') {
+            if (typeof representation === 'undefined') {
                 continue;
             }
 
@@ -77,7 +75,7 @@ export class ParameterGenerator {
         return `${controllerId.text}.${methodId.text}`;
     }
 
-    private getRequestParameter(representationManager: RepresentationManager<'SERVER_PARAMS'>): Parameter{
+    private getRequestParameter(representationManager: RepresentationManager<'SERVER_PARAMS'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
         const type = this.getValidatedType(this.parameter);
@@ -87,18 +85,17 @@ export class ParameterGenerator {
         }
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             name = value;
         }
-
 
         return {
             description: this.getParameterDescription(this.parameter),
             in: 'param',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken,
-            type: type
+            type,
         };
     }
 
@@ -109,9 +106,9 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'context',
             name: parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken,
-            type: null
+            type: null,
         };
     }
 
@@ -136,8 +133,8 @@ export class ParameterGenerator {
 
     private getFileParameter(
         representationManager: RepresentationManager<'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>,
-        isArray?: boolean
-    ) : Parameter{
+        isArray?: boolean,
+    ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -146,14 +143,14 @@ export class ParameterGenerator {
         }
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             name = value;
         }
 
         const elementType: Resolver.Type = { typeName: 'file' };
         let type: Resolver.Type;
         if (isArray) {
-            type = { typeName: 'array', elementType: elementType };
+            type = { typeName: 'array', elementType };
         } else {
             type = elementType;
         }
@@ -162,13 +159,13 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'formData',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
     }
 
-    private getFormParameter(representationManager: RepresentationManager<'SERVER_FORM'>): Parameter{
+    private getFormParameter(representationManager: RepresentationManager<'SERVER_FORM'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -179,33 +176,32 @@ export class ParameterGenerator {
         }
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             name = value;
         }
-
 
         return {
             description: this.getParameterDescription(this.parameter),
             in: 'formData',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
     }
 
-    private getCookieParameter(representationManager: RepresentationManager<'SERVER_COOKIES'>): Parameter{
+    private getCookieParameter(representationManager: RepresentationManager<'SERVER_COOKIES'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
         const type = this.getValidatedType(this.parameter);
 
         if (!this.supportPathDataType(type)) {
-           throw new Error(`Cookie can't support '${this.getCurrentLocation()}' method.`);
+            throw new Error(`Cookie can't support '${this.getCurrentLocation()}' method.`);
         }
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             name = value;
         }
 
@@ -213,13 +209,13 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'cookie',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
     }
 
-    private getBodyParameter(representationManager?: RepresentationManager<'SERVER_BODY'>): Parameter{
+    private getBodyParameter(representationManager?: RepresentationManager<'SERVER_BODY'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -229,7 +225,7 @@ export class ParameterGenerator {
             throw new Error(`Body can't support ${this.method} method`);
         }
 
-        if(typeof representationManager !== 'undefined') {
+        if (typeof representationManager !== 'undefined') {
             const value = representationManager.getPropertyValue('DEFAULT');
             if (typeof value === 'string') {
                 name = value;
@@ -240,13 +236,13 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'body',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
     }
 
-    private getHeaderParameter(representationManager: RepresentationManager<'SERVER_HEADERS'>) : Parameter{
+    private getHeaderParameter(representationManager: RepresentationManager<'SERVER_HEADERS'>) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -257,7 +253,7 @@ export class ParameterGenerator {
         }
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             name = value;
         }
 
@@ -265,13 +261,13 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'header',
             name: name || parameterName,
-            parameterName: parameterName,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
     }
 
-    private getQueryParameter(representationManager: RepresentationManager<'SERVER_QUERY'>): Parameter| ArrayParameter {
+    private getQueryParameter(representationManager: RepresentationManager<'SERVER_QUERY'>): Parameter | ArrayParameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         const type = this.getValidatedType(this.parameter);
 
@@ -290,16 +286,16 @@ export class ParameterGenerator {
         let options : any = {};
 
         const nameValue = representationManager.getPropertyValue('DEFAULT');
-        if(typeof nameValue === 'string') {
+        if (typeof nameValue === 'string') {
             name = nameValue;
         }
 
         const optionsValue = representationManager.getPropertyValue('OPTIONS');
-        if(typeof optionsValue !== 'undefined') {
+        if (typeof optionsValue !== 'undefined') {
             options = optionsValue;
         }
 
-        const properties : Parameter= {
+        const properties : Parameter = {
             allowEmptyValue: options.allowEmptyValue,
             collectionFormat: options.collectionFormat,
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
@@ -307,17 +303,17 @@ export class ParameterGenerator {
             in: 'query',
             maxItems: options.maxItems,
             minItems: options.minItems,
-            name: name,
-            parameterName: parameterName,
+            name,
+            parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
-            type: type
+            type,
         };
 
         if (type.typeName === 'array') {
             return {
                 ...properties,
                 collectionFormat: 'multi',
-                type: type,
+                type,
             };
         }
 
@@ -331,10 +327,9 @@ export class ParameterGenerator {
         const type = this.getValidatedType(this.parameter);
 
         const value = representationManager.getPropertyValue('DEFAULT');
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             pathName = value;
         }
-
 
         if (!this.supportPathDataType(type)) {
             throw new InvalidParameterException(`Parameter '${parameterName}:${type}' can't be passed as a path parameter in '${this.getCurrentLocation()}'.`);
@@ -348,9 +343,9 @@ export class ParameterGenerator {
             description: this.getParameterDescription(this.parameter),
             in: 'path',
             name: pathName,
-            parameterName: parameterName,
+            parameterName,
             required: true,
-            type: type
+            type,
         };
     }
 
@@ -366,16 +361,17 @@ export class ParameterGenerator {
     }
 
     private supportsBodyParameters(method: string) {
-        return ['delete', 'post', 'put', 'patch', 'get'].some(m => m === method);
-    }
-    private supportPathDataType(parameterType:  Resolver.BaseType) {
-        return ['string', 'integer', 'long', 'float', 'double', 'date', 'datetime', 'buffer', 'boolean', 'enum'].find(t => t === parameterType.typeName);
+        return ['delete', 'post', 'put', 'patch', 'get'].some((m) => m === method);
     }
 
-    private supportQueryDataType(parameterType:  Resolver.BaseType) {
+    private supportPathDataType(parameterType: Resolver.BaseType) {
+        return ['string', 'integer', 'long', 'float', 'double', 'date', 'datetime', 'buffer', 'boolean', 'enum'].find((t) => t === parameterType.typeName);
+    }
+
+    private supportQueryDataType(parameterType: Resolver.BaseType) {
         // Copied from supportPathDataType and added 'array'. Not sure if all options apply to queries, but kept to avoid breaking change.
         return ['string', 'integer', 'long', 'float', 'double', 'date',
-            'datetime', 'buffer', 'boolean', 'enum', 'array', 'object'].find(t => t === parameterType.typeName);
+            'datetime', 'buffer', 'boolean', 'enum', 'array', 'object'].find((t) => t === parameterType.typeName);
     }
 
     private getValidatedType(parameter: ts.ParameterDeclaration) {

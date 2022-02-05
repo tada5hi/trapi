@@ -5,17 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {CompilerOptions} from 'typescript';
-import {Config, GeneratorOutput} from "../type";
-import {MetadataGenerator} from "../generator";
-import {getCompilerOptions} from "@trapi/metadata-utils";
+import { CompilerOptions } from 'typescript';
+import { getCompilerOptions } from '@trapi/metadata-utils';
+import { Config, GeneratorOutput } from '../type';
+import { MetadataGenerator } from '../generator';
 
 export function createMetadataGenerator(
     config: Config,
-    compilerOptions?: CompilerOptions | boolean
+    compilerOptions?: CompilerOptions | boolean,
 ): MetadataGenerator {
-    const skipLoad: boolean =
-        (typeof compilerOptions === 'boolean' && !compilerOptions) ||
+    const skipLoad: boolean = (typeof compilerOptions === 'boolean' && !compilerOptions) ||
         (typeof compilerOptions !== 'boolean' && typeof compilerOptions !== 'undefined');
 
     let tscConfig: CompilerOptions = typeof compilerOptions !== 'boolean' && typeof compilerOptions !== 'undefined' ? compilerOptions : {};
@@ -34,7 +33,7 @@ export function createMetadataGenerator(
 
 export function generateMetadata(
     config: Config,
-    compilerOptions?: CompilerOptions | boolean
+    compilerOptions?: CompilerOptions | boolean,
 ) : GeneratorOutput {
     const generator = createMetadataGenerator(config, compilerOptions);
 

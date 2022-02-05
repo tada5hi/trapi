@@ -5,13 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-'use strict';
-
 /**
  * Document the method or class comsumes property in generated swagger docs
  */
 export function RequestConsumes(...values: Array<string | string[]>): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
@@ -22,7 +20,7 @@ export function RequestConsumes(...values: Array<string | string[]>): any {
  * @constructor
  */
 export function RequestFileParam(key: string) : any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
@@ -49,7 +47,7 @@ export function RequestFileParam(key: string) : any {
  * @param example An optional example of response to be added to method documentation.
  */
 export function ResponseDescription<T>(name: string | number, description?: string, example?: T): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
@@ -70,14 +68,14 @@ export function ResponseDescription<T>(name: string | number, description?: stri
  * @param example The example returned object
  */
 export function ResponseExample<T>(example: T): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
  * Document the method or class produces property in generated swagger docs
  */
 export function ResponseProduces(...values: string[]): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
@@ -95,42 +93,42 @@ export function ResponseProduces(...values: string[]): any {
  * @param values a list of tags
  */
 export function SwaggerTags(...values: string[]): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
  * Document the method or class produces property in generated swagger docs.
  */
 export function SwaggerHidden(): any {
-  return () => { return; };
+    return () => { };
 }
 
 /**
  * Document the method or collection of method paths are deprecated and should not be used.
  */
 export function SwaggerDeprecated() : any {
-    return () => { return; };
+    return () => { };
 }
 
 /**
  * Document the type of a property or parameter as `integer ($int32)` in generated swagger docs
  */
 export function IsInt(target: any, propertyKey: string, parameterIndex?: number) {
-  return;
+
 }
 
 /**
  * Document the type of a property or parameter as `integer ($int64)` in generated swagger docs
  */
 export function IsLong(target: any, propertyKey: string, parameterIndex?: number) {
-  return;
+
 }
 
 /**
  * Document the type of a property or parameter as `number ($float)` in generated swagger docs
  */
 export function IsFloat(target: any, propertyKey: string, parameterIndex?: number) {
-  return;
+
 }
 
 /**
@@ -138,5 +136,5 @@ export function IsFloat(target: any, propertyKey: string, parameterIndex?: numbe
  * This is the default for `number` types without a specifying decorator.
  */
 export function IsDouble(target: any, propertyKey: string, parameterIndex?: number) {
-  return;
+
 }

@@ -5,12 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-'use strict';
-
 import {
-    Accept, DELETE, FormParam, GET, Path,
-    PathParam, POST, PUT, QueryParam,
-    Security
+    Accept, DELETE, FormParam, GET, POST,
+    PUT, Path, PathParam, QueryParam,
+    Security,
 } from './decorators';
 import * as Return from './return-types';
 import * as swagger from '../../../../src/decorator';
@@ -27,8 +25,8 @@ import {
     TestEnum,
     TestInterface,
     TestMixedEnum,
-    TestNumericEnum
-} from "../type";
+    TestNumericEnum,
+} from '../type';
 
 @Path('unionTypes')
 export class TestUnionType {
@@ -63,23 +61,23 @@ export class MyService {
     @GET
     @Path('secondpath')
     @swagger.ResponseExample<Person>({
-        name: 'Joe'
+        name: 'Joe',
     })
     @swagger.ResponseDescription<Person>(200, 'The success test.')
     public test2(
         @QueryParam('testRequired') test: string,
-        @QueryParam('testDefault') test2: string = 'value',
-        @QueryParam('testOptional') test3?: string,
-        @QueryParam('testEnum') test4?: TestEnum,
-        @QueryParam('testNumericEnum') test5?: TestNumericEnum,
-        @QueryParam('testMixedEnum') test6?: TestMixedEnum
+            @QueryParam('testDefault') test2 = 'value',
+            @QueryParam('testOptional') test3?: string,
+            @QueryParam('testEnum') test4?: TestEnum,
+            @QueryParam('testNumericEnum') test5?: TestNumericEnum,
+            @QueryParam('testMixedEnum') test6?: TestMixedEnum,
     ): Person {
         return { name: 'OK' };
     }
 
     @POST
     @swagger.ResponseExample<Person[]>([{
-        name: 'Joe'
+        name: 'Joe',
     }])
     public testPostString(body: string): Person[] {
         return [];
@@ -94,22 +92,22 @@ export class MyService {
     @GET
     @Path('multi-query')
     public testMultiQuery(
-        @QueryParam('id') ids: string[],
-        @QueryParam('name'/*, { collectionFormat: 'multi', allowEmptyValue: true }*/) names?: string | string[]
+    @QueryParam('id') ids: string[],
+        @QueryParam('name'/* , { collectionFormat: 'multi', allowEmptyValue: true } */) names?: string | string[],
     ) {
-        return { ids: ids, names: names };
+        return { ids, names };
     }
 
     @GET
     @Path('default-query')
     public testDefaultQuery(
-        @QueryParam('num') num: number = 5,
-        @QueryParam('str') str: string = 'default value',
-        @QueryParam('bool1') bool1: boolean = true,
-        @QueryParam('bool2') bool2: boolean = false,
-        @QueryParam('arr') arr: string[] = ['a', 'b', 'c']
+        @QueryParam('num') num = 5,
+        @QueryParam('str') str = 'default value',
+        @QueryParam('bool1') bool1 = true,
+        @QueryParam('bool2') bool2 = false,
+        @QueryParam('arr') arr: string[] = ['a', 'b', 'c'],
     ) {
-        return;
+
     }
 
     @POST
@@ -180,8 +178,7 @@ export class PromiseService extends BaseService {
     }
 }
 
-export class BasicEndpoint<T extends BasicModel>  {
-
+export class BasicEndpoint<T extends BasicModel> {
     protected list(@QueryParam('full') full?: boolean): Promise<T[]> {
         return new Promise((resolve, reject) => {
             // todo
@@ -226,7 +223,6 @@ export interface MyDatatype extends BasicModel {
 
 @Path('generics1')
 export class DerivedEndpoint extends BasicEndpoint<MyDatatype> {
-
     @GET
     @Path(':param')
     protected test(@PathParam('param') param: string): Promise<void> {
@@ -238,7 +234,6 @@ export class DerivedEndpoint extends BasicEndpoint<MyDatatype> {
 
 @Path('generics2')
 export class DerivedEndpoint2 {
-
     @GET
     @Path(':param')
     protected test(@PathParam('param') param: string): Promise<MyDataType2> {
@@ -250,7 +245,6 @@ export class DerivedEndpoint2 {
 
 @Path('type')
 export class TypeEndpoint {
-
     @GET
     @Path(':param')
     public test(@PathParam('param') param: string): Promise<MyDataType2> {
@@ -270,7 +264,6 @@ export class TypeEndpoint {
 
 @Path('primitives')
 export class PrimitiveEndpoint {
-
     @Path('/class')
     @GET
     public getClass(): PrimitiveClassModel {
@@ -305,7 +298,6 @@ export class PrimitiveEndpoint {
 
 @Path('parameterized/:objectId')
 export class ParameterizedEndpoint {
-
     @Path('/test')
     @GET
     public test(@PathParam('objectId') objectId: string): PrimitiveClassModel {

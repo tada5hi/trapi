@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from "path";
-import {getPackageJsonStringValue} from "../../src";
+import path from 'path';
+import { getPackageJsonStringValue } from '../../src';
 
 describe('src/package-json.ts', () => {
     it('should get package json string value', () => {
@@ -18,7 +18,6 @@ describe('src/package-json.ts', () => {
         expect(getPackageJsonStringValue(configPath, 'foo', 'bar')).toBe('bar');
 
         const nonExistingPath : string = path.join(configPath, 'non-existing');
-
 
         expect(getPackageJsonStringValue(nonExistingPath, 'foo')).toBe('');
         expect(getPackageJsonStringValue(nonExistingPath, 'foo', 'bar')).toBe('bar');

@@ -267,8 +267,8 @@ export namespace Specification {
     }
 
     export enum SpecificationOption {
-        V2 = "V2",
-        V3 = "V3"
+        V2 = 'V2',
+        V3 = 'V3',
     }
 
     export interface SecurityDefinitions {
@@ -278,10 +278,6 @@ export namespace Specification {
     export type SecurityDefinition = ApiKeySecurity | BasicSecurity | OAuth2Security;
 
     export type SecurityType = 'apiKey' | 'http' | 'oauth2';
-
-    export interface BaseSecurity {
-        description?: string;
-    }
 
     export interface ApiKeySecurity extends BaseSecurity {
         type: 'apiKey';

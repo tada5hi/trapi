@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {ParseOutputElementBase, ParseOptionsBase} from "../../parse";
-import {Parameter} from "../../type";
-import {Flatten, OnlyObject} from "../../utils";
+import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
+import { Parameter } from '../../type';
+import { Flatten, OnlyObject } from '../../utils';
 
 // -----------------------------------------------------------
 // Build
@@ -15,7 +15,7 @@ import {Flatten, OnlyObject} from "../../utils";
 
 export type RelationsBuildInput<T extends Record<string, any>> = {
     [K in keyof T]?: T[K] extends OnlyObject<T[K]> ? RelationsBuildInput<Flatten<T[K]>> | boolean : never
-}
+};
 
 // -----------------------------------------------------------
 // Parse
@@ -27,6 +27,3 @@ export type RelationsParseOptions = ParseOptionsBase<Parameter.RELATIONS> & {
 
 export type RelationsParseOutputElement = ParseOutputElementBase<Parameter.RELATIONS, string>;
 export type RelationsParseOutput = RelationsParseOutputElement[];
-
-
-

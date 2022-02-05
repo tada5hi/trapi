@@ -5,12 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as path from "path";
+import * as path from 'path';
 
 let cachedFilePath : string | undefined;
 let cachedFileContent : Record<string, any> | undefined;
 
-export function getPackageJsonStringValue(workingDir: string, key: string, defaultValue: string = '') : string {
+export function getPackageJsonStringValue(workingDir: string, key: string, defaultValue = '') : string {
     const filePath = path.join(workingDir, 'package.json');
 
     try {

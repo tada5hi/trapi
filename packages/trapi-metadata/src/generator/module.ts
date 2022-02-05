@@ -5,33 +5,33 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {sync} from 'glob';
+import { sync } from 'glob';
 import {
     ClassDeclaration,
     CompilerOptions,
-    createProgram,
-    forEachChild,
     InterfaceDeclaration,
-    isModuleBlock,
-    isModuleDeclaration,
     Node,
     NodeFlags,
     Program,
     SourceFile,
     SyntaxKind,
-    TypeChecker
+    TypeChecker,
+    createProgram,
+    forEachChild,
+    isModuleBlock,
+    isModuleDeclaration,
 } from 'typescript';
-import {Config, Controller, GeneratorOutput} from "../type";
-import {DecoratorMapper} from "../decorator";
-import {ControllerGenerator} from './controller';
-import {TypeNodeResolver} from "../resolver";
-import {Resolver} from "../resolver";
-import {CacheDriver} from "../cache";
+import { Config, Controller, GeneratorOutput } from '../type';
+import { DecoratorMapper } from '../decorator';
+import { ControllerGenerator } from './controller';
+import { Resolver, TypeNodeResolver } from '../resolver';
+import { CacheDriver } from '../cache';
 
-const minimatch = require("minimatch");
+const minimatch = require('minimatch');
 
 export class MetadataGenerator {
     public readonly nodes = new Array<Node>();
+
     public readonly typeChecker: TypeChecker;
 
     public readonly decoratorMapper: DecoratorMapper;
@@ -41,7 +41,9 @@ export class MetadataGenerator {
     private readonly program: Program;
 
     private cache : CacheDriver;
+
     private controllers: Controller[];
+
     private referenceTypes: Resolver.ReferenceTypes = {};
 
     private circularDependencyResolvers = new Array<Resolver.DependencyResolver>();
@@ -50,7 +52,7 @@ export class MetadataGenerator {
 
     constructor(
         config: Config,
-        compilerOptions: CompilerOptions
+        compilerOptions: CompilerOptions,
     ) {
         this.config = config;
 
@@ -71,15 +73,15 @@ export class MetadataGenerator {
 
         let cache = this.cache.get(sourceFileSize);
 
-        if(!cache) {
+        if (!cache) {
             this.buildControllers();
 
-            this.circularDependencyResolvers.forEach(resolve => resolve(this.referenceTypes));
+            this.circularDependencyResolvers.forEach((resolve) => resolve(this.referenceTypes));
 
             cache = {
                 controllers: this.controllers,
                 referenceTypes: this.referenceTypes,
-                sourceFilesSize: sourceFileSize
+                sourceFilesSize: sourceFileSize,
             };
 
             this.cache.save(cache);
@@ -87,15 +89,15 @@ export class MetadataGenerator {
 
         return {
             controllers: cache.controllers,
-            referenceTypes: cache.referenceTypes
+            referenceTypes: cache.referenceTypes,
         };
     }
 
     protected buildNodesFromSourceFiles() : number {
-        let endSize : number = 0;
+        let endSize = 0;
 
         this.program.getSourceFiles().forEach((sf: SourceFile) => {
-            if(
+            if (
                 this.isIgnoredPath(sf.fileName) &&
                 !this.isAllowedPath(sf.fileName)
             ) {
@@ -114,13 +116,12 @@ export class MetadataGenerator {
 
                     // tslint:disable-next-line:no-bitwise
                     if ((node.flags & NodeFlags.Namespace) === 0 && node.body && isModuleBlock(node.body)) {
-                        node.body.statements.forEach(statement => {
+                        node.body.statements.forEach((statement) => {
                             this.nodes.push(statement);
                         });
                         return;
                     }
                 }
-
 
                 this.nodes.push(node);
             });
@@ -138,11 +139,11 @@ export class MetadataGenerator {
      * @protected
      */
     protected isIgnoredPath(filePath: string) : boolean {
-        if(typeof this.config.ignore === 'undefined') {
+        if (typeof this.config.ignore === 'undefined') {
             return false;
         }
 
-        return this.config.ignore.some(item => minimatch(filePath, item));
+        return this.config.ignore.some((item) => minimatch(filePath, item));
     }
 
     /**
@@ -151,12 +152,12 @@ export class MetadataGenerator {
      * @param filePath
      * @protected
      */
-    protected isAllowedPath(filePath: string)  {
-        if(typeof this.config.allow === 'undefined') {
+    protected isAllowedPath(filePath: string) {
+        if (typeof this.config.allow === 'undefined') {
             return false;
         }
 
-        return this.config.allow.some(item => minimatch(filePath, item));
+        return this.config.allow.some((item) => minimatch(filePath, item));
     }
 
     // -------------------------------------------------------------------------
@@ -185,7 +186,7 @@ export class MetadataGenerator {
 
     public getClassDeclaration(className: string) {
         const found = this.nodes
-            .filter(node => {
+            .filter((node) => {
                 const classDeclaration = (node as ClassDeclaration);
                 return (node.kind === SyntaxKind.ClassDeclaration && classDeclaration.name && classDeclaration.name.text === className);
             });
@@ -197,7 +198,7 @@ export class MetadataGenerator {
 
     public getInterfaceDeclaration(className: string) {
         const found = this.nodes
-            .filter(node => {
+            .filter((node) => {
                 const interfaceDeclaration = (node as InterfaceDeclaration);
                 return (node.kind === SyntaxKind.InterfaceDeclaration && interfaceDeclaration.name && interfaceDeclaration.name.text === className);
             });
@@ -211,9 +212,9 @@ export class MetadataGenerator {
         const sourceFilesExpressions = Array.isArray(sourceFiles) ? sourceFiles : [sourceFiles];
         const result: Set<string> = new Set<string>();
         const options = { cwd: process.cwd() };
-        sourceFilesExpressions.forEach(pattern => {
+        sourceFilesExpressions.forEach((pattern) => {
             const matches = sync(pattern, options);
-            matches.forEach(file => {result.add(file); });
+            matches.forEach((file) => { result.add(file); });
         });
 
         return Array.from(result);
@@ -221,15 +222,15 @@ export class MetadataGenerator {
 
     private buildControllers() : void {
         this.controllers = this.nodes
-            .filter(node => node.kind === SyntaxKind.ClassDeclaration)
-            .filter(node => {
+            .filter((node) => node.kind === SyntaxKind.ClassDeclaration)
+            .filter((node) => {
                 const isHidden = this.decoratorMapper.match('HIDDEN', node);
 
                 return typeof isHidden === 'undefined';
             })
-            .filter(node => typeof this.decoratorMapper.match('CLASS_PATH', node) !== 'undefined')
+            .filter((node) => typeof this.decoratorMapper.match('CLASS_PATH', node) !== 'undefined')
             .map((classDeclaration: ClassDeclaration) => new ControllerGenerator(classDeclaration, this))
-            .filter(generator => generator.isValid())
-            .map(generator => generator.generate());
+            .filter((generator) => generator.isValid())
+            .map((generator) => generator.generate());
     }
 }

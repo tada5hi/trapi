@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {GeneratorOutput} from "../type";
+import { GeneratorOutput } from '../type';
 
 export namespace Cache {
     export interface Config {

@@ -10,8 +10,8 @@ import {
     FiltersBuildInput,
     PaginationBuildInput,
     RelationsBuildInput,
-    SortBuildInput
-} from "../../parameter";
+    SortBuildInput,
+} from '../../parameter';
 import {
     ParameterFieldsType,
     ParameterFiltersType,
@@ -24,12 +24,12 @@ import {
     URLParameterPaginationType,
     URLParameterRelationsType,
     URLParameterSortType,
-    URLParameterType
-} from "../../type";
+    URLParameterType,
+} from '../../type';
 
 export type BuildParameterInput<
     T extends ParameterType | URLParameterType,
-    R extends Record<string, any>
+    R extends Record<string, any>,
     > =
     T extends ParameterFieldsType | URLParameterFieldsType ?
         FieldsBuildInput<R> :

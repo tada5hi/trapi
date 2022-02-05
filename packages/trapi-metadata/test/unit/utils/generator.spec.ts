@@ -5,12 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {generateMetadata, createMetadataGenerator} from "../../../src";
+import { createMetadataGenerator, generateMetadata } from '../../../src';
 
 describe('src/utils/factory.ts', () => {
     it('should create metadata generator', () => {
         const generator = createMetadataGenerator({
-            entryFile: './test/fake-path'
+            entryFile: './test/fake-path',
         });
 
         expect(generator).toBeDefined();
@@ -18,13 +18,13 @@ describe('src/utils/factory.ts', () => {
 
     it('should skip loading compiler Options', () => {
         let generator = createMetadataGenerator({
-            entryFile: './test/fake-path'
+            entryFile: './test/fake-path',
         }, {});
 
         expect(generator).toBeDefined();
 
         generator = createMetadataGenerator({
-            entryFile: './test/fake-path'
+            entryFile: './test/fake-path',
         }, false);
 
         expect(generator).toBeDefined();
@@ -32,10 +32,10 @@ describe('src/utils/factory.ts', () => {
 
     it('should generate metadata', () => {
         const data = generateMetadata({
-            entryFile: './test/fake-path'
+            entryFile: './test/fake-path',
         });
 
         expect(data).toBeDefined();
-        expect(data).toEqual({controllers: [], referenceTypes: {}});
+        expect(data).toEqual({ controllers: [], referenceTypes: {} });
     });
-})
+});

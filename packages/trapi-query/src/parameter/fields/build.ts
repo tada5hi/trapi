@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {flattenNestedProperties} from "../../utils";
-import {FieldsBuildInput} from "./type";
+import { flattenNestedProperties } from '../../utils';
+import { FieldsBuildInput } from './type';
 
 export function buildQueryFields<T>(data: FieldsBuildInput<T>): Record<string, any> | string | string[] {
     switch (true) {

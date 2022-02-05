@@ -7,7 +7,7 @@
 
 import { AuthorizationHeader } from './type';
 import { AuthorizationHeaderType } from './constants';
-import {AuthorizationHeaderError} from "../../error";
+import { AuthorizationHeaderError } from '../../error';
 
 export function parseAuthorizationHeader(value: string): AuthorizationHeader {
     const parts: string[] = value.split(' ');

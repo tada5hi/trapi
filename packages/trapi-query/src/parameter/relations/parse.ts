@@ -6,9 +6,9 @@
  */
 
 import minimatch from 'minimatch';
-import {buildObjectFromStringArray} from "../../utils";
+import { buildObjectFromStringArray } from '../../utils';
 
-import {RelationsParseOutput, RelationsParseOptions} from "./type";
+import { RelationsParseOptions, RelationsParseOutput } from './type';
 
 // --------------------------------------------------
 
@@ -16,11 +16,11 @@ import {RelationsParseOutput, RelationsParseOptions} from "./type";
 
 function includeParents(
     data: string[],
-    options: RelationsParseOptions
+    options: RelationsParseOptions,
 ) : string[] {
     const ret : string[] = [];
 
-    for(let i=0; i<data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         const parts: string[] = data[i].split('.');
 
         let value: string = parts.shift();
@@ -33,13 +33,13 @@ function includeParents(
             value = options.aliasMapping[value];
         }
 
-        if(ret.indexOf(value) === -1) {
+        if (ret.indexOf(value) === -1) {
             ret.push(value);
         }
 
         while (parts.length > 0) {
             const postValue: string = parts.shift();
-            value += '.' + postValue;
+            value += `.${postValue}`;
             /* istanbul ignore next */
             if (
                 options.aliasMapping &&
@@ -48,7 +48,7 @@ function includeParents(
                 value = options.aliasMapping[value];
             }
 
-            if(ret.indexOf(value) === -1) {
+            if (ret.indexOf(value) === -1) {
                 ret.push(value);
             }
         }
@@ -59,19 +59,19 @@ function includeParents(
 
 export function parseQueryRelations(
     data: unknown,
-    options?: RelationsParseOptions
+    options?: RelationsParseOptions,
 ): RelationsParseOutput {
     options ??= {};
 
     // If it is an empty array nothing is allowed
-    if(
+    if (
         Array.isArray(options.allowed) &&
         options.allowed.length === 0
     ) {
         return [];
     }
 
-    if(options.aliasMapping) {
+    if (options.aliasMapping) {
         options.aliasMapping = buildObjectFromStringArray(options.aliasMapping);
     } else {
         options.aliasMapping = {};
@@ -94,15 +94,15 @@ export function parseQueryRelations(
     }
 
     if (prototype === '[object Array]') {
-        items = (data as any[]).filter(el => typeof el === 'string');
+        items = (data as any[]).filter((el) => typeof el === 'string');
     }
 
-    if(items.length === 0) {
+    if (items.length === 0) {
         return [];
     }
 
     items = items
-        .map(item => {
+        .map((item) => {
             if (options.aliasMapping.hasOwnProperty(item)) {
                 item = options.aliasMapping[item];
             }
@@ -110,11 +110,11 @@ export function parseQueryRelations(
             return item;
         });
 
-    if(options.allowed) {
+    if (options.allowed) {
         items = items
-            .filter(item => {
-                for(let i=0; i<options.allowed.length; i++) {
-                    if(minimatch(item, options.allowed[i])) {
+            .filter((item) => {
+                for (let i = 0; i < options.allowed.length; i++) {
+                    if (minimatch(item, options.allowed[i])) {
                         return true;
                     }
                 }
@@ -123,9 +123,9 @@ export function parseQueryRelations(
             });
     }
 
-    if(options.includeParents) {
-        if(Array.isArray(options.includeParents)) {
-            const parentIncludes = items.filter(item => item.includes('.') && (options.includeParents as string[]).filter(parent => minimatch(item, parent)).length > 0);
+    if (options.includeParents) {
+        if (Array.isArray(options.includeParents)) {
+            const parentIncludes = items.filter((item) => item.includes('.') && (options.includeParents as string[]).filter((parent) => minimatch(item, parent)).length > 0);
             items.unshift(...includeParents(parentIncludes, options));
         } else {
             items = includeParents(items, options);
@@ -135,10 +135,8 @@ export function parseQueryRelations(
     items = Array.from(new Set(items));
 
     return items
-        .map(relation => {
-            return {
-                key: relation.includes('.') ? relation.split('.').slice(-2).join('.') : (options.defaultAlias ? options.defaultAlias + '.' + relation : relation),
-                value: relation.split('.').pop()
-            };
-        });
+        .map((relation) => ({
+            key: relation.includes('.') ? relation.split('.').slice(-2).join('.') : (options.defaultAlias ? `${options.defaultAlias}.${relation}` : relation),
+            value: relation.split('.').pop(),
+        }));
 }

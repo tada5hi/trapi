@@ -5,7 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import {
+    AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse,
+} from 'axios';
 
 export interface ClientRequestConfig extends AxiosRequestConfig {
 

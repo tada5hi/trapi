@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function hasOwnProperty<X extends {}, Y extends PropertyKey>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
-    return obj.hasOwnProperty(prop);
+export function hasOwnProperty<X extends Record<string, any>, Y extends PropertyKey>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
 /**
@@ -18,15 +18,17 @@ export function hasOwnProperty<X extends {}, Y extends PropertyKey>(obj: X, prop
  * @param rawFields
  */
 export function buildObjectFromStringArray(
-    rawFields: string[] | Record<string, string>
+    rawFields: string[] | Record<string, string>,
 ): Record<string, string> {
     if (Array.isArray(rawFields)) {
         const record: Record<string, any> = {};
 
         rawFields
-            .filter(field => typeof field === 'string')
-            .map(field => {
+            .filter((field) => typeof field === 'string')
+            .map((field) => {
                 record[field] = field;
+
+                return field;
             });
 
         return record;

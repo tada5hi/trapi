@@ -28,7 +28,7 @@ import {
     IsFloat,
     IsLong,
     IsInt,
-} from "@trapi/metadata";
+} from '@trapi/metadata';
 
 type MetadataCacheConfig = MetadataCache.Config;
 
@@ -55,4 +55,4 @@ export {
     IsFloat,
     IsLong,
     IsInt,
-}
+};

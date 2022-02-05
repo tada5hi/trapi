@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { normalize } from "path";
+import { normalize } from 'path';
 import { Node, TypeNode } from 'typescript';
 
 export class ResolverError extends Error {

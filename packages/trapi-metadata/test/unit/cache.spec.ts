@@ -5,18 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {CacheDriver} from "../../src";
-import {getWritableDirPath} from "../../src/config";
-import * as fs from "fs";
+import * as fs from 'fs';
+import { CacheDriver } from '../../src';
+import { getWritableDirPath } from '../../src/config';
 
-describe('src/cache/index.ts', function () {
+describe('src/cache/index.ts', () => {
     it('should save cache', () => {
         const cache = new CacheDriver(getWritableDirPath());
 
         const cachePath : string = cache.save({
             controllers: [],
             referenceTypes: {},
-            sourceFilesSize: 0
+            sourceFilesSize: 0,
         });
 
         expect(cachePath).toBeDefined();
@@ -36,7 +36,7 @@ describe('src/cache/index.ts', function () {
         const cachePath : string = cacheNone.save({
             controllers: [],
             referenceTypes: {},
-            sourceFilesSize: 0
+            sourceFilesSize: 0,
         });
 
         expect(cachePath).toBeUndefined();

@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Client} from "../../src";
+import { Client } from '../../src';
 
 export class TestTrapiClient extends Client {
     test() {

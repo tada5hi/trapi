@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Cache} from "./type";
-import {buildCacheConfig, buildFileHash} from "./utils";
-import fs from "fs";
-import * as glob from "glob";
-import path from "path";
+import fs from 'fs';
+import * as glob from 'glob';
+import path from 'path';
+import { buildCacheConfig, buildFileHash } from './utils';
+import { Cache } from './type';
 
 export class CacheDriver {
     private readonly config: Cache.Config;
@@ -78,7 +78,7 @@ export class CacheDriver {
         }
 
         const files: string[] = glob.sync(this.buildFilePath('**'));
-        files.map(file => fs.unlinkSync(file));
+        files.map((file) => fs.unlinkSync(file));
     }
 
     // -------------------------------------------------------------------------
@@ -90,8 +90,7 @@ export class CacheDriver {
     private buildFileName(hash?: string, sourceFilesSize?: number): string {
         if (typeof this.config.fileName === 'string') {
             return this.config.fileName;
-        } else {
-            return `.swagger-${hash ?? buildFileHash(sourceFilesSize)}.json`;
         }
+        return `.swagger-${hash ?? buildFileHash(sourceFilesSize)}.json`;
     }
 }

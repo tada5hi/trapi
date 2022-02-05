@@ -5,13 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {ParseOutputElementBase, ParseOptionsBase} from "../../parse";
-import {Parameter} from "../../type";
-import {Flatten, KeyWithOptionalPrefix, OnlyObject, OnlyScalar} from "../../utils";
+import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
+import { Parameter } from '../../type';
+import {
+    Flatten, KeyWithOptionalPrefix, OnlyObject, OnlyScalar,
+} from '../../utils';
 
 export enum SortDirection {
     ASC = 'ASC',
-    DESC = 'DESC'
+    DESC = 'DESC',
 }
 
 // -----------------------------------------------------------
@@ -28,7 +30,6 @@ export type SortBuildInput<T> = {
         SortDirection :
         T[K] extends OnlyObject<T[K]> ? SortBuildInput<Flatten<T[K]>> | SortWithOperator<Flatten<T[K]>> : never
 } | SortWithOperator<T>;
-
 
 // -----------------------------------------------------------
 // Parse

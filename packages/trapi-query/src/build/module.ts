@@ -5,20 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {BuildParameterInput} from "./parameter";
-import {BuildOptions, BuildInput} from "./type";
-import {buildQueryFields} from "../parameter";
-import {buildQueryFilters} from "../parameter";
-import {buildQueryRelations} from "../parameter";
-import {buildQuerySort} from "../parameter";
-import {Parameter, URLParameter} from "../type";
+import { BuildParameterInput } from './parameter';
+import { BuildInput, BuildOptions } from './type';
 import {
-    buildURLQueryString
-} from "../utils";
+    buildQueryFields, buildQueryFilters, buildQueryRelations, buildQuerySort,
+} from '../parameter';
+import { Parameter, URLParameter } from '../type';
+import {
+    buildURLQueryString,
+} from '../utils';
 
 export function buildQuery<T extends Record<string, any>>(
     input?: BuildInput<T>,
-    options?: BuildOptions
+    options?: BuildOptions,
 ) : string {
     if (
         typeof input === 'undefined' ||
@@ -27,7 +26,7 @@ export function buildQuery<T extends Record<string, any>>(
         return '';
     }
 
-    let query: { [key in URLParameter]?: unknown } = {};
+    const query: { [key in URLParameter]?: unknown } = {};
 
     if (
         typeof input[Parameter.FIELDS] !== 'undefined' ||

@@ -5,19 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {getCompilerOptions} from "../../src";
-import path from "path";
+import path from 'path';
+import { getCompilerOptions } from '../../src';
 
 describe('src/typescript.ts', () => {
     it('should get compiler options', () => {
-
         // with file name specified
-        let compilerOptions = getCompilerOptions( './test/data/tsconfig.json');
+        let compilerOptions = getCompilerOptions('./test/data/tsconfig.json');
         expect(compilerOptions).toBeDefined();
         expect(compilerOptions.allowJs).toBeTruthy();
 
         // with no filename specified
-        compilerOptions = getCompilerOptions( './test/data');
+        compilerOptions = getCompilerOptions('./test/data');
         expect(compilerOptions).toBeDefined();
         expect(compilerOptions.allowJs).toBeTruthy();
 

@@ -1,6 +1,6 @@
-import {ParseParameterOptions, ParseParameterOutput} from "../../parse";
-import {Parameter} from "../../type";
-import {PaginationParseOptions, PaginationParseOutput} from "./type";
+import { ParseParameterOptions, ParseParameterOutput } from '../../parse';
+import { Parameter } from '../../type';
+import { PaginationParseOptions, PaginationParseOutput } from './type';
 
 // --------------------------------------------------
 
@@ -14,7 +14,7 @@ function finalizePagination(data: PaginationParseOutput, options: PaginationPars
         }
     }
 
-    if(
+    if (
         typeof data.limit !== 'undefined' &&
         typeof data.offset === 'undefined'
     ) {
@@ -32,7 +32,7 @@ function finalizePagination(data: PaginationParseOutput, options: PaginationPars
  */
 export function parseQueryPagination(
     data: unknown,
-    options?: PaginationParseOptions
+    options?: PaginationParseOptions,
 ) : PaginationParseOutput {
     options ??= {};
 
@@ -43,7 +43,7 @@ export function parseQueryPagination(
         return finalizePagination(pagination, options);
     }
 
-    let {limit, offset} = data as Record<string, any>;
+    let { limit, offset } = data as Record<string, any>;
 
     if (typeof limit !== 'undefined') {
         // tslint:disable-next-line:radix

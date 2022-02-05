@@ -5,91 +5,95 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Decorator} from "../../type";
+import { Decorator } from '../../type';
 
 export default {
     EXTENSION: {
         id: 'Extension',
         properties: {
-            KEY: {type: "element", srcArgumentType: "argument", srcPosition: 0},
-            VALUE: {type: "element", srcArgumentType: "argument", srcPosition: 1}
-        }
+            KEY: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
+            VALUE: { type: 'element', srcArgumentType: 'argument', srcPosition: 1 },
+        },
     },
 
     // Class
     SWAGGER_TAGS: {
         id: 'SwaggerTags',
         properties: {
-            DEFAULT: {type: 'array', srcArgumentType: "argument"}
-        }
+            DEFAULT: { type: 'array', srcArgumentType: 'argument' },
+        },
     },
 
     // Class + Method
     RESPONSE_EXAMPLE: {
         id: 'ResponseExample',
         properties: {
-            TYPE: {isType: true, srcArgumentType: "typeArgument"},
-            PAYLOAD: {type: "element", srcArgumentType: "argument", srcPosition: 0}
-        }
+            TYPE: { isType: true, srcArgumentType: 'typeArgument' },
+            PAYLOAD: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
+        },
     },
     RESPONSE_DESCRIPTION: {
         id: 'ResponseDescription',
         properties: {
-            TYPE: {isType: true, srcArgumentType: "typeArgument"},
-            STATUS_CODE: {type: "element", srcArgumentType: "argument", srcPosition: 0},
-            DESCRIPTION: {type: "element", srcArgumentType: "argument", srcPosition: 1},
-            PAYLOAD: {type: "element", srcArgumentType: "argument", srcPosition: 2}
-        }
+            TYPE: { isType: true, srcArgumentType: 'typeArgument' },
+            STATUS_CODE: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
+            DESCRIPTION: { type: 'element', srcArgumentType: 'argument', srcPosition: 1 },
+            PAYLOAD: { type: 'element', srcArgumentType: 'argument', srcPosition: 2 },
+        },
     },
     REQUEST_CONSUMES: {
         id: 'RequestConsumes',
         properties: {
-            DEFAULT: {type: 'array', srcArgumentType: "argument", srcAmount: -1, srcStrategy: "merge"}
-        }
+            DEFAULT: {
+                type: 'array', srcArgumentType: 'argument', srcAmount: -1, srcStrategy: 'merge',
+            },
+        },
     },
     RESPONSE_PRODUCES: {
         id: 'ResponseProduces',
         properties: {
-            DEFAULT: {type: 'array', srcArgumentType: "argument", srcAmount: -1, srcStrategy: "merge"}
-        }
+            DEFAULT: {
+                type: 'array', srcArgumentType: 'argument', srcAmount: -1, srcStrategy: 'merge',
+            },
+        },
     },
 
     HIDDEN: {
         id: 'SwaggerHidden',
-        properties: []
+        properties: [],
     },
     DEPRECATED: {
         id: 'SwaggerDeprecated',
-        properties: undefined
+        properties: undefined,
     },
 
     IS_INT: {
         id: 'IsInt',
-        properties: undefined
+        properties: undefined,
     },
     IS_LONG: {
         id: 'IsLong',
-        properties: undefined
+        properties: undefined,
     },
     IS_FlOAT: {
         id: 'IsFloat',
-        properties: undefined
+        properties: undefined,
     },
     IS_DOUBLE: {
         id: 'IsDouble',
-        properties: undefined
+        properties: undefined,
     },
 
     SERVER_FILES_PARAM: {
         id: 'RequestFileParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_FILE_PARAM: {
         id: 'RequestFileParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
 } as Partial<Decorator.TypeRepresentationMap>;

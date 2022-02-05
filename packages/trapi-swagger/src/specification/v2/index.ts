@@ -5,16 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {union} from "lodash";
-import {posix} from "path";
-import {URL} from 'url';
+import { union } from 'lodash';
+import { posix } from 'path';
+import { URL } from 'url';
 
-import {hasOwnProperty, normalizePathParameters} from "@trapi/metadata-utils";
-import {Method, Parameter, Property, Response, Resolver} from "@trapi/metadata";
+import { hasOwnProperty, normalizePathParameters } from '@trapi/metadata-utils';
+import {
+    Method, Parameter, Property, Resolver, Response,
+} from '@trapi/metadata';
 
-import {Specification} from "../type";
-import {SpecificationV2} from "./type";
-import {AbstractSpecGenerator} from "../abstract";
+import { Specification } from '../type';
+import { SpecificationV2 } from './type';
+import { AbstractSpecGenerator } from '../abstract';
 
 export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.Spec, SpecificationV2.Schema> {
     public getSwaggerSpec(): SpecificationV2.Spec {
@@ -22,7 +24,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     }
 
     public build() : SpecificationV2.Spec {
-        if(typeof this.spec !== 'undefined') {
+        if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
 
@@ -31,12 +33,12 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             definitions: this.buildDefinitions(),
             info: this.buildInfo(),
             paths: this.buildPaths(),
-            swagger: '2.0'
+            swagger: '2.0',
         };
 
-        spec.securityDefinitions = this.config.securityDefinitions
-            ? Version2SpecGenerator.translateSecurityDefinitions(this.config.securityDefinitions)
-            : {};
+        spec.securityDefinitions = this.config.securityDefinitions ?
+            Version2SpecGenerator.translateSecurityDefinitions(this.config.securityDefinitions) :
+            {};
 
         if (this.config.consumes) {
             spec.consumes = this.config.consumes;
@@ -48,8 +50,8 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
         if (this.config.host) {
             const url = new URL(this.config.host);
-            let host : string = (url.host + url.pathname).replace(/([^:]\/)\/+/g, "$1");
-            host = host.substr(-1, 1) === '/' ? host.substr(0, host.length -1) : host;
+            let host : string = (url.host + url.pathname).replace(/([^:]\/)\/+/g, '$1');
+            host = host.substr(-1, 1) === '/' ? host.substr(0, host.length - 1) : host;
 
             spec.host = host;
         }
@@ -67,14 +69,14 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         const definitions : Record<string, SpecificationV2.Security> = {};
 
         // tslint:disable-next-line:forin
-        for(const name in securityDefinitions) {
+        for (const name in securityDefinitions) {
             const securityDefinition : Specification.SecurityDefinition = securityDefinitions[name];
 
             switch (securityDefinition.type) {
                 case 'http':
-                    if(securityDefinition.schema === 'basic') {
+                    if (securityDefinition.schema === 'basic') {
                         definitions[name] = {
-                            type: 'basic'
+                            type: 'basic',
                         };
                     }
                     break;
@@ -82,40 +84,40 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     definitions[name] = securityDefinition;
                     break;
                 case 'oauth2':
-                    if(securityDefinition.flows.implicit) {
+                    if (securityDefinition.flows.implicit) {
                         definitions[`${name}Implicit`] = {
-                            type: "oauth2",
-                            flow: "implicit",
+                            type: 'oauth2',
+                            flow: 'implicit',
                             authorizationUrl: securityDefinition.flows.implicit.authorizationUrl,
-                            scopes: securityDefinition.flows.implicit.scopes
+                            scopes: securityDefinition.flows.implicit.scopes,
                         };
                     }
 
-                    if(securityDefinition.flows.password) {
+                    if (securityDefinition.flows.password) {
                         definitions[`${name}Implicit`] = {
-                            type: "oauth2",
-                            flow: "password",
+                            type: 'oauth2',
+                            flow: 'password',
                             tokenUrl: securityDefinition.flows.password.tokenUrl,
-                            scopes: securityDefinition.flows.password.scopes
+                            scopes: securityDefinition.flows.password.scopes,
                         };
                     }
 
-                    if(securityDefinition.flows.authorizationCode) {
+                    if (securityDefinition.flows.authorizationCode) {
                         definitions[`${name}AccessCode`] = {
-                            type: "oauth2",
-                            flow: "accessCode",
+                            type: 'oauth2',
+                            flow: 'accessCode',
                             tokenUrl: securityDefinition.flows.authorizationCode.tokenUrl,
                             authorizationUrl: securityDefinition.flows.authorizationCode.authorizationUrl,
-                            scopes: securityDefinition.flows.authorizationCode.scopes
+                            scopes: securityDefinition.flows.authorizationCode.scopes,
                         };
                     }
 
-                    if(securityDefinition.flows.clientCredentials) {
+                    if (securityDefinition.flows.clientCredentials) {
                         definitions[`${name}Application`] = {
-                            type: "oauth2",
-                            flow: "application",
+                            type: 'oauth2',
+                            flow: 'application',
                             tokenUrl: securityDefinition.flows.clientCredentials.tokenUrl,
-                            scopes: securityDefinition.flows.clientCredentials.scopes
+                            scopes: securityDefinition.flows.clientCredentials.scopes,
                         };
                     }
 
@@ -132,7 +134,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
     private buildDefinitions() {
         const definitions: { [definitionsName: string]: SpecificationV2.Schema } = {};
-        Object.keys(this.metadata.referenceTypes).map(typeName => {
+        Object.keys(this.metadata.referenceTypes).map((typeName) => {
             const referenceType : Resolver.ReferenceType = this.metadata.referenceTypes[typeName];
             // const key : string = referenceType.typeName.replace('_', '');
 
@@ -155,7 +157,6 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     definitions[referenceType.refName].example = referenceType.example;
                 }
             } else if (Resolver.isRefEnumType(referenceType)) {
-
                 definitions[referenceType.refName] = {
                     description: referenceType.description,
                     enum: referenceType.members,
@@ -170,15 +171,11 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 const swaggerType = this.getSwaggerType(referenceType.type);
                 const format : Specification.DataFormat = referenceType.format as Specification.DataFormat;
                 const validators = Object.keys(referenceType.validators)
-                    .filter(key => {
-                        return !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate';
-                    })
-                    .reduce((acc, key) => {
-                        return {
-                            ...acc,
-                            [key]: referenceType.validators[key].value,
-                        };
-                    }, {});
+                    .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
+                    .reduce((acc, key) => ({
+                        ...acc,
+                        [key]: referenceType.validators[key].value,
+                    }), {});
 
                 definitions[referenceType.refName] = {
                     ...(swaggerType as SpecificationV2.Schema),
@@ -209,7 +206,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             enumTypeForSwagger = 'string';
         } else if (typesUsedInEnum.has('number') && typesUsedInEnum.size === 1) {
             enumTypeForSwagger = 'number';
-        } else if(typesUsedInEnum.size === 2 && typesUsedInEnum.has('number') && typesUsedInEnum.has('string')) {
+        } else if (typesUsedInEnum.size === 2 && typesUsedInEnum.has('number') && typesUsedInEnum.has('string')) {
             enumTypeForSwagger = 'string';
         } else {
             throw new Error(badEnumErrorMessage());
@@ -225,8 +222,8 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     private buildPaths() {
         const paths: { [pathName: string]: Specification.Path<SpecificationV2.Operation, SpecificationV2.Response> } = {};
 
-        this.metadata.controllers.forEach(controller => {
-            controller.methods.forEach(method => {
+        this.metadata.controllers.forEach((controller) => {
+            controller.methods.forEach((method) => {
                 let fullPath : string = posix.join('/', (controller.path ? controller.path : ''), method.path);
                 fullPath = normalizePathParameters(fullPath);
 
@@ -254,27 +251,27 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         if (method.deprecated) { pathMethod.deprecated = method.deprecated; }
         if (method.tags.length) { pathMethod.tags = method.tags; }
         if (method.security) {
-            pathMethod.security = method.security.map(s => ({
-                [s.name]: s.scopes || []
+            pathMethod.security = method.security.map((s) => ({
+                [s.name]: s.scopes || [],
             }));
         }
 
         this.handleMethodConsumes(method, pathMethod);
 
         pathMethod.parameters = method.parameters
-            .filter(p => (p.in !== 'param'))
-            .map(p => this.buildParameter(p));
+            .filter((p) => (p.in !== 'param'))
+            .map((p) => this.buildParameter(p));
 
         method.parameters
-            .filter(p => (p.in === 'param'))
-            .forEach(p => {
+            .filter((p) => (p.in === 'param'))
+            .forEach((p) => {
                 pathMethod.parameters.push(this.buildParameter({
                     description: p.description,
                     in: 'query',
                     name: p.name,
                     parameterName: p.parameterName,
                     required: false,
-                    type: p.type
+                    type: p.type,
                 }));
                 pathMethod.parameters.push(this.buildParameter({
                     description: p.description,
@@ -282,7 +279,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     name: p.name,
                     parameterName: p.parameterName,
                     required: false,
-                    type: p.type
+                    type: p.type,
                 }));
             });
         if (pathMethod.parameters.filter((p: Specification.BaseParameter<SpecificationV2.Schema>) => p.in === 'body').length > 1) {
@@ -296,7 +293,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             description: parameter.description,
             in: parameter.in,
             name: parameter.name,
-            required: parameter.required
+            required: parameter.required,
         };
 
         const parameterType = this.getSwaggerType(parameter.type);
@@ -327,7 +324,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         if (method.consumes.length) { pathMethod.consumes = method.consumes; }
 
         if ((!pathMethod.consumes || !pathMethod.consumes.length)) {
-            if (method.parameters.some(p => (p.in === 'formData' && p.type.typeName === 'file'))) {
+            if (method.parameters.some((p) => (p.in === 'formData' && p.type.typeName === 'file'))) {
                 pathMethod.consumes = pathMethod.consumes || [];
                 pathMethod.consumes.push('multipart/form-data');
             } else if (this.hasFormParams(method)) {
@@ -341,11 +338,11 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     }
 
     private hasFormParams(method: Method) {
-        return method.parameters.find(p => (p.in === 'formData'));
+        return method.parameters.find((p) => (p.in === 'formData'));
     }
 
     private supportsBodyParameters(method: string) {
-        return ['post', 'put', 'patch'].some(m => m === method);
+        return ['post', 'put', 'patch'].some((m) => m === method);
     }
 
     /*
@@ -358,11 +355,10 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         if (types.size === 1) {
             const type = types.values().next().value;
             const nullable = !!enumType.members.includes(null);
-            return { type: type, enum: enumType.members.map((member: string | number | boolean | null) => (member === null ? null : String(member))), ['x-nullable']: nullable };
-        } else {
-            const valuesDelimited = Array.from(types).join(',');
-            throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
+            return { type, enum: enumType.members.map((member: string | number | boolean | null) => (member === null ? null : String(member))), 'x-nullable': nullable };
         }
+        const valuesDelimited = Array.from(types).join(',');
+        throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
     }
 
     protected getSwaggerTypeForIntersectionType(type: Resolver.IntersectionType) : SpecificationV2.Schema {
@@ -372,22 +368,18 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 let refType = type;
                 refType = this.metadata.referenceTypes[refType.refName] as Resolver.RefObjectType;
 
-                const props =
-                    refType &&
+                const props = refType &&
                     refType.properties &&
-                    refType.properties.reduce((pAcc, prop) => {
-                        return {
-                            ...pAcc,
-                            [prop.name]: this.getSwaggerType(prop.type),
-                        };
-                    }, {});
+                    refType.properties.reduce((pAcc, prop) => ({
+                        ...pAcc,
+                        [prop.name]: this.getSwaggerType(prop.type),
+                    }), {});
                 return { ...acc, ...props };
-            } else {
-                return { ...acc };
             }
+            return { ...acc };
         }, {});
 
-        return { type: 'object', properties: properties };
+        return { type: 'object', properties };
     }
 
     protected getSwaggerTypeForReferenceType(referenceType: Resolver.ReferenceType): SpecificationV2.Schema {
@@ -397,7 +389,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     protected buildProperties(properties: Property[]) : Record<string, SpecificationV2.Schema> {
         const swaggerProperties: { [propertyName: string]: SpecificationV2.Schema } = {};
 
-        properties.forEach(property => {
+        properties.forEach((property) => {
             const swaggerType = this.getSwaggerType(property.type);
             if (!hasOwnProperty(swaggerType, '$ref') || !swaggerType.$ref) {
                 swaggerType.description = property.description;
@@ -412,24 +404,24 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         const operation: any = {
             operationId: this.getOperationId(method.name),
             produces: [],
-            responses: {}
+            responses: {},
         };
         const methodReturnTypes = new Set<string>();
 
         method.responses.forEach((res: Response) => {
             operation.responses[res.status] = {
-                description: res.description
+                description: res.description,
             };
 
             if (res.schema) {
                 const swaggerType = this.getSwaggerType(res.schema);
                 if (swaggerType.type !== 'void') {
-                    operation.responses[res.status]['schema'] = swaggerType;
+                    operation.responses[res.status].schema = swaggerType;
                 }
                 methodReturnTypes.add(this.getMimeType(swaggerType));
             }
             if (res.examples) {
-                operation.responses[res.status]['examples'] = { 'application/json': res.examples };
+                operation.responses[res.status].examples = { 'application/json': res.examples };
             }
         });
         this.handleMethodProduces(method, operation, methodReturnTypes);
@@ -443,14 +435,13 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             swaggerType.type === 'object'
         ) {
             return 'application/json';
-        } else if (
+        } if (
             swaggerType.type === 'string' &&
             swaggerType.format === 'binary'
         ) {
             return 'application/octet-stream';
-        } else {
-            return 'text/html';
         }
+        return 'text/html';
     }
 
     private handleMethodProduces(method: Method, operation: any, methodReturnTypes: Set<string>) {

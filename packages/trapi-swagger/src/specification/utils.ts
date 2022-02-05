@@ -6,18 +6,18 @@
  */
 
 // todo: implement character in regex matching
-import {GeneratorOutput, MetadataGenerator} from "@trapi/metadata";
-import {Specification} from "./type";
-import {AbstractSpecGenerator} from "./abstract";
-import {Version2SpecGenerator} from "./v2";
-import {Version3SpecGenerator} from "./v3";
+import { GeneratorOutput, MetadataGenerator } from '@trapi/metadata';
+import { Specification } from './type';
+import { AbstractSpecGenerator } from './abstract';
+import { Version2SpecGenerator } from './v2';
+import { Version3SpecGenerator } from './v3';
 
 export function removeRepeatingCharacter(str: string, character: string) : string {
-    return str.replace('/([^:]\$)\/+/g', "$1");
+    return str.replace('/([^:]\$)\/+/g', '$1');
 }
 
 export function removeFinalCharacter(str: string, character: string) {
-    while(str.charAt(str.length - 1) === character && str.length > 0) {
+    while (str.charAt(str.length - 1) === character && str.length > 0) {
         str = str.slice(0, -1);
     }
 
@@ -26,7 +26,7 @@ export function removeFinalCharacter(str: string, character: string) {
 
 export function createSpecGenerator(
     metadata: GeneratorOutput | MetadataGenerator,
-    config: Specification.Config = {}
+    config: Specification.Config = {},
 ) {
     const data: GeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
 

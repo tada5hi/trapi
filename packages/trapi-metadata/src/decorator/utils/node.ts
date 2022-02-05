@@ -5,8 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {isCallExpression, isNumericLiteral, isStringLiteral, Node} from 'typescript';
-import {Decorator} from "../type";
+import {
+    Node, isCallExpression, isNumericLiteral, isStringLiteral,
+} from 'typescript';
+import { Decorator } from '../type';
 
 /**
  * Get Decorators for a specific node.
@@ -16,18 +18,18 @@ import {Decorator} from "../type";
  */
 export function getNodeDecorators(
     node: Node,
-    isMatching?: (data: Decorator.Data) => boolean
+    isMatching?: (data: Decorator.Data) => boolean,
 ): Decorator.Data[] {
-    const decorators = node.decorators;
+    const { decorators } = node;
     if (!decorators || !decorators.length) {
         return [];
     }
 
     const items = decorators
-        .map(d => {
+        .map((d) => {
             const result: any = {
                 arguments: [],
-                typeArguments: []
+                typeArguments: [],
             };
 
             let x: any = d.expression;
@@ -37,9 +39,8 @@ export function getNodeDecorators(
                     result.arguments = x.arguments.map((argument: any) => {
                         if (isStringLiteral(argument) || isNumericLiteral(argument)) {
                             return argument.text;
-                        } else {
-                            return argument;
                         }
+                        return argument;
                     });
                 }
 

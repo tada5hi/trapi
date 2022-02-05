@@ -5,40 +5,42 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Node, JSDoc, NodeArray, JSDocTag} from 'typescript';
+import {
+    JSDoc, JSDocTag, Node, NodeArray,
+} from 'typescript';
 import {
     getJSDoc,
     getJSDocDescription,
     getJSDocTagComment,
     getJSDocTagNames,
     getJSDocTags,
-    isExistJSDocTag
-} from "../../../src";
+    isExistJSDocTag,
+} from '../../../src';
 
 describe('src/utils/js-doc.ts', () => {
     const tags : NodeArray<JSDocTag> = [
         {
             tagName: {
-                text: 'foo'
-            }
+                text: 'foo',
+            },
         },
         {
             tagName: {
-                text: 'bar'
+                text: 'bar',
             },
-            comment: 'comment'
-        }
+            comment: 'comment',
+        },
     ] as unknown as NodeArray<JSDocTag>;
 
     const jsDoc : JSDoc[] = [
         {
             comment: 'This is a comment.',
-            tags: tags
-        } as JSDoc
-    ]
+            tags,
+        } as JSDoc,
+    ];
     const fakeNode : Record<string, any> = {
         kind: 0,
-        jsDoc: jsDoc
+        jsDoc,
     };
 
     it('should get jsDoc description', () => {
@@ -47,7 +49,7 @@ describe('src/utils/js-doc.ts', () => {
         expect(comment).toBeDefined();
         expect(comment).toEqual('This is a comment.');
 
-        let emptyNode : Record<string, any> = {jsDoc: []};
+        let emptyNode : Record<string, any> = { jsDoc: [] };
         comment = getJSDocDescription(emptyNode as Node);
         expect(comment).toBeUndefined();
 
@@ -63,34 +65,34 @@ describe('src/utils/js-doc.ts', () => {
         jsDoc = getJSDoc(fakeNode as Node, 1);
         expect(jsDoc).toBeUndefined();
 
-        jsDoc = getJSDoc({} as Node)
+        jsDoc = getJSDoc({} as Node);
         expect(jsDoc).toBeUndefined();
-    })
+    });
 
     it('should get jsDoc tags', () => {
         let data = getJSDocTags(fakeNode as Node);
         expect(data).toEqual(tags);
 
-        data = getJSDocTags(fakeNode as Node, tag => tag.tagName.text === 'baz');
+        data = getJSDocTags(fakeNode as Node, (tag) => tag.tagName.text === 'baz');
         expect(data).toEqual([]);
 
-        data = getJSDocTags({} as Node)
+        data = getJSDocTags({} as Node);
         expect(data).toEqual([]);
-    })
+    });
 
     it('should check jsDoc tag', () => {
-       let data = isExistJSDocTag(fakeNode as Node, 'foo');
-       expect(data).toBeTruthy();
+        let data = isExistJSDocTag(fakeNode as Node, 'foo');
+        expect(data).toBeTruthy();
 
-       data = isExistJSDocTag(fakeNode as Node, tag => tag.tagName.text === 'baz');
-       expect(data).toBeFalsy();
+        data = isExistJSDocTag(fakeNode as Node, (tag) => tag.tagName.text === 'baz');
+        expect(data).toBeFalsy();
     });
 
     it('should get jsDoc tag comment', () => {
         let data = getJSDocTagComment(fakeNode as Node, 'foo');
         expect(data).toBeUndefined();
 
-        data = getJSDocTagComment(fakeNode as Node, tag => tag.tagName.text === 'bar');
+        data = getJSDocTagComment(fakeNode as Node, (tag) => tag.tagName.text === 'bar');
         expect(data).toEqual('comment');
     });
 

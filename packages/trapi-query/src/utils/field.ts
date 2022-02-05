@@ -9,7 +9,7 @@ export function getFieldDetails(field: string) : FieldDetails {
 
     return {
         name: parts.pop(),
-        path: parts.length > 0 ? parts.join('.'): undefined,
-        alias: parts.length > 0 ? parts.pop() : undefined
+        path: parts.length > 0 ? parts.join('.') : undefined,
+        alias: parts.length > 0 ? parts.pop() : undefined,
     };
 }

@@ -10,4 +10,4 @@ export * from './representation';
 export * from './utils';
 export * from './functions';
 export * from './type';
-export * from "./utils";
+export * from './utils';

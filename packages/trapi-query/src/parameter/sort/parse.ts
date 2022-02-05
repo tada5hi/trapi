@@ -5,22 +5,21 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-
 import {
+    FieldDetails,
     buildFieldWithAlias,
     buildObjectFromStringArray,
-    FieldDetails,
     getFieldDetails,
-    isFieldAllowedByRelations
-} from "../../utils";
-import {SortDirection, SortParseOptions, SortParseOutput} from "./type";
+    isFieldAllowedByRelations,
+} from '../../utils';
+import { SortDirection, SortParseOptions, SortParseOutput } from './type';
 
 // --------------------------------------------------
 
 // --------------------------------------------------
 
 function isMultiDimensionalArray(arr: unknown) : arr is unknown[][] {
-    if(!Array.isArray(arr)) {
+    if (!Array.isArray(arr)) {
         return false;
     }
 
@@ -34,12 +33,12 @@ function isMultiDimensionalArray(arr: unknown) : arr is unknown[][] {
  */
 export function parseQuerySort(
     data: unknown,
-    options?: SortParseOptions
+    options?: SortParseOptions,
 ) : SortParseOutput {
     options = options ?? {};
 
     // If it is an empty array nothing is allowed
-    if(
+    if (
         Array.isArray(options.allowed) &&
         options.allowed.length === 0
     ) {
@@ -51,7 +50,7 @@ export function parseQuerySort(
     const prototype = Object.prototype.toString.call(data);
 
     /* istanbul ignore next */
-    if(
+    if (
         prototype !== '[object String]' &&
         prototype !== '[object Array]' &&
         prototype !== '[object Object]'
@@ -61,17 +60,17 @@ export function parseQuerySort(
 
     let parts : string[] = [];
 
-    if(prototype === '[object String]') {
+    if (prototype === '[object String]') {
         parts = (data as string).split(',');
     }
 
-    if(prototype === '[object Array]') {
-        parts = (data as string[]).filter(item => typeof item === 'string');
+    if (prototype === '[object Array]') {
+        parts = (data as string[]).filter((item) => typeof item === 'string');
     }
 
-    if(prototype === '[object Object]') {
+    if (prototype === '[object Object]') {
         const ob : Record<string, any> = data as object;
-        for(const key in ob) {
+        for (const key in ob) {
             /* istanbul ignore next */
             if (
                 !ob.hasOwnProperty(key) ||
@@ -92,7 +91,7 @@ export function parseQuerySort(
         value: SortDirection
     }> = {};
 
-    for(let i=0; i<parts.length; i++) {
+    for (let i = 0; i < parts.length; i++) {
         let direction: SortDirection = SortDirection.ASC;
         if (parts[i].substr(0, 1) === '-') {
             direction = SortDirection.DESC;
@@ -106,13 +105,13 @@ export function parseQuerySort(
         }
 
         const fieldDetails : FieldDetails = getFieldDetails(key);
-        if(!isFieldAllowedByRelations(fieldDetails, options.relations, {defaultAlias: options.defaultAlias})) {
+        if (!isFieldAllowedByRelations(fieldDetails, options.relations, { defaultAlias: options.defaultAlias })) {
             continue;
         }
 
         const keyWithAlias : string = buildFieldWithAlias(fieldDetails, options.defaultAlias);
 
-        if(
+        if (
             typeof options.allowed !== 'undefined' &&
             !isMultiDimensionalArray(options.allowed) &&
             options.allowed.indexOf(key) === -1 &&
@@ -121,34 +120,31 @@ export function parseQuerySort(
             continue;
         }
 
-        const alias : string | undefined =  typeof fieldDetails.path === 'undefined' &&
+        const alias : string | undefined = typeof fieldDetails.path === 'undefined' &&
             typeof fieldDetails.alias === 'undefined' ?
-                (
-                    options.defaultAlias ?
-                        options.defaultAlias :
-                        undefined
-                )
-                :
-                fieldDetails.alias
-        ;
-
+            (
+                options.defaultAlias ?
+                    options.defaultAlias :
+                    undefined
+            ) :
+            fieldDetails.alias;
         items[keyWithAlias] = {
             key: fieldDetails.name,
-            ...(alias ? {alias} : {}),
-            value: direction
+            ...(alias ? { alias } : {}),
+            value: direction,
         };
     }
 
-    if(isMultiDimensionalArray(options.allowed)) {
+    if (isMultiDimensionalArray(options.allowed)) {
         outerLoop:
-        for(let i=0; i<options.allowed.length; i++) {
+        for (let i = 0; i < options.allowed.length; i++) {
             const temp : SortParseOutput = [];
 
-            for(let j=0; j<options.allowed[i].length; j++) {
+            for (let j = 0; j < options.allowed[i].length; j++) {
                 const keyWithAlias : string = options.allowed[i][j];
                 const key : string = keyWithAlias.includes('.') ? keyWithAlias.split('.').pop() : keyWithAlias;
 
-                if(items.hasOwnProperty(key) || items.hasOwnProperty(keyWithAlias)) {
+                if (items.hasOwnProperty(key) || items.hasOwnProperty(keyWithAlias)) {
                     const item = items.hasOwnProperty(key) ? items[key] : items[keyWithAlias];
                     temp.push(item);
                 } else {
@@ -165,6 +161,3 @@ export function parseQuerySort(
 
     return Object.values(items);
 }
-
-
-

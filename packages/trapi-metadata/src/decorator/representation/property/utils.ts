@@ -6,14 +6,14 @@
  */
 
 import {
-    Expression
-} from "typescript";
-import {hasOwnProperty} from "@trapi/metadata-utils";
-import {Decorator} from "../../type";
-import {getInitializerValue} from "../../../resolver";
+    Expression,
+} from 'typescript';
+import { hasOwnProperty } from '@trapi/metadata-utils';
+import { Decorator } from '../../type';
+import { getInitializerValue } from '../../../resolver';
 
 export function extendRepresentationPropertyConfig(property: Decorator.Property): Decorator.Property {
-    if(typeof property.isType === 'undefined') {
+    if (typeof property.isType === 'undefined') {
         property.isType = false;
     }
 
@@ -37,10 +37,10 @@ export function extendRepresentationPropertyConfig(property: Decorator.Property)
 
 export function extractRepresentationPropertyValue<
     T extends Decorator.Type,
-    P extends keyof Decorator.TypePropertyMap[T]
+    P extends keyof Decorator.TypePropertyMap[T],
     >(
     decorator: Decorator.Data,
-    config: Decorator.Property
+    config: Decorator.Property,
 ): Decorator.TypePropertyMap[T][P] | undefined {
     let items : unknown[] = [];
 
@@ -48,12 +48,12 @@ export function extractRepresentationPropertyValue<
         case 'typeArgument':
             items = decorator.typeArguments;
             break;
-        case "argument":
+        case 'argument':
             items = decorator.arguments;
             break;
     }
 
-    if(!config.isType) {
+    if (!config.isType) {
         items = extractValueFromArgumentType(items);
     }
 
@@ -71,14 +71,14 @@ export function extractRepresentationPropertyValue<
 
     const data : unknown[] | unknown[][] = srcAmount >= 1 ? items.slice(srcPosition, srcPosition + srcAmount) : items.slice(srcPosition);
 
-    if(data.length === 0) {
+    if (data.length === 0) {
         return (config.type === 'array' ? [] : undefined) as unknown as Decorator.TypePropertyMap[T][P];
     }
 
     const srcStrategy : Decorator.PropertyStrategy = config.srcStrategy ?? 'none';
 
     switch (srcStrategy) {
-        case "merge":
+        case 'merge':
             switch (config.type) {
                 case 'array':
                     return mergeArrayArguments(data) as unknown as Decorator.TypePropertyMap[T][P];
@@ -86,7 +86,7 @@ export function extractRepresentationPropertyValue<
                 default:
                     return mergeObjectArguments(data) as Decorator.TypePropertyMap[T][P];
             }
-        case "none":
+        case 'none':
             // if we dont have any merge strategy, we just return the first argument.
             switch (config.type) {
                 case 'array':
@@ -97,7 +97,7 @@ export function extractRepresentationPropertyValue<
                     return data[0] as Decorator.TypePropertyMap[T][P];
             }
         default:
-            if(typeof config.srcStrategy === 'function') {
+            if (typeof config.srcStrategy === 'function') {
                 return config.srcStrategy(data) as Decorator.TypePropertyMap[T][P];
             }
 
@@ -107,9 +107,9 @@ export function extractRepresentationPropertyValue<
 
 export function mergeObjectArguments(data: unknown[]) {
     let output : Record<string, any> = {};
-    for(let i=0; i<data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         const prototype = Object.prototype.toString.call(data[i]);
-        if(prototype === '[object Object]') {
+        if (prototype === '[object Object]') {
             output = Object.assign(output, data[i]);
         }
     }
@@ -119,8 +119,8 @@ export function mergeObjectArguments(data: unknown[]) {
 
 export function mergeArrayArguments(data: unknown[]) {
     let merged : unknown[] = [];
-    for(let i=0; i<data.length; i++) {
-        if(Array.isArray(data[i])) {
+    for (let i = 0; i < data.length; i++) {
+        if (Array.isArray(data[i])) {
             merged = [...merged, ...data[i] as unknown[]];
         } else {
             merged.push(data[i]);
@@ -133,8 +133,8 @@ export function mergeArrayArguments(data: unknown[]) {
 function extractValueFromArgumentType(argument: unknown[]) {
     const values : unknown[] = [];
 
-    for(let i=0; i<argument.length; i++) {
-        if(!hasOwnProperty(argument[i], 'kind')) {
+    for (let i = 0; i < argument.length; i++) {
+        if (!hasOwnProperty(argument[i], 'kind')) {
             values.push(argument[i]);
             continue;
         }

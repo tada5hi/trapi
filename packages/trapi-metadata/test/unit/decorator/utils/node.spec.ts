@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Node, SyntaxKind} from 'typescript';
-import {getNodeDecorators} from "../../../../src";
+import { Node, SyntaxKind } from 'typescript';
+import { getNodeDecorators } from '../../../../src';
 
 describe('src/decorator/utils/node.ts', () => {
     const fakeNode : Record<string, any> = {
@@ -17,19 +17,19 @@ describe('src/decorator/utils/node.ts', () => {
                     arguments: [
                         {
                             kind: SyntaxKind.StringLiteral,
-                            text: 'foo'
+                            text: 'foo',
                         },
                         {
                             kind: SyntaxKind.NumericLiteral,
-                            text: 0
-                        }
+                            text: 0,
+                        },
                     ],
                     typeArguments: [],
                     expression: {
-                        text: 'MyText'
-                    }
-                }
-            }
+                        text: 'MyText',
+                    },
+                },
+            },
         ],
     };
 
@@ -43,5 +43,5 @@ describe('src/decorator/utils/node.ts', () => {
 
         expect(decorators[0].typeArguments.length).toEqual(0);
         expect(decorators[0].typeArguments).toEqual([]);
-    })
+    });
 });

@@ -6,14 +6,14 @@
  */
 
 import axios from 'axios';
-import {ClientError} from "../type";
+import { ClientError } from '../type';
 
 export function isClientError(error?: any) : error is ClientError {
-    if(typeof error !== 'object') {
+    if (typeof error !== 'object') {
         return false;
     }
 
-    if(
+    if (
         Object.prototype.hasOwnProperty.call(error, 'config') &&
         Object.prototype.hasOwnProperty.call(error, 'isAxiosError') &&
         typeof error.isAxiosError === 'boolean'

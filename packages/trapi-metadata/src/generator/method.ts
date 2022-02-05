@@ -7,17 +7,17 @@
 
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
-import {Decorator} from "../decorator";
-import {EndpointGenerator} from './endpoint';
-import {MetadataGenerator} from './index';
-import {ParameterGenerator} from './parameter';
-import {Resolver, TypeNodeResolver} from "../resolver";
-import {hasOwnProperty} from "@trapi/metadata-utils";
-import {Method, MethodType, Parameter, Response} from "../type";
-import {getJSDocDescription, getJSDocTagComment} from '../utils';
+import { hasOwnProperty } from '@trapi/metadata-utils';
+import { Decorator, getNodeDecorators } from '../decorator';
+import { EndpointGenerator } from './endpoint';
+import { MetadataGenerator } from './index';
+import { ParameterGenerator } from './parameter';
+import { Resolver, TypeNodeResolver } from '../resolver';
+import {
+    Method, MethodType, Parameter, Response,
+} from '../type';
+import { getJSDocDescription, getJSDocTagComment } from '../utils';
 import MethodHttpVerbKey = Decorator.MethodHttpVerbType;
-import {getNodeDecorators} from "../decorator";
-
 
 export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     private method: MethodType;
@@ -27,7 +27,7 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     constructor(
         node: ts.MethodDeclaration,
         current: MetadataGenerator,
-        private readonly controllerPath: string
+        private readonly controllerPath: string,
     ) {
         super(node, current);
         this.processMethodDecorators();
@@ -49,7 +49,7 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
 
         let nodeType = this.node.type;
         if (!nodeType) {
-            const typeChecker = this.current.typeChecker;
+            const { typeChecker } = this.current;
             const signature = typeChecker.getSignatureFromDeclaration(this.node);
             const implicitType = typeChecker.getReturnTypeOfSignature(signature!);
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
@@ -70,11 +70,11 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
             parameters: this.buildParameters(),
             path: this.path,
             produces: this.getProduces(),
-            responses: responses,
+            responses,
             security: this.getSecurity(),
             summary: getJSDocTagComment(this.node, 'summary'),
             tags: this.getTags(),
-            type: type
+            type,
         };
     }
 
@@ -113,11 +113,11 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     }
 
     private processMethodDecorators() {
-        const httpMethodDecorators = getNodeDecorators(this.node, decorator => this.supportsPathMethod(decorator.text));
+        const httpMethodDecorators = getNodeDecorators(this.node, (decorator) => this.supportsPathMethod(decorator.text));
 
         if (!httpMethodDecorators || !httpMethodDecorators.length) { return; }
         if (httpMethodDecorators.length > 1) {
-            throw new Error(`Only one HTTP Method decorator in '${this.getCurrentLocation}' method is acceptable, Found: ${httpMethodDecorators.map(d => d.text).join(', ')}`);
+            throw new Error(`Only one HTTP Method decorator in '${this.getCurrentLocation}' method is acceptable, Found: ${httpMethodDecorators.map((d) => d.text).join(', ')}`);
         }
 
         const methodDecorator = httpMethodDecorators[0];
@@ -134,23 +134,23 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
             examples: this.getMethodSuccessExamples(),
             schema: type,
             status: Resolver.isVoidType(type) ? '204' : '200',
-            name: Resolver.isVoidType(type) ? '204' : '200'
+            name: Resolver.isVoidType(type) ? '204' : '200',
         };
     }
 
     private getMethodSuccessResponseType(type: Resolver.BaseType) : Resolver.BaseType {
-        if(!Resolver.isVoidType(type)) {
+        if (!Resolver.isVoidType(type)) {
             return type;
         }
 
         const representation = this.current.decoratorMapper.match('RESPONSE_EXAMPLE', this.node);
-        if(typeof representation === 'undefined') {
+        if (typeof representation === 'undefined') {
             return type;
         }
 
         const value = representation.getPropertyValue('TYPE');
 
-        if(
+        if (
             typeof value !== 'undefined' &&
             hasOwnProperty(value, 'kind') &&
             ts.isTypeNode(value as ts.Node)
@@ -163,12 +163,12 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
 
     private getMethodSuccessExamples() {
         const representation = this.current.decoratorMapper.match('RESPONSE_EXAMPLE', this.node);
-        if(typeof representation === 'undefined') {
+        if (typeof representation === 'undefined') {
             return [];
         }
 
-        let value : unknown = representation.getPropertyValue('PAYLOAD');
-        if(typeof value === 'undefined') {
+        const value : unknown = representation.getPropertyValue('PAYLOAD');
+        if (typeof value === 'undefined') {
             return [];
         }
 
@@ -193,6 +193,6 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     }
 
     private supportsPathMethod(method: string) : boolean {
-        return (['ALL', 'GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'] as MethodHttpVerbKey[]).some(m => m.toLowerCase() === method.toLowerCase());
+        return (['ALL', 'GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'] as MethodHttpVerbKey[]).some((m) => m.toLowerCase() === method.toLowerCase());
     }
 }

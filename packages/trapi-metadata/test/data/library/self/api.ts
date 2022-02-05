@@ -5,9 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {GET, Path, POST} from "../typescript-rest/decorators";
-import {RequestConsumes, ResponseDescription, ResponseExample, ResponseProduces, SwaggerTags} from "../../../../src";
-import {Person} from "../type";
+import { GET, POST, Path } from '../typescript-rest/decorators';
+import {
+    RequestConsumes, ResponseDescription, ResponseExample, ResponseProduces, SwaggerTags,
+} from '../../../../src';
+import { Person } from '../type';
 
 @Path('mypath')
 @SwaggerTags('My Services')
@@ -27,7 +29,7 @@ export class MyService {
      */
     @POST
     @ResponseExample<Person[]>([{
-        name: 'Joe'
+        name: 'Joe',
     }])
     @RequestConsumes('application/json', 'text/html')
     @ResponseProduces('application/json')

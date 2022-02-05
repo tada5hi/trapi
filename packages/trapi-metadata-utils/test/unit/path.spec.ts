@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {normalizePath, normalizePathParameters} from "../../src";
+import { normalizePath, normalizePathParameters } from '../../src';
 
 describe('src/path.ts', () => {
     it('should normalize path parameters', () => {

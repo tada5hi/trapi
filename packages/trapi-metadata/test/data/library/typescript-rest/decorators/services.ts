@@ -6,42 +6,42 @@
  */
 
 export function Path(path: string) {
-    return (...args) => { return; };
+    return (...args) => { };
 }
 
 export function Security(roles?: string | Array<string>, name?: string) {
-    return (...args) => { return; };
+    return (...args) => { };
 }
 
 export function PreProcessor<T>(preprocessor: T) {
-    return () => { return; };
+    return () => { };
 }
 
 export function PostProcessor<T>(preprocessor: T) {
-    return () => { return; };
+    return () => { };
 }
 
 export function AcceptLanguage(...languages: Array<string>) {
-    return () => { return; };
+    return () => { };
 }
 
 export function Accept(...accepts: Array<string>) {
-    return (...args) => { return; };
+    return (...args) => { };
 }
 
 export function BodyOptions(options: any) {
-    return () => { return; };
+    return () => { };
 }
 
 export function BodyType<T>(type: T) {
-    return () => { return; };
+    return () => { };
 }
 
 export function IgnoreNextMiddlewares(...args: Array<any>) {
-    return () => { return; };
+    return () => { };
 }
 
 // like SWAGGER_HIDDEN
 export function Abstract(...args: Array<any>) {
-    return () => { return; };
+    return () => { };
 }

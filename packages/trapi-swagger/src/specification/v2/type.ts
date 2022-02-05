@@ -6,8 +6,8 @@
  */
 
 import {
-    Specification
-} from "../type";
+    Specification,
+} from '../type';
 
 export namespace SpecificationV2 {
     export interface Spec extends Specification.BaseSpec {
@@ -81,9 +81,9 @@ export namespace SpecificationV2 {
     }
 
     export type OAuth2Security = OAuth2AccessCodeSecurity |
-        OAuth2ApplicationSecurity |
-        OAuth2ImplicitSecurity |
-        OAuth2PasswordSecurity;
+    OAuth2ApplicationSecurity |
+    OAuth2ImplicitSecurity |
+    OAuth2PasswordSecurity;
 
     export type Security =
         BasicSecurity |

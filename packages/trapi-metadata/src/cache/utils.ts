@@ -5,22 +5,22 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Cache} from "./type";
-import path from "path";
-import crypto from "crypto";
+import path from 'path';
+import crypto from 'crypto';
+import { Cache } from './type';
 
 export function buildCacheConfig(config?: string | boolean | Partial<Cache.Config>) : Cache.Config {
-    if(typeof config === 'string') {
+    if (typeof config === 'string') {
         config = {
             enabled: true,
-            directoryPath: config
-        }
+            directoryPath: config,
+        };
     }
 
-    if(typeof config === 'boolean') {
+    if (typeof config === 'boolean') {
         config = {
-            enabled: config
-        }
+            enabled: config,
+        };
     }
 
     config ??= {};
@@ -34,7 +34,7 @@ export function buildCacheConfig(config?: string | boolean | Partial<Cache.Confi
             path.isAbsolute(config.directoryPath) ? config.directoryPath : path.join(process.cwd(), config.directoryPath) :
             process.cwd(),
         enabled: config.enabled ?? false,
-        clearAtRandom: config.clearAtRandom ?? !isTestEnvironment
+        clearAtRandom: config.clearAtRandom ?? !isTestEnvironment,
     };
 }
 

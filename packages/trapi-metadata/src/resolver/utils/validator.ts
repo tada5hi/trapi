@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {ParameterDeclaration} from 'typescript';
-import {Validator} from "../../type";
-import {getJSDocTags} from "../../utils";
+import { ParameterDeclaration } from 'typescript';
+import { Validator } from '../../type';
+import { getJSDocTags } from '../../utils';
 
 export function getParameterValidators(parameter: ParameterDeclaration, name: string): Record<string, Validator> {
     if (!parameter.parent) {
@@ -16,10 +16,10 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
 
     const getCommentValue = (comment?: string) => comment && comment.split(' ')[0];
 
-    const tags = getJSDocTags(parameter.parent, tag => {
-        let { comment } = tag;
+    const tags = getJSDocTags(parameter.parent, (tag) => {
+        const { comment } = tag;
         const text : string = Array.isArray(comment) ? (comment.length > 0 ? comment[0].text : undefined) : comment;
-        return getSupportedParameterTags().some(value => !!comment && value === tag.tagName.text && getCommentValue(text) === name);
+        return getSupportedParameterTags().some((value) => !!comment && value === tag.tagName.text && getCommentValue(text) === name);
     });
 
     function getErrorMsg(comment?: string, isValue = true) : string {
@@ -30,17 +30,15 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
             const indexOf = comment.indexOf(' ');
             if (indexOf > 0) {
                 return comment.substr(indexOf + 1);
-            } else {
-                return undefined;
             }
-        } else {
-            return comment;
+            return undefined;
         }
+        return comment;
     }
 
     const validators : Record<string, Validator> = {};
 
-    tags.map(tag => {
+    tags.map((tag) => {
         if (!tag.comment) {
             return;
         }

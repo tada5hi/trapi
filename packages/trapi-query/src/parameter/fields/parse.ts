@@ -5,8 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {hasOwnProperty} from "../../utils";
-import {DEFAULT_ALIAS_ID, FieldOperator, FieldsParseOptions, FieldsParseOutput, FieldsParseOutputElement} from "./type";
+import { hasOwnProperty } from '../../utils';
+import {
+    DEFAULT_ALIAS_ID, FieldOperator, FieldsParseOptions, FieldsParseOutput, FieldsParseOutputElement,
+} from './type';
 
 // --------------------------------------------------
 
@@ -14,13 +16,13 @@ import {DEFAULT_ALIAS_ID, FieldOperator, FieldsParseOptions, FieldsParseOutput, 
 
 export function buildDomainFields(
     data: Record<string, string[]> | string[],
-    options?: FieldsParseOptions
+    options?: FieldsParseOptions,
 ) {
-    options = options ?? {defaultAlias: DEFAULT_ALIAS_ID};
+    options = options ?? { defaultAlias: DEFAULT_ALIAS_ID };
 
     let domainFields : Record<string, string[]> = {};
 
-    if(Array.isArray(data)) {
+    if (Array.isArray(data)) {
         domainFields[options.defaultAlias] = data;
     } else {
         domainFields = data;
@@ -31,12 +33,12 @@ export function buildDomainFields(
 
 export function parseQueryFields(
     data: unknown,
-    options?: FieldsParseOptions
+    options?: FieldsParseOptions,
 ) : FieldsParseOutput {
     options ??= {};
 
     // If it is an empty array nothing is allowed
-    if(
+    if (
         typeof options.allowed !== 'undefined' &&
         Object.keys(options.allowed).length === 0
     ) {
@@ -48,7 +50,7 @@ export function parseQueryFields(
     options.defaultAlias ??= DEFAULT_ALIAS_ID;
 
     let allowedDomainFields : Record<string, string[]> | undefined;
-    if(options.allowed) {
+    if (options.allowed) {
         allowedDomainFields = buildDomainFields(options.allowed, options);
     }
 
@@ -61,12 +63,12 @@ export function parseQueryFields(
         return [];
     }
 
-    if(prototype === '[object String]') {
-        data = {[options.defaultAlias]: data};
+    if (prototype === '[object String]') {
+        data = { [options.defaultAlias]: data };
     }
 
-    if(prototype === '[object Array]') {
-        data = {[options.defaultAlias]: data};
+    if (prototype === '[object Array]') {
+        data = { [options.defaultAlias]: data };
     }
 
     let transformed : FieldsParseOutput = [];
@@ -77,11 +79,11 @@ export function parseQueryFields(
         }
 
         const fieldsArr : string[] = buildArrayFieldsRepresentation((data as Record<string, string[]>)[alias]);
-        if(fieldsArr.length === 0) continue;
+        if (fieldsArr.length === 0) continue;
 
         let fields : FieldsParseOutputElement[] = [];
 
-        for(let i=0; i<fieldsArr.length; i++) {
+        for (let i = 0; i < fieldsArr.length; i++) {
             let operator: FieldOperator | undefined;
 
             switch (true) {
@@ -93,11 +95,11 @@ export function parseQueryFields(
                     break;
             }
 
-            if(operator) fieldsArr[i] = fieldsArr[i].substr(1);
+            if (operator) fieldsArr[i] = fieldsArr[i].substr(1);
 
             fields.push({
                 key: fieldsArr[i],
-                ...(operator ? {value: operator} : {})
+                ...(operator ? { value: operator } : {}),
             });
         }
 
@@ -105,29 +107,29 @@ export function parseQueryFields(
         const targetKey : string = allowedDomains.length === 1 ? allowedDomains[0] : alias;
 
         // is not default domain && includes are defined?
-        if(
+        if (
             alias !== DEFAULT_ALIAS_ID &&
             alias !== options.defaultAlias &&
             typeof options.relations !== 'undefined'
         ) {
-            const includesMatched = options.relations.filter(include => include.value === alias);
-            if(includesMatched.length === 0) {
+            const includesMatched = options.relations.filter((include) => include.value === alias);
+            if (includesMatched.length === 0) {
                 continue;
             }
         }
 
         fields = fields
-            .map(field => {
-                const fullKey : string = alias + '.' + field.key;
+            .map((field) => {
+                const fullKey = `${alias}.${field.key}`;
 
                 return {
-                    ...(targetKey && targetKey !== DEFAULT_ALIAS_ID ? {alias: targetKey} : {}),
+                    ...(targetKey && targetKey !== DEFAULT_ALIAS_ID ? { alias: targetKey } : {}),
                     ...field,
-                    key: options.aliasMapping.hasOwnProperty(fullKey) ? options.aliasMapping[fullKey].split('.').pop() : field.key
+                    key: options.aliasMapping.hasOwnProperty(fullKey) ? options.aliasMapping[fullKey].split('.').pop() : field.key,
                 };
             })
-            .filter(field => {
-                if(typeof allowedDomainFields === 'undefined') {
+            .filter((field) => {
+                if (typeof allowedDomainFields === 'undefined') {
                     return true;
                 }
 
@@ -135,15 +137,15 @@ export function parseQueryFields(
                     allowedDomainFields[targetKey].indexOf(field.key) !== -1;
             });
 
-        if(fields.length > 0) {
+        if (fields.length > 0) {
             transformed = [...transformed, ...fields];
         }
     }
 
     const keys : string[] = Object.keys(transformed);
 
-    if(keys.length === 1) {
-        if(keys[0] === DEFAULT_ALIAS_ID) {
+    if (keys.length === 1) {
+        if (keys[0] === DEFAULT_ALIAS_ID) {
             return transformed[keys[0]];
         }
     }
@@ -163,14 +165,14 @@ function buildArrayFieldsRepresentation(data: unknown) : string[] {
     let fieldsArr : string[] = [];
 
     /* istanbul ignore next */
-    if(valuePrototype === '[object String]') {
+    if (valuePrototype === '[object String]') {
         fieldsArr = (data as string).split(',');
     }
 
     /* istanbul ignore next */
-    if(valuePrototype === '[object Array]') {
+    if (valuePrototype === '[object Array]') {
         fieldsArr = (data as unknown[])
-            .filter(val => typeof val === 'string') as string[];
+            .filter((val) => typeof val === 'string') as string[];
     }
 
     return fieldsArr;

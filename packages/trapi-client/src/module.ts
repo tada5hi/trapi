@@ -7,8 +7,8 @@
 
 import axios, { AxiosDefaults } from 'axios';
 import { ClientDriverInstance, ClientRequestConfig, ClientResponse } from './type';
-import {Config} from "./config";
-import {AuthorizationHeader, stringifyAuthorizationHeader} from "./header";
+import { Config } from './config';
+import { AuthorizationHeader, stringifyAuthorizationHeader } from './header';
 
 export class Client {
     public readonly driver: ClientDriverInstance;

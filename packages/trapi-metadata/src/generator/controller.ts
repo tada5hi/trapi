@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {ClassDeclaration, MethodDeclaration, SyntaxKind} from 'typescript';
-import {EndpointGenerator} from './endpoint';
-import {MetadataGenerator} from './index';
-import {MethodGenerator} from './method';
-import {Controller, Method} from "../type";
+import { ClassDeclaration, MethodDeclaration, SyntaxKind } from 'typescript';
+import { EndpointGenerator } from './endpoint';
+import { MetadataGenerator } from './index';
+import { MethodGenerator } from './method';
+import { Controller, Method } from '../type';
 
 export class ControllerGenerator extends EndpointGenerator<ClassDeclaration> {
     private genMethods: Set<string> = new Set<string>();
@@ -21,6 +21,7 @@ export class ControllerGenerator extends EndpointGenerator<ClassDeclaration> {
 
         this.generatePath('CLASS_PATH');
     }
+
     public isValid() {
         return !!this.path || this.path === '';
     }
@@ -52,7 +53,7 @@ export class ControllerGenerator extends EndpointGenerator<ClassDeclaration> {
         return this.node.members
             .filter((method: { kind: unknown; }) => (method.kind === SyntaxKind.MethodDeclaration))
             .filter((method: MethodDeclaration) => !this.isHidden(method))
-            .map((method: MethodDeclaration) => new MethodGenerator(method, this.current,this.path || ''))
+            .map((method: MethodDeclaration) => new MethodGenerator(method, this.current, this.path || ''))
             .filter((generator: MethodGenerator) => {
                 if (generator.isValid() && !this.genMethods.has(generator.getMethodName())) {
                     this.genMethods.add(generator.getMethodName());

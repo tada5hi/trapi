@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Specification} from "../type";
+import { Specification } from '../type';
 
 export namespace SpecificationV3 {
     import BaseParameter = Specification.BaseParameter;
@@ -42,7 +42,6 @@ export namespace SpecificationV3 {
         schemas?: { [name: string]: Schema };
         securitySchemes?: { [name: string]: Security };
     }
-
 
     // Paths
     export interface Paths {

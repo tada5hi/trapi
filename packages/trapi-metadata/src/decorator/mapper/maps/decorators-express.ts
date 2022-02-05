@@ -5,15 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Decorator} from "../../type";
+import { Decorator } from '../../type';
 
 export default {
     // Class
     CLASS_PATH: {
         id: 'Controller',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
 
     // Method
@@ -21,97 +21,97 @@ export default {
         {
             id: 'All',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Get',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Post',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Put',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Delete',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Patch',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Options',
             properties: {
-                DEFAULT: {}
-            }
+                DEFAULT: {},
+            },
         },
         {
             id: 'Head',
             properties: {
-                DEFAULT: {}
-            }
-        }
+                DEFAULT: {},
+            },
+        },
     ],
 
     // Parameter
     SERVER_CONTEXT: [
         {
             id: 'Request',
-            properties: {}
+            properties: {},
         },
         {
             id: 'Response',
-            properties: {}
+            properties: {},
         },
         {
             id: 'Next',
-            properties: {}
+            properties: {},
         },
     ],
     SERVER_QUERY: {
         id: 'Query',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_FORM: undefined,
     SERVER_BODY: {
         id: 'Body',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_HEADERS: {
         id: 'Headers',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_COOKIES: {
         id: 'Cookies',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_PATH_PARAMS: {
         id: 'Params',
         properties: {
-            DEFAULT: {}
-        }
-    }
+            DEFAULT: {},
+        },
+    },
 } as Partial<Decorator.TypeRepresentationMap>;

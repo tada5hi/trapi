@@ -1,4 +1,4 @@
-import {FilterOperator, FilterOperatorLabel, FilterOperatorLabelType} from "./type";
+import { FilterOperator, FilterOperatorLabel, FilterOperatorLabelType } from './type';
 
 const config : {
     sign: FilterOperator,
@@ -6,11 +6,11 @@ const config : {
 }[] = [];
 
 const operatorKeys = Object.keys(FilterOperator);
-for(let i=0; i<operatorKeys.length; i++) {
+for (let i = 0; i < operatorKeys.length; i++) {
     config.push({
         sign: FilterOperator[operatorKeys[i]],
-        label: FilterOperatorLabel[operatorKeys[i]]
-    })
+        label: FilterOperatorLabel[operatorKeys[i]],
+    });
 }
 
 export function determineFilterOperatorLabelsByValue(input: string) : {
@@ -21,14 +21,14 @@ export function determineFilterOperatorLabelsByValue(input: string) : {
 
     const operators : FilterOperatorLabelType[] = [];
 
-    for(let i=0; i<config.length; i++) {
-        if(typeof value !== 'string') {
+    for (let i = 0; i < config.length; i++) {
+        if (typeof value !== 'string') {
             continue;
         }
 
         switch (config[i].sign) {
             case FilterOperator.IN:
-                if(
+                if (
                     value.includes(config[i].sign)
                 ) {
                     operators.push(config[i].label);
@@ -36,7 +36,7 @@ export function determineFilterOperatorLabelsByValue(input: string) : {
                 }
                 break;
             default:
-                if(
+                if (
                     value.slice(0, config[i].sign.length) === config[i].sign
                 ) {
                     operators.push(config[i].label);
@@ -48,6 +48,6 @@ export function determineFilterOperatorLabelsByValue(input: string) : {
 
     return {
         operators,
-        value
-    }
+        value,
+    };
 }

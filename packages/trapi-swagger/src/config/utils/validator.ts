@@ -5,19 +5,21 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {array, boolean, lazy, mixed, object, SchemaOf, string} from "yup";
-import {mapYupRuleForDictionary, getPackageJsonStringValue} from "@trapi/metadata-utils";
-import {Specification} from "../../specification";
+import {
+    SchemaOf, array, boolean, lazy, mixed, object, string,
+} from 'yup';
+import { getPackageJsonStringValue, mapYupRuleForDictionary } from '@trapi/metadata-utils';
+import { Specification } from '../../specification';
 
 let validatorInstance : undefined | SchemaOf<Specification.Config>;
 
 export function useConfigValidator() : SchemaOf<Specification.Config> {
-    if(typeof validatorInstance !== 'undefined') {
+    if (typeof validatorInstance !== 'undefined') {
         return validatorInstance;
     }
 
-    const securityDefinitionsValidator : SchemaOf<Specification.SecurityDefinitions> = lazy(map => {
-        if(Object.prototype.toString.call(map) === '[object Object]') {
+    const securityDefinitionsValidator : SchemaOf<Specification.SecurityDefinitions> = lazy((map) => {
+        if (Object.prototype.toString.call(map) === '[object Object]') {
             const directory = mapYupRuleForDictionary(map, object({
                 type: mixed().oneOf(['apiKey', 'oauth2', 'http'] as Specification.SecurityType[]),
                 description: string().optional().default(undefined),
@@ -27,25 +29,25 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
                     implicit: object({
                         refreshUrl: string().optional().default(undefined),
                         scopes: mixed().optional().default({}),
-                        authorizationUrl: string()
+                        authorizationUrl: string(),
                     }).optional(),
                     password: object({
                         refreshUrl: string().optional().default(undefined),
                         scopes: mixed().optional().default({}),
-                        tokenUrl: string()
+                        tokenUrl: string(),
                     }).optional(),
                     authorizationCode: object({
                         refreshUrl: string().optional().default(undefined),
                         scopes: mixed().optional().default({}),
                         authorizationUrl: string(),
-                        tokenUrl: string()
+                        tokenUrl: string(),
                     }).optional(),
                     clientCredentials: object({
                         refreshUrl: string().optional().default(undefined),
                         scopes: mixed().optional().default({}),
-                        tokenUrl: string()
-                    })
-                }).optional().default(undefined)
+                        tokenUrl: string(),
+                    }),
+                }).optional().default(undefined),
             }));
 
             return object(directory).default({});
@@ -62,7 +64,7 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
 
         specification: (string().oneOf([
             Specification.SpecificationOption.V2,
-            Specification.SpecificationOption.V3
+            Specification.SpecificationOption.V3,
         ]).optional().default(Specification.SpecificationOption.V2)) as SchemaOf<Specification.SpecificationOption>,
         specificationExtra: mixed().optional().default(undefined),
 
@@ -76,12 +78,11 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
 
         consumes: array().of(string()).optional().default(undefined),
         produces: array().of(string()).optional().default(undefined),
-        collectionFormat: string().optional().default(undefined)
+        collectionFormat: string().optional().default(undefined),
     });
 
     return validatorInstance;
 }
-
 
 export function extendSwaggerConfig(workingDir: string, conf: Specification.Config): Specification.Config {
     conf.version = conf.version || getPackageJsonStringValue(workingDir, 'version', '0.0.1');

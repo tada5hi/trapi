@@ -10,4 +10,4 @@ export type OnlyScalar<T> = T extends string | number | boolean | undefined | nu
 export type OnlySingleObject<T> = T extends { [key: string]: any } ? T : never;
 export type OnlyObject<T> = Flatten<T> extends OnlySingleObject<Flatten<T>> ? T | Flatten<T> : never;
 export type ToOneAndMany<T> = T extends Array<infer Item> ? (Item | Item[]) : (T[] | T);
-export type KeyWithOptionalPrefix<T, O extends string> = T extends string ? (`${O}${T}` | T) : never
+export type KeyWithOptionalPrefix<T, O extends string> = T extends string ? (`${O}${T}` | T) : never;

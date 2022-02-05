@@ -5,19 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {convertCompilerOptionsFromJson, CompilerOptions} from "typescript";
+import { CompilerOptions, convertCompilerOptionsFromJson } from 'typescript';
 import fs from 'fs';
-import path from "path";
-import {hasOwnProperty} from "./object";
+import path from 'path';
+import { hasOwnProperty } from './object';
 
 export function getCompilerOptions(
     filePath?: string,
-    fileName: string = 'tsconfig.json'
+    fileName = 'tsconfig.json',
 ): CompilerOptions {
     const cwd = process.cwd();
 
     // get absolute file path
-    let fullPath : string = filePath ? path.isAbsolute(filePath) ? filePath : path.join(cwd, filePath)  : path.join(cwd, fileName);
+    let fullPath : string = filePath ? path.isAbsolute(filePath) ? filePath : path.join(cwd, filePath) : path.join(cwd, fileName);
 
     // check permission to read file
     fs.accessSync(fullPath, fs.constants.R_OK);
@@ -26,7 +26,7 @@ export function getCompilerOptions(
 
     fullPath = fileStats.isDirectory() ? path.join(fullPath, fileName) : fullPath;
 
-    const raw : string = fs.readFileSync(fullPath, {encoding: 'utf-8'});
+    const raw : string = fs.readFileSync(fullPath, { encoding: 'utf-8' });
 
     const content : any = JSON.parse(raw);
 

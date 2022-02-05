@@ -5,13 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-'use strict';
-
 export function normalizePath(str: string) : string {
     // remove slashes
     str = str.replace(/^[/\\\s]+|[/\\\s]+$/g, '');
 
-    str = str.replace(/([^:]\/)\/+/g, "$1");
+    str = str.replace(/([^:]\/)\/+/g, '$1');
 
     return str;
 }

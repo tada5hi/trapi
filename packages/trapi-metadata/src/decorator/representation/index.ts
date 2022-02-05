@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {hasOwnProperty} from "@trapi/metadata-utils";
-import {Decorator} from "../type";
-import {extendRepresentationPropertyConfig, extractRepresentationPropertyValue} from "./property/utils";
+import { hasOwnProperty } from '@trapi/metadata-utils';
+import { Decorator } from '../type';
+import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue } from './property/utils';
 import TypePropertyMaps = Decorator.TypePropertyMap;
 
 export class RepresentationManager<T extends Decorator.Type> {
@@ -15,7 +15,7 @@ export class RepresentationManager<T extends Decorator.Type> {
 
     constructor(
         protected representation: Decorator.Representation<T>,
-        public decorators: Decorator.Data[]
+        public decorators: Decorator.Data[],
     ) {
 
     }
@@ -29,16 +29,16 @@ export class RepresentationManager<T extends Decorator.Type> {
      */
     public getPropertyValue<P extends keyof Decorator.TypePropertyMap[T]>(
         type: P,
-        decoratorOrIndex?: number | Decorator.Data
+        decoratorOrIndex?: number | Decorator.Data,
     ) : TypePropertyMaps[T][P] | undefined {
         const config : Decorator.Property = this.getPropertyConfiguration(type);
-        if(typeof config === 'undefined') {
+        if (typeof config === 'undefined') {
             return undefined;
         }
 
         let decorator : Decorator.Data;
 
-        if(
+        if (
             typeof decoratorOrIndex === 'number' ||
             typeof decoratorOrIndex === 'undefined'
         ) {
@@ -58,7 +58,7 @@ export class RepresentationManager<T extends Decorator.Type> {
     // -------------------------------------------
 
     public getPropertyConfiguration(type: keyof Decorator.TypePropertyMap[T]) : Decorator.Property | undefined {
-        if(!hasOwnProperty(this.representation.properties, type)) {
+        if (!hasOwnProperty(this.representation.properties, type)) {
             return undefined;
         }
 
@@ -68,7 +68,7 @@ export class RepresentationManager<T extends Decorator.Type> {
     // -------------------------------------------
 
     protected extendProperty<P extends keyof Decorator.TypePropertyMap[T]>(type: P) : Decorator.Property {
-        if(hasOwnProperty(this.extendedProperties, type)) {
+        if (hasOwnProperty(this.extendedProperties, type)) {
             return this.extendedProperties[type];
         }
 
@@ -76,7 +76,5 @@ export class RepresentationManager<T extends Decorator.Type> {
         this.extendedProperties[type] = extendRepresentationPropertyConfig(property);
 
         return this.extendedProperties[type];
-
     }
 }
-

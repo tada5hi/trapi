@@ -12,7 +12,7 @@ export enum Parameter {
     FIELDS = 'fields',
     PAGINATION = 'pagination',
     RELATIONS = 'relations',
-    SORT = 'sort'
+    SORT = 'sort',
 }
 
 export type ParameterType = `${Parameter}`;
@@ -30,7 +30,7 @@ export enum URLParameter {
     FIELDS = 'fields',
     PAGINATION = 'page',
     RELATIONS = 'include',
-    SORT = 'sort'
+    SORT = 'sort',
 }
 
 export type URLParameterType = `${URLParameter}`;
@@ -40,5 +40,3 @@ export type URLParameterFieldsType = 'fields';
 export type URLParameterPaginationType = 'page';
 export type URLParameterRelationsType = 'include';
 export type URLParameterSortType = 'sort';
-
-

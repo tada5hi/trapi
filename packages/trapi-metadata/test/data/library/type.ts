@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as swagger from "../../../src/decorator";
+import * as swagger from '../../../src/decorator';
 
 export interface TestInterface {
     a: string;
@@ -27,7 +27,7 @@ export interface Person {
 
 export enum TestEnum {
     Option1 = 'option1',
-    Option2 = 'option2'
+    Option2 = 'option2',
 }
 
 export enum TestNumericEnum {
@@ -134,5 +134,6 @@ export abstract class Entity {
 
 export class NamedEntity implements Entity {
     public id: number;
+
     public name: string;
 }

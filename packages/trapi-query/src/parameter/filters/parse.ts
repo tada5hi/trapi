@@ -6,14 +6,14 @@
  */
 
 import {
-    buildObjectFromStringArray,
-    buildFieldWithAlias,
     FieldDetails,
+    buildFieldWithAlias,
+    buildObjectFromStringArray,
     getFieldDetails,
-    isFieldAllowedByRelations
-} from "../../utils";
-import {FiltersParseOptions, FiltersParseOutput, FiltersParseOutputElement} from "./type";
-import {determineFilterOperatorLabelsByValue} from "./utils";
+    isFieldAllowedByRelations,
+} from '../../utils';
+import { FiltersParseOptions, FiltersParseOutput, FiltersParseOutputElement } from './type';
+import { determineFilterOperatorLabelsByValue } from './utils';
 
 // --------------------------------------------------
 
@@ -22,7 +22,7 @@ import {determineFilterOperatorLabelsByValue} from "./utils";
 function buildOptions(options?: FiltersParseOptions) : FiltersParseOptions {
     options ??= {};
 
-    if(options.aliasMapping) {
+    if (options.aliasMapping) {
         options.aliasMapping = buildObjectFromStringArray(options.aliasMapping);
     } else {
         options.aliasMapping = {};
@@ -35,13 +35,13 @@ function buildOptions(options?: FiltersParseOptions) : FiltersParseOptions {
 
 export function parseQueryFilters(
     data: unknown,
-    options?: FiltersParseOptions
-) :  FiltersParseOutput {
+    options?: FiltersParseOptions,
+) : FiltersParseOutput {
     options = options ?? {};
 
     // If it is an empty array nothing is allowed
 
-    if(
+    if (
         typeof options.allowed !== 'undefined' &&
         Object.keys(options.allowed).length === 0
     ) {
@@ -54,8 +54,8 @@ export function parseQueryFilters(
         return [];
     }
 
-    const length : number = Object.keys(data as Record<string, any>).length;
-    if(length === 0) {
+    const { length } = Object.keys(data as Record<string, any>);
+    if (length === 0) {
         return [];
     }
 
@@ -84,7 +84,7 @@ export function parseQueryFilters(
             continue;
         }
 
-        if(typeof value === 'string') {
+        if (typeof value === 'string') {
             value = (value as string).trim();
             const stripped : string = (value as string).replace('/,/g', '');
 
@@ -93,19 +93,18 @@ export function parseQueryFilters(
             }
         }
 
-
-        if(options.aliasMapping.hasOwnProperty(key)) {
+        if (options.aliasMapping.hasOwnProperty(key)) {
             key = options.aliasMapping[key];
         }
 
         const fieldDetails : FieldDetails = getFieldDetails(key);
-        if(!isFieldAllowedByRelations(fieldDetails, options.relations, {defaultAlias: options.defaultAlias})) {
+        if (!isFieldAllowedByRelations(fieldDetails, options.relations, { defaultAlias: options.defaultAlias })) {
             continue;
         }
 
         const keyWithAlias : string = buildFieldWithAlias(fieldDetails, options.defaultAlias);
 
-        if(
+        if (
             typeof options.allowed !== 'undefined' &&
             options.allowed.indexOf(key) === -1 &&
             options.allowed.indexOf(keyWithAlias) === -1
@@ -113,21 +112,18 @@ export function parseQueryFilters(
             continue;
         }
 
-        const alias : string | undefined =  typeof fieldDetails.path === 'undefined' &&
+        const alias : string | undefined = typeof fieldDetails.path === 'undefined' &&
             typeof fieldDetails.alias === 'undefined' ?
-                (
-                    options.defaultAlias ?
+            (
+                options.defaultAlias ?
                     options.defaultAlias :
                     undefined
-                )
-                :
-                fieldDetails.alias
-            ;
-
+            ) :
+            fieldDetails.alias;
         temp[keyWithAlias] = {
             key: fieldDetails.name,
-            ...(alias ? {alias} : {}),
-            value: value as string | boolean | number
+            ...(alias ? { alias } : {}),
+            value: value as string | boolean | number,
         };
     }
 
@@ -141,18 +137,18 @@ export function parseQueryFilters(
         }
 
         const filter : FiltersParseOutputElement = {
-            ...(temp[key].alias ? {alias:  temp[key].alias} : {}),
+            ...(temp[key].alias ? { alias: temp[key].alias } : {}),
             key: temp[key].key,
-            value:  temp[key].value
-        }
+            value: temp[key].value,
+        };
 
-        if(typeof filter.value === 'string') {
-            const {value, operators} = determineFilterOperatorLabelsByValue(filter.value);
-            if(operators.length > 0) {
+        if (typeof filter.value === 'string') {
+            const { value, operators } = determineFilterOperatorLabelsByValue(filter.value);
+            if (operators.length > 0) {
                 filter.value = value;
                 filter.operator = {};
 
-                for(let i=0; i<operators.length; i++) {
+                for (let i = 0; i < operators.length; i++) {
                     filter.operator[operators[i]] = true;
                 }
             }

@@ -5,18 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {parseQueryFields, parseQueryFilters} from "../../parameter";
-import {parseQueryPagination} from "../../parameter";
-import {parseQueryRelations, RelationsParseOutput} from "../../parameter";
-import {parseQuerySort} from "../../parameter";
-import {Parameter, ParameterType, URLParameter, URLParameterType} from "../../type";
-import {ParseParameterOptions, ParseParameterOutput} from "./type";
+import {
+    RelationsParseOutput, parseQueryFields, parseQueryFilters, parseQueryPagination, parseQueryRelations, parseQuerySort,
+} from '../../parameter';
+import {
+    Parameter, ParameterType, URLParameter, URLParameterType,
+} from '../../type';
+import { ParseParameterOptions, ParseParameterOutput } from './type';
 
 export function parseQueryParameter<K extends ParameterType | URLParameterType>(
     key: K,
     data: unknown,
     options?: ParseParameterOptions<K> | boolean,
-    relations?: RelationsParseOutput
+    relations?: RelationsParseOutput,
 ): ParseParameterOutput<K> {
     switch (key) {
         case Parameter.FIELDS:
@@ -25,8 +26,8 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                 data,
                 {
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.FIELDS>,
-                    ...(relations ? {relations} : {})
-                }
+                    ...(relations ? { relations } : {}),
+                },
             ) as ParseParameterOutput<K>);
         case Parameter.FILTERS:
         case URLParameter.FILTERS:
@@ -34,8 +35,8 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                 data,
                 {
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.FILTERS>,
-                    ...(relations ? {relations} : {})
-                }
+                    ...(relations ? { relations } : {}),
+                },
             ) as ParseParameterOutput<K>);
         case Parameter.PAGINATION:
         case URLParameter.PAGINATION:
@@ -43,16 +44,16 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                 data,
                 {
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.PAGINATION>,
-                    ...(relations ? {relations} : {})
-                }
+                    ...(relations ? { relations } : {}),
+                },
             ) as ParseParameterOutput<K>);
         case Parameter.RELATIONS:
         case URLParameter.RELATIONS:
             return (parseQueryRelations(
                 data,
                 {
-                    ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.RELATIONS>
-                }
+                    ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.RELATIONS>,
+                },
             ) as ParseParameterOutput<K>);
         case Parameter.SORT:
         case URLParameter.SORT:
@@ -60,14 +61,14 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                 data,
                 {
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.SORT>,
-                    ...(relations ? {relations} : {})
-                }
+                    ...(relations ? { relations } : {}),
+                },
             ) as ParseParameterOutput<K>);
     }
 }
 
 function invalidToEmptyObject<K extends Parameter>(
-    value: ParseParameterOptions<K> | boolean
+    value: ParseParameterOptions<K> | boolean,
 ): ParseParameterOptions<K> {
     return typeof value === 'boolean' ||
     typeof value === 'undefined' ?

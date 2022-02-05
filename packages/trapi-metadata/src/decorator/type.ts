@@ -69,7 +69,6 @@ export namespace Decorator {
         [K in keyof P]: Property
     };
 
-
     /**
      * A decorator type is an identifier which is associated
      * to specific decorator names.
@@ -190,12 +189,11 @@ export namespace Decorator {
     export type Type = keyof TypePropertyMap;
 
     export type MethodHttpVerbType = Extract<Type, 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' |
-        'PATCH' | 'OPTIONS' | 'HEAD'>;
-
+    'PATCH' | 'OPTIONS' | 'HEAD'>;
 
     export type ParameterServerType = Extract<Type, 'SERVER_CONTEXT' | 'SERVER_PARAMS' | 'SERVER_QUERY' | 'SERVER_FORM' |
-        'SERVER_BODY' | 'SERVER_HEADERS' | 'SERVER_COOKIES' | 'SERVER_PATH_PARAMS' |
-        'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>;
+    'SERVER_BODY' | 'SERVER_HEADERS' | 'SERVER_COOKIES' | 'SERVER_PATH_PARAMS' |
+    'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>;
 
     // -------------------------------------------
 

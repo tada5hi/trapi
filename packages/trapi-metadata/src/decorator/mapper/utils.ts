@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {hasOwnProperty} from "@trapi/metadata-utils";
-import {Decorator} from "../type";
+import { hasOwnProperty } from '@trapi/metadata-utils';
+import { Decorator } from '../type';
 
 /**
  *
@@ -16,7 +16,7 @@ import {Decorator} from "../type";
  */
 export function reduceTypeRepresentationMapping(
     mapping: Partial<Decorator.TypeRepresentationMap>,
-    reducer: (type: Decorator.Type) => boolean
+    reducer: (type: Decorator.Type) => boolean,
 ): Partial<Decorator.TypeRepresentationMap> {
     const mappingKeys: Decorator.Type[] = (Object.keys(mapping) as Decorator.Type[]);
     const allowedTypes: Decorator.Type[] = mappingKeys
@@ -43,7 +43,7 @@ export function reduceTypeRepresentationMapping(
  */
 export function isMappingTypeIncluded(
     type: Decorator.Type,
-    config: Decorator.TypeRepresentationConfig
+    config: Decorator.TypeRepresentationConfig,
 ): boolean {
     const allowedType = Object.prototype.toString.call(config);
     switch (allowedType) {
@@ -61,10 +61,10 @@ export function isMappingTypeIncluded(
     return false;
 }
 
-let decoratorMap : Record<string, Partial<Decorator.TypeRepresentationMap>> = {};
+const decoratorMap : Record<string, Partial<Decorator.TypeRepresentationMap>> = {};
 
 export function getDecoratorMap(name: string) : Partial<Decorator.TypeRepresentationMap> {
-    if(hasOwnProperty(decoratorMap, name)) {
+    if (hasOwnProperty(decoratorMap, name)) {
         return decoratorMap[name];
     }
 
@@ -79,7 +79,7 @@ export function getDecoratorMap(name: string) : Partial<Decorator.TypeRepresenta
 function loadDecoratorMap(library: string) : Partial<Decorator.TypeRepresentationMap> {
     const exp = require(`./maps/${library}`);
 
-    if(hasOwnProperty(exp, 'default')) {
+    if (hasOwnProperty(exp, 'default')) {
         return exp.default;
     }
 

@@ -5,20 +5,20 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {GeneratorOutput} from "@trapi/metadata";
-import {createSpecGenerator, Version3SpecGenerator} from "../../src";
+import { GeneratorOutput } from '@trapi/metadata';
+import { Version3SpecGenerator, createSpecGenerator } from '../../src';
 
 const jsonata = require('jsonata');
 
 const metadata : GeneratorOutput = require('../data/metadata.json');
 
 const specGenerator = createSpecGenerator(metadata, {
-    host: 'http://localhost:3000/'
+    host: 'http://localhost:3000/',
 });
 
 const spec = specGenerator.getSwaggerSpec();
 
-describe(`generating swagger spec from metadata`, () => {
+describe('generating swagger spec from metadata', () => {
     it('should generate paths for decorated services', () => {
         expect(spec.paths).toHaveProperty('/mypath');
         expect(spec.paths).toHaveProperty('/mypath/secondpath');
@@ -51,7 +51,7 @@ describe(`generating swagger spec from metadata`, () => {
         expression = jsonata('paths."/mypath/secondpath".get.parameters[3]');
         const evaluate = expression.evaluate(spec);
         expect(evaluate.schema).toHaveProperty('$ref');
-        expect(evaluate.schema.$ref).toEqual("#/definitions/TestEnum");
+        expect(evaluate.schema.$ref).toEqual('#/definitions/TestEnum');
     });
 
     it('should generate specs for enum params based on it values types', () => {
@@ -246,7 +246,7 @@ describe('TypeEndpoint', () => {
             description: undefined,
             properties: {
                 a: { type: 'string', description: undefined },
-                b: { type: 'number', format: 'double', description: undefined }
+                b: { type: 'number', format: 'double', description: undefined },
             },
             required: ['a', 'b'],
             type: 'object',
@@ -422,4 +422,3 @@ describe('TestUnionType', () => {
         expect(myTypeDefinition.enum).toEqual(['value1', 'value2']);
     });
 });
-

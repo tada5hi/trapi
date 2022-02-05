@@ -5,15 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Decorator} from "../../type";
+import { Decorator } from '../../type';
 
 export default {
     // Class
     CLASS_PATH: {
         id: 'Path',
         properties: {
-            DEFAULT: {type: 'element', srcArgumentType: "argument"}
-        }
+            DEFAULT: { type: 'element', srcArgumentType: 'argument' },
+        },
     },
 
     // Class + Method
@@ -21,59 +21,59 @@ export default {
     RESPONSE_EXAMPLE: {
         id: 'Example',
         properties: {
-            TYPE: {isType: true, srcArgumentType: "typeArgument"},
-            PAYLOAD: {type: "element", srcArgumentType: "argument"}
-        }
+            TYPE: { isType: true, srcArgumentType: 'typeArgument' },
+            PAYLOAD: { type: 'element', srcArgumentType: 'argument' },
+        },
     },
     RESPONSE_DESCRIPTION: {
         id: 'Response',
         properties: {
-            TYPE: {type: "element", srcArgumentType: "typeArgument"},
-            STATUS_CODE: {type: "element", srcArgumentType: "argument", srcPosition: 0},
-            DESCRIPTION: {type: "element", srcArgumentType: "argument", srcPosition: 1},
-            PAYLOAD: {type: "element", srcArgumentType: "argument", srcPosition: 2}
-        }
+            TYPE: { type: 'element', srcArgumentType: 'typeArgument' },
+            STATUS_CODE: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
+            DESCRIPTION: { type: 'element', srcArgumentType: 'argument', srcPosition: 1 },
+            PAYLOAD: { type: 'element', srcArgumentType: 'argument', srcPosition: 2 },
+        },
     },
 
     // Method
     ALL: {
         id: 'ALL',
-        properties: {}
+        properties: {},
     },
     GET: {
         id: 'GET',
-        properties: {}
+        properties: {},
     },
     POST: {
         id: 'POST',
-        properties: {}
+        properties: {},
     },
     PUT: {
         id: 'PUT',
-        properties: {}
+        properties: {},
     },
     DELETE: {
         id: 'DELETE',
-        properties: {}
+        properties: {},
     },
     PATCH: {
         id: 'PATCH',
-        properties: {}
+        properties: {},
     },
     OPTIONS: {
         id: 'OPTIONS',
-        properties: {}
+        properties: {},
     },
     HEAD: {
         id: 'HEAD',
-        properties: {}
+        properties: {},
     },
 
     METHOD_PATH: {
         id: 'Path',
         properties: {
-            DEFAULT: {type: 'element', srcArgumentType: "argument"}
-        }
+            DEFAULT: { type: 'element', srcArgumentType: 'argument' },
+        },
     },
 
     // Parameter
@@ -95,56 +95,55 @@ export default {
         },
         {
             id: 'ContextAccept',
-        }
+        },
     ],
     SERVER_PARAMS: {
         id: 'Param',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_QUERY: {
         id: 'QueryParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_FORM: {
         id: 'FormParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_BODY: undefined,
     SERVER_HEADERS: {
         id: 'HeaderParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_COOKIES: {
         id: 'CookieParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_PATH_PARAMS: {
         id: 'PathParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_FILES_PARAM: {
         id: 'FilesParam',
         properties: {
-            DEFAULT: {}
-        }
+            DEFAULT: {},
+        },
     },
     SERVER_FILE_PARAM: {
         id: 'FileParam',
         properties: {
-            DEFAULT: {}
-        }
-    }
+            DEFAULT: {},
+        },
+    },
 } as Partial<Decorator.TypeRepresentationMap>;
-

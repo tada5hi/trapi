@@ -6,8 +6,8 @@
  */
 
 import {
-    buildConfig,
     Config,
+    buildConfig,
     useConfig,
 } from '../config';
 import { Client } from '../module';
@@ -44,13 +44,13 @@ export function useClient<T extends Client>(
 }
 
 export function createClient<T extends Client = Client>(
-    config?: Config
+    config?: Config,
 ) : T {
     config = buildConfig(config);
 
     let instance : T;
 
-    if(config.clazz) {
+    if (config.clazz) {
         instance = new config.clazz(config);
     } else {
         instance = new Client(config) as T;

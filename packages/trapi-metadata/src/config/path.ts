@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from "path";
+import path from 'path';
 
 let writableDirPath : string | undefined;
 let rootDirPath : string | undefined;
 
 export function getWritableDirPath() {
-    if(typeof writableDirPath !== 'undefined') {
+    if (typeof writableDirPath !== 'undefined') {
         return writableDirPath;
     }
 
@@ -20,7 +20,7 @@ export function getWritableDirPath() {
 }
 
 export function getRootDirPath() {
-    if(typeof rootDirPath !== 'undefined') {
+    if (typeof rootDirPath !== 'undefined') {
         return rootDirPath;
     }
 

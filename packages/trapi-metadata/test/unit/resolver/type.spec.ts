@@ -5,12 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Resolver} from "../../../src";
+import { Resolver } from '../../../src';
 
 describe('type.ts', () => {
     it('check void type', () => {
         const type : Resolver.BaseType = {
-            typeName: "void"
+            typeName: 'void',
         };
         expect(Resolver.isVoidType(type)).toBeTruthy();
 
@@ -23,15 +23,15 @@ describe('type.ts', () => {
 
     it('check array type', () => {
         let type : Resolver.ArrayType | Resolver.AnyType = {
-            typeName: "array",
+            typeName: 'array',
             elementType: {
-                typeName: "void"
-            }
+                typeName: 'void',
+            },
         };
         expect(Resolver.isArrayType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isArrayType(type)).toBeFalsy();
@@ -41,13 +41,13 @@ describe('type.ts', () => {
 
     it('check nested object literal type', () => {
         let type : Resolver.NestedObjectLiteralType | Resolver.AnyType = {
-            typeName: "nestedObjectLiteral",
-            properties: []
+            typeName: 'nestedObjectLiteral',
+            properties: [],
         };
         expect(Resolver.isNestedObjectLiteralType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isNestedObjectLiteralType(type)).toBeFalsy();
@@ -57,13 +57,13 @@ describe('type.ts', () => {
 
     it('check union type', () => {
         let type : Resolver.UnionType | Resolver.AnyType = {
-            typeName: "union",
-            members: []
+            typeName: 'union',
+            members: [],
         };
         expect(Resolver.isUnionType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isUnionType(type)).toBeFalsy();
@@ -74,16 +74,16 @@ describe('type.ts', () => {
     it('check ref enum type', () => {
         let type : Resolver.RefEnumType | Resolver.AnyType = {
             deprecated: false,
-            typeName: "refEnum",
+            typeName: 'refEnum',
             members: [],
-            refName: "test"
+            refName: 'test',
         };
 
         expect(Resolver.isRefEnumType(type)).toBeTruthy();
         expect(Resolver.isReferenceType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isRefEnumType(type)).toBeFalsy();
@@ -95,16 +95,16 @@ describe('type.ts', () => {
     it('check ref object type', () => {
         let type : Resolver.RefObjectType | Resolver.AnyType = {
             deprecated: false,
-            typeName: "refObject",
-            refName: "test",
-            properties: []
+            typeName: 'refObject',
+            refName: 'test',
+            properties: [],
         };
 
         expect(Resolver.isRefObjectType(type)).toBeTruthy();
         expect(Resolver.isReferenceType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isRefObjectType(type)).toBeFalsy();
@@ -116,16 +116,16 @@ describe('type.ts', () => {
     it('check ref alias type', () => {
         let type : Resolver.RefAliasType | Resolver.AnyType = {
             deprecated: false,
-            typeName: "refAlias",
-            refName: "test",
-            type: null
+            typeName: 'refAlias',
+            refName: 'test',
+            type: null,
         };
 
         expect(Resolver.isRefAliasType(type)).toBeTruthy();
         expect(Resolver.isReferenceType(type)).toBeTruthy();
 
         type = {
-            typeName: "any"
+            typeName: 'any',
         };
 
         expect(Resolver.isRefAliasType(type)).toBeFalsy();

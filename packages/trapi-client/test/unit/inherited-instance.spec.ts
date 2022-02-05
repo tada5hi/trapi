@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {setClient, setConfig, useClient} from "../../src";
-import {TestTrapiClient} from "../data/child-class";
+import { setClient, setConfig, useClient } from '../../src';
+import { TestTrapiClient } from '../data/child-class';
 
 describe('src/**/*.ts', () => {
     it('should create instance with inherited class', () => {
         setConfig({
-            clazz: TestTrapiClient
+            clazz: TestTrapiClient,
         });
 
         let instance = useClient<TestTrapiClient>('default');
@@ -22,4 +22,4 @@ describe('src/**/*.ts', () => {
 
         expect(instance.test()).toEqual(true);
     });
-})
+});

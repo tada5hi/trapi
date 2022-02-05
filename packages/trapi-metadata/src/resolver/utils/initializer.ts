@@ -6,13 +6,13 @@
  */
 
 import * as ts from 'typescript';
-import {Resolver} from "../type";
-import {hasOwnProperty} from "@trapi/metadata-utils";
+import { hasOwnProperty } from '@trapi/metadata-utils';
+import { Resolver } from '../type';
 
 export function getInitializerValue(
     initializer?: ts.Expression,
     typeChecker?: ts.TypeChecker,
-    type?: Resolver.Type
+    type?: Resolver.Type,
 ) : unknown {
     if (!initializer) {
         return undefined;
@@ -21,7 +21,7 @@ export function getInitializerValue(
     switch (initializer.kind) {
         case ts.SyntaxKind.ArrayLiteralExpression:
             const arrayLiteral = initializer as ts.ArrayLiteralExpression;
-            return arrayLiteral.elements.map(element => getInitializerValue(element, typeChecker));
+            return arrayLiteral.elements.map((element) => getInitializerValue(element, typeChecker));
         case ts.SyntaxKind.StringLiteral:
             return (initializer as ts.StringLiteral).text;
         case ts.SyntaxKind.TrueKeyword:
@@ -38,8 +38,8 @@ export function getInitializerValue(
             if (ident.text === 'Date') {
                 let date = new Date();
                 if (newExpression.arguments) {
-                    const newArguments = newExpression.arguments.filter(args => args.kind !== undefined);
-                    const argsValue = newArguments.map(args => getInitializerValue(args, typeChecker));
+                    const newArguments = newExpression.arguments.filter((args) => args.kind !== undefined);
+                    const argsValue = newArguments.map((args) => getInitializerValue(args, typeChecker));
                     if (argsValue.length > 0) {
                         date = new Date(argsValue as any);
                     }
@@ -60,24 +60,23 @@ export function getInitializerValue(
             });
             return nestedObject;
         default:
-            if(typeof initializer === 'undefined') {
+            if (typeof initializer === 'undefined') {
                 return undefined;
-            } else {
-                if(
-                    typeof initializer.parent === 'undefined' ||
+            }
+            if (
+                typeof initializer.parent === 'undefined' ||
                     typeof typeChecker === 'undefined'
-                ) {
-                    if(hasOwnProperty(initializer, 'text')) {
-                        return initializer.text;
-                    }
-
-                    return undefined;
+            ) {
+                if (hasOwnProperty(initializer, 'text')) {
+                    return initializer.text;
                 }
 
-                const symbol = typeChecker.getSymbolAtLocation(initializer);
-                const extractedInitializer = symbol && symbol.valueDeclaration && hasInitializer(symbol.valueDeclaration) && (symbol.valueDeclaration.initializer as ts.Expression);
-                return extractedInitializer ? getInitializerValue(extractedInitializer, typeChecker) : undefined;
+                return undefined;
             }
+
+            const symbol = typeChecker.getSymbolAtLocation(initializer);
+            const extractedInitializer = symbol && symbol.valueDeclaration && hasInitializer(symbol.valueDeclaration) && (symbol.valueDeclaration.initializer as ts.Expression);
+            return extractedInitializer ? getInitializerValue(extractedInitializer, typeChecker) : undefined;
     }
 }
 

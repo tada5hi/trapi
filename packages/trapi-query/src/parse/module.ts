@@ -5,18 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {FieldsParseOutput} from "../parameter";
-import {FiltersParseOutput} from "../parameter";
-import {PaginationParseOutput} from "../parameter";
-import {RelationsParseOutput} from "../parameter";
-import {SortParseOutput} from "../parameter";
-import {Parameter, URLParameter} from "../type";
-import {parseQueryParameter} from "./parameter";
-import {ParseInput, ParseOptions, ParseOutput} from "./type";
+import {
+    FieldsParseOutput, FiltersParseOutput, PaginationParseOutput, RelationsParseOutput, SortParseOutput,
+} from '../parameter';
+import { Parameter, URLParameter } from '../type';
+import { parseQueryParameter } from './parameter';
+import { ParseInput, ParseOptions, ParseOutput } from './type';
 
 export function parseQuery(
     input: ParseInput,
-    options?: ParseOptions
+    options?: ParseOptions,
 ) : ParseOutput {
     options ??= {};
 
@@ -25,12 +23,11 @@ export function parseQuery(
     const nonEnabled : boolean = Object.keys(options).length === 0;
 
     let relations : RelationsParseOutput | undefined;
-    if(!!options[Parameter.RELATIONS] || nonEnabled) {
+    if (!!options[Parameter.RELATIONS] || nonEnabled) {
         relations = parseQueryParameter(
             Parameter.RELATIONS,
-            input[Parameter.RELATIONS] ?? input[URLParameter.RELATIONS]
-            ,
-            options[Parameter.RELATIONS]
+            input[Parameter.RELATIONS] ?? input[URLParameter.RELATIONS],
+            options[Parameter.RELATIONS],
         );
 
         output[Parameter.RELATIONS] = relations;
@@ -40,14 +37,14 @@ export function parseQuery(
         Parameter.FIELDS,
         Parameter.FILTERS,
         Parameter.PAGINATION,
-        Parameter.SORT
+        Parameter.SORT,
     ];
 
-    for(let i=0; i< keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         const enabled = !!options[keys[i]] ||
             nonEnabled;
 
-        if(!enabled) continue;
+        if (!enabled) continue;
 
         const key : Parameter = keys[i];
 
@@ -57,7 +54,7 @@ export function parseQuery(
                     keys[i],
                     input[Parameter.FIELDS] ?? input[URLParameter.FIELDS],
                     options[Parameter.FIELDS],
-                    relations
+                    relations,
                 ) as FieldsParseOutput;
                 break;
             case Parameter.FILTERS:
@@ -65,7 +62,7 @@ export function parseQuery(
                     keys[i],
                     input[Parameter.FILTERS] ?? input[URLParameter.FILTERS],
                     options[Parameter.FILTERS],
-                    relations
+                    relations,
                 ) as FiltersParseOutput;
                 break;
             case Parameter.PAGINATION:
@@ -73,7 +70,7 @@ export function parseQuery(
                     keys[i],
                     input[Parameter.PAGINATION] ?? input[URLParameter.PAGINATION],
                     options[Parameter.PAGINATION],
-                    relations
+                    relations,
                 ) as PaginationParseOutput;
                 break;
             case Parameter.SORT:
@@ -81,7 +78,7 @@ export function parseQuery(
                     keys[i],
                     input[Parameter.SORT] ?? input[URLParameter.SORT],
                     options[Parameter.SORT],
-                    relations
+                    relations,
                 ) as SortParseOutput;
                 break;
         }
@@ -89,4 +86,3 @@ export function parseQuery(
 
     return output;
 }
-

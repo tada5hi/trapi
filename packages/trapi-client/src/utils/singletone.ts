@@ -51,7 +51,9 @@ export function createClient<T extends Client = Client>(
     let instance : T;
 
     if (config.clazz) {
-        instance = new config.clazz(config);
+        const { clazz: Clazz } = config;
+
+        instance = new Clazz(config);
     } else {
         instance = new Client(config) as T;
     }

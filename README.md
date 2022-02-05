@@ -14,13 +14,6 @@ Please follow the `README.md` instructions in the respective package folder.
 ## Packages
 The repository contains the following packages:
 
-### trapi
-[![npm version](https://badge.fury.io/js/trapi.svg)](https://badge.fury.io/js/trapi)
-
-This is the main package and contains the core functions of all other package and a CLI to interact with them.
-
-[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/trapi#README.md)
-
 ### @trapi/metadata
 [![npm version](https://badge.fury.io/js/@trapi%2Fmetadata.svg)](https://badge.fury.io/js/@trapi%2Fmetadata)
 

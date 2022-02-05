@@ -6,7 +6,8 @@
  */
 
 import { RelationsParseOutput } from '../parameter';
-import { FieldDetails, getFieldDetails } from './field';
+import { getFieldDetails } from './field';
+import { FieldDetails } from './type';
 
 export function isFieldAllowedByRelations(
     field: string | FieldDetails,

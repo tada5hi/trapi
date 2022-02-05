@@ -15,30 +15,32 @@ export function buildURLQueryString(data?: any, withQuestionMark = true) {
     const query = [];
 
     // Loop through the data object
-    for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-            let value = data[key];
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
+        if (Object.prototype.hasOwnProperty.call(data, keys[i])) {
+            let value = data[keys[i]];
 
             if (value && typeof value === 'object' && value.constructor === Array) {
                 value = value.join(',');
             }
 
             if (value && typeof value === 'object' && value.constructor === Object) {
-                for (const k in value) {
-                    let v: any = value[k];
+                const valueKeys = Object.keys(value);
+                for (let j = 0; j < valueKeys.length; j++) {
+                    let v: any = value[valueKeys[j]];
 
                     if (v && typeof v === 'object' && v.constructor === Array) {
                         v = v.join(',');
                     }
 
-                    query.push(`${encodeURIComponent(`${key}[${k}]`)}=${encodeURIComponent(v)}`);
+                    query.push(`${encodeURIComponent(`${keys[i]}[${valueKeys[j]}]`)}=${encodeURIComponent(v)}`);
                 }
 
                 continue;
             }
 
             // Encode each key and value, concatenate them into a string, and push them to the array
-            query.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+            query.push(`${encodeURIComponent(keys[i])}=${encodeURIComponent(value)}`);
         }
     }
 

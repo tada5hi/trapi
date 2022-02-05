@@ -1,8 +1,4 @@
-export type FieldDetails = {
-    name: string,
-    path?: string,
-    alias?: string
-};
+import { FieldDetails } from './type';
 
 export function getFieldDetails(field: string) : FieldDetails {
     const parts : string[] = field.split('.');

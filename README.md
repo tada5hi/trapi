@@ -21,7 +21,14 @@ This package contains all functions, to generate metadata for TypeScript REST de
 In most cases, the first thing to do is to generate metadata information by consulting self defined or third party REST `decorators` present on your code.
 The next step would either be, to generate a `documentation` according to the OpenAPI Specification or to create route schema/handling by using the Metadata for libraries like: express, koa, etc.
 
-[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/trapi-metadata#README.md)
+[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/metadata#README.md)
+
+### @trapi/metadata-utils
+[![npm version](https://badge.fury.io/js/@trapi%2Fmetadata-utils.svg)](https://badge.fury.io/js/@trapi%2Fmetadata-utils)
+
+This Package contains all util functions, which are also partially required by other modules of this repository.
+
+[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/metadata-utils#README.md)
 
 ### @trapi/query
 [![npm version](https://badge.fury.io/js/@trapi%2Fquery.svg)](https://badge.fury.io/js/@trapi%2Fquery)
@@ -29,16 +36,11 @@ The next step would either be, to generate a `documentation` according to the Op
 This is a library for building `JSON:API` like REST-APIs.
 It extends the specification format between request- & response-handling for querying and fetching data.
 
+[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/query#README.md)
+
 ### @trapi/swagger
 [![npm version](https://badge.fury.io/js/@trapi%2Fswagger.svg)](https://badge.fury.io/js/@trapi%2Fswagger)
 
 This package contains all functions, to generate a fully featured documentation according the OpenAPI Specification from given metadata.
 
-[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/trapi-swagger#README.md)
-
-### @trapi/utils
-[![npm version](https://badge.fury.io/js/@trapi%2Futils.svg)](https://badge.fury.io/js/@trapi%2Futils)
-
-This Package contains all util functions, which are also partially required by other modules of this repository.
-
-[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/trapi-utils#README.md)
+[README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/swagger#README.md)

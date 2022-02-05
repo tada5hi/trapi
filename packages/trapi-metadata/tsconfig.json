@@ -1,9 +1,0 @@
-{
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "paths": {
-            "@trapi/utils": ["./packages/trapi-utils/src"],
-            "@trapi/query": ["./packages/trapi-query/src"]
-        }
-    }
-}

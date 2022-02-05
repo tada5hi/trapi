@@ -42,7 +42,7 @@
     },
     "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
     "dependencies": {
-        "@typescript-error/core": "^1.1.1",
+        "@typescript-error/core": "^1.1.2",
         "axios": "^0.25.0"
     },
     "devDependencies": {

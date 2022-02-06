@@ -9,7 +9,7 @@ import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
 import { Parameter } from '../../type';
 import {
     Flatten, KeyWithOptionalPrefix, OnlyObject, OnlyScalar,
-} from '../../utils';
+} from '../type';
 
 export enum SortDirection {
     ASC = 'ASC',
@@ -20,15 +20,18 @@ export enum SortDirection {
 // Build
 // -----------------------------------------------------------
 
-type SortOperatorDesc = '-';
 type SortWithOperator<T extends Record<string, any>> =
-    KeyWithOptionalPrefix<keyof T, SortOperatorDesc> |
-    KeyWithOptionalPrefix<keyof T, SortOperatorDesc>[];
+    KeyWithOptionalPrefix<keyof T, '-'> |
+    KeyWithOptionalPrefix<keyof T, '-'>[];
 
 export type SortBuildInput<T> = {
     [K in keyof T]?: T[K] extends OnlyScalar<T[K]> ?
-        SortDirection :
-        T[K] extends OnlyObject<T[K]> ? SortBuildInput<Flatten<T[K]>> | SortWithOperator<Flatten<T[K]>> : never
+        `${SortDirection}` :
+        T[K] extends Date ?
+            `${SortDirection}` :
+            T[K] extends OnlyObject<T[K]> ?
+                SortBuildInput<Flatten<T[K]>> | SortWithOperator<Flatten<T[K]>> :
+                never
 } | SortWithOperator<T>;
 
 // -----------------------------------------------------------

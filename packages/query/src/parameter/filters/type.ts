@@ -7,14 +7,14 @@
 
 import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
 import { Parameter } from '../../type';
-import { Flatten, OnlyObject, OnlyScalar } from '../../utils';
+import { Flatten, OnlyObject, OnlyScalar } from '../type';
 
 // -----------------------------------------------------------
 // Build
 // -----------------------------------------------------------
 
 export type FilterOperatorConfig<V, O> = {
-    operator: O | O[],
+    operator: O | O[];
     value: V | V[]
 };
 
@@ -47,7 +47,7 @@ type FilterValueOperator<V extends string | number | boolean> = `!${V}` | `!~${V
 
 export type FiltersBuildInput<T> = {
     [K in keyof T]?: T[K] extends OnlyScalar<T[K]> ?
-        T[K] | FilterValueWithOperator<T[K]> | FilterOperatorConfig<T[K], FilterOperator> :
+        T[K] | FilterValueWithOperator<T[K]> | FilterOperatorConfig<T[K], `${FilterOperator}`> :
         T[K] extends OnlyObject<T[K]> ? FiltersBuildInput<Flatten<T[K]>> : never
 };
 

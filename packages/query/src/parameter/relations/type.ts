@@ -7,7 +7,7 @@
 
 import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
 import { Parameter } from '../../type';
-import { Flatten, OnlyObject } from '../../utils';
+import { Flatten, OnlyObject } from '../type';
 
 // -----------------------------------------------------------
 // Build

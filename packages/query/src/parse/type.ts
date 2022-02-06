@@ -13,16 +13,17 @@ import {
     ParameterType,
     URLParameterType,
 } from '../type';
+
 import { ParseParameterOptions, ParseParameterOutput } from './parameter';
 
 export type ParseOptionsBase<
     K extends ParameterType,
     A = string[],
-> = (K extends ParameterPaginationType ? {} : {
+> = (K extends ParameterPaginationType ? Record<string, any> : {
     aliasMapping?: Record<string, string>,
     allowed?: A,
     defaultAlias?: string
-}) & (K extends ParameterRelationsType | ParameterPaginationType ? {} : {
+}) & (K extends ParameterRelationsType | ParameterPaginationType ? Record<string, any> : {
     relations?: RelationsParseOutput
 });
 
@@ -47,9 +48,9 @@ export type ParseOutputElementBase<
     K extends ParameterType,
     V extends unknown | undefined = undefined,
     > =
-        (K extends ParameterPaginationType ? {} : {
+        (K extends ParameterPaginationType ? Record<string, any> : {
             key: string
-        }) & (K extends ParameterRelationsType ? {} : {
+        }) & (K extends ParameterRelationsType ? Record<string, any> : {
             alias?: string
         }) & (K extends ParameterFieldsType ? {
             value?: V

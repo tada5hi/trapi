@@ -9,7 +9,7 @@ import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
 import { Parameter } from '../../type';
 import {
     Flatten, KeyWithOptionalPrefix, OnlyObject, ToOneAndMany,
-} from '../../utils';
+} from '../type';
 
 export const DEFAULT_ALIAS_ID = '__DEFAULT__';
 

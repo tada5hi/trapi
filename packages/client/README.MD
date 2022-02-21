@@ -25,7 +25,7 @@ npm install @trapi/client --save
 
 ### Config
 
-To create a configuration for the driver `Client`, a configuration must be specified,
+To create a configuration for the  `Client`, a configuration must be specified,
 like described in the following:
 
 **Client**
@@ -35,16 +35,16 @@ import {
     setConfig
 } from "@trapi/client";
 
-setConfig('key', {
+setConfig({
     driver: {
         baseURL: 'http://localhost:3000/',
         withCredentials: true,
     },
-})
+}, 'key')
 ```
 
-A configuration is always identified by a string `key`,
-so multiple configurations can be registered.
+A configuration is always identified by a `key`,
+so multiple configurations can be registered. The default key is named: `default`
 
 In the upper example, the **driver** property is used to pass information to the underneath driver (axios).
 

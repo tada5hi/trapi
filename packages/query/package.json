@@ -42,7 +42,7 @@
     },
     "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
     "devDependencies": {
-        "@types/jest": "^27.4.0",
+        "@types/jest": "^27.4.1",
         "@types/node": "^17.0.21",
         "codecov": "^3.8.3",
         "cross-env": "^7.0.3",

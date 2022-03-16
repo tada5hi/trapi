@@ -8,4 +8,4 @@
 export * from './build';
 export * from './parameter';
 export * from './parse';
-export * from './type';
+export * from './constants';

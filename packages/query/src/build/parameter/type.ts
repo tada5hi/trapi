@@ -12,33 +12,24 @@ import {
     RelationsBuildInput,
     SortBuildInput,
 } from '../../parameter';
+
 import {
-    ParameterFieldsType,
-    ParameterFiltersType,
-    ParameterPaginationType,
-    ParameterRelationsType,
-    ParameterSortType,
-    ParameterType,
-    URLParameterFieldsType,
-    URLParameterFiltersType,
-    URLParameterPaginationType,
-    URLParameterRelationsType,
-    URLParameterSortType,
-    URLParameterType,
-} from '../../type';
+    Parameter,
+    URLParameter,
+} from '../../constants';
 
 export type BuildParameterInput<
-    T extends ParameterType | URLParameterType,
-    R extends Record<string, any>,
+    T extends `${Parameter}` | `${URLParameter}`,
+    R extends Record<string, any> = Record<string, any>,
     > =
-    T extends ParameterFieldsType | URLParameterFieldsType ?
+    T extends `${Parameter.FIELDS}` | `${URLParameter.FIELDS}` ?
         FieldsBuildInput<R> :
-        T extends ParameterFiltersType | URLParameterFiltersType ?
+        T extends `${Parameter.FILTERS}` | `${URLParameter.FILTERS}` ?
             FiltersBuildInput<R> :
-            T extends ParameterRelationsType | URLParameterRelationsType ?
+            T extends `${Parameter.RELATIONS}` | `${URLParameter.RELATIONS}` ?
                 RelationsBuildInput<R> :
-                T extends ParameterPaginationType | URLParameterPaginationType ?
+                T extends `${Parameter.PAGINATION}` | `${URLParameter.PAGINATION}` ?
                     PaginationBuildInput<R> :
-                    T extends ParameterSortType | URLParameterSortType ?
+                    T extends `${Parameter.SORT}` | `${URLParameter.SORT}` ?
                         SortBuildInput<R> :
-                        T;
+                        never;

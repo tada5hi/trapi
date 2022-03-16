@@ -1,4 +1,4 @@
-import { flattenNestedProperties } from '../../utils';
+import { flattenNestedProperties } from '../utils';
 import { SortBuildInput } from './type';
 
 export function buildQuerySort<T>(data: SortBuildInput<T>) {

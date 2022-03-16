@@ -15,14 +15,6 @@ export enum Parameter {
     SORT = 'sort',
 }
 
-export type ParameterType = `${Parameter}`;
-
-export type ParameterFiltersType = 'filters';
-export type ParameterFieldsType = 'fields';
-export type ParameterPaginationType = 'pagination';
-export type ParameterRelationsType = 'relations';
-export type ParameterSortType = 'sort';
-
 // -----------------------------------------------------------
 
 export enum URLParameter {
@@ -32,11 +24,3 @@ export enum URLParameter {
     RELATIONS = 'include',
     SORT = 'sort',
 }
-
-export type URLParameterType = `${URLParameter}`;
-
-export type URLParameterFiltersType = 'filter';
-export type URLParameterFieldsType = 'fields';
-export type URLParameterPaginationType = 'page';
-export type URLParameterRelationsType = 'include';
-export type URLParameterSortType = 'sort';

@@ -5,10 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
-import { Parameter } from '../../type';
+import { Parameter } from '../../constants';
 import {
-    Flatten, KeyWithOptionalPrefix, OnlyObject, ToOneAndMany,
+    Flatten, KeyWithOptionalPrefix, OnlyObject, ParseOptionsBase, ParseOutputElementBase, ToOneAndMany,
 } from '../type';
 
 export const DEFAULT_ALIAS_ID = '__DEFAULT__';

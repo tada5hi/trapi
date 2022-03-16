@@ -5,9 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
-import { Parameter } from '../../type';
-import { Flatten, OnlyObject } from '../type';
+import { Parameter } from '../../constants';
+import {
+    Flatten, OnlyObject, ParseOptionsBase, ParseOutputElementBase,
+} from '../type';
 
 // -----------------------------------------------------------
 // Build

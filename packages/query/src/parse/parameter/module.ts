@@ -9,11 +9,11 @@ import {
     RelationsParseOutput, parseQueryFields, parseQueryFilters, parseQueryPagination, parseQueryRelations, parseQuerySort,
 } from '../../parameter';
 import {
-    Parameter, ParameterType, URLParameter, URLParameterType,
-} from '../../type';
+    Parameter, URLParameter,
+} from '../../constants';
 import { ParseParameterOptions, ParseParameterOutput } from './type';
 
-export function parseQueryParameter<K extends ParameterType | URLParameterType>(
+export function parseQueryParameter<K extends `${Parameter}` | `${URLParameter}`>(
     key: K,
     data: unknown,
     options?: ParseParameterOptions<K> | boolean,
@@ -44,7 +44,6 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                 data,
                 {
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.PAGINATION>,
-                    ...(relations ? { relations } : {}),
                 },
             ) as ParseParameterOutput<K>);
         case Parameter.RELATIONS:
@@ -55,8 +54,7 @@ export function parseQueryParameter<K extends ParameterType | URLParameterType>(
                     ...(invalidToEmptyObject(options)) as ParseParameterOptions<Parameter.RELATIONS>,
                 },
             ) as ParseParameterOutput<K>);
-        case Parameter.SORT:
-        case URLParameter.SORT:
+        default:
             return (parseQuerySort(
                 data,
                 {

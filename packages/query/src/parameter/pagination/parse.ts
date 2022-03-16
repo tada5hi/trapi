@@ -1,5 +1,3 @@
-import { ParseParameterOptions, ParseParameterOutput } from '../../parse';
-import { Parameter } from '../../type';
 import { PaginationParseOptions, PaginationParseOutput } from './type';
 
 // --------------------------------------------------
@@ -46,8 +44,7 @@ export function parseQueryPagination(
     let { limit, offset } = data as Record<string, any>;
 
     if (typeof limit !== 'undefined') {
-        // tslint:disable-next-line:radix
-        limit = parseInt(limit);
+        limit = parseInt(limit, 10);
 
         if (!Number.isNaN(limit) && limit > 0) {
             pagination.limit = limit;
@@ -55,8 +52,7 @@ export function parseQueryPagination(
     }
 
     if (typeof offset !== 'undefined') {
-        // tslint:disable-next-line:radix
-        offset = parseInt(offset);
+        offset = parseInt(offset, 10);
 
         if (!Number.isNaN(offset) && offset >= 0) {
             pagination.offset = offset;

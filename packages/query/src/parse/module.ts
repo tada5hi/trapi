@@ -8,7 +8,7 @@
 import {
     FieldsParseOutput, FiltersParseOutput, PaginationParseOutput, RelationsParseOutput, SortParseOutput,
 } from '../parameter';
-import { Parameter, URLParameter } from '../type';
+import { Parameter, URLParameter } from '../constants';
 import { parseQueryParameter } from './parameter';
 import { ParseInput, ParseOptions, ParseOutput } from './type';
 

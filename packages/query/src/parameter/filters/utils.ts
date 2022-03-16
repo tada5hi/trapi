@@ -1,4 +1,8 @@
-import { FilterOperator, FilterOperatorLabel, FilterOperatorLabelType } from './type';
+import {
+    FilterOperatorConfig, FilterOperatorLabelType,
+} from './type';
+import { hasOwnProperty, isSimpleValue } from '../../utils';
+import { FilterOperator, FilterOperatorLabel } from './constants';
 
 const config : {
     sign: FilterOperator,
@@ -50,4 +54,57 @@ export function determineFilterOperatorLabelsByValue(input: string) : {
         operators,
         value,
     };
+}
+
+export function isFilterOperatorConfig(data: unknown) : data is FilterOperatorConfig<any> {
+    if (typeof data !== 'object') {
+        return false;
+    }
+
+    if (hasOwnProperty(data, 'operator')) {
+        const operators : string[] = Object.values(FilterOperator);
+
+        if (typeof data.operator === 'string') {
+            if (operators.indexOf(data.operator) === -1) {
+                return false;
+            }
+        } else if (Array.isArray(data.operator)) {
+            for (let i = 0; i < data.operator.length; i++) {
+                if (typeof data.operator[i] !== 'string') {
+                    return false;
+                }
+
+                if (operators.indexOf(data.operator[i]) === -1) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    if (hasOwnProperty(data, 'value')) {
+        if (
+            !isSimpleValue(data.value, {
+                withNull: true,
+                withUndefined: true,
+            })
+        ) {
+            if (Array.isArray(data.value)) {
+                for (let i = 0; i < data.value.length; i++) {
+                    if (!isSimpleValue(data.value[i])) {
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+    } else {
+        return false;
+    }
+
+    return true;
 }

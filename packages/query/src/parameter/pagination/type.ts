@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ParseOptionsBase } from '../../parse';
-import { Parameter } from '../../type';
+import { Parameter } from '../../constants';
+import { ParseOptionsBase } from '../type';
 
 // -----------------------------------------------------------
 // Build
@@ -21,11 +21,11 @@ export type PaginationBuildInput<T> = {
 // Parse
 // -----------------------------------------------------------
 
-export type PaginationParseOptions = ParseOptionsBase<Parameter.PAGINATION> & {
+export type PaginationParseOptions = {
     maxLimit?: number
-};
+} & ParseOptionsBase<Parameter.PAGINATION>;
 
-export type PaginationParseOutput = ParseOptionsBase<Parameter.PAGINATION> & {
+export type PaginationParseOutput = {
     limit?: number,
     offset?: number
-};
+} & ParseOptionsBase<Parameter.PAGINATION>;

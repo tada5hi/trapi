@@ -5,13 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { RelationsParseOutput } from '../parameter';
 import { getFieldDetails } from './field';
 import { FieldDetails } from './type';
 
-export function isFieldAllowedByRelations(
+export function isFieldAllowedByRelations<T extends {
+    value: string
+}>(
     field: string | FieldDetails,
-    includes?: RelationsParseOutput,
+    includes?: T[],
     options?: {defaultAlias?: string},
 ) : boolean {
     if (typeof includes === 'undefined') {
@@ -38,7 +39,9 @@ export function isFieldAllowedByRelations(
         return true;
     }
 
-    return includes.filter((include) => include.value === details.path || include.value === details.alias).length > 0;
+    return includes.filter(
+        (include) => include.value === details.path || include.value === details.alias,
+    ).length > 0;
 }
 
 export function buildFieldWithAlias(

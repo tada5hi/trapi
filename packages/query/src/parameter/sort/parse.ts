@@ -6,12 +6,12 @@
  */
 
 import {
-    FieldDetails,
     buildFieldWithAlias,
     buildObjectFromStringArray,
     getFieldDetails,
     isFieldAllowedByRelations,
 } from '../../utils';
+
 import { SortDirection, SortParseOptions, SortParseOutput } from './type';
 
 // --------------------------------------------------
@@ -104,7 +104,7 @@ export function parseQuerySort(
             key = options.aliasMapping[key];
         }
 
-        const fieldDetails : FieldDetails = getFieldDetails(key);
+        const fieldDetails = getFieldDetails(key);
         if (!isFieldAllowedByRelations(fieldDetails, options.relations, { defaultAlias: options.defaultAlias })) {
             continue;
         }

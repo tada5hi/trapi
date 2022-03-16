@@ -10,7 +10,7 @@ import { BuildInput, BuildOptions } from './type';
 import {
     buildQueryFields, buildQueryFilters, buildQueryRelations, buildQuerySort,
 } from '../parameter';
-import { Parameter, URLParameter } from '../type';
+import { Parameter, URLParameter } from '../constants';
 import {
     buildURLQueryString,
 } from '../utils';

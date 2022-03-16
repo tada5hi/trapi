@@ -6,8 +6,8 @@
  */
 
 export * from './field';
-export * from './flatten';
 export * from './relation';
 export * from './object';
+export * from './simple';
 export * from './type';
 export * from './url';

@@ -5,8 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { flattenNestedProperties } from '../../utils';
-import { FilterOperator, FilterOperatorConfig, FiltersBuildInput } from './type';
+import { flattenNestedProperties } from '../utils';
+import { FilterOperatorConfig, FiltersBuildInput } from './type';
+import { FilterOperator } from './constants';
+import { isFilterOperatorConfig } from './utils';
 
 export function buildQueryFilters<T>(data: FiltersBuildInput<T>) : Record<string, string> {
     return flattenNestedProperties(transformOperatorConfigToValue(data));
@@ -22,25 +24,27 @@ const OperatorWeight = {
     [FilterOperator.IN]: 13105,
 };
 
-function transformOperatorConfigToValue<T>(data: FiltersBuildInput<T>) : FiltersBuildInput<T> {
+function transformOperatorConfigToValue<T>(
+    data: FiltersBuildInput<T> | FilterOperatorConfig<any>,
+) : FiltersBuildInput<T> | FilterOperatorConfig<any> {
     if (Object.prototype.toString.call(data) !== '[object Object]') {
         return data as FiltersBuildInput<T>;
     }
-    for (const key in (data as Record<string, any>)) {
-        if (
-            data.hasOwnProperty('operator') &&
-            data.hasOwnProperty('value')
-        ) {
-            const config = data as FilterOperatorConfig<unknown, FilterOperator>;
 
-            if (Array.isArray(config.operator)) {
-                (data as any).operator = config.operator
-                    .sort((a, b) => (OperatorWeight[a] <= OperatorWeight[b] ? -1 : 1))
-                    .join('');
-            }
-        } else {
-            (data as any)[key] = transformOperatorConfigToValue(data[key] as Record<string, any>);
+    if (isFilterOperatorConfig(data)) {
+        if (Array.isArray(data.operator)) {
+            // merge operators
+            data.operator = data.operator
+                .sort((a, b) => OperatorWeight[a] - OperatorWeight[b])
+                .join('') as FilterOperator;
         }
+
+        return data;
+    }
+
+    const keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
+        data[keys[i]] = transformOperatorConfigToValue(data[keys[i]]);
     }
 
     return data;

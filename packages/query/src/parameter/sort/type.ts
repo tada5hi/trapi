@@ -5,11 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ParseOptionsBase, ParseOutputElementBase } from '../../parse';
-import { Parameter } from '../../type';
 import {
-    Flatten, KeyWithOptionalPrefix, OnlyObject, OnlyScalar,
+    Flatten, KeyWithOptionalPrefix, OnlyObject, OnlyScalar, ParseOptionsBase, ParseOutputElementBase,
 } from '../type';
+import { Parameter } from '../../constants';
 
 export enum SortDirection {
     ASC = 'ASC',
@@ -37,7 +36,6 @@ export type SortBuildInput<T> = {
 // -----------------------------------------------------------
 // Parse
 // -----------------------------------------------------------
-
 export type SortParseOptions = ParseOptionsBase<Parameter.SORT, string[] | string[][]>;
 export type SortParseOutputElement = ParseOutputElementBase<Parameter.SORT, SortDirection>;
 export type SortParseOutput = SortParseOutputElement[];

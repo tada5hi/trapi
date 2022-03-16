@@ -1,4 +1,4 @@
-import { flattenNestedProperties } from '../../utils';
+import { flattenNestedProperties } from '../utils';
 import { RelationsBuildInput } from './type';
 
 export function buildQueryRelations<T>(data: RelationsBuildInput<T>): string[] {

@@ -50,7 +50,16 @@ describe('src/filter/index.ts', () => {
 
         // filter data with el null value
         allowedFilter = parseQueryFilters({ name: null }, { allowed: ['name'] });
-        expect(allowedFilter).toEqual([] as FiltersParseOutput);
+        expect(allowedFilter).toEqual([{
+            key: 'name',
+            value: null,
+        }] as FiltersParseOutput);
+
+        allowedFilter = parseQueryFilters({ name: 'null' }, { allowed: ['name'] });
+        expect(allowedFilter).toEqual([{
+            key: 'name',
+            value: null,
+        }] as FiltersParseOutput);
 
         // filter wrong allowed
         allowedFilter = parseQueryFilters({ id: 1 }, { allowed: ['name'] });

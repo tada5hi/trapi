@@ -36,6 +36,20 @@ describe('src/build.ts', () => {
 
         record = buildQuery<Entity>({
             filter: {
+                id: null,
+            },
+        });
+        expect(record).toEqual(buildURLQueryString({ [URLParameter.FILTERS]: { id: null } }));
+
+        record = buildQuery<Entity>({
+            filter: {
+                id: undefined,
+            },
+        });
+        expect(record).toEqual(buildURLQueryString({ [URLParameter.FILTERS]: { id: null } }));
+
+        record = buildQuery<Entity>({
+            filter: {
                 child: {
                     id: 1,
                 },

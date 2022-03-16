@@ -45,6 +45,9 @@ export function determineFilterOperatorLabelsByValue(input: string) : {
                 ) {
                     operators.push(config[i].label);
                     value = value.slice(config[i].sign.length);
+                    if (value.toLowerCase() === 'null') {
+                        value = null;
+                    }
                 }
                 break;
         }

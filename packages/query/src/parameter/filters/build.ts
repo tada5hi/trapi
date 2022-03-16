@@ -24,6 +24,14 @@ const OperatorWeight = {
     [FilterOperator.IN]: 13105,
 };
 
+function transformValue(value: unknown) {
+    if (typeof value === 'undefined') {
+        return null;
+    }
+
+    return value;
+}
+
 function transformOperatorConfigToValue<T>(
     data: FiltersBuildInput<T> | FilterOperatorConfig<any>,
 ) : FiltersBuildInput<T> | FilterOperatorConfig<any> {
@@ -32,6 +40,8 @@ function transformOperatorConfigToValue<T>(
     }
 
     if (isFilterOperatorConfig(data)) {
+        data.value = transformValue(data.value);
+
         if (Array.isArray(data.operator)) {
             // merge operators
             data.operator = data.operator
@@ -44,6 +54,7 @@ function transformOperatorConfigToValue<T>(
 
     const keys = Object.keys(data);
     for (let i = 0; i < keys.length; i++) {
+        data[keys[i]] = transformValue(data[keys[i]]);
         data[keys[i]] = transformOperatorConfigToValue(data[keys[i]]);
     }
 

@@ -48,13 +48,13 @@ export function parseQueryFilters(
         return [];
     }
 
-    const prototype: string = Object.prototype.toString.call(data);
+    // Object.prototype.toString.call(data)
     /* istanbul ignore next */
-    if (prototype !== '[object Object]') {
+    if (typeof data !== 'object') {
         return [];
     }
 
-    const { length } = Object.keys(data as Record<string, any>);
+    const { length } = Object.keys(data);
     if (length === 0) {
         return [];
     }
@@ -64,40 +64,46 @@ export function parseQueryFilters(
     const temp : Record<string, {
         key: string,
         alias?: string,
-        value: string | boolean | number
+        value: string | boolean | number | null
     }> = {};
 
     // transform to appreciate data format & validate input
-    for (let key in (data as Record<string, any>)) {
+    let keys = Object.keys(data);
+    for (let i = 0; i < keys.length; i++) {
         /* istanbul ignore next */
-        if (!data.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(data, keys[i])) {
             continue;
         }
 
-        let value : unknown = (data as Record<string, any>)[key];
+        let value : unknown = data[keys[i]];
 
         if (
             typeof value !== 'string' &&
             typeof value !== 'number' &&
-            typeof value !== 'boolean'
+            typeof value !== 'boolean' &&
+            value !== null
         ) {
             continue;
         }
 
         if (typeof value === 'string') {
-            value = (value as string).trim();
+            value = value.trim();
             const stripped : string = (value as string).replace('/,/g', '');
 
             if (stripped.length === 0) {
                 continue;
             }
+
+            if ((value as string).toLowerCase() === 'null') {
+                value = null;
+            }
         }
 
-        if (options.aliasMapping.hasOwnProperty(key)) {
-            key = options.aliasMapping[key];
+        if (Object.prototype.hasOwnProperty.call(options.aliasMapping, keys[i])) {
+            keys[i] = options.aliasMapping[keys[i]];
         }
 
-        const fieldDetails : FieldDetails = getFieldDetails(key);
+        const fieldDetails : FieldDetails = getFieldDetails(keys[i]);
         if (!isFieldAllowedByRelations(fieldDetails, options.relations, { defaultAlias: options.defaultAlias })) {
             continue;
         }
@@ -106,20 +112,25 @@ export function parseQueryFilters(
 
         if (
             typeof options.allowed !== 'undefined' &&
-            options.allowed.indexOf(key) === -1 &&
+            options.allowed.indexOf(keys[i]) === -1 &&
             options.allowed.indexOf(keyWithAlias) === -1
         ) {
             continue;
         }
 
-        const alias : string | undefined = typeof fieldDetails.path === 'undefined' &&
-            typeof fieldDetails.alias === 'undefined' ?
-            (
-                options.defaultAlias ?
-                    options.defaultAlias :
-                    undefined
-            ) :
-            fieldDetails.alias;
+        let alias : string | undefined;
+
+        if (
+            typeof fieldDetails.path === 'undefined' &&
+            typeof fieldDetails.alias === 'undefined'
+        ) {
+            alias = options.defaultAlias ?
+                options.defaultAlias :
+                undefined;
+        } else {
+            alias = fieldDetails.alias;
+        }
+
         temp[keyWithAlias] = {
             key: fieldDetails.name,
             ...(alias ? { alias } : {}),
@@ -130,16 +141,17 @@ export function parseQueryFilters(
     const items : FiltersParseOutput = [];
 
     /* istanbul ignore next */
-    for (const key in temp) {
+    keys = Object.keys(temp);
+    for (let i = 0; i < keys.length; i++) {
         /* istanbul ignore next */
-        if (!temp.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(temp, keys[i])) {
             continue;
         }
 
         const filter : FiltersParseOutputElement = {
-            ...(temp[key].alias ? { alias: temp[key].alias } : {}),
-            key: temp[key].key,
-            value: temp[key].value,
+            ...(temp[keys[i]].alias ? { alias: temp[keys[i]].alias } : {}),
+            key: temp[keys[i]].key,
+            value: temp[keys[i]].value,
         };
 
         if (typeof filter.value === 'string') {

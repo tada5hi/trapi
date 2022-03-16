@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2022.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -73,61 +73,84 @@ export function parseQueryFields(
 
     let transformed : FieldsParseOutput = [];
 
-    for (const alias in (data as Record<string, string[] | string>)) {
-        if (!data.hasOwnProperty(alias) || typeof alias !== 'string') {
+    const keys = Object.keys(data);
+
+    for (let i = 0; i < keys.length; i++) {
+        if (
+            !hasOwnProperty(data, keys[i]) ||
+            typeof keys[i] !== 'string'
+        ) {
             continue;
         }
 
-        const fieldsArr : string[] = buildArrayFieldsRepresentation((data as Record<string, string[]>)[alias]);
-        if (fieldsArr.length === 0) continue;
+        const fieldsArr : string[] = buildArrayFieldsRepresentation(data[keys[i]]);
+        if (fieldsArr.length === 0) {
+            continue;
+        }
 
         let fields : FieldsParseOutputElement[] = [];
 
-        for (let i = 0; i < fieldsArr.length; i++) {
+        for (let j = 0; j < fieldsArr.length; j++) {
             let operator: FieldOperator | undefined;
 
             switch (true) {
-                case fieldsArr[i].substr(0, 1) === FieldOperator.INCLUDE:
+                case fieldsArr[j].substring(0, 1) === FieldOperator.INCLUDE:
                     operator = FieldOperator.INCLUDE;
                     break;
-                case fieldsArr[i].substr(0, 1) === FieldOperator.EXCLUDE:
+                case fieldsArr[j].substring(0, 1) === FieldOperator.EXCLUDE:
                     operator = FieldOperator.EXCLUDE;
                     break;
             }
 
-            if (operator) fieldsArr[i] = fieldsArr[i].substr(1);
+            if (operator) fieldsArr[j] = fieldsArr[j].substring(1);
 
             fields.push({
-                key: fieldsArr[i],
+                key: fieldsArr[j],
                 ...(operator ? { value: operator } : {}),
             });
         }
 
-        const allowedDomains : string[] = typeof allowedDomainFields !== 'undefined' ? Object.keys(allowedDomainFields) : [];
-        const targetKey : string = allowedDomains.length === 1 ? allowedDomains[0] : alias;
+        const allowedDomains : string[] = typeof allowedDomainFields !== 'undefined' ?
+            Object.keys(allowedDomainFields) :
+            [];
+
+        const targetKey : string = allowedDomains.length === 1 ?
+            allowedDomains[0] :
+            keys[i];
 
         // is not default domain && includes are defined?
         if (
-            alias !== DEFAULT_ALIAS_ID &&
-            alias !== options.defaultAlias &&
+            keys[i] !== DEFAULT_ALIAS_ID &&
+            keys[i] !== options.defaultAlias &&
             typeof options.relations !== 'undefined'
         ) {
-            const includesMatched = options.relations.filter((include) => include.value === alias);
-            if (includesMatched.length === 0) {
+            let index = -1;
+
+            for (let j = 0; j < options.relations.length; j++) {
+                if (options.relations[j].value === keys[i]) {
+                    index = j;
+                    break;
+                }
+            }
+
+            if (index === -1) {
                 continue;
             }
         }
 
-        fields = fields
-            .map((field) => {
-                const fullKey = `${alias}.${field.key}`;
+        for (let j = 0; j < fields.length; j++) {
+            const fullKey = `${keys[i]}.${fields[j].key}`;
 
-                return {
-                    ...(targetKey && targetKey !== DEFAULT_ALIAS_ID ? { alias: targetKey } : {}),
-                    ...field,
-                    key: options.aliasMapping.hasOwnProperty(fullKey) ? options.aliasMapping[fullKey].split('.').pop() : field.key,
-                };
-            })
+            fields[j] = {
+                ...(targetKey && targetKey !== DEFAULT_ALIAS_ID ? { alias: targetKey } : {}),
+                ...fields[j],
+                key: hasOwnProperty(options.aliasMapping, fullKey) ?
+                    options.aliasMapping[fullKey].split('.').pop() :
+                    fields[j].key,
+            };
+        }
+
+        fields = fields
             .filter((field) => {
                 if (typeof allowedDomainFields === 'undefined') {
                     return true;
@@ -139,14 +162,6 @@ export function parseQueryFields(
 
         if (fields.length > 0) {
             transformed = [...transformed, ...fields];
-        }
-    }
-
-    const keys : string[] = Object.keys(transformed);
-
-    if (keys.length === 1) {
-        if (keys[0] === DEFAULT_ALIAS_ID) {
-            return transformed[keys[0]];
         }
     }
 

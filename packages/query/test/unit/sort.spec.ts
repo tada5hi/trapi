@@ -6,7 +6,11 @@
  */
 
 import {
-    SortDirection, SortParseOptions, SortParseOutput, parseQueryRelations, parseQuerySort,
+    SortDirection,
+    SortParseOptions,
+    SortParseOutput,
+    parseQueryRelations,
+    parseQuerySort,
 } from '../../src';
 
 describe('src/sort/index.ts', () => {

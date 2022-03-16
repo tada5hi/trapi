@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2022.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
 import minimatch from 'minimatch';
-import { buildObjectFromStringArray } from '../../utils';
+import { buildObjectFromStringArray, hasOwnProperty } from '../../utils';
 
 import { RelationsParseOptions, RelationsParseOutput } from './type';
 
@@ -28,7 +28,7 @@ function includeParents(
         /* istanbul ignore next */
         if (
             options.aliasMapping &&
-            options.aliasMapping.hasOwnProperty(value)
+            hasOwnProperty(options.aliasMapping, value)
         ) {
             value = options.aliasMapping[value];
         }
@@ -43,7 +43,7 @@ function includeParents(
             /* istanbul ignore next */
             if (
                 options.aliasMapping &&
-                options.aliasMapping.hasOwnProperty(value)
+                hasOwnProperty(options.aliasMapping, value)
             ) {
                 value = options.aliasMapping[value];
             }
@@ -103,7 +103,7 @@ export function parseQueryRelations(
 
     items = items
         .map((item) => {
-            if (options.aliasMapping.hasOwnProperty(item)) {
+            if (hasOwnProperty(options.aliasMapping, item)) {
                 item = options.aliasMapping[item];
             }
 
@@ -135,8 +135,17 @@ export function parseQueryRelations(
     items = Array.from(new Set(items));
 
     return items
-        .map((relation) => ({
-            key: relation.includes('.') ? relation.split('.').slice(-2).join('.') : (options.defaultAlias ? `${options.defaultAlias}.${relation}` : relation),
-            value: relation.split('.').pop(),
-        }));
+        .map((relation) => {
+            let key : string;
+            if (relation.includes('.')) {
+                key = relation.split('.').slice(-2).join('.');
+            } else {
+                key = options.defaultAlias ? `${options.defaultAlias}.${relation}` : relation;
+            }
+
+            return {
+                key,
+                value: relation.split('.').pop(),
+            };
+        });
 }

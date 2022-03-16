@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2022.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -8,7 +8,7 @@
 import {
     buildFieldWithAlias,
     buildObjectFromStringArray,
-    getFieldDetails,
+    getFieldDetails, hasOwnProperty,
     isFieldAllowedByRelations,
 } from '../../utils';
 
@@ -60,28 +60,28 @@ export function parseQuerySort(
 
     let parts : string[] = [];
 
-    if (prototype === '[object String]') {
-        parts = (data as string).split(',');
+    if (typeof data === 'string') {
+        parts = data.split(',');
     }
 
-    if (prototype === '[object Array]') {
-        parts = (data as string[]).filter((item) => typeof item === 'string');
+    if (Array.isArray(data)) {
+        parts = data.filter((item) => typeof item === 'string');
     }
 
-    if (prototype === '[object Object]') {
-        const ob : Record<string, any> = data as object;
-        for (const key in ob) {
+    if (typeof data === 'object') {
+        const keys = Object.keys(data);
+        for (let i = 0; i < keys.length; i++) {
             /* istanbul ignore next */
             if (
-                !ob.hasOwnProperty(key) ||
-                typeof key !== 'string' ||
-                typeof ob[key] !== 'string'
-
+                !hasOwnProperty(data, keys[i]) ||
+                typeof keys[i] !== 'string' ||
+                typeof data[keys[i]] !== 'string'
             ) continue;
 
-            const fieldPrefix = ob[key].toLowerCase() === 'desc' ? '-' : '';
+            const fieldPrefix = (data[keys[i]] as string)
+                .toLowerCase() === 'desc' ? '-' : '';
 
-            parts.push(fieldPrefix + key);
+            parts.push(fieldPrefix + keys[i]);
         }
     }
 
@@ -93,14 +93,14 @@ export function parseQuerySort(
 
     for (let i = 0; i < parts.length; i++) {
         let direction: SortDirection = SortDirection.ASC;
-        if (parts[i].substr(0, 1) === '-') {
+        if (parts[i].substring(0, 1) === '-') {
             direction = SortDirection.DESC;
-            parts[i] = parts[i].substr(1);
+            parts[i] = parts[i].substring(1);
         }
 
         let key: string = parts[i];
 
-        if (options.aliasMapping.hasOwnProperty(key)) {
+        if (hasOwnProperty(options.aliasMapping, key)) {
             key = options.aliasMapping[key];
         }
 
@@ -120,14 +120,15 @@ export function parseQuerySort(
             continue;
         }
 
-        const alias : string | undefined = typeof fieldDetails.path === 'undefined' &&
-            typeof fieldDetails.alias === 'undefined' ?
-            (
-                options.defaultAlias ?
-                    options.defaultAlias :
-                    undefined
-            ) :
-            fieldDetails.alias;
+        let { alias } = fieldDetails;
+
+        if (
+            typeof fieldDetails.path === 'undefined' &&
+            typeof fieldDetails.alias === 'undefined'
+        ) {
+            alias = options.defaultAlias;
+        }
+
         items[keyWithAlias] = {
             key: fieldDetails.name,
             ...(alias ? { alias } : {}),
@@ -136,18 +137,28 @@ export function parseQuerySort(
     }
 
     if (isMultiDimensionalArray(options.allowed)) {
+        // eslint-disable-next-line no-labels,no-restricted-syntax
         outerLoop:
         for (let i = 0; i < options.allowed.length; i++) {
             const temp : SortParseOutput = [];
 
             for (let j = 0; j < options.allowed[i].length; j++) {
                 const keyWithAlias : string = options.allowed[i][j];
-                const key : string = keyWithAlias.includes('.') ? keyWithAlias.split('.').pop() : keyWithAlias;
+                const key : string = keyWithAlias.includes('.') ?
+                    keyWithAlias.split('.').pop() :
+                    keyWithAlias;
 
-                if (items.hasOwnProperty(key) || items.hasOwnProperty(keyWithAlias)) {
-                    const item = items.hasOwnProperty(key) ? items[key] : items[keyWithAlias];
+                if (
+                    hasOwnProperty(items, key) ||
+                    hasOwnProperty(items, keyWithAlias)
+                ) {
+                    const item = hasOwnProperty(items, key) ?
+                        items[key] :
+                        items[keyWithAlias];
+
                     temp.push(item);
                 } else {
+                    // eslint-disable-next-line no-labels
                     continue outerLoop;
                 }
             }

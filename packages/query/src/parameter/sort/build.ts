@@ -7,6 +7,31 @@
 
 import { flattenNestedProperties } from '../utils';
 import { SortBuildInput } from './type';
+import { mergeDeep } from '../../utils';
+
+export function buildQuerySortForMany<T>(inputs: SortBuildInput<T>[]) {
+    let data: SortBuildInput<T>;
+
+    for (let i = 0; i < inputs.length; i++) {
+        if (data) {
+            const current = inputs[i];
+            if (
+                typeof data === 'string' ||
+                typeof current === 'string'
+            ) {
+                data = inputs[i];
+            } else {
+                data = mergeDeep(data, current);
+            }
+        } else {
+            data = inputs[i];
+        }
+    }
+
+    console.log(data);
+
+    return buildQuerySort(data);
+}
 
 export function buildQuerySort<T>(data: SortBuildInput<T>) {
     switch (true) {

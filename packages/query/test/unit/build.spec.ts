@@ -247,4 +247,44 @@ describe('src/build.ts', () => {
 
         expect(record).toEqual(buildURLQueryString({ [URLParameter.RELATIONS]: ['child', 'siblings.child'] }));
     });
+
+    it('should build query from different sources', () => {
+        let record;
+
+        record = buildQuery<Entity>({
+            [Parameter.FILTERS]: {
+                child: {
+                    id: 1,
+                },
+            },
+            [URLParameter.FILTERS]: {
+                id: 2,
+            },
+        });
+        expect(record).toEqual(buildURLQueryString({ [URLParameter.FILTERS]: { 'child.id': 1, id: 2 } }));
+
+        record = buildQuery<Entity>({
+            [Parameter.PAGINATION]: {
+                limit: 10,
+            },
+            [URLParameter.PAGINATION]: {
+                offset: 0,
+            },
+        });
+
+        expect(record).toEqual(buildURLQueryString({ [URLParameter.PAGINATION]: { limit: 10, offset: 0 } }));
+
+        record = buildQuery<Entity>({
+            [Parameter.RELATIONS]: {
+                child: true,
+            },
+            [URLParameter.RELATIONS]: {
+                siblings: {
+                    child: true,
+                },
+            },
+        });
+
+        expect(record).toEqual(buildURLQueryString({ [URLParameter.RELATIONS]: ['child', 'siblings.child'] }));
+    });
 });

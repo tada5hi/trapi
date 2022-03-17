@@ -25,7 +25,7 @@ type FieldWithOperator<T extends Record<string, any>> =
     KeyWithOptionalPrefix<keyof T, FieldOperator> |
     KeyWithOptionalPrefix<keyof T, FieldOperator>[];
 
-export type FieldsBuildInput<T> =
+export type FieldsBuildInput<T extends Record<string, any>> =
     {
         [K in keyof T]?: T[K] extends OnlyObject<T[K]> ?
             (FieldsBuildInput<Flatten<T[K]>> | FieldWithOperator<Flatten<T[K]>>) : never

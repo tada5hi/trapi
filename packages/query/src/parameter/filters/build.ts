@@ -9,8 +9,26 @@ import { flattenNestedProperties } from '../utils';
 import { FilterOperatorConfig, FiltersBuildInput } from './type';
 import { FilterOperator } from './constants';
 import { isFilterOperatorConfig } from './utils';
+import { mergeDeep } from '../../utils';
 
-export function buildQueryFilters<T>(data: FiltersBuildInput<T>) : Record<string, string> {
+export function buildQueryFiltersForMany<T>(
+    input: FiltersBuildInput<T>[],
+) : Record<string, string> {
+    let data : FiltersBuildInput<T>;
+    for (let i = 0; i < input.length; i++) {
+        if (data) {
+            data = mergeDeep(data, input[i]);
+        } else {
+            data = input[i];
+        }
+    }
+
+    return buildQueryFilters(data);
+}
+
+export function buildQueryFilters<T>(
+    data: FiltersBuildInput<T>,
+) : Record<string, string> {
     return flattenNestedProperties(transformOperatorConfigToValue(data));
 }
 

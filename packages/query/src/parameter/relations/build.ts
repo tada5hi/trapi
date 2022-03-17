@@ -7,6 +7,22 @@
 
 import { flattenNestedProperties } from '../utils';
 import { RelationsBuildInput } from './type';
+import { mergeDeep } from '../../utils';
+
+export function buildQueryRelationsForMany<T>(
+    input: RelationsBuildInput<T>[],
+) : string[] {
+    let data : RelationsBuildInput<T>;
+    for (let i = 0; i < input.length; i++) {
+        if (data) {
+            data = mergeDeep(data, input[i]);
+        } else {
+            data = input[i];
+        }
+    }
+
+    return buildQueryRelations(data);
+}
 
 export function buildQueryRelations<T>(data: RelationsBuildInput<T>): string[] {
     const properties: Record<string, boolean> = flattenNestedProperties(data);

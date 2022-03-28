@@ -31,8 +31,11 @@
         "url": "https://github.com/Tada5hi/typescript-rest-api/issues"
     },
     "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
-    "dependencies": {
+    "devDependencies": {
         "@trapi/client": "^2.0.6"
+    },
+    "peerDependencies": {
+        "@trapi/client": "^2.x"
     },
     "publishConfig": {
         "access": "public"

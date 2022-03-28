@@ -28,7 +28,7 @@ export class HarborClient extends Client {
     // -----------------------------------------------------------------------------------
 
     constructor(config: Config) {
-        const harborConfig : HarborClientConfig = parseConnectionString(config.extra.connectionString);
+        const harborConfig = parseConnectionString(config.extra.connectionString);
 
         config.driver = {
             ...(config.driver ?? {}),

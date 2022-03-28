@@ -65,6 +65,7 @@ export class KeyValueAPI {
         } catch (e) {
             if (
                 isClientError(e) &&
+                e.response &&
                 e.response.status === 404
             ) {
                 return undefined;

@@ -46,7 +46,9 @@ export class ProjectAPI {
                 e.response.status === 409
             ) {
                 const data = await this.getOne(payload.project_name, true);
-                await this.update(data.project_id, payload);
+                if (data) {
+                    await this.update(data.project_id, payload);
+                }
                 return;
             }
 

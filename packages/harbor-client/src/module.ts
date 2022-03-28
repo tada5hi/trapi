@@ -38,9 +38,8 @@ export class HarborClient extends Client {
         }
 
         config.driver = mergeDeep({
+            ...(connectionConfig ? { baseURL: connectionConfig.host } : {}),
             ...(config.driver ?? {}),
-            ...(connectionConfig ? { baseURL: connectionConfig.host } : {})
-            ,
         });
 
         super(config);

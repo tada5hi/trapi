@@ -6,9 +6,9 @@
  */
 
 import { ClientDriverInstance } from '@trapi/client';
-import { HarborProjectArtifact, HarborProjectArtifactLabel } from './type';
+import { ProjectArtifact, ProjectArtifactLabel } from './type';
 
-export class HarborProjectArtifactAPI {
+export class ProjectArtifactAPI {
     protected client: ClientDriverInstance;
 
     constructor(client: ClientDriverInstance) {
@@ -18,7 +18,7 @@ export class HarborProjectArtifactAPI {
     async getMany(
         projectName : string,
         repositoryName: string,
-    ) : Promise<HarborProjectArtifact[]> {
+    ) : Promise<ProjectArtifact[]> {
         const { data } = await this.client
             .get(`projects/${projectName}/repositories/${repositoryName}/artifacts?with_tag=true&with_label=true`);
 
@@ -47,7 +47,7 @@ export class HarborProjectArtifactAPI {
         projectName: string,
         repositoryName: string,
         tagOrDigest: string,
-        data: HarborProjectArtifactLabel,
+        data: ProjectArtifactLabel,
     ) : Promise<void> {
         await this.client
             .post(`projects/${projectName}/repositories/${repositoryName}/artifacts/${tagOrDigest}/labels`, data);

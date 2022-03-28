@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { HarborRepositoryNameParsed } from './type';
+import { RepositoryNameParsed } from './type';
 
-export function parseHarborProjectRepositoryName(name: string) : HarborRepositoryNameParsed {
+export function parseProjectRepositoryName(name: string) : RepositoryNameParsed {
     const parts = name.split('/');
     const projectName = parts.shift();
     const repositoryName = parts.join('/');

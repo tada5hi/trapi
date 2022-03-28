@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export type HarborRepository = {
+export type Repository = {
     id: number,
     // <project-name>/<repository-name>
     name: string,
@@ -21,7 +21,7 @@ export type HarborRepository = {
     project_name?: string,
 };
 
-export type HarborSearchRepository = {
+export type SearchRepository = {
     // <project-name>/<repository-name>
     repository_name: string,
     project_name: string,
@@ -31,7 +31,7 @@ export type HarborSearchRepository = {
     pull_count: number
 };
 
-export type HarborRepositoryNameParsed = {
+export type RepositoryNameParsed = {
     project_name: string,
     repository_name: string
 };

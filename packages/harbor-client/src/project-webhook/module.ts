@@ -6,10 +6,10 @@
  */
 
 import { ClientDriverInstance, isClientError } from '@trapi/client';
-import { HarborProjectWebhook } from './type';
+import { ProjectWebhook } from './type';
 import { mergeDeep } from '../utils';
 
-export class HarborProjectWebHookAPI {
+export class ProjectWebHookAPI {
     protected client: ClientDriverInstance;
 
     constructor(client: ClientDriverInstance) {
@@ -20,7 +20,7 @@ export class HarborProjectWebHookAPI {
         projectIdOrName: number | string,
         isProjectName: boolean,
         name : string,
-    ): Promise<HarborProjectWebhook | undefined> {
+    ): Promise<ProjectWebhook | undefined> {
         const headers: Record<string, any> = {};
 
         if (isProjectName) {
@@ -42,15 +42,15 @@ export class HarborProjectWebHookAPI {
     async save(
         projectIdOrName: number | string,
         isProjectName: boolean,
-        data: Partial<HarborProjectWebhook>,
-    ): Promise<HarborProjectWebhook> {
+        data: Partial<ProjectWebhook>,
+    ): Promise<ProjectWebhook> {
         const headers: Record<string, any> = {};
 
         if (isProjectName) {
             headers['X-Is-Resource-Name'] = true;
         }
 
-        const webhook: HarborProjectWebhook = mergeDeep({
+        const webhook: ProjectWebhook = mergeDeep({
             name: (Math.random() + 1).toString(36).substring(7),
             enabled: true,
             targets: [],
@@ -63,6 +63,7 @@ export class HarborProjectWebHookAPI {
         } catch (e) {
             if (
                 isClientError(e) &&
+                e.response &&
                 e.response.status === 409
             ) {
                 await this.delete(projectIdOrName, isProjectName, webhook.name);

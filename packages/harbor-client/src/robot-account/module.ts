@@ -6,11 +6,11 @@
  */
 
 import { ClientDriverInstance } from '@trapi/client';
-import { HarborRobotAccount } from './type';
-import { buildHarborRobotAccountPermissionForNamespace } from './utils';
+import { RobotAccount } from './type';
+import { buildRobotAccountPermissionForNamespace } from './utils';
 import { mergeDeep } from '../utils';
 
-export class HarborRobotAccountAPI {
+export class RobotAccountAPI {
     protected client: ClientDriverInstance;
 
     constructor(client: ClientDriverInstance) {
@@ -20,7 +20,7 @@ export class HarborRobotAccountAPI {
     async find(
         name: string,
         withSecret = true,
-    ): Promise<HarborRobotAccount | undefined> {
+    ): Promise<RobotAccount | undefined> {
         const { data } = await this.client.get(`robots?q=name%3D${name}&page_size=1`);
 
         const accounts = Array.isArray(data) ? data.filter((account) => account.name === `robot$${name}`) : [];
@@ -57,26 +57,26 @@ export class HarborRobotAccountAPI {
     async refreshSecret(
         robotId: string | number,
         secret?: string,
-    ): Promise<Pick<HarborRobotAccount, 'secret'>> {
+    ): Promise<Pick<RobotAccount, 'secret'>> {
         const payload: Record<string, any> = {
             ...(secret ? { secret } : {}),
         };
 
-        const { data }: { data: HarborRobotAccount } = await this.client
+        const { data }: { data: RobotAccount } = await this.client
             .patch(`robots/${robotId}`, payload);
 
         if (typeof payload.secret !== 'undefined') {
             data.secret = payload.secret;
         }
 
-        return data as Pick<HarborRobotAccount, 'secret'>;
+        return data as Pick<RobotAccount, 'secret'>;
     }
 
     async update(
         id: string | number,
         namespace: string,
-        data?: Partial<HarborRobotAccount>,
-    ): Promise<Partial<HarborRobotAccount>> {
+        data?: Partial<RobotAccount>,
+    ): Promise<Partial<RobotAccount>> {
         data = mergeDeep({
             id,
             description: '',
@@ -84,7 +84,7 @@ export class HarborRobotAccountAPI {
             level: 'system',
             editable: true,
             disable: false,
-            permissions: [buildHarborRobotAccountPermissionForNamespace(namespace)],
+            permissions: [buildRobotAccountPermissionForNamespace(namespace)],
         }, (data || {}));
 
         await this.client
@@ -96,23 +96,23 @@ export class HarborRobotAccountAPI {
     async create(
         robotName: string,
         projectName?: string,
-        payload?: Partial<HarborRobotAccount>,
+        payload?: Partial<RobotAccount>,
     ) {
         payload = mergeDeep({
             name: robotName,
             duration: -1,
             level: 'system',
             disable: false,
-            permissions: [buildHarborRobotAccountPermissionForNamespace(projectName ?? robotName)],
+            permissions: [buildRobotAccountPermissionForNamespace(projectName ?? robotName)],
         }, (payload || {}));
 
-        const { data }: { data: HarborRobotAccount } = await this.client
+        const { data }: { data: RobotAccount } = await this.client
             .post('robots', payload);
 
         return data;
     }
 
-    async delete(id: HarborRobotAccount['id']): Promise<void> {
+    async delete(id: RobotAccount['id']): Promise<void> {
         await this.client
             .delete(`robots/${id}`);
     }

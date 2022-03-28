@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export type HarborProjectArtifactTag = {
+export type ProjectArtifactTag = {
     artifact_id: number,
     id: number,
     immutable: boolean,
@@ -16,7 +16,7 @@ export type HarborProjectArtifactTag = {
     signed: boolean
 };
 
-export type HarborProjectArtifactLabel = {
+export type ProjectArtifactLabel = {
     id: number,
     name: string,
     scope: string,
@@ -24,12 +24,12 @@ export type HarborProjectArtifactLabel = {
     creation_time: string
 };
 
-export type HarborProjectArtifact = {
+export type ProjectArtifact = {
     size: number,
     push_time: string,
     pull_time: string,
-    tags?: HarborProjectArtifactTag[],
-    labels?: HarborProjectArtifactLabel[],
+    tags?: ProjectArtifactTag[],
+    labels?: ProjectArtifactLabel[],
     digest: string,
     id?: number,
     type: 'IMAGE' | 'CHART' | string,

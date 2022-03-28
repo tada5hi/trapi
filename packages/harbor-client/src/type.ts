@@ -5,16 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { HarborProject } from './project';
-import { HarborSearchRepository } from './project-repository';
+import { Project } from './project';
+import { SearchRepository } from './project-repository';
 
-export type HarborClientConfig = {
+export type ConnectionConfig = {
     host: string,
     user: string,
     password: string
 };
 
-export type HarborSearchResult = {
-    project: HarborProject[],
-    repository: HarborSearchRepository[]
+export type SearchResult = {
+    project: Project[],
+    repository: SearchRepository[]
 };

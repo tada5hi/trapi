@@ -6,53 +6,63 @@
  */
 
 import { Client, Config } from '@trapi/client';
-import { HarborClientConfig, HarborSearchResult } from './type';
-import { HarborRobotAccountAPI } from './robot-account';
-import { HarborProjectAPI } from './project';
-import { HarborProjectWebHookAPI } from './project-webhook';
-import { HarborProjectRepositoryAPI } from './project-repository';
-import { HarborProjectArtifactAPI } from './project-artifact';
-import { parseConnectionString } from './utils';
+import { ConnectionConfig, SearchResult } from './type';
+import { RobotAccountAPI } from './robot-account';
+import { ProjectAPI } from './project';
+import { ProjectWebHookAPI } from './project-webhook';
+import { ProjectRepositoryAPI } from './project-repository';
+import { ProjectArtifactAPI } from './project-artifact';
+import { mergeDeep, parseConnectionString } from './utils';
 
 export class HarborClient extends Client {
-    public readonly project: HarborProjectAPI;
+    public readonly project: ProjectAPI;
 
-    public readonly projectArtifact: HarborProjectArtifactAPI;
+    public readonly projectArtifact: ProjectArtifactAPI;
 
-    public readonly projectRepository: HarborProjectRepositoryAPI;
+    public readonly projectRepository: ProjectRepositoryAPI;
 
-    public readonly projectWebHook: HarborProjectWebHookAPI;
+    public readonly projectWebHook: ProjectWebHookAPI;
 
-    public readonly robotAccount : HarborRobotAccountAPI;
+    public readonly robotAccount : RobotAccountAPI;
 
     // -----------------------------------------------------------------------------------
 
     constructor(config: Config) {
-        const harborConfig = parseConnectionString(config.extra.connectionString);
+        let connectionConfig : ConnectionConfig | undefined;
 
-        config.driver = {
+        if (
+            config.extra &&
+            config.extra.connectionString
+        ) {
+            connectionConfig = parseConnectionString(config.extra.connectionString);
+        }
+
+        config.driver = mergeDeep({
             ...(config.driver ?? {}),
-            baseURL: harborConfig.host,
-        };
+            ...(connectionConfig ? { baseURL: connectionConfig.host } : {})
+            ,
+        });
 
         super(config);
 
-        this.setAuthorizationHeader({
-            type: 'Basic',
-            username: harborConfig.user,
-            password: harborConfig.password,
-        });
+        if (connectionConfig) {
+            this.setAuthorizationHeader({
+                type: 'Basic',
+                username: connectionConfig.user,
+                password: connectionConfig.password,
+            });
+        }
 
-        this.project = new HarborProjectAPI(this.driver);
-        this.projectArtifact = new HarborProjectArtifactAPI(this.driver);
-        this.projectWebHook = new HarborProjectWebHookAPI(this.driver);
-        this.projectRepository = new HarborProjectRepositoryAPI(this.driver);
-        this.robotAccount = new HarborRobotAccountAPI(this.driver);
+        this.project = new ProjectAPI(this.driver);
+        this.projectArtifact = new ProjectArtifactAPI(this.driver);
+        this.projectWebHook = new ProjectWebHookAPI(this.driver);
+        this.projectRepository = new ProjectRepositoryAPI(this.driver);
+        this.robotAccount = new RobotAccountAPI(this.driver);
     }
 
     // -----------------------------------------------------------------------------------
 
-    async search(q: string): Promise<HarborSearchResult> {
+    async search(q: string): Promise<SearchResult> {
         const { data } = await this.driver
             .get(`search?q=${q}`);
 

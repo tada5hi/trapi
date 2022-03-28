@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export type HarborRobotAccountPermissionAccess = {
+export type RobotAccountPermissionAccess = {
     resource: 'artifact' |
     'artifact-label' |
     'helm-chart' |
@@ -16,13 +16,13 @@ export type HarborRobotAccountPermissionAccess = {
     action: 'delete' | 'read' | 'create' | 'pull' | 'push' | 'list' | 'stop'
 };
 
-export type HarborRobotAccountPermission = {
-    access: HarborRobotAccountPermissionAccess[],
+export type RobotAccountPermission = {
+    access: RobotAccountPermissionAccess[],
     kind: 'project',
     namespace: string
 };
 
-export type HarborRobotAccount = {
+export type RobotAccount = {
     id?: number | string,
     name: string,
     secret?: string | null,
@@ -33,5 +33,5 @@ export type HarborRobotAccount = {
     level?: 'system',
     disable?: boolean,
     editable?: boolean,
-    permissions?: HarborRobotAccountPermission[]
+    permissions?: RobotAccountPermission[]
 };

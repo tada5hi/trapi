@@ -59,3 +59,8 @@ It extends the specification format between request- & response-handling for que
 This package contains all functions, to generate a fully featured documentation according the OpenAPI Specification from given metadata.
 
 [README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/swagger#README.md)
+
+### @trapi/vault-client
+[![npm version](https://badge.fury.io/js/@trapi%2Fvault-client.svg)](https://badge.fury.io/js/@trapi%2Fvault-client)
+
+This package contains an API-Client for the vault secret storage.

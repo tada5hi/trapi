@@ -6,26 +6,26 @@
  */
 
 import { ClientDriverInstance } from '@trapi/client';
-import { HarborRepository } from './type';
-import { parseHarborProjectRepositoryName } from './utils';
+import { Repository } from './type';
+import { parseProjectRepositoryName } from './utils';
 
-export class HarborProjectRepositoryAPI {
+export class ProjectRepositoryAPI {
     protected client: ClientDriverInstance;
 
     constructor(client: ClientDriverInstance) {
         this.client = client;
     }
 
-    async find(projectName: string, repositoryName: string): Promise<HarborRepository | undefined> {
+    async find(projectName: string, repositoryName: string): Promise<Repository | undefined> {
         const { data } = await this.client.get(`projects/${projectName}/repositories?q=name=~${repositoryName}&=page_size=1`);
 
         if (data.length !== 1) {
             return undefined;
         }
 
-        const item : HarborRepository = data[0];
+        const item : Repository = data[0];
 
-        const parsed = parseHarborProjectRepositoryName(item.name);
+        const parsed = parseProjectRepositoryName(item.name);
 
         return {
             ...item,
@@ -34,10 +34,10 @@ export class HarborProjectRepositoryAPI {
         };
     }
 
-    async getOne(projectName: string, repositoryName: string) : Promise<HarborRepository> {
-        const { data } : { data: HarborRepository } = await this.client.get(`projects/${projectName}/repositories/${repositoryName}`);
+    async getOne(projectName: string, repositoryName: string) : Promise<Repository> {
+        const { data } : { data: Repository } = await this.client.get(`projects/${projectName}/repositories/${repositoryName}`);
 
-        const parsed = parseHarborProjectRepositoryName(data.name);
+        const parsed = parseProjectRepositoryName(data.name);
 
         return {
             ...data,
@@ -46,12 +46,12 @@ export class HarborProjectRepositoryAPI {
         };
     }
 
-    async getMany(projectName: string): Promise<HarborRepository[]> {
+    async getMany(projectName: string): Promise<Repository[]> {
         const result = await this.client
             .get(`projects/${projectName}/repositories`);
 
-        return result.data.map((item: HarborRepository) => {
-            const parsed = parseHarborProjectRepositoryName(item.name);
+        return result.data.map((item: Repository) => {
+            const parsed = parseProjectRepositoryName(item.name);
 
             return {
                 ...item,
@@ -61,7 +61,7 @@ export class HarborProjectRepositoryAPI {
         });
     }
 
-    async update(projectName: string, repositoryName: string, data: Partial<HarborRepository>) {
+    async update(projectName: string, repositoryName: string, data: Partial<Repository>) {
         await this.client
             .put(`projects/${projectName}/repositories/${repositoryName}`, data);
     }

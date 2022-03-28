@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { HarborRobotAccountPermission } from './type';
+import { RobotAccountPermission } from './type';
 
-export function buildHarborRobotAccountPermissionForNamespace(namespace: string) : HarborRobotAccountPermission {
+export function buildRobotAccountPermissionForNamespace(namespace: string) : RobotAccountPermission {
     return {
         access: [
             { resource: 'repository', action: 'push' },

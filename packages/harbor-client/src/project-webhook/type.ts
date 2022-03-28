@@ -5,12 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export type HarborProjectWebhookOptions = {
-    internalAPIUrl?: string
-    externalAPIUrl?: string
-};
-
-export type HarborProjectWebhookEventType =
+export type ProjectWebhookEventType =
     'PUSH_ARTIFACT' | 'PULL_ARTIFACT' | 'DELETE_ARTIFACT' |
     'DELETE_CHART' | 'DOWNLOAD_CHART' | 'UPLOAD_CHART' |
     'QUOTA_EXCEEDED' | 'QUOTA_WARNING' |
@@ -18,21 +13,21 @@ export type HarborProjectWebhookEventType =
     'SCANNING_FAILED' | 'SCANNING_COMPLETED' |
     'TAG_RETENTION';
 
-export type HarborProjectWebhookTarget = {
+export type ProjectWebhookTarget = {
     address: string;
     auth_header?: string;
     skip_cert_verify: boolean;
     type: 'http';
 };
 
-export type HarborProjectWebhook = {
+export type ProjectWebhook = {
     creation_time?: string;
     description?: string;
     enabled: true;
-    event_types: HarborProjectWebhookEventType[];
+    event_types: ProjectWebhookEventType[];
     id?: number;
     name: string;
     project_id?: number;
-    targets: HarborProjectWebhookTarget[];
+    targets: ProjectWebhookTarget[];
     update_time?: string;
 };

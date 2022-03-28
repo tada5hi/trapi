@@ -6,23 +6,23 @@
  */
 
 import { ClientDriverInstance, isClientError } from '@trapi/client';
-import { HarborProject, HarborProjectPayload } from './type';
+import { Project, ProjectPayload } from './type';
 
-export class HarborProjectAPI {
+export class ProjectAPI {
     protected client: ClientDriverInstance;
 
     constructor(client: ClientDriverInstance) {
         this.client = client;
     }
 
-    async getMany() : Promise<HarborProject[]> {
+    async getMany() : Promise<Project[]> {
         const { data } = await this.client
             .get('projects');
 
         return data;
     }
 
-    async getOne(id: string | number, isProjectName = false): Promise<HarborProject> {
+    async getOne(id: string | number, isProjectName = false): Promise<Project> {
         const headers: Record<string, any> = {};
 
         if (isProjectName) {
@@ -35,13 +35,14 @@ export class HarborProjectAPI {
         return data;
     }
 
-    async save(payload: HarborProjectPayload) : Promise<void> {
+    async save(payload: ProjectPayload) : Promise<void> {
         try {
             await this.client
                 .post('projects', payload);
         } catch (e) {
             if (
                 isClientError(e) &&
+                e.response &&
                 e.response.status === 409
             ) {
                 const data = await this.getOne(payload.project_name, true);
@@ -53,12 +54,12 @@ export class HarborProjectAPI {
         }
     }
 
-    async create(data: HarborProjectPayload) : Promise<void> {
+    async create(data: ProjectPayload) : Promise<void> {
         await this.client
             .post('projects', data);
     }
 
-    async update(id: HarborProject['project_id'], data: HarborProjectPayload) : Promise<void> {
+    async update(id: Project['project_id'], data: ProjectPayload) : Promise<void> {
         await this.client
             .put(`projects/${id}`, data);
     }

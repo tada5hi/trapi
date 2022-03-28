@@ -6,7 +6,7 @@
         "url": "https://github.com/tada5hi"
     },
     "license": "MIT",
-    "version": "0.2.15",
+    "version": "0.2.16",
     "description": "Generate Swagger files from a decorator APIs.",
     "keywords": [
         "typescript",
@@ -40,7 +40,7 @@
         "rimraf": "^3.0.2"
     },
     "dependencies": {
-        "@trapi/metadata": "^0.1.7",
+        "@trapi/metadata": "^0.1.8",
         "@trapi/metadata-utils": "^0.0.5",
         "yamljs": "^0.3.0"
     },

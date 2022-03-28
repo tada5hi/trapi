@@ -1,6 +1,6 @@
 {
     "name": "@trapi/harbor-client",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "A Harbor REST client.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",
@@ -32,7 +32,7 @@
     },
     "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
     "dependencies": {
-        "@trapi/client": "^2.0.5"
+        "@trapi/client": "^2.0.6"
     },
     "publishConfig": {
         "access": "public"

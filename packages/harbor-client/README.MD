@@ -5,7 +5,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/typescript-rest-api/badge.svg)](https://snyk.io/test/github/Tada5hi/typescript-rest-api)
 [![npm version](https://badge.fury.io/js/@trapi%2Fharbor-client.svg)](https://badge.fury.io/js/@trapi%2Fharbor-client)
 
-This is an API-Client for Harbor.
+This package contains an API-Client for the harbor image registry.
 
 **Table of Contents**
 

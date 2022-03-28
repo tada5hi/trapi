@@ -5,8 +5,14 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/typescript-rest-api/badge.svg)](https://snyk.io/test/github/Tada5hi/typescript-rest-api)
 
 ## What is it?
-**TRAPI** is a small collection of few standalone as well helper libraries, to simplify the process of creating REST-APIs, generating documentations
+**T**ypeScript**R**est**API** is a small collection of few standalone as well helper libraries, to simplify the process of creating REST-APIs, generating documentations
 and communicating between frontend and backend application.
+
+
+**Table of Contents**
+
+- [Installation](#installation)
+- [Packages](#packages)
 
 ## Installation
 Please follow the `README.md` instructions in the respective package folder.
@@ -14,12 +20,19 @@ Please follow the `README.md` instructions in the respective package folder.
 ## Packages
 The repository contains the following packages:
 
+### @trapi/client
+[![npm version](https://badge.fury.io/js/@trapi%2Fclient.svg)](https://badge.fury.io/js/@trapi%2Fclient)
+This package contains a simple API-Client based on axios.
+
+### @trapi/harbor-client
+[![npm version](https://badge.fury.io/js/@trapi%2Fharbor-client.svg)](https://badge.fury.io/js/@trapi%2Fharbor-client)
+This package contains an API-Client for the harbor image registry.
+
 ### @trapi/metadata
 [![npm version](https://badge.fury.io/js/@trapi%2Fmetadata.svg)](https://badge.fury.io/js/@trapi%2Fmetadata)
 
-This package contains all functions, to generate metadata for TypeScript REST decorators.
-In most cases, the first thing to do is to generate metadata information by consulting self defined or third party REST `decorators` present on your code.
-The next step would either be, to generate a `documentation` according to the OpenAPI Specification or to create route schema/handling by using the Metadata for libraries like: express, koa, etc.
+This package is responsible for generating metadata information by analyzing TypeScript REST decorators (self defined or third-party libraries). 
+The metadata can than be used for generating a documentation according to the OpenAPI Specification or to create route schema/handling for libraries like: express, koa, etc.
 
 [README.md](https://github.com/Tada5hi/typescript-rest-api/tree/main/packages/metadata#README.md)
 

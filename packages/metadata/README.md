@@ -5,8 +5,8 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/typescript-rest-api/badge.svg)](https://snyk.io/test/github/Tada5hi/typescript-rest-api)
 [![npm version](https://badge.fury.io/js/@trapi%2Fmetadata.svg)](https://badge.fury.io/js/@trapi%2Fmetadata)
 
-This is a library to generate decorator metadata according to a generic specification, which can easily be extended.
-Therefore, you can use your own decorators or decorators declared by third party libraries.
+This package is responsible for generating metadata information by analyzing TypeScript REST decorators (self defined or third-party libraries).
+The metadata can than be used for generating a documentation according to the OpenAPI Specification or to create route schema/handling for libraries like: express, koa, etc.
 
 Please read the `CHANGELOG.md` in the repository for breaking changes.
 

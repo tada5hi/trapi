@@ -5,7 +5,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/typescript-rest-api/badge.svg)](https://snyk.io/test/github/Tada5hi/typescript-rest-api)
 [![npm version](https://badge.fury.io/js/@trapi%2Fclient.svg)](https://badge.fury.io/js/@trapi%2Fclient)
 
-This is a simple REST client based on axios.
+This package contains a simple API-Client based on axios.
 
 **Table of Contents**
 

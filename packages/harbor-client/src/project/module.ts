@@ -46,6 +46,7 @@ export class HarborProjectAPI {
             ) {
                 const data = await this.getOne(payload.project_name, true);
                 await this.update(data.project_id, payload);
+                return;
             }
 
             throw e;

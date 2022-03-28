@@ -5,8 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CompilerOptions } from 'typescript';
-import { Config as MetadataConfig, createMetadataGenerator } from '@trapi/metadata';
+import { CompilerOptions, Config as MetadataConfig, createMetadataGenerator } from '@trapi/metadata';
 import { Specification, createSpecGenerator } from './specification';
 import { SwaggerDocFormatData, SwaggerDocFormatType } from './type';
 

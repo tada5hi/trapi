@@ -1,17 +1,14 @@
 {
-    "name": "@trapi/client",
-    "version": "2.0.5",
-    "description": "A REST client based on axios.",
+    "name": "@trapi/harbor-client",
+    "version": "0.0.0",
+    "description": "A Harbor REST client.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",
     "files": [
         "dist/"
     ],
     "scripts": {
-        "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
-        "prepublishOnly": "npm run build",
-        "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
-        "test:coverage": "npm run test -- --coverage"
+        "build": "rm -rf ./dist && tsc -p tsconfig.build.json"
     },
     "author": {
         "name": "Peter Placzek",
@@ -21,17 +18,10 @@
     "license": "MIT",
     "keywords": [
         "query",
-        "json",
-        "json-api",
         "api",
         "rest",
-        "api-utils",
-        "include",
-        "pagination",
-        "sort",
-        "fields",
-        "relations",
-        "typescript"
+        "harbor",
+        "go-harbor"
     ],
     "repository": {
         "type": "git",
@@ -42,8 +32,7 @@
     },
     "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
     "dependencies": {
-        "@typescript-error/core": "^1.1.2",
-        "axios": "^0.26.1"
+        "@trapi/client": "^2.0.5"
     },
     "publishConfig": {
         "access": "public"

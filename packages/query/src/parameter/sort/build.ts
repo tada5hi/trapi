@@ -28,8 +28,6 @@ export function buildQuerySortForMany<T>(inputs: SortBuildInput<T>[]) {
         }
     }
 
-    console.log(data);
-
     return buildQuerySort(data);
 }
 

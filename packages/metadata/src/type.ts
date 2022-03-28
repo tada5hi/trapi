@@ -5,9 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { CompilerOptions } from 'typescript';
 import { Resolver } from './resolver';
 import { Decorator } from './decorator';
 import { Cache } from './cache';
+
+export {
+    CompilerOptions,
+};
 
 export interface Config {
     /**

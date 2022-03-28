@@ -25,7 +25,7 @@ export class HarborProjectRepositoryAPI {
 
         const item : HarborRepository = data[0];
 
-        const parsed = parseHarborProjectRepositoryName(data.name);
+        const parsed = parseHarborProjectRepositoryName(item.name);
 
         return {
             ...item,

@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ClientDriverInstance } from '@trapi/client';
+import { ClientDriverInstance, isClientError } from '@trapi/client';
 import { HarborProjectWebhook } from './type';
 import { mergeDeep } from '../utils';
 
@@ -61,7 +61,10 @@ export class HarborProjectWebHookAPI {
             await this.client
                 .post(`projects/${projectIdOrName}/webhook/policies`, webhook, headers);
         } catch (e) {
-            if (e?.response?.status === 409) {
+            if (
+                isClientError(e) &&
+                e.response.status === 409
+            ) {
                 await this.delete(projectIdOrName, isProjectName, webhook.name);
 
                 await this.client

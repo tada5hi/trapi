@@ -7,10 +7,23 @@
 
 export type HarborProject = {
     name: string,
-    id: number,
-    [key: string]: any
+    project_id: string,
+    owner_id: number,
+    owner_name: string,
+    registry_id?: number,
+    repo_count: number,
+    update_time: string,
+    creation_time: string,
+    metadata: HarborProjectMetadata
 };
-export type HarborProjectCreateContext = {
+
+export type HarborProjectMetadata = {
+    public: boolean,
+    auto_scan?: string,
+    severity?: 'none' | 'low' | 'medium' | 'high' | 'critical'
+};
+
+export type HarborProjectPayload = {
     project_name: string,
     public?: boolean,
     registry_id?: string | number | null,

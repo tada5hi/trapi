@@ -7,7 +7,7 @@
 
 import { ClientDriverInstance } from '@trapi/client';
 import { HarborRepository } from './type';
-import { buildProjectNameFromRepositoryName } from './utils';
+import { parseHarborProjectRepositoryName } from './utils';
 
 export class HarborProjectRepositoryAPI {
     protected client: ClientDriverInstance;
@@ -25,17 +25,24 @@ export class HarborProjectRepositoryAPI {
 
         const item : HarborRepository = data[0];
 
+        const parsed = parseHarborProjectRepositoryName(data.name);
+
         return {
             ...item,
-            project_name: buildProjectNameFromRepositoryName(item.name),
+            name_slim: parsed.repository_name,
+            project_name: parsed.project_name,
         };
     }
 
     async getOne(projectName: string, repositoryName: string) : Promise<HarborRepository> {
         const { data } : { data: HarborRepository } = await this.client.get(`projects/${projectName}/repositories/${repositoryName}`);
+
+        const parsed = parseHarborProjectRepositoryName(data.name);
+
         return {
             ...data,
-            project_name: buildProjectNameFromRepositoryName(data.name),
+            name_slim: parsed.repository_name,
+            project_name: parsed.project_name,
         };
     }
 
@@ -43,10 +50,15 @@ export class HarborProjectRepositoryAPI {
         const result = await this.client
             .get(`projects/${projectName}/repositories`);
 
-        return result.data.map((item: HarborRepository) => ({
-            ...item,
-            project_name: buildProjectNameFromRepositoryName(item.name),
-        }));
+        return result.data.map((item: HarborRepository) => {
+            const parsed = parseHarborProjectRepositoryName(item.name);
+
+            return {
+                ...item,
+                name_slim: parsed.repository_name,
+                project_name: parsed.project_name,
+            };
+        });
     }
 
     async update(projectName: string, repositoryName: string, data: Partial<HarborRepository>) {

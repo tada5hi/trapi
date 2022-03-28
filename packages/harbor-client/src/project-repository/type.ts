@@ -10,12 +10,15 @@ export type HarborRepository = {
     // <project-name>/<repository-name>
     name: string,
     project_id: number,
-    project_name?: string,
     pull_count: number,
     artifact_count: number,
     description?: string,
     creation_time: string,
     update_time: string,
+
+    // bonus fields
+    name_slim?: string,
+    project_name?: string,
 };
 
 export type HarborSearchRepository = {
@@ -26,4 +29,9 @@ export type HarborSearchRepository = {
     project_public: boolean,
     project_id: number,
     pull_count: number
+};
+
+export type HarborRepositoryNameParsed = {
+    project_name: string,
+    repository_name: string
 };

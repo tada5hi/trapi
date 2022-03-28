@@ -5,9 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function buildProjectNameFromRepositoryName(name: string) {
-    const parts: string[] = name.split('/');
-    parts.pop();
+import { HarborRepositoryNameParsed } from './type';
 
-    return parts.join('/');
+export function parseHarborProjectRepositoryName(name: string) : HarborRepositoryNameParsed {
+    const parts = name.split('/');
+    const projectName = parts.shift();
+    const repositoryName = parts.join('/');
+
+    return {
+        project_name: projectName,
+        repository_name: repositoryName,
+    };
 }

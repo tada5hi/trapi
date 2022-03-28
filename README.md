@@ -22,10 +22,12 @@ The repository contains the following packages:
 
 ### @trapi/client
 [![npm version](https://badge.fury.io/js/@trapi%2Fclient.svg)](https://badge.fury.io/js/@trapi%2Fclient)
+
 This package contains a simple API-Client based on axios.
 
 ### @trapi/harbor-client
 [![npm version](https://badge.fury.io/js/@trapi%2Fharbor-client.svg)](https://badge.fury.io/js/@trapi%2Fharbor-client)
+
 This package contains an API-Client for the harbor image registry.
 
 ### @trapi/metadata

@@ -68,6 +68,6 @@ export class ProjectRepositoryAPI {
 
     async delete(projectName: string, repositoryName: string) : Promise<void> {
         await this.client
-            .get(`projects/${projectName}/repositories/${repositoryName}`);
+            .delete(`projects/${projectName}/repositories/${repositoryName}`);
     }
 }

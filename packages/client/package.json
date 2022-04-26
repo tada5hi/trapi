@@ -35,12 +35,12 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/typescript-rest-api.git"
+        "url": "git+https://github.com/Tada5hi/trapi.git"
     },
     "bugs": {
-        "url": "https://github.com/Tada5hi/typescript-rest-api/issues"
+        "url": "https://github.com/Tada5hi/trapi/issues"
     },
-    "homepage": "https://github.com/Tada5hi/typescript-rest-api#readme",
+    "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
         "@typescript-error/core": "^1.1.3",
         "axios": "^0.26.1"

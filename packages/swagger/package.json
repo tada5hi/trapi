@@ -46,8 +46,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/tada5hi/typescript-rest-api.git"
+        "url": "git+https://github.com/Tada5hi/trapi.git"
     },
+    "bugs": {
+        "url": "https://github.com/Tada5hi/trapi/issues"
+    },
+    "homepage": "https://github.com/Tada5hi/trapi#readme",
     "directories": {
         "lib": "dist",
         "doc": "doc"

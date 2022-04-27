@@ -90,16 +90,28 @@ export class Client {
         return this.driver.post(url, data, config);
     }
 
+    public postForm<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
+        return this.driver.postForm(url, data, config);
+    }
+
     // ---------------------------------------------------------------------------------
 
     public put<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
         return this.driver.put(url, data, config);
     }
 
+    public putForm<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
+        return this.driver.putForm(url, data, config);
+    }
+
     // ---------------------------------------------------------------------------------
 
     public patch<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
         return this.driver.patch(url, data, config);
+    }
+
+    public patchForm<T, R = ClientResponse<T>>(url: string, data?: any, config?: ClientRequestConfig): Promise<R> {
+        return this.driver.patchForm(url, data, config);
     }
 
     //---------------------------------------------------------------------------------

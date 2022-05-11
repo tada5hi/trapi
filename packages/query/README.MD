@@ -5,7 +5,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/trapi/badge.svg)](https://snyk.io/test/github/Tada5hi/trapi)
 [![npm version](https://badge.fury.io/js/@trapi%2Fquery.svg)](https://badge.fury.io/js/@trapi%2Fquery)
 
-This is a library to build efficient and optimized `JSON:API` like REST-APIs.
+This is a library to build efficient and `JSON:API` like REST-APIs.
 
 It extends the specification format between request- & response-handling based on the following parameters:
 - `fields`
@@ -23,13 +23,6 @@ It extends the specification format between request- & response-handling based o
 - `sort`
   - Description: Sort the resources according to one or more keys in asc/desc direction.
   - URL-Parameter: **sort**
-
----
-**Important NOTE**
-
-The examples in the [Parsing](#parsing-) section, are not available with releases `<1.0.0` of the `typeorm-extension`  library.
-
----
 
 **Table of Contents**
 
@@ -193,8 +186,8 @@ export class Profile {
     user: User;
 }
 ```
-In this example [typeorm](https://www.npmjs.com/package/typeorm) is used for `object-relational mapping (ORM)` and [typeorm-extension](https://www.npmjs.com/package/typeorm-extension) is used
-to apply the parsed request query parameters on the db query and [express](https://www.npmjs.com/package/express) to handle requests.
+In this example [typeorm](https://www.npmjs.com/package/typeorm) is used as `object-relational mapping (ORM)` and [typeorm-extension](https://www.npmjs.com/package/typeorm-extension) is used
+to apply the parsed request query parameters on the db query and [express](https://www.npmjs.com/package/express) to handle the requests.
 
 #### Parse - Extended
 
@@ -202,7 +195,6 @@ In the following example, all query parameter parse functions (`parseQueryFields
 will be imported separately.
 
 ```typescript
-import {getRepository} from "typeorm";
 import {Request, Response} from 'express';
 
 import {
@@ -215,7 +207,8 @@ import {
 } from "@trapi/query";
 
 import {
-    applyQueryParseOutput
+    applyQueryParseOutput,
+    useDataSource
 } from "typeorm-extension";
 
 /**
@@ -241,7 +234,8 @@ import {
 export async function getUsers(req: Request, res: Response) {
     const {fields, filter, include, page, sort} = req.query;
 
-    const repository = getRepository(User);
+    const dataSource = await useDataSource();
+    const repository = dataSource.getRepository(User);
     const query = repository.createQueryBuilder('user');
 
     // -----------------------------------------------------
@@ -315,18 +309,18 @@ keys after the parse process:
 - ... [more](#parseinput)
 
 ```typescript
-import {getRepository} from "typeorm";
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
 import {
     parseQuery,
     Parameter,
     ParseOutput
-} from "@trapi/query";
+} from '@trapi/query';
 
 import {
-    applyQueryParseOutput
-} from "typeorm-extension";
+    applyQueryParseOutput,
+    useDataSource
+} from 'typeorm-extension';
 
 /**
  * Get many users.
@@ -360,7 +354,8 @@ export async function getUsers(req: Request, res: Response) {
         }
     });
 
-    const repository = getRepository(User);
+    const dataSource = await useDataSource();
+    const repository = dataSource.getRepository(User);
     const query = repository.createQueryBuilder('user');
 
     // -----------------------------------------------------
@@ -427,17 +422,17 @@ console.log(query);
 
 #### Type parameters
 
-| Name | Description |
-| :------ | :------ |
-| `T` | A type, interface, or class which represent the data structure.
+| Name   | Description                                                     |
+|:-------|:----------------------------------------------------------------|
+| `T`    | A type, interface, or class which represent the data structure. |
 
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `input` | `BuildInput`<`T`> | Input specification [more](#buildinput). |
-| `options` | `BuildOptions` | Options for building fields, filter, include, ...
+| Name      | Type              | Description                                       |
+|:----------|:------------------|:--------------------------------------------------|
+| `input`   | `BuildInput`<`T`> | Input specification [more](#buildinput).          |
+| `options` | `BuildOptions`    | Options for building fields, filter, include, ... |
 
 #### Returns
 
@@ -466,7 +461,6 @@ import {
     ParseOutput,
     URLParameter
 } from "@trapi/query";
-import {URLParameter} from "@trapi/query/src";
 
 const output: ParseOutput = parseQuery({
     fields: ['+age'],
@@ -488,16 +482,16 @@ console.log(output);
 
 #### Type parameters
 
-| Name | Description |
-| :------ | :------ |
+| Name  | Description |
+|:------|:------------|
 
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `input` | `ParseInput` | Query input data passed e.g. via URL [more](#parseinput). |
-| `options` | `ParseOptions` | Options for parsing fields, filter, include, ... [more](#parseoptions)
+| Name      | Type           | Description                                                            |
+|:----------|:---------------|:-----------------------------------------------------------------------|
+| `input`   | `ParseInput`   | Query input data passed e.g. via URL [more](#parseinput).              |
+| `options` | `ParseOptions` | Options for parsing fields, filter, include, ... [more](#parseoptions) |
 
 #### Returns
 
@@ -643,16 +637,16 @@ console.log(output);
 ```
 #### Type parameters
 
-| Name | Description |
-| :------ | :------ |
+| Name  | Description |
+|:------|:------------|
 
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `input` | `unknown` | Query input data passed e.g. via URL [more](#parseinput). |
-| `options` | `ParseParameterOptions<Parameter>` | Options for parsing fields, filter, include, ... [more](#parseoptions)
+| Name      | Type                               | Description                                                            |
+|:----------|:-----------------------------------|:-----------------------------------------------------------------------|
+| `input`   | `unknown`                          | Query input data passed e.g. via URL [more](#parseinput).              |
+| `options` | `ParseParameterOptions<Parameter>` | Options for parsing fields, filter, include, ... [more](#parseoptions) |
 
 #### Returns
 

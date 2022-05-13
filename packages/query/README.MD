@@ -59,18 +59,14 @@ npm install @trapi/query --save
 
 ### Build 🏗
 
-The general idea is to construct a [BuildInput](#buildinput) at the frontend side,
-which will be formatted to a `string` and passed to the backend application as a URL query string.
-As a result the backend application will always able to process the request.
+The general idea is to construct a [BuildInput](#buildinput) object and convert it to a string
+representation with the [buildQuery](#buildquery) method on the frontend side.
+The result should then be provided as a URL query string to the backend application.
+The backend application is then able to process the request, by parsing and interpreting the query string.
 
-Therefore, two components of this module are required in the frontend application:
-- generic type: `BuildInput<T>`
-- function: `buildQuery`.
-
-The method will generate the query string.
-
-In the following example a Class which will represent the structure of a `User` and a function called
-`getAPIUsers`, which will handle the resource request to the resource API, will be defined.
+The following example should give an insight on how to use this library on the frontend side.
+Therefore, a type which will represent a `User` and a method `getAPIUsers` are defined.
+The method should perform a request to the resource API to receive a collection of entities.
 
 ```typescript
 import axios from "axios";
@@ -79,13 +75,13 @@ import {
     BuildInput
 } from "@trapi/query";
 
-class Profile {
+type Profile = {
     id: number;
     avatar: string;
     cover: string;
 }
 
-class User {
+type User = {
     id: number;
     name: string;
     age?: number;
@@ -139,12 +135,12 @@ export async function getAPIUsers(
 })();
 ```
 
-The next examples will demonstrate how to parse and validate the transformed `BuildInput<T>` on the backend side.
+The next section will describe, on how to parse and interpret the query string on the backend side.
 
 ### Parsing 🔎
-For explanation purposes,
-two simple entities with a basic relation between them are declared to demonstrate their usage:
+For explanation purposes, two simple entities with a basic relation between them are declared to demonstrate the usage on the backend side:
 
+**`entities.ts`**
 ```typescript
 import {
     Entity,
@@ -186,13 +182,11 @@ export class Profile {
     user: User;
 }
 ```
-In this example [typeorm](https://www.npmjs.com/package/typeorm) is used as `object-relational mapping (ORM)` and [typeorm-extension](https://www.npmjs.com/package/typeorm-extension) is used
-to apply the parsed request query parameters on the db query and [express](https://www.npmjs.com/package/express) to handle the requests.
 
-#### Parse - Extended
+#### Parse - Detailed
 
-In the following example, all query parameter parse functions (`parseQueryFields`, `parseQueryFilters`, ...)
-will be imported separately.
+In the following code snippet, all query parameter parse functions (`parseQueryFields`, `parseQueryFilters`, ...)
+will be imported separately, to show the usage in detail.
 
 ```typescript
 import {Request, Response} from 'express';
@@ -209,7 +203,9 @@ import {
 import {
     applyQueryParseOutput,
     useDataSource
-} from "typeorm-extension";
+} from 'typeorm-extension';
+
+import { User } from './entities';
 
 /**
  * Get many users.
@@ -300,13 +296,8 @@ export async function getUsers(req: Request, res: Response) {
 ```
 
 #### Parse - Short
-Another way is to directly import the `parseQuery` function, which will handle a group of query parameter values & options.
-
-The [ParseInput](#parseinput) data of the `parseQuery` function can have the following (alias-) property keys, which will be formatted to [Parameter](#parameter)
-keys after the parse process:
-- `fields` | `Parameter.FIELDS`
-- `include` | `relations` | `Parameter.RELATIONS`
-- ... [more](#parseinput)
+Another way is to directly import the [parseQuery](#parsequery) method, which will handle a group of query parameter values & options.
+The [ParseInput](#parseinput) argument of the `parseQuery` method accepts multiple (alias-) property keys.
 
 ```typescript
 import { Request, Response } from 'express';
@@ -381,8 +372,9 @@ export async function getUsers(req: Request, res: Response) {
 
 #### Parse - Third Party Library
 
-It can even be much shorter to parse the query key values, because `typeorm-extension` uses `@trapi/query` under the hood ⚡.
-This is much shorter than the previous example and has less direct dependencies 😁.
+It can even be much simpler to parse the query key-value pairs with the `typeorm-extension` library, because it
+uses this library under the hood ⚡.
+This is much shorter than the previous example and has less explicit dependencies 😁.
 
 [read more](https://www.npmjs.com/package/typeorm-extension)
 
@@ -705,12 +697,12 @@ export type ParseOutput = {
 
 #### ParseParameter
 - `ParseParameterOptions<T extends ParameterType | URLParameterType>`
-is a generic type and returns the available options for a given parameter type, i.e:
+is a generic type and returns the available options for a given parameter type, e.g.
   - [FieldsParseOptions](#fields),
   - [FiltersParseOptions](#filters)
   - ...
 - `ParseParameterOutput<T extends ParameterType | URLParameterType>`
-is a generic type and returns the parsed output data for a given parameter type, i.e:
+is a generic type and returns the parsed output data for a given parameter type, e.g.
   - [FieldsParseOutput](#fields)
   - [FiltersParseOutput](#filters)
   - ...

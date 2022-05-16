@@ -41,7 +41,7 @@
     },
     "dependencies": {
         "glob": "^8.0.2",
-        "minimatch": "^5.0.1",
+        "minimatch": "^5.1.0",
         "yup": "^0.32.11"
     },
     "publishConfig": {

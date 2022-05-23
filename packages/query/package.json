@@ -42,7 +42,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "minimatch": "^5.0.1"
+        "minimatch": "^5.1.0"
     },
     "publishConfig": {
         "access": "public"

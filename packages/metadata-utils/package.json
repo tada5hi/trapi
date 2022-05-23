@@ -40,7 +40,7 @@
         "@types/yup": "^0.29.14"
     },
     "dependencies": {
-        "glob": "^8.0.2",
+        "glob": "^8.0.3",
         "minimatch": "^5.1.0",
         "yup": "^0.32.11"
     },

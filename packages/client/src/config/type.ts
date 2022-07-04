@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { IAxiosRetryConfig } from 'axios-retry';
 import { ClientRequestConfig } from '../type';
 
 export interface Type extends Function {
@@ -14,6 +15,7 @@ export interface Type extends Function {
 export type Config = {
     clazz?: Type,
     driver?: ClientRequestConfig,
+    retry?: IAxiosRetryConfig | boolean,
     extra?: {
         connectionString?: string,
         [key: string]: any

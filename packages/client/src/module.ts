@@ -6,6 +6,7 @@
  */
 
 import axios, { AxiosDefaults } from 'axios';
+import axiosRetry, { IAxiosRetryConfig } from 'axios-retry';
 import { ClientDriverInstance, ClientRequestConfig, ClientResponse } from './type';
 import { Config } from './config';
 import { AuthorizationHeader, stringifyAuthorizationHeader } from './header';
@@ -21,7 +22,19 @@ export class Client {
     constructor(config?: Config) {
         config ??= {};
 
-        this.driver = axios.create(config.driver);
+        const client = axios.create(config.driver);
+
+        if (config.retry) {
+            let retryConfig : IAxiosRetryConfig = {};
+
+            if (typeof config.retry !== 'boolean') {
+                retryConfig = config.retry;
+            }
+
+            axiosRetry(client, retryConfig);
+        }
+
+        this.driver = client;
     }
 
     // ---------------------------------------------------------------------------------

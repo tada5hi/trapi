@@ -6,8 +6,15 @@
  */
 
 import {
-    AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse,
+    AxiosError,
+    AxiosInstance,
+    AxiosRequestConfig,
+    AxiosResponse,
 } from 'axios';
+
+import {
+    IAxiosRetryConfig,
+} from 'axios-retry';
 
 export interface ClientRequestConfig extends AxiosRequestConfig {
 
@@ -22,5 +29,9 @@ export interface ClientDriverInstance extends AxiosInstance {
 }
 
 export interface ClientError extends AxiosError {
+
+}
+
+export interface ClientRetryConfig extends IAxiosRetryConfig {
 
 }

@@ -1,6 +1,6 @@
 {
     "name": "@trapi/vault-client",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "A Vault REST client.",
     "main": "./dist/index.js",
     "typings": "dist/index.d.ts",
@@ -31,7 +31,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "@trapi/client": "^2.0.9"
+        "@trapi/client": "^2.0.10"
     },
     "peerDependencies": {
         "@trapi/client": "^2.x"

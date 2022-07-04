@@ -26,13 +26,11 @@ export function useConfig(
 ): Config {
     key = key || 'default';
 
-    const data: Config | undefined = configMap[key];
-
-    if (typeof data === 'undefined') {
+    if (typeof configMap[key] === 'undefined') {
         return buildConfig();
     }
 
-    return data;
+    return configMap[key];
 }
 
 export function buildConfig(

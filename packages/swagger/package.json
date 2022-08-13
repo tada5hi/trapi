@@ -1,0 +1,67 @@
+{
+    "name": "@trapi/swagger",
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "version": "0.2.17",
+    "description": "Generate Swagger files from a decorator APIs.",
+    "keywords": [
+        "typescript",
+        "typescript-rest",
+        "@decorators/express",
+        "swagger",
+        "open api",
+        "rest",
+        "microservice",
+        "codegen",
+        "generation",
+        "utility-types"
+    ],
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "start": "tsc -p tsconfig.build.json -w",
+        "build": "npm run clean && tsc -p tsconfig.build.json",
+        "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+        "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
+        "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",
+        "tsc": "tsc",
+        "preblushOnly": "npm run build"
+    },
+    "devDependencies": {
+        "@types/yamljs": "^0.2.31",
+        "jest": "^27.5.1",
+        "rimraf": "^3.0.2"
+    },
+    "dependencies": {
+        "@trapi/metadata": "^0.1.8",
+        "@trapi/metadata-utils": "^0.0.5",
+        "yamljs": "^0.3.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Tada5hi/trapi.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Tada5hi/trapi/issues"
+    },
+    "homepage": "https://github.com/Tada5hi/trapi#readme",
+    "directories": {
+        "lib": "dist",
+        "doc": "doc"
+    },
+    "engines": {
+        "node": ">=6.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "engineStrict": true,
+    "gitHead": "4355a7f0d19c3df26929981011a621e7f70590e6"
+}

@@ -1,0 +1,16 @@
+{
+    "name": "@trapi/utils",
+    "version": "0.0.1",
+    "description": "Utils library package for the trapi infrastructure.",
+    "keywords": [
+        "typescript",
+        "REST-API",
+        "decorators"
+    ],
+    "author": {
+        "name": "Peter Placzek",
+        "email": "tadashi@animesu.net",
+        "url": "https:/github.com/Tada5hi"
+    },
+    "license": "MIT"
+}

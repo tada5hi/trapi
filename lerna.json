@@ -1,0 +1,20 @@
+{
+    "packages": [
+        "packages/*"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "command": {
+        "publish": {
+            "ignoreChanges": [
+                ".eslintrc",
+                "package.json"
+            ],
+            "message": "chore(release): publish"
+        }
+    },
+    "npmClient": "npm",
+    "useWorkspaces": true,
+    "version": "independent"
+}

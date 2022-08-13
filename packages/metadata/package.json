@@ -1,6 +1,6 @@
 {
     "name": "@trapi/metadata",
-    "version": "0.1.8",
+    "version": "0.2.0",
     "description": "Generate REST-API metadata scheme from TypeScript Decorators.",
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts",
@@ -44,7 +44,7 @@
         "jsonata": "^1.8.6"
     },
     "dependencies": {
-        "@trapi/metadata-utils": "^0.0.5",
+        "@trapi/metadata-utils": "^0.1.0",
         "glob": "^8.0.3",
         "minimatch": "^5.1.0",
         "typescript": "^4.7.4",

@@ -5,10 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { GET, POST, Path } from '../typescript-rest/decorators';
 import {
     RequestConsumes, ResponseDescription, ResponseExample, ResponseProduces, SwaggerTags,
-} from '../../../../src';
+} from '@trapi/swagger';
+import { GET, POST, Path } from '../typescript-rest/decorators';
 import { Person } from '../type';
 
 @Path('mypath')

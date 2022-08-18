@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import * as swagger from '@trapi/decorator';
 import {
     Accept, DELETE, FormParam, GET, POST,
     PUT, Path, PathParam, QueryParam,
     Security,
 } from './decorators';
 import * as Return from './return-types';
-import * as swagger from '../../../../src/decorator';
 import {
     BasicModel,
     MyDataType2,

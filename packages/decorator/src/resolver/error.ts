@@ -9,11 +9,11 @@ import { normalize } from 'path';
 import { Node, TypeNode } from 'typescript';
 
 export class ResolverError extends Error {
-    constructor(message?: string, node?: Node | TypeNode, onlyCurrent = false) {
+    constructor(message: string, node?: Node | TypeNode, onlyCurrent = false) {
         super(message);
 
         if (node) {
-            this.message = `${message!}\n${prettyLocationOfNode(node)}\n${prettyTroubleCause(node, onlyCurrent)}`;
+            this.message = `${message}\n${prettyLocationOfNode(node)}\n${prettyTroubleCause(node, onlyCurrent)}`;
         }
     }
 }

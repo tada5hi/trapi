@@ -1,28 +1,14 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2022-2022.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-
-// todo: implement character in regex matching
 import { GeneratorOutput, MetadataGenerator } from '@trapi/metadata';
-import { Specification } from './type';
-import { AbstractSpecGenerator } from './abstract';
-import { Version2SpecGenerator } from './v2';
-import { Version3SpecGenerator } from './v3';
-
-export function removeRepeatingCharacter(str: string, character: string) : string {
-    return str.replace('/([^:]$)\/+/g', '$1');
-}
-
-export function removeFinalCharacter(str: string, character: string) {
-    while (str.charAt(str.length - 1) === character && str.length > 0) {
-        str = str.slice(0, -1);
-    }
-
-    return str;
-}
+import { AbstractSpecGenerator } from '../specification/abstract';
+import { Specification } from '../specification/type';
+import { Version2SpecGenerator } from '../specification/v2';
+import { Version3SpecGenerator } from '../specification/v3';
 
 export function createSpecGenerator(
     metadata: GeneratorOutput | MetadataGenerator,

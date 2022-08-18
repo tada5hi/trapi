@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {Node, TypeChecker} from "typescript";
-import {DecoratorMapper} from "../mapper";
-import {DependencyResolver, ReferenceType} from "./resolver";
+import { Node, TypeChecker } from 'typescript';
+import { DecoratorMapper } from '../mapper';
+import { DependencyResolver, ReferenceType } from './resolver';
 
 export interface MetadataGeneratorInterface {
     readonly nodes: Node[];

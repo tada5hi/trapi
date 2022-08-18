@@ -1,11 +1,12 @@
 {
-  "baseUrl": ".",
-  "paths": {
-    "@/*": [
-      "test/data/*"
-    ]
-  },
-  "compilerOptions": {
-   "allowJs": true
-  }
+    "baseUrl": ".",
+    "paths": {
+        "@/*": [
+            "test/data/*"
+        ]
+    },
+    "compilerOptions": {
+        "allowJs": true,
+        "experimentalDecorators": true
+    }
 }

@@ -24,7 +24,7 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
 
     function getErrorMsg(comment?: string, isValue = true) : string {
         if (!comment) {
-            return;
+            return undefined;
         }
         if (isValue) {
             const indexOf = comment.indexOf(' ');
@@ -33,6 +33,7 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
             }
             return undefined;
         }
+
         return comment;
     }
 

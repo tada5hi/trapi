@@ -5,8 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty } from '@trapi/metadata-utils';
-import { GeneratorOutput, Property, Resolver } from '@trapi/metadata';
+import { hasOwnProperty } from '@trapi/common';
+import {
+    ArrayType,
+    BaseType, EnumType, IntersectionType, NestedObjectLiteralType,
+    PrimitiveTypeLiteral,
+    ReferenceType, ResolverProperty, TypeVariant,
+    UnionType,
+    isAnyType,
+    isArrayType, isEnumType, isIntersectionType, isNestedObjectLiteralType,
+    isReferenceType, isUnionType, isVoidType,
+} from '@trapi/decorator';
+import { GeneratorOutput } from '@trapi/metadata';
 
 import * as path from 'path';
 import { promises } from 'fs';
@@ -96,10 +106,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return info;
     }
 
-    protected getSwaggerType(type: Resolver.BaseType): Schema | Specification.BaseSchema<Schema> {
-        if (Resolver.isVoidType(type)) {
+    protected getSwaggerType(type: BaseType): Schema | Specification.BaseSchema<Schema> {
+        if (isVoidType(type)) {
             return {} as Schema;
-        } if (Resolver.isReferenceType(type)) {
+        } if (isReferenceType(type)) {
             return this.getSwaggerTypeForReferenceType(type);
         } if (
             type.typeName === 'any' ||
@@ -118,35 +128,35 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
             type.typeName === 'string'
         ) {
             return this.getSwaggerTypeForPrimitiveType(type.typeName);
-        } if (Resolver.isArrayType(type)) {
+        } if (isArrayType(type)) {
             return this.getSwaggerTypeForArrayType(type);
-        } if (Resolver.isEnumType(type)) {
+        } if (isEnumType(type)) {
             return this.getSwaggerTypeForEnumType(type);
-        } if (Resolver.isUnionType(type)) {
+        } if (isUnionType(type)) {
             return this.getSwaggerTypeForUnionType(type);
-        } if (Resolver.isIntersectionType(type)) {
+        } if (isIntersectionType(type)) {
             return this.getSwaggerTypeForIntersectionType(type);
-        } if (Resolver.isNestedObjectLiteralType(type)) {
+        } if (isNestedObjectLiteralType(type)) {
             return this.getSwaggerTypeForObjectLiteral(type);
         }
 
         return {} as Schema;
     }
 
-    protected abstract getSwaggerTypeForIntersectionType(type: Resolver.IntersectionType): Schema;
+    protected abstract getSwaggerTypeForIntersectionType(type: IntersectionType): Schema;
 
-    protected abstract getSwaggerTypeForEnumType(enumType: Resolver.EnumType): Schema;
+    protected abstract getSwaggerTypeForEnumType(enumType: EnumType): Schema;
 
-    protected getSwaggerTypeForUnionType(type: Resolver.UnionType): Schema | Specification.BaseSchema<Schema> {
-        if (type.members.every((subType: Resolver.Type) => subType.typeName === 'enum')) {
-            const mergedEnum: Resolver.EnumType = { typeName: 'enum', members: [] };
-            type.members.forEach((t: Resolver.Type) => {
-                mergedEnum.members = [...mergedEnum.members, ...(t as Resolver.EnumType).members];
+    protected getSwaggerTypeForUnionType(type: UnionType): Schema | Specification.BaseSchema<Schema> {
+        if (type.members.every((subType: TypeVariant) => subType.typeName === 'enum')) {
+            const mergedEnum: EnumType = { typeName: 'enum', members: [] };
+            type.members.forEach((t: TypeVariant) => {
+                mergedEnum.members = [...mergedEnum.members, ...(t as EnumType).members];
             });
             return this.getSwaggerTypeForEnumType(mergedEnum);
-        } if (type.members.length === 2 && type.members.find((typeInUnion: Resolver.Type) => typeInUnion.typeName === 'enum' && typeInUnion.members.includes(null))) {
+        } if (type.members.length === 2 && type.members.find((typeInUnion: TypeVariant) => typeInUnion.typeName === 'enum' && typeInUnion.members.includes(null))) {
             // Backwards compatible representation of dataType or null, $ref does not allow any sibling attributes, so we have to bail out
-            const nullEnumIndex = type.members.findIndex((a: Resolver.Type) => Resolver.isEnumType(a) && a.members.includes(null));
+            const nullEnumIndex = type.members.findIndex((a: TypeVariant) => isEnumType(a) && a.members.includes(null));
             const typeIndex = nullEnumIndex === 1 ? 0 : 1;
             const swaggerType = this.getSwaggerType(type.members[typeIndex]);
             const isRef = hasOwnProperty(swaggerType, '$ref') && !!swaggerType.$ref;
@@ -161,20 +171,20 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         }
 
         if (type.members.length === 2) {
-            let index = type.members.findIndex((member: Resolver.Type) => Resolver.isArrayType(member));
+            let index = type.members.findIndex((member: TypeVariant) => isArrayType(member));
             if (index !== -1) {
                 const otherIndex = index === 0 ? 1 : 0;
 
-                if ((type.members[index] as Resolver.ArrayType).elementType.typeName === type.members[otherIndex].typeName) {
+                if ((type.members[index] as ArrayType).elementType.typeName === type.members[otherIndex].typeName) {
                     return this.getSwaggerType(type.members[otherIndex]);
                 }
             }
 
-            index = type.members.findIndex((member: Resolver.Type) => Resolver.isAnyType(member));
+            index = type.members.findIndex((member: TypeVariant) => isAnyType(member));
             if (index !== -1) {
                 const otherIndex = index === 0 ? 1 : 0;
 
-                if (Resolver.isAnyType(type.members[index])) {
+                if (isAnyType(type.members[index])) {
                     return this.getSwaggerType(type.members[otherIndex]);
                 }
             }
@@ -183,8 +193,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return { type: 'object' } as Schema;
     }
 
-    private getSwaggerTypeForPrimitiveType(type: Resolver.PrimitiveTypeLiteral): Specification.BaseSchema<Schema> {
-        const PrimitiveSwaggerTypeMap: Record<Resolver.PrimitiveTypeLiteral, Specification.BaseSchema<Schema>> = {
+    private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): Specification.BaseSchema<Schema> {
+        const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, Specification.BaseSchema<Schema>> = {
             any: {
                 // While the any type is discouraged, it does explicitly allows anything, so it should always allow additionalProperties
                 additionalProperties: true,
@@ -207,16 +217,17 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return PrimitiveSwaggerTypeMap[type];
     }
 
-    private getSwaggerTypeForArrayType(arrayType: Resolver.ArrayType): Specification.BaseSchema<Schema> {
+    private getSwaggerTypeForArrayType(arrayType: ArrayType): Specification.BaseSchema<Schema> {
         return { type: 'array', items: this.getSwaggerType(arrayType.elementType) };
     }
 
-    public getSwaggerTypeForObjectLiteral(objectLiteral: Resolver.NestedObjectLiteralType): Specification.BaseSchema<Schema> {
+    public getSwaggerTypeForObjectLiteral(objectLiteral: NestedObjectLiteralType): Specification.BaseSchema<Schema> {
         const properties = this.buildProperties(objectLiteral.properties);
 
         const additionalProperties = objectLiteral.additionalProperties && this.getSwaggerType(objectLiteral.additionalProperties);
 
-        const required = objectLiteral.properties.filter((prop: Property) => prop.required).map((prop: Property) => prop.name);
+        const required = objectLiteral.properties
+            .filter((prop: ResolverProperty) => prop.required).map((prop: ResolverProperty) => prop.name);
 
         // An empty list required: [] is not valid.
         // If all properties are optional, do not specify the required keyword.
@@ -228,9 +239,9 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         } as Specification.BaseSchema<Schema>;
     }
 
-    protected abstract getSwaggerTypeForReferenceType(referenceType: Resolver.ReferenceType): Schema;
+    protected abstract getSwaggerTypeForReferenceType(referenceType: ReferenceType): Schema;
 
-    protected abstract buildProperties(properties: Property[]): Record<string, Schema>;
+    protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
 
     protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) {
         return anEnum.reduce((theSet, curr) => {

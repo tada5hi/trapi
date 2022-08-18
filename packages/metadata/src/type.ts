@@ -5,9 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    ArrayType,
+    BaseType,
+    Config as DecoratorConfig,
+    NestedObjectLiteralType,
+    RefObjectType,
+    ReferenceTypes,
+} from '@trapi/decorator';
 import { CompilerOptions } from 'typescript';
-import { Resolver } from './resolver';
-import { Decorator } from './decorator';
 import { Cache } from './cache';
 
 export {
@@ -45,7 +51,7 @@ export interface Config {
      *      internal: true
      * }
      */
-    decorator?: Decorator.Config;
+    decorator?: DecoratorConfig;
 }
 
 /**
@@ -61,7 +67,7 @@ export interface GeneratorOutput {
      * ReferenceTypes is an object of found types (interfaces, type, ...),
      * and classes which were detected during code analysis.
      */
-    referenceTypes: Resolver.ReferenceTypes;
+    referenceTypes: ReferenceTypes;
 }
 
 export interface Controller {
@@ -118,7 +124,7 @@ export interface Method {
     name: string;
     parameters: Parameter[];
     path: string;
-    type: Resolver.BaseType;
+    type: BaseType;
     tags: string[];
     responses: Response[];
     security?: Security[];
@@ -149,7 +155,7 @@ export interface Parameter {
     in: string;
     name: string;
     required: boolean;
-    type: Resolver.BaseType;
+    type: BaseType;
     collectionFormat?: 'csv' | 'multi' | 'pipes' | 'ssv' | 'tsv';
     allowEmptyValue?: boolean;
     default?: any;
@@ -162,7 +168,7 @@ export interface Parameter {
 }
 
 export interface ArrayParameter extends Parameter {
-    type: Resolver.ArrayType;
+    type: ArrayType;
 }
 
 export interface Validator {
@@ -170,24 +176,11 @@ export interface Validator {
     message?: string
 }
 
-export interface Property {
-    default?: any;
-    format?: string;
-    example?: unknown;
-    validators?: Record<string, { value?: any, message?: string }>;
-    description?: string;
-    name: string;
-    type: Resolver.Type;
-    required: boolean;
-    deprecated: boolean;
-}
-
 export interface Response {
     description: string;
     examples?: unknown[] | unknown;
-    headers?: Resolver.NestedObjectLiteralType | Resolver.RefObjectType;
+    headers?: NestedObjectLiteralType | RefObjectType;
     name: string;
     status: string;
-    schema?: Resolver.BaseType;
-
+    schema?: BaseType;
 }

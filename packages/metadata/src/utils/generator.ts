@@ -6,7 +6,7 @@
  */
 
 import { CompilerOptions } from 'typescript';
-import { getCompilerOptions } from '@trapi/metadata-utils';
+import { getCompilerOptions } from '@trapi/common';
 import { Config, GeneratorOutput } from '../type';
 import { MetadataGenerator } from '../generator';
 
@@ -17,7 +17,8 @@ export function createMetadataGenerator(
     const skipLoad: boolean = (typeof compilerOptions === 'boolean' && !compilerOptions) ||
         (typeof compilerOptions !== 'boolean' && typeof compilerOptions !== 'undefined');
 
-    let tscConfig: CompilerOptions = typeof compilerOptions !== 'boolean' && typeof compilerOptions !== 'undefined' ? compilerOptions : {};
+    let tscConfig: CompilerOptions = typeof compilerOptions !== 'boolean' &&
+    typeof compilerOptions !== 'undefined' ? compilerOptions : {};
 
     if (!skipLoad) {
         try {

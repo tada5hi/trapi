@@ -40,8 +40,10 @@
         "rimraf": "^3.0.2"
     },
     "dependencies": {
+        "@trapi/decorator": "^0.0.1",
         "@trapi/metadata": "^0.2.0",
-        "@trapi/metadata-utils": "^0.1.0",
+        "@trapi/common": "^0.0.1",
+        "merge": "^2.1.1",
         "yamljs": "^0.3.0"
     },
     "repository": {

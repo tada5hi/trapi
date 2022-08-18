@@ -6,14 +6,17 @@
  */
 
 import {
+    MetadataGeneratorInterface,
+    Properties,
+    TypeNodeResolver,
+    TypeVariant,
+    getInitializerValue, getNodeDecorators, isExistJSDocTag,
+} from '@trapi/decorator';
+import {
     ArrayLiteralExpression, Node, TypeNode, isArrayLiteralExpression,
 } from 'typescript';
-import { normalizePath } from '@trapi/metadata-utils';
+import { normalizePath } from '@trapi/common';
 
-import { Decorator, getNodeDecorators } from '../decorator';
-import { MetadataGenerator } from './index';
-import { TypeNodeResolver, getInitializerValue } from '../resolver';
-import { isExistJSDocTag } from '../utils';
 import { Response } from '../type';
 
 export abstract class EndpointGenerator<T extends Node> {
@@ -23,14 +26,14 @@ export abstract class EndpointGenerator<T extends Node> {
 
     // -------------------------------------------
 
-    protected constructor(node: T, protected current: MetadataGenerator) {
+    protected constructor(node: T, protected current: MetadataGeneratorInterface) {
         this.node = node;
     }
 
     // --------------------------------------------------------------------
 
     protected generatePath(
-        key: Extract<Decorator.Type, 'CLASS_PATH' | 'METHOD_PATH'>,
+        key: Extract<keyof Properties, 'CLASS_PATH' | 'METHOD_PATH'>,
     ) : void {
         const values : string[] = [];
 

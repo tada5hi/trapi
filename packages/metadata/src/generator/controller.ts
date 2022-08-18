@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { MetadataGeneratorInterface } from '@trapi/decorator';
 import { ClassDeclaration, MethodDeclaration, SyntaxKind } from 'typescript';
 import { EndpointGenerator } from './endpoint';
-import { MetadataGenerator } from './index';
 import { MethodGenerator } from './method';
 import { Controller, Method } from '../type';
 
@@ -16,7 +16,7 @@ export class ControllerGenerator extends EndpointGenerator<ClassDeclaration> {
 
     // --------------------------------------------------------------------
 
-    constructor(node: ClassDeclaration, current: MetadataGenerator) {
+    constructor(node: ClassDeclaration, current: MetadataGeneratorInterface) {
         super(node, current);
 
         this.generatePath('CLASS_PATH');

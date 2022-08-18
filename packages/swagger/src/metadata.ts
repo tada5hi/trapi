@@ -6,28 +6,26 @@
  */
 
 import {
-    // Utils
-    generateMetadata,
-    createMetadataGenerator,
-
-    // Types & Interfaces
-    GeneratorOutput as MetadataGeneratorOutput,
-    Config as MetadataConfig,
-    Cache as MetadataCache,
-
-    // Internal Decorators
+    IsDouble,
+    IsFloat,
+    IsInt,
+    IsLong,
     RequestConsumes,
     RequestFileParam,
     ResponseDescription,
     ResponseExample,
     ResponseProduces,
-    SwaggerTags,
-    SwaggerHidden,
     SwaggerDeprecated,
-    IsDouble,
-    IsFloat,
-    IsLong,
-    IsInt,
+    SwaggerHidden,
+    SwaggerTags,
+} from '@trapi/decorator';
+
+import {
+    Cache as MetadataCache,
+    Config as MetadataConfig,
+    GeneratorOutput as MetadataGeneratorOutput,
+    createMetadataGenerator,
+    generateMetadata,
 } from '@trapi/metadata';
 
 type MetadataCacheConfig = MetadataCache.Config;

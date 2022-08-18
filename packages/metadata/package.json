@@ -44,7 +44,8 @@
         "jsonata": "^1.8.6"
     },
     "dependencies": {
-        "@trapi/metadata-utils": "^0.1.0",
+        "@trapi/common": "^0.0.1",
+        "@trapi/decorator": "^0.0.1",
         "glob": "^8.0.3",
         "minimatch": "^5.1.0",
         "typescript": "^4.7.4",

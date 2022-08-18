@@ -8,7 +8,7 @@
 import {
     SchemaOf, array, boolean, lazy, mixed, object, string,
 } from 'yup';
-import { getPackageJsonStringValue, mapYupRuleForDictionary } from '@trapi/metadata-utils';
+import { getPackageJsonStringValue, mapYupRuleForDictionary } from '@trapi/common';
 import { Specification } from '../../specification';
 
 let validatorInstance : undefined | SchemaOf<Specification.Config>;

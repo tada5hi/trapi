@@ -5,19 +5,23 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    BaseType,
+    MetadataGeneratorInterface,
+    MethodHttpVerbType,
+    TypeNodeResolver,
+    getJSDocDescription,
+    getJSDocTagComment,
+    getNodeDecorators, isVoidType,
+} from '@trapi/decorator';
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
-import { hasOwnProperty } from '@trapi/metadata-utils';
-import { Decorator, getNodeDecorators } from '../decorator';
+import { hasOwnProperty } from '@trapi/common';
 import { EndpointGenerator } from './endpoint';
-import { MetadataGenerator } from './index';
 import { ParameterGenerator } from './parameter';
-import { Resolver, TypeNodeResolver } from '../resolver';
 import {
     Method, MethodType, Parameter, Response,
 } from '../type';
-import { getJSDocDescription, getJSDocTagComment } from '../utils';
-import MethodHttpVerbKey = Decorator.MethodHttpVerbType;
 
 export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     private method: MethodType;
@@ -26,7 +30,7 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
 
     constructor(
         node: ts.MethodDeclaration,
-        current: MetadataGenerator,
+        current: MetadataGeneratorInterface,
         private readonly controllerPath: string,
     ) {
         super(node, current);
@@ -51,7 +55,7 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
         if (!nodeType) {
             const { typeChecker } = this.current;
             const signature = typeChecker.getSignatureFromDeclaration(this.node);
-            const implicitType = typeChecker.getReturnTypeOfSignature(signature!);
+            const implicitType = typeChecker.getReturnTypeOfSignature(signature);
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
         }
 
@@ -126,20 +130,20 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
         this.generatePath('METHOD_PATH');
     }
 
-    private getMethodSuccessResponse(type: Resolver.BaseType): Response {
+    private getMethodSuccessResponse(type: BaseType): Response {
         type = this.getMethodSuccessResponseType(type);
 
         return {
-            description: Resolver.isVoidType(type) ? 'No content' : 'Ok',
+            description: isVoidType(type) ? 'No content' : 'Ok',
             examples: this.getMethodSuccessExamples(),
             schema: type,
-            status: Resolver.isVoidType(type) ? '204' : '200',
-            name: Resolver.isVoidType(type) ? '204' : '200',
+            status: isVoidType(type) ? '204' : '200',
+            name: isVoidType(type) ? '204' : '200',
         };
     }
 
-    private getMethodSuccessResponseType(type: Resolver.BaseType) : Resolver.BaseType {
-        if (!Resolver.isVoidType(type)) {
+    private getMethodSuccessResponseType(type: BaseType) : BaseType {
+        if (!isVoidType(type)) {
             return type;
         }
 
@@ -193,6 +197,6 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     }
 
     private supportsPathMethod(method: string) : boolean {
-        return (['ALL', 'GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'] as MethodHttpVerbKey[]).some((m) => m.toLowerCase() === method.toLowerCase());
+        return (['ALL', 'GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'] as MethodHttpVerbType[]).some((m) => m.toLowerCase() === method.toLowerCase());
     }
 }

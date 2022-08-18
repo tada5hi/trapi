@@ -5,15 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    BaseType,
+    MetadataGeneratorInterface,
+    ParameterServerType,
+    RepresentationManager, TypeNodeResolver, TypeVariant, getInitializerValue, getNodeDecorators,
+} from '@trapi/decorator';
 import * as ts from 'typescript';
-import { RepresentationManager } from '../decorator/representation';
-import { Decorator } from '../decorator/type';
-import { MetadataGenerator } from './index';
-import { Resolver, TypeNodeResolver, getInitializerValue } from '../resolver';
 import { ArrayParameter, Parameter } from '../type';
-import { getNodeDecorators } from '../decorator/utils/node';
 
-const supportedParameterKeys : Decorator.ParameterServerType[] = [
+const supportedParameterKeys : ParameterServerType[] = [
     'SERVER_CONTEXT',
     'SERVER_PARAMS',
     'SERVER_QUERY',
@@ -30,7 +31,7 @@ export class ParameterGenerator {
         private readonly parameter: ts.ParameterDeclaration,
         private readonly method: string,
         private readonly path: string,
-        private readonly current: MetadataGenerator,
+        private readonly current: MetadataGeneratorInterface,
     ) { }
 
     public generate(): Parameter {
@@ -147,8 +148,8 @@ export class ParameterGenerator {
             name = value;
         }
 
-        const elementType: Resolver.Type = { typeName: 'file' };
-        let type: Resolver.Type;
+        const elementType: TypeVariant = { typeName: 'file' };
+        let type: TypeVariant;
         if (isArray) {
             type = { typeName: 'array', elementType };
         } else {
@@ -277,10 +278,14 @@ export class ParameterGenerator {
             if (arrayType && this.supportQueryDataType(arrayType)) {
                 type = arrayType;
             } else {
-                throw new InvalidParameterException(`Parameter '${parameterName}' can't be passed as a query parameter in '${this.getCurrentLocation()}'.`);
+                throw new InvalidParameterException(
+                `Parameter '${parameterName}' can't be passed as a query parameter in '${this.getCurrentLocation()}'.`
+                );
             }
              */
-            // throw new InvalidParameterException(`Parameter '${parameterName}' can't be passed as a query parameter in '${this.getCurrentLocation()}'.`);
+            // throw new InvalidParameterException(
+            // `Parameter '${parameterName}' can't be passed as a query parameter in '${this.getCurrentLocation()}'.`
+            // );
         }
         let name : string = parameterName;
         let options : any = {};
@@ -364,11 +369,11 @@ export class ParameterGenerator {
         return ['delete', 'post', 'put', 'patch', 'get'].some((m) => m === method);
     }
 
-    private supportPathDataType(parameterType: Resolver.BaseType) {
+    private supportPathDataType(parameterType: BaseType) {
         return ['string', 'integer', 'long', 'float', 'double', 'date', 'datetime', 'buffer', 'boolean', 'enum'].find((t) => t === parameterType.typeName);
     }
 
-    private supportQueryDataType(parameterType: Resolver.BaseType) {
+    private supportQueryDataType(parameterType: BaseType) {
         // Copied from supportPathDataType and added 'array'. Not sure if all options apply to queries, but kept to avoid breaking change.
         return ['string', 'integer', 'long', 'float', 'double', 'date',
             'datetime', 'buffer', 'boolean', 'enum', 'array', 'object'].find((t) => t === parameterType.typeName);

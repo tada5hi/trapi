@@ -8,8 +8,8 @@
 import {
     SchemaOf, array, boolean, lazy, mixed, object, string,
 } from 'yup';
+import { useConfigValidator as useDecoratorConfigValidator } from '@trapi/decorator';
 import { Config } from '../type';
-import { useDecoratorConfigValidator } from '../decorator/utils/validator';
 
 let validatorInstance : undefined | SchemaOf<Config>;
 

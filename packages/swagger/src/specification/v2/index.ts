@@ -5,13 +5,22 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    EnumType, IntersectionType,
+    RefObjectType,
+    ReferenceType,
+    ResolverProperty,
+    isRefAliasType, isRefEnumType,
+    isRefObjectType,
+} from '@trapi/decorator';
 import { union } from 'lodash';
+import { recursive } from 'merge';
 import { posix } from 'path';
 import { URL } from 'url';
 
-import { hasOwnProperty, normalizePathParameters } from '@trapi/metadata-utils';
+import { hasOwnProperty, normalizePathParameters } from '@trapi/common';
 import {
-    Method, Parameter, Property, Resolver, Response,
+    Method, Parameter, Response,
 } from '@trapi/metadata';
 
 import { Specification } from '../type';
@@ -57,7 +66,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         }
 
         if (this.config.specificationExtra) {
-            spec = require('merge').recursive(spec, this.config.specificationExtra);
+            spec = recursive(spec, this.config.specificationExtra);
         }
 
         this.spec = spec;
@@ -69,23 +78,24 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         const definitions : Record<string, SpecificationV2.Security> = {};
 
         // tslint:disable-next-line:forin
-        for (const name in securityDefinitions) {
-            const securityDefinition : Specification.SecurityDefinition = securityDefinitions[name];
+        const keys = Object.keys(securityDefinitions);
+        for (let i = 0; i < keys.length; i++) {
+            const securityDefinition : Specification.SecurityDefinition = securityDefinitions[keys[i]];
 
             switch (securityDefinition.type) {
                 case 'http':
                     if (securityDefinition.schema === 'basic') {
-                        definitions[name] = {
+                        definitions[keys[i]] = {
                             type: 'basic',
                         };
                     }
                     break;
                 case 'apiKey':
-                    definitions[name] = securityDefinition;
+                    definitions[keys[i]] = securityDefinition;
                     break;
                 case 'oauth2':
                     if (securityDefinition.flows.implicit) {
-                        definitions[`${name}Implicit`] = {
+                        definitions[`${keys[i]}Implicit`] = {
                             type: 'oauth2',
                             flow: 'implicit',
                             authorizationUrl: securityDefinition.flows.implicit.authorizationUrl,
@@ -94,7 +104,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     }
 
                     if (securityDefinition.flows.password) {
-                        definitions[`${name}Implicit`] = {
+                        definitions[`${keys[i]}Implicit`] = {
                             type: 'oauth2',
                             flow: 'password',
                             tokenUrl: securityDefinition.flows.password.tokenUrl,
@@ -103,7 +113,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     }
 
                     if (securityDefinition.flows.authorizationCode) {
-                        definitions[`${name}AccessCode`] = {
+                        definitions[`${keys[i]}AccessCode`] = {
                             type: 'oauth2',
                             flow: 'accessCode',
                             tokenUrl: securityDefinition.flows.authorizationCode.tokenUrl,
@@ -113,7 +123,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     }
 
                     if (securityDefinition.flows.clientCredentials) {
-                        definitions[`${name}Application`] = {
+                        definitions[`${keys[i]}Application`] = {
                             type: 'oauth2',
                             flow: 'application',
                             tokenUrl: securityDefinition.flows.clientCredentials.tokenUrl,
@@ -135,11 +145,12 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     private buildDefinitions() {
         const definitions: { [definitionsName: string]: SpecificationV2.Schema } = {};
         Object.keys(this.metadata.referenceTypes).map((typeName) => {
-            const referenceType : Resolver.ReferenceType = this.metadata.referenceTypes[typeName];
+            const referenceType : ReferenceType = this.metadata.referenceTypes[typeName];
             // const key : string = referenceType.typeName.replace('_', '');
 
-            if (Resolver.isRefObjectType(referenceType)) {
-                const required = referenceType.properties.filter((p: Property) => p.required).map((p: Property) => p.name);
+            if (isRefObjectType(referenceType)) {
+                const required = referenceType.properties
+                    .filter((p: ResolverProperty) => p.required).map((p: ResolverProperty) => p.name);
 
                 definitions[referenceType.refName] = {
                     description: referenceType.description,
@@ -153,10 +164,9 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 }
 
                 if (referenceType.example) {
-                    // @ts-ignore
                     definitions[referenceType.refName].example = referenceType.example;
                 }
-            } else if (Resolver.isRefEnumType(referenceType)) {
+            } else if (isRefEnumType(referenceType)) {
                 definitions[referenceType.refName] = {
                     description: referenceType.description,
                     enum: referenceType.members,
@@ -164,10 +174,9 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 };
 
                 if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
-                    // @ts-ignore
                     definitions[referenceType.refName]['x-enum-varnames'] = referenceType.memberNames;
                 }
-            } else if (Resolver.isRefAliasType(referenceType)) {
+            } else if (isRefAliasType(referenceType)) {
                 const swaggerType = this.getSwaggerType(referenceType.type);
                 const format : Specification.DataFormat = referenceType.format as Specification.DataFormat;
                 const validators = Object.keys(referenceType.validators)
@@ -188,6 +197,8 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             } else {
                 console.log(referenceType);
             }
+
+            return typeName;
         });
 
         return definitions;
@@ -349,7 +360,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         Swagger Type ( + utils)
      */
 
-    protected getSwaggerTypeForEnumType(enumType: Resolver.EnumType) : SpecificationV2.Schema {
+    protected getSwaggerTypeForEnumType(enumType: EnumType) : SpecificationV2.Schema {
         const types = this.determineTypesUsedInEnum(enumType.members);
 
         if (types.size === 1) {
@@ -361,12 +372,12 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
     }
 
-    protected getSwaggerTypeForIntersectionType(type: Resolver.IntersectionType) : SpecificationV2.Schema {
+    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV2.Schema {
         // tslint:disable-next-line:no-shadowed-variable
         const properties = type.members.reduce((acc, type) => {
             if (type.typeName === 'refObject') {
                 let refType = type;
-                refType = this.metadata.referenceTypes[refType.refName] as Resolver.RefObjectType;
+                refType = this.metadata.referenceTypes[refType.refName] as RefObjectType;
 
                 const props = refType &&
                     refType.properties &&
@@ -382,11 +393,11 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return { type: 'object', properties };
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: Resolver.ReferenceType): SpecificationV2.Schema {
+    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SpecificationV2.Schema {
         return { $ref: `#/definitions/${referenceType.refName}` };
     }
 
-    protected buildProperties(properties: Property[]) : Record<string, SpecificationV2.Schema> {
+    protected buildProperties(properties: ResolverProperty[]) : Record<string, SpecificationV2.Schema> {
         const swaggerProperties: { [propertyName: string]: SpecificationV2.Schema } = {};
 
         properties.forEach((property) => {

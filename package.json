@@ -40,7 +40,10 @@
         "test": "lerna run test",
         "pub": "npm run build && lerna publish",
         "lint": "eslint --ext .ts ./packages/",
-        "lint:fix": "npm run lint -- --fix"
+        "lint:fix": "npm run lint -- --fix",
+        "docs:dev": "vitepress dev docs --temp .temp",
+        "docs:build": "vitepress build docs --temp .temp",
+        "docs:help": "vitepress --help"
     },
     "devDependencies": {
         "@tada5hi/eslint-config-typescript": "^1.0.4",
@@ -48,11 +51,13 @@
         "@types/node": "^18.7.5",
         "codecov": "^3.8.3",
         "cross-env": "^7.0.3",
+        "eslint": "^8.22.0",
         "jest": "^27.5.1",
         "lerna": "^5.4.2",
         "rimraf": "^3.0.2",
-        "eslint": "^8.22.0",
         "ts-jest": "^27.1.4",
-        "typescript": "^4.7.4"
+        "typescript": "^4.7.4",
+        "vitepress": "^1.0.0-alpha.5",
+        "vue": "^3.2.37"
     }
 }

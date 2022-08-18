@@ -5,6 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    DecoratorMapper,
+    DependencyResolver,
+    MetadataGeneratorInterface, ReferenceType,
+    ReferenceTypes,
+    TypeNodeResolver,
+} from '@trapi/decorator';
+import minimatch from 'minimatch';
 import { sync } from 'glob';
 import {
     ClassDeclaration,
@@ -22,15 +30,11 @@ import {
     isModuleDeclaration,
 } from 'typescript';
 import { Config, Controller, GeneratorOutput } from '../type';
-import { DecoratorMapper } from '../decorator';
 import { ControllerGenerator } from './controller';
-import { Resolver, TypeNodeResolver } from '../resolver';
 import { CacheDriver } from '../cache';
 
-const minimatch = require('minimatch');
-
-export class MetadataGenerator {
-    public readonly nodes = new Array<Node>();
+export class MetadataGenerator implements MetadataGeneratorInterface {
+    public readonly nodes : Node[];
 
     public readonly typeChecker: TypeChecker;
 
@@ -44,9 +48,9 @@ export class MetadataGenerator {
 
     private controllers: Controller[];
 
-    private referenceTypes: Resolver.ReferenceTypes = {};
+    private referenceTypes: ReferenceTypes = {};
 
-    private circularDependencyResolvers = new Array<Resolver.DependencyResolver>();
+    private circularDependencyResolvers = new Array<DependencyResolver>();
 
     // -------------------------------------------------------------------------
 
@@ -54,6 +58,7 @@ export class MetadataGenerator {
         config: Config,
         compilerOptions: CompilerOptions,
     ) {
+        this.nodes = [];
         this.config = config;
 
         this.cache = new CacheDriver(config.cache);
@@ -168,7 +173,7 @@ export class MetadataGenerator {
 
     // -------------------------------------------------------------------------
 
-    public addReferenceType(referenceType: Resolver.ReferenceType) {
+    public addReferenceType(referenceType: ReferenceType) {
         if (!referenceType.refName) {
             return;
         }
@@ -180,7 +185,7 @@ export class MetadataGenerator {
         return this.referenceTypes[refName];
     }
 
-    public registerDependencyResolver(callback: Resolver.DependencyResolver) {
+    public registerDependencyResolver(callback: DependencyResolver) {
         this.circularDependencyResolvers.push(callback);
     }
 

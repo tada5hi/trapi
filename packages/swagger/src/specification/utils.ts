@@ -13,7 +13,7 @@ import { Version2SpecGenerator } from './v2';
 import { Version3SpecGenerator } from './v3';
 
 export function removeRepeatingCharacter(str: string, character: string) : string {
-    return str.replace('/([^:]\$)\/+/g', '$1');
+    return str.replace('/([^:]$)\/+/g', '$1');
 }
 
 export function removeFinalCharacter(str: string, character: string) {

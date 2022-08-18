@@ -6,4 +6,5 @@
  */
 
 export * from './generator';
+export * from './typescript';
 export * from './validator';

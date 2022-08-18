@@ -6,7 +6,7 @@
  */
 
 import { CompilerOptions } from 'typescript';
-import { getCompilerOptions } from '@trapi/common';
+import { getCompilerOptions } from './typescript';
 import { Config, GeneratorOutput } from '../type';
 import { MetadataGenerator } from '../generator';
 

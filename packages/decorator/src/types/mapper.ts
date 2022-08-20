@@ -5,19 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export interface Data {
-    text: string;
-    arguments: any[];
-    typeArguments: any[];
-}
-
 // -------------------------------------------
 
 /**
  * A decorator id is an identifier which is associated
  * to specific decorator names.
  */
-export interface Properties {
+export interface MapperProperties {
     // Class Type
     SWAGGER_TAGS: {
         DEFAULT: string[]
@@ -129,20 +123,20 @@ export interface Properties {
     };
 }
 
-export type ID = keyof Properties;
+export type MapperID = keyof MapperProperties;
 
-export type MethodHttpVerbType = Extract<ID, 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' |
+export type MethodHttpVerbType = Extract<MapperID, 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' |
 'PATCH' | 'OPTIONS' | 'HEAD'>;
 
-export type ParameterServerType = Extract<ID, 'SERVER_CONTEXT' | 'SERVER_PARAMS' | 'SERVER_QUERY' | 'SERVER_FORM' |
+export type ParameterServerType = Extract<MapperID, 'SERVER_CONTEXT' | 'SERVER_PARAMS' | 'SERVER_QUERY' | 'SERVER_FORM' |
 'SERVER_BODY' | 'SERVER_HEADERS' | 'SERVER_COOKIES' | 'SERVER_PATH_PARAMS' |
 'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>;
 
 // -------------------------------------------
 
-export type PropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
+export type MapperPropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
 
-export interface PropertyConfig {
+export interface MapperPropertyConfig {
     /**
          * Default: 'element'
          */
@@ -171,11 +165,11 @@ export interface PropertyConfig {
     /**
          * Default: 'none'
          */
-    srcStrategy?: PropertyStrategy
+    srcStrategy?: MapperPropertyStrategy
 }
 
-export type PropertiesConfig<P> = {
-    [K in keyof P]: PropertyConfig
+export type MapperPropertiesConfig<P> = {
+    [K in keyof P]: MapperPropertyConfig
 };
 
 // -------------------------------------------
@@ -183,16 +177,16 @@ export type PropertiesConfig<P> = {
 /**
  * This type maps a decorator ID to its representation config.
  */
-export type RepresentationMap = {
-    [T in ID]: Representation<T> | Array<Representation<T>>;
+export type MapperRepresentationMap = {
+    [T in MapperID]: MapperRepresentation<T> | Array<MapperRepresentation<T>>;
 };
 
 /**
  * The id property is the name/text of the defined decorator.
  */
-export interface Representation<T extends ID> {
+export interface MapperRepresentation<T extends MapperID> {
     id: string;
-    properties?: PropertiesConfig<Properties[T]>;
+    properties?: MapperPropertiesConfig<MapperProperties[T]>;
 }
 
 // -------------------------------------------
@@ -213,7 +207,7 @@ export interface Config {
     /**
      * Set up self defined representations.
      */
-    map?: Partial<RepresentationMap>;
+    map?: Partial<MapperRepresentationMap>;
 }
 
 // -------------------------------------------
@@ -221,7 +215,7 @@ export interface Config {
 /**
  * Activate/Deactivate specific type representations of a TypeRepresentationMap.
  */
-export type IncludedIDs = boolean | ID | ID[] | { [K in ID]?: boolean };
+export type IncludedIDs = boolean | MapperID | MapperID[] | { [K in MapperID]?: boolean };
 
 // -------------------------------------------
 

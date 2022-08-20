@@ -8,7 +8,7 @@
 import {
     Node, isCallExpression, isNumericLiteral, isStringLiteral,
 } from 'typescript';
-import { Data } from '../types';
+import { NodeDecorator } from '../types';
 
 /**
  * Get Decorators for a specific node.
@@ -18,8 +18,8 @@ import { Data } from '../types';
  */
 export function getNodeDecorators(
     node: Node,
-    isMatching?: (data: Data) => boolean,
-): Data[] {
+    isMatching?: (data: NodeDecorator) => boolean,
+): NodeDecorator[] {
     const { decorators } = node;
     if (!decorators || !decorators.length) {
         return [];
@@ -53,7 +53,7 @@ export function getNodeDecorators(
 
             result.text = x.text || x.name.text;
 
-            return result as Data;
+            return result as NodeDecorator;
         });
 
     return typeof isMatching === 'undefined' ? items : items.filter(isMatching);

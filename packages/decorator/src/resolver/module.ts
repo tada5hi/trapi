@@ -18,13 +18,13 @@ import {
     AnyType,
     ArrayType,
     BufferType,
-    Data,
     DateTimeType,
     DateType,
     EnumType,
     IntersectionType,
     MetadataGeneratorInterface,
     NestedObjectLiteralType,
+    NodeDecorator,
     PrimitiveType,
     RefEnumType,
     ReferenceType,
@@ -611,7 +611,7 @@ export class TypeNodeResolver {
                 ].some((m) => m.toLowerCase() === name.toLowerCase()))
                 .map((name) => name.toLowerCase());
 
-            const data : Data[] = getNodeDecorators(parentNode, (identifier) => [
+            const data : NodeDecorator[] = getNodeDecorators(parentNode, (identifier) => [
                 'isInt',
                 'isLong',
                 'isFloat',

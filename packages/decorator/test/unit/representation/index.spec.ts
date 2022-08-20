@@ -9,11 +9,11 @@ import {
     ArrayLiteralExpression, Expression, NodeArray, NodeFlags, SyntaxKind,
 } from 'typescript';
 import {
-    Data, Representation, RepresentationManager, mergeObjectArguments,
+    MapperRepresentation, NodeDecorator, RepresentationManager, mergeObjectArguments,
 } from '../../../src';
 
 describe('src/decorator/representation/index.ts', () => {
-    const swaggerTagsRepresentation : Representation<'SWAGGER_TAGS'> = {
+    const swaggerTagsRepresentation : MapperRepresentation<'SWAGGER_TAGS'> = {
         id: 'SwaggerTags',
         properties: {
             DEFAULT: {
@@ -25,7 +25,7 @@ describe('src/decorator/representation/index.ts', () => {
         },
     };
 
-    const swaggerTagsDecorators : Data[] = [
+    const swaggerTagsDecorators : NodeDecorator[] = [
         { text: 'SwaggerTags', arguments: [['auth', 'admin']], typeArguments: [] },
         { text: 'SwaggerTags', arguments: [['auth'], ['admin']], typeArguments: [] },
         { text: 'SwaggerTags', arguments: [], typeArguments: [] },
@@ -35,7 +35,7 @@ describe('src/decorator/representation/index.ts', () => {
 
     // ----------------------------------------------------------------------------------
 
-    const responseExampleRepresentation : Representation<'RESPONSE_EXAMPLE'> = {
+    const responseExampleRepresentation : MapperRepresentation<'RESPONSE_EXAMPLE'> = {
         id: 'ResponseExample',
         properties: {
             TYPE: {
@@ -51,7 +51,7 @@ describe('src/decorator/representation/index.ts', () => {
         },
     };
 
-    const responseExampleDecorators : Data[] = [
+    const responseExampleDecorators : NodeDecorator[] = [
         { text: 'ResponseExample', arguments: [{ foo: 'bar' }], typeArguments: [{ foo: 'bar' }] },
         { text: 'ResponseExample', arguments: [{ foo: 'bar' }, { bar: 'baz' }], typeArguments: [] },
     ];

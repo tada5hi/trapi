@@ -12,9 +12,9 @@ import {
     Config,
     IncludedIDs,
     LibraryConfig,
-    PropertyConfig,
-    Representation,
-    RepresentationMap,
+    MapperPropertyConfig,
+    MapperRepresentation,
+    MapperRepresentationMap,
 } from '../types';
 import { mapYupRuleToDictionary } from './yup';
 
@@ -63,17 +63,17 @@ export function useConfigValidator() : SchemaOf<Config> {
         return mixed().optional().default(undefined);
     }) as unknown as SchemaOf<LibraryConfig>;
 
-    const representationPropertyValidator : SchemaOf<PropertyConfig> = object({
-        type: mixed().oneOf(['element', 'array'] as Array<PropertyConfig['type']>),
+    const representationPropertyValidator : SchemaOf<MapperPropertyConfig> = object({
+        type: mixed().oneOf(['element', 'array'] as Array<MapperPropertyConfig['type']>),
         isType: boolean().optional().default(undefined),
-        srcArgumentType: mixed().oneOf(['argument', 'typeArgument'] as Array<PropertyConfig['srcArgumentType']>),
+        srcArgumentType: mixed().oneOf(['argument', 'typeArgument'] as Array<MapperPropertyConfig['srcArgumentType']>),
         srcPosition: number().min(0).optional().default(0),
         srcAmount: number().optional().default(undefined),
         // todo: check if 'merge', 'none' or function
         srcStrategy: mixed().optional().default(undefined),
     });
 
-    const representationValidator : SchemaOf<Representation<any>> = object({
+    const representationValidator : SchemaOf<MapperRepresentation<any>> = object({
         id: string().required(),
         properties: lazy((value) => {
             if (Object.prototype.toString.call(value) === '[object Object]') {
@@ -82,9 +82,9 @@ export function useConfigValidator() : SchemaOf<Config> {
 
             return mixed().optional().default(undefined);
         }),
-    }) as unknown as SchemaOf<Representation<any>>;
+    }) as unknown as SchemaOf<MapperRepresentation<any>>;
 
-    const overrideValidator : SchemaOf<RepresentationMap> = lazy((value) => {
+    const overrideValidator : SchemaOf<MapperRepresentationMap> = lazy((value) => {
         if (Object.prototype.toString.call(value) === '[object Object]') {
             return object(mapYupRuleToDictionary(value, lazy((val) => {
                 if (Array.isArray(val)) {
@@ -96,7 +96,7 @@ export function useConfigValidator() : SchemaOf<Config> {
         }
 
         return mixed().optional().default(undefined);
-    }) as unknown as SchemaOf<RepresentationMap>;
+    }) as unknown as SchemaOf<MapperRepresentationMap>;
 
     validatorInstance = object({
         library: useLibraryValidator,

@@ -5,15 +5,15 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Data, DecoratorMapper, RepresentationManager } from '../../../src';
+import { DecoratorMapper, NodeDecorator, RepresentationManager } from '../../../src';
 
 describe('src/decorator/mapper/index.ts', () => {
-    const decorators : Data[] = [
+    const decorators : NodeDecorator[] = [
         { text: 'foo', arguments: [], typeArguments: [] },
         { text: 'SwaggerTags', arguments: [], typeArguments: [] },
     ];
 
-    const decoratorsWithResponseExample : Data[] = [
+    const decoratorsWithResponseExample : NodeDecorator[] = [
         ...decorators,
         {
             text: 'ResponseExample',

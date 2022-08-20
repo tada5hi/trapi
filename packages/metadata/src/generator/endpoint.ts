@@ -6,8 +6,8 @@
  */
 
 import {
+    MapperProperties,
     MetadataGeneratorInterface,
-    Properties,
     TypeNodeResolver,
     TypeVariant,
     getInitializerValue, getNodeDecorators, isExistJSDocTag,
@@ -33,7 +33,7 @@ export abstract class EndpointGenerator<T extends Node> {
     // --------------------------------------------------------------------
 
     protected generatePath(
-        key: Extract<keyof Properties, 'CLASS_PATH' | 'METHOD_PATH'>,
+        key: Extract<keyof MapperProperties, 'CLASS_PATH' | 'METHOD_PATH'>,
     ) : void {
         const values : string[] = [];
 

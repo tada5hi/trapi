@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { RepresentationMap } from '../../types';
+import { MapperRepresentationMap } from '../../types';
 
 export default {
     EXTENSION: {
@@ -96,4 +96,4 @@ export default {
             DEFAULT: {},
         },
     },
-} as Partial<RepresentationMap>;
+} as Partial<MapperRepresentationMap>;

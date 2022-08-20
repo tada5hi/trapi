@@ -6,26 +6,26 @@
  */
 
 import {
-    Data,
-    ID,
-    Properties,
-    PropertiesConfig,
-    PropertyConfig,
-    Representation,
+    MapperID,
+    MapperProperties,
+    MapperPropertiesConfig,
+    MapperPropertyConfig,
+    MapperRepresentation,
+    NodeDecorator,
 } from '../types';
 import { hasOwnProperty } from '../utils';
 import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue } from './property';
 
-export class RepresentationManager<T extends ID> {
-    protected extendedProperties: Partial<PropertiesConfig<Properties[T]>> = {};
+export class RepresentationManager<T extends MapperID> {
+    protected extendedProperties: Partial<MapperPropertiesConfig<MapperProperties[T]>> = {};
 
-    protected representation: Representation<T>;
+    protected representation: MapperRepresentation<T>;
 
-    public decorators: Data[];
+    public decorators: NodeDecorator[];
 
     constructor(
-        representation: Representation<T>,
-        decorators: Data[],
+        representation: MapperRepresentation<T>,
+        decorators: NodeDecorator[],
     ) {
         this.representation = representation;
         this.decorators = decorators;
@@ -38,16 +38,16 @@ export class RepresentationManager<T extends ID> {
      * @param type
      * @param decoratorOrIndex
      */
-    public getPropertyValue<P extends keyof Properties[T]>(
+    public getPropertyValue<P extends keyof MapperProperties[T]>(
         type: P,
-        decoratorOrIndex?: number | Data,
-    ): Properties[T][P] | undefined {
-        const config: PropertyConfig = this.getPropertyConfiguration(type);
+        decoratorOrIndex?: number | NodeDecorator,
+    ): MapperProperties[T][P] | undefined {
+        const config: MapperPropertyConfig = this.getPropertyConfiguration(type);
         if (typeof config === 'undefined') {
             return undefined;
         }
 
-        let decorator: Data;
+        let decorator: NodeDecorator;
 
         if (
             typeof decoratorOrIndex === 'number' ||
@@ -68,7 +68,7 @@ export class RepresentationManager<T extends ID> {
 
     // -------------------------------------------
 
-    public getPropertyConfiguration(type: keyof Properties[T]): PropertyConfig | undefined {
+    public getPropertyConfiguration(type: keyof MapperProperties[T]): MapperPropertyConfig | undefined {
         if (!hasOwnProperty(this.representation.properties, type)) {
             return undefined;
         }
@@ -78,7 +78,7 @@ export class RepresentationManager<T extends ID> {
 
     // -------------------------------------------
 
-    protected extendProperty<P extends keyof Properties[T]>(type: P): PropertyConfig {
+    protected extendProperty<P extends keyof MapperProperties[T]>(type: P): MapperPropertyConfig {
         if (hasOwnProperty(this.extendedProperties, type)) {
             return this.extendedProperties[type];
         }

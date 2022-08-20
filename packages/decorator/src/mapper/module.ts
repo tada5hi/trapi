@@ -9,22 +9,26 @@ import { Node } from 'typescript';
 import { RepresentationManager } from '../representation';
 import {
     Config,
-    Data,
-    ID,
-    Representation,
-    RepresentationMap,
+    MapperID,
+    MapperRepresentation,
+    MapperRepresentationMap,
+    NodeDecorator,
 } from '../types';
 import { getNodeDecorators, hasOwnProperty } from '../utils';
 import { getDecoratorMap, isMappingTypeIncluded, reduceTypeRepresentationMapping } from './utils';
 
 export class DecoratorMapper {
-    protected mapping: Partial<RepresentationMap> = {};
+    protected config?: Config;
 
-    constructor(
-        protected config?: Config,
-    ) {
-        this.aggregate();
+    protected map: Partial<MapperRepresentationMap> = {};
+
+    // -------------------------------------------
+
+    constructor(config?: Config) {
+        this.setConfig(config);
     }
+
+    // -------------------------------------------
 
     public setConfig(config?: Config) {
         this.config = config;
@@ -34,22 +38,24 @@ export class DecoratorMapper {
     /**
      * Try to find a matching representation for a given decorator type and decorators or node.
      *
-     * @param type
+     * @param id
      * @param data
      */
-    public match<T extends ID>(
-        type: T,
-        data: Data[] | Node,
+    public match<T extends MapperID>(
+        id: T,
+        data: NodeDecorator[] | Node,
     ) {
-        if (!hasOwnProperty(this.mapping, type)) {
+        if (!hasOwnProperty(this.map, id)) {
             return undefined;
         }
 
-        const decorators: Data[] = Array.isArray(data) ? data : getNodeDecorators(data);
+        const decorators: NodeDecorator[] = Array.isArray(data) ?
+            data :
+            getNodeDecorators(data);
 
-        const representations: Array<Representation<T>> = (Array.isArray(this.mapping[type]) ?
-            this.mapping[type] :
-            [this.mapping[type]]) as Array<Representation<T>>;
+        const representations: Array<MapperRepresentation<T>> = (Array.isArray(this.map[id]) ?
+            this.map[id] :
+            [this.map[id]]) as Array<MapperRepresentation<T>>;
 
         for (let i = 0; i < representations.length; i++) {
             const items = decorators.filter((decorator) => decorator.text === representations[i].id);
@@ -68,11 +74,11 @@ export class DecoratorMapper {
 
     private aggregate(): void {
         if (typeof this.config === 'undefined') {
-            this.mapping = {};
+            this.map = {};
             return;
         }
 
-        const items: Array<Partial<RepresentationMap>> = [];
+        const items: Array<Partial<MapperRepresentationMap>> = [];
 
         // mapping - internal
         const internalMap = getDecoratorMap('internal');
@@ -113,7 +119,7 @@ export class DecoratorMapper {
             }
         }
 
-        this.mapping = this.merge(...items);
+        this.map = this.merge(...items);
     }
 
     /**
@@ -122,22 +128,22 @@ export class DecoratorMapper {
      * @param mappings
      * @private
      */
-    private merge(...mappings: Array<Partial<RepresentationMap>>): Partial<RepresentationMap> {
-        const result: Partial<RepresentationMap> = {};
+    private merge(...mappings: Array<Partial<MapperRepresentationMap>>): Partial<MapperRepresentationMap> {
+        const result: Partial<MapperRepresentationMap> = {};
 
         // we need all available mapping keys :)
-        let keys: ID[] = mappings
+        let keys: MapperID[] = mappings
             .map((mapping) => Object.keys(mapping))
-            .reduce(((previousValue, currentValue) => [...previousValue, ...currentValue])) as ID[];
+            .reduce(((previousValue, currentValue) => [...previousValue, ...currentValue])) as MapperID[];
 
         keys = Array.from(new Set(keys));
 
         for (let i = 0; i < keys.length; i++) {
-            const representations: Array<Representation<any>> = [];
+            const representations: Array<MapperRepresentation<any>> = [];
 
             for (let j = 0; j < mappings.length; j++) {
                 if (hasOwnProperty(mappings[j], keys[i])) {
-                    const value: Representation<any> | Array<Representation<any>> = mappings[j][keys[i]];
+                    const value: MapperRepresentation<any> | Array<MapperRepresentation<any>> = mappings[j][keys[i]];
 
                     if (typeof value === 'undefined') {
                         continue;

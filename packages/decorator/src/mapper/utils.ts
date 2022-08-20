@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import { ID, IncludedIDs, RepresentationMap } from '../types';
+import { IncludedIDs, MapperID, MapperRepresentationMap } from '../types';
 import { hasOwnProperty } from '../utils';
 
 /**
@@ -16,10 +16,10 @@ import { hasOwnProperty } from '../utils';
  * @param reducer
  */
 export function reduceTypeRepresentationMapping(
-    mapping: Partial<RepresentationMap>,
-    reducer: (type: ID) => boolean,
-): Partial<RepresentationMap> {
-    const mappingKeys = Object.keys(mapping) as (keyof RepresentationMap)[];
+    mapping: Partial<MapperRepresentationMap>,
+    reducer: (type: MapperID) => boolean,
+): Partial<MapperRepresentationMap> {
+    const mappingKeys = Object.keys(mapping) as (keyof MapperRepresentationMap)[];
     const allowedTypes = mappingKeys
         .filter(reducer);
 
@@ -27,7 +27,7 @@ export function reduceTypeRepresentationMapping(
         return mapping;
     }
 
-    const result: Partial<RepresentationMap> = {};
+    const result: Partial<MapperRepresentationMap> = {};
     for (let i = 0; i < allowedTypes.length; i++) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -44,7 +44,7 @@ export function reduceTypeRepresentationMapping(
  * @param config
  */
 export function isMappingTypeIncluded(
-    type: ID,
+    type: MapperID,
     config: IncludedIDs,
 ): boolean {
     const allowedType = Object.prototype.toString.call(config);
@@ -54,31 +54,31 @@ export function isMappingTypeIncluded(
         case '[object String]':
             return (config as string) === type;
         case '[object Array]':
-            return (config as unknown as ID[]).indexOf(type) !== -1;
+            return (config as unknown as MapperID[]).indexOf(type) !== -1;
         case '[object Object]':
-            return hasOwnProperty((config as Record<ID, boolean>), type) && (config as Record<ID, boolean>)[type];
+            return hasOwnProperty((config as Record<MapperID, boolean>), type) && (config as Record<MapperID, boolean>)[type];
     }
 
     /* istanbul ignore next */
     return false;
 }
 
-const decoratorMap : Record<string, Partial<RepresentationMap>> = {};
+const decoratorMap : Record<string, Partial<MapperRepresentationMap>> = {};
 
-export function getDecoratorMap(name: string) : Partial<RepresentationMap> {
+export function getDecoratorMap(name: string) : Partial<MapperRepresentationMap> {
     if (hasOwnProperty(decoratorMap, name)) {
         return decoratorMap[name];
     }
 
     const content = loadDecoratorMap(name);
 
-    (decoratorMap as Record<string, Partial<RepresentationMap>>)[name] = content;
+    (decoratorMap as Record<string, Partial<MapperRepresentationMap>>)[name] = content;
 
     return content;
 }
 
 /* istanbul ignore next */
-function loadDecoratorMap(library: string) : Partial<RepresentationMap> {
+function loadDecoratorMap(library: string) : Partial<MapperRepresentationMap> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require,import/no-dynamic-require
     const exp = require(path.resolve(__dirname, 'maps', `${library}`));
 

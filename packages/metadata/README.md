@@ -30,7 +30,8 @@ npm install --save @trapi/metadata
 The metadata configuration object (Top-Level) is the main configuration object of this library
 and can be defined according the following type scheme:
 ```typescript
-import {Decorator, Cache} from '@trapi/metadata';
+import { Config } from '@trapi/decorator';
+import { Cache } from '@trapi/metadata';
 
 export interface Config {
     /**
@@ -55,7 +56,7 @@ export interface Config {
      *      map: {}
      * }
      */
-    decorator?: Decorator.Config;
+    decorator?: Config;
 }
 ```
 
@@ -95,38 +96,6 @@ export interface Config {
      * Default: true
      */
     clearAtRandom?: boolean
-}
-```
-
-### Decorator
-The decorator configuration is relative complex and is not described in detail here yet.
-Please read the `source code` and the according `tests` for better understanding.
-
-- Tests: 
-  - `test/unit/decorator/mapper/index.spec.ts`
-  - `test/unit/decorator/representation/index.spec.ts`
-- Code: 
-  - `src/decorator/**/*.ts`
-
-If you are the author (or contributor) of a TypeScript Decorator API library and need help to set things up, feel free to open an Issue and ask for help.
-```typescript
-export interface Config {
-    /**
-     * Use a pre defined third party TypeRepresentationMap in full scope or
-     * only use a partial amount of defined type representations.
-     *
-     * Default: []
-     */
-    library?: ConfigLibrary;
-    /**
-     * Use all internal defined type representations or only use a subset.
-     * Default: true
-     */
-    internal?: TypeRepresentationConfig;
-    /**
-     * Set up self defined type representations.
-     */
-    map?: Partial<TypeRepresentationMap>;
 }
 ```
 

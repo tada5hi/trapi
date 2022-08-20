@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty } from '@trapi/common';
 import path from 'path';
 import { ID, IncludedIDs, RepresentationMap } from '../types';
+import { hasOwnProperty } from '../utils';
 
 /**
  *

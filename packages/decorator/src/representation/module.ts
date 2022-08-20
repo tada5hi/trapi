@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty } from '@trapi/common';
 import {
     Data,
     ID,
@@ -14,6 +13,7 @@ import {
     PropertyConfig,
     Representation,
 } from '../types';
+import { hasOwnProperty } from '../utils';
 import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue } from './property';
 
 export class RepresentationManager<T extends ID> {

@@ -8,7 +8,7 @@
 import {
     Identifier, JSDoc, JSDocTag, Node, SyntaxKind, isJSDocParameterTag,
 } from 'typescript';
-import { hasOwnProperty } from '@trapi/common';
+import { hasOwnProperty } from './object';
 
 // -----------------------------------------
 // Description

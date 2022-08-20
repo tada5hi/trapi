@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty } from '@trapi/common';
 import {
     ArrayType,
     BaseType, EnumType, IntersectionType, NestedObjectLiteralType,
@@ -21,6 +20,7 @@ import { GeneratorOutput } from '@trapi/metadata';
 import * as path from 'path';
 import { promises } from 'fs';
 import * as YAML from 'yamljs';
+import { hasOwnProperty } from '../utils';
 import { SpecificationV2 } from './v2/type';
 import { SpecificationV3 } from './v3/type';
 

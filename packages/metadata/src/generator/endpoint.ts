@@ -15,9 +15,9 @@ import {
 import {
     ArrayLiteralExpression, Node, TypeNode, isArrayLiteralExpression,
 } from 'typescript';
-import { normalizePath } from '@trapi/common';
 
 import { Response } from '../type';
+import { normalizePath } from '../utils';
 
 export abstract class EndpointGenerator<T extends Node> {
     protected path: string | undefined;

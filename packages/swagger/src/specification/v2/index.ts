@@ -18,10 +18,10 @@ import { recursive } from 'merge';
 import { posix } from 'path';
 import { URL } from 'url';
 
-import { hasOwnProperty, normalizePathParameters } from '@trapi/common';
 import {
     Method, Parameter, Response,
 } from '@trapi/metadata';
+import { hasOwnProperty, normalizePathParameters } from '../../utils';
 
 import { Specification } from '../type';
 import { SpecificationV2 } from './type';

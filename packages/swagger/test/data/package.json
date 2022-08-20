@@ -1,0 +1,12 @@
+{
+    "name": "@trapi/swagger",
+    "version": "0.0.1",
+    "description": "",
+    "keywords": [],
+    "author": {
+        "name": "Peter Placzek",
+        "email": "tadashi@animesu.net",
+        "url": "https:/github.com/Tada5hi"
+    },
+    "license": "MIT"
+}

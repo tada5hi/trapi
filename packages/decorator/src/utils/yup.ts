@@ -9,7 +9,7 @@ import Lazy from 'yup/lib/Lazy';
 import Reference from 'yup/lib/Reference';
 import { AnySchema } from 'yup/lib/schema';
 
-export function mapYupRuleForDictionary<T>(map: any, rule: T) : Record<string, AnySchema | Reference | Lazy<any, any> | T> {
+export function mapYupRuleToDictionary<T>(map: any, rule: T) : Record<string, AnySchema | Reference | Lazy<any, any> | T> {
     if (!map) {
         return {};
     }

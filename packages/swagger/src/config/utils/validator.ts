@@ -8,8 +8,8 @@
 import {
     SchemaOf, array, boolean, lazy, mixed, object, string,
 } from 'yup';
-import { getPackageJsonStringValue, mapYupRuleForDictionary } from '@trapi/common';
 import { Specification } from '../../specification';
+import { getPackageJsonStringValue, mapYupRuleToDictionary } from '../../utils';
 
 let validatorInstance : undefined | SchemaOf<Specification.Config>;
 
@@ -20,7 +20,7 @@ export function useConfigValidator() : SchemaOf<Specification.Config> {
 
     const securityDefinitionsValidator : SchemaOf<Specification.SecurityDefinitions> = lazy((map) => {
         if (Object.prototype.toString.call(map) === '[object Object]') {
-            const directory = mapYupRuleForDictionary(map, object({
+            const directory = mapYupRuleToDictionary(map, object({
                 type: mixed().oneOf(['apiKey', 'oauth2', 'http'] as Specification.SecurityType[]),
                 description: string().optional().default(undefined),
                 schema: mixed().oneOf(['basic']).optional(),

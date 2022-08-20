@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty } from '@trapi/common';
 import { Node } from 'typescript';
 import { RepresentationManager } from '../representation';
 import {
@@ -15,7 +14,7 @@ import {
     Representation,
     RepresentationMap,
 } from '../types';
-import { getNodeDecorators } from '../utils';
+import { getNodeDecorators, hasOwnProperty } from '../utils';
 import { getDecoratorMap, isMappingTypeIncluded, reduceTypeRepresentationMapping } from './utils';
 
 export class DecoratorMapper {

@@ -3,7 +3,6 @@
     "compilerOptions": {
         "experimentalDecorators": true,
         "paths": {
-            "@trapi/common": ["./packages/common/src"],
             "@trapi/decorator": ["./packages/decorator/src"]
         }
     }

@@ -7,4 +7,6 @@
 
 export * from './js-doc';
 export * from './node';
+export * from './object';
 export * from './validator';
+export * from './yup';

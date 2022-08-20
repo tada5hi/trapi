@@ -8,7 +8,7 @@
 import { CompilerOptions, convertCompilerOptionsFromJson } from 'typescript';
 import fs from 'fs';
 import path from 'path';
-import { hasOwnProperty } from '@trapi/common';
+import { hasOwnProperty } from './object';
 
 type CompilerOptionsContext = {
     cwd?: string,

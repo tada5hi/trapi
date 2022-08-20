@@ -16,7 +16,7 @@ import {
 } from '@trapi/decorator';
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
-import { hasOwnProperty } from '@trapi/common';
+import { hasOwnProperty } from '../utils';
 import { EndpointGenerator } from './endpoint';
 import { ParameterGenerator } from './parameter';
 import {

@@ -8,11 +8,11 @@
 import {
     Expression,
 } from 'typescript';
-import { hasOwnProperty } from '@trapi/common';
 import { getInitializerValue } from '../../resolver';
 import {
     Data, ID, Properties, PropertyConfig, PropertyStrategy,
 } from '../../types';
+import { hasOwnProperty } from '../../utils';
 
 export function extendRepresentationPropertyConfig(property: PropertyConfig): PropertyConfig {
     if (typeof property.isType === 'undefined') {

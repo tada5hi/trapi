@@ -36,15 +36,16 @@
     },
     "devDependencies": {
         "@types/yamljs": "^0.2.31",
+        "@types/yup": "^0.32.0",
         "jest": "^27.5.1",
         "rimraf": "^3.0.2"
     },
     "dependencies": {
         "@trapi/decorator": "^0.0.1",
         "@trapi/metadata": "^0.2.0",
-        "@trapi/common": "^0.0.1",
         "merge": "^2.1.1",
-        "yamljs": "^0.3.0"
+        "yamljs": "^0.3.0",
+        "yup": "^0.32.11"
     },
     "repository": {
         "type": "git",

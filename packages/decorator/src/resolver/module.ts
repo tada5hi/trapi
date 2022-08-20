@@ -6,12 +6,11 @@
  */
 
 import * as ts from 'typescript';
-import { hasOwnProperty } from '@trapi/common';
 
 import {
     getJSDocTagComment,
     getJSDocTagNames,
-    getNodeDecorators,
+    getNodeDecorators, hasOwnProperty,
     isExistJSDocTag,
 } from '../utils';
 import { ResolverError } from './error';

@@ -6,8 +6,8 @@
  */
 
 import * as ts from 'typescript';
-import { hasOwnProperty } from '@trapi/common';
 import { TypeVariant } from '../../types';
+import { hasOwnProperty } from '../../utils';
 
 export function getInitializerValue(
     initializer?: ts.Expression,

@@ -8,7 +8,6 @@
 import {
     SchemaOf, array, boolean, lazy, mixed, number, object, string,
 } from 'yup';
-import { mapYupRuleForDictionary } from '@trapi/common';
 import {
     Config,
     IncludedIDs,
@@ -17,6 +16,7 @@ import {
     Representation,
     RepresentationMap,
 } from '../types';
+import { mapYupRuleToDictionary } from './yup';
 
 let validatorInstance : undefined | SchemaOf<Config>;
 
@@ -40,7 +40,7 @@ export function useConfigValidator() : SchemaOf<Config> {
 
         if (Object.prototype.toString.call(value) === '[object Object]') {
             // todo: setup type key check :)
-            return object(mapYupRuleForDictionary(value, boolean())).optional().default({});
+            return object(mapYupRuleToDictionary(value, boolean())).optional().default({});
         }
 
         return mixed().optional().default(undefined);
@@ -57,7 +57,7 @@ export function useConfigValidator() : SchemaOf<Config> {
 
         if (Object.prototype.toString.call(value) === '[object Object]') {
             // todo: setup library key check :)
-            return object(mapYupRuleForDictionary(value, configMappingOptionValidator));
+            return object(mapYupRuleToDictionary(value, configMappingOptionValidator));
         }
 
         return mixed().optional().default(undefined);
@@ -77,7 +77,7 @@ export function useConfigValidator() : SchemaOf<Config> {
         id: string().required(),
         properties: lazy((value) => {
             if (Object.prototype.toString.call(value) === '[object Object]') {
-                return object(mapYupRuleForDictionary(value, representationPropertyValidator)).optional().default({});
+                return object(mapYupRuleToDictionary(value, representationPropertyValidator)).optional().default({});
             }
 
             return mixed().optional().default(undefined);
@@ -86,7 +86,7 @@ export function useConfigValidator() : SchemaOf<Config> {
 
     const overrideValidator : SchemaOf<RepresentationMap> = lazy((value) => {
         if (Object.prototype.toString.call(value) === '[object Object]') {
-            return object(mapYupRuleForDictionary(value, lazy((val) => {
+            return object(mapYupRuleToDictionary(value, lazy((val) => {
                 if (Array.isArray(val)) {
                     return array().of(representationValidator);
                 }

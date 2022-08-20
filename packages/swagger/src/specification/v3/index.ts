@@ -10,11 +10,11 @@ import {
     IntersectionType, ReferenceType, ResolverProperty, TypeVariant, isVoidType,
 } from '@trapi/decorator';
 import { URL } from 'url';
-import { hasOwnProperty, normalizePathParameters } from '@trapi/common';
 import {
     Method, Parameter, Response,
 } from '@trapi/metadata';
 import { recursive } from 'merge';
+import { hasOwnProperty, normalizePathParameters } from '../../utils';
 import { Specification } from '../type';
 import { SpecificationV3 } from './type';
 import { removeFinalCharacter, removeRepeatingCharacter } from '../utils';

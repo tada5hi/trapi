@@ -17,6 +17,7 @@
         "noUnusedLocals": true,
         "sourceMap": true,
         "strictNullChecks": false,
+        "esModuleInterop": true,
         "target": "es5"
     },
     "include": [

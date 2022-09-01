@@ -1,0 +1,1 @@
+import{_ as a,c as t,o as e,a as n}from"./app.ae4e02f9.js";const u=JSON.parse('{"title":"Installation","description":"","frontmatter":{},"headers":[],"relativePath":"guide/metadata-installation.md"}'),s={name:"guide/metadata-installation.md"},o=n("",3),l=[o];function i(c,d,p,r,_,h){return e(),t("div",null,l)}const f=a(s,[["render",i]]);export{u as __pageData,f as default};

@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import { IncludedIDs, MapperID, MapperRepresentationMap } from '../types';
+import { MapperID, MapperIDRepresentation, MapperIDs } from '../types';
 import { hasOwnProperty } from '../utils';
 
 /**
@@ -16,10 +16,10 @@ import { hasOwnProperty } from '../utils';
  * @param reducer
  */
 export function reduceTypeRepresentationMapping(
-    mapping: Partial<MapperRepresentationMap>,
+    mapping: Partial<MapperIDRepresentation>,
     reducer: (type: MapperID) => boolean,
-): Partial<MapperRepresentationMap> {
-    const mappingKeys = Object.keys(mapping) as (keyof MapperRepresentationMap)[];
+): Partial<MapperIDRepresentation> {
+    const mappingKeys = Object.keys(mapping) as (keyof MapperIDRepresentation)[];
     const allowedTypes = mappingKeys
         .filter(reducer);
 
@@ -27,7 +27,7 @@ export function reduceTypeRepresentationMapping(
         return mapping;
     }
 
-    const result: Partial<MapperRepresentationMap> = {};
+    const result: Partial<MapperIDRepresentation> = {};
     for (let i = 0; i < allowedTypes.length; i++) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -45,7 +45,7 @@ export function reduceTypeRepresentationMapping(
  */
 export function isMappingTypeIncluded(
     type: MapperID,
-    config: IncludedIDs,
+    config: MapperIDs,
 ): boolean {
     const allowedType = Object.prototype.toString.call(config);
     switch (allowedType) {
@@ -63,22 +63,22 @@ export function isMappingTypeIncluded(
     return false;
 }
 
-const decoratorMap : Record<string, Partial<MapperRepresentationMap>> = {};
+const decoratorMap : Record<string, Partial<MapperIDRepresentation>> = {};
 
-export function getDecoratorMap(name: string) : Partial<MapperRepresentationMap> {
+export function getDecoratorMap(name: string) : Partial<MapperIDRepresentation> {
     if (hasOwnProperty(decoratorMap, name)) {
         return decoratorMap[name];
     }
 
     const content = loadDecoratorMap(name);
 
-    (decoratorMap as Record<string, Partial<MapperRepresentationMap>>)[name] = content;
+    (decoratorMap as Record<string, Partial<MapperIDRepresentation>>)[name] = content;
 
     return content;
 }
 
 /* istanbul ignore next */
-function loadDecoratorMap(library: string) : Partial<MapperRepresentationMap> {
+function loadDecoratorMap(library: string) : Partial<MapperIDRepresentation> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require,import/no-dynamic-require
     const exp = require(path.resolve(__dirname, 'maps', `${library}`));
 

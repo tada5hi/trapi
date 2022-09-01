@@ -65,7 +65,7 @@ describe('src/decorator/mapper/index.ts', () => {
 
     it('should match', () => {
         mapper.setConfig({
-            map: {
+            custom: {
                 SWAGGER_TAGS: {
                     id: 'SwaggerTags',
                     properties: {

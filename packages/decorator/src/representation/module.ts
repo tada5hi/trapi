@@ -7,24 +7,24 @@
 
 import {
     MapperID,
-    MapperProperties,
-    MapperPropertiesConfig,
-    MapperPropertyConfig,
-    MapperRepresentation,
+    MapperIDProperties,
+    MapperIDPropertiesConfig,
+    MapperIDPropertyConfig,
+    MapperIDRepresentationItem,
     NodeDecorator,
 } from '../types';
 import { hasOwnProperty } from '../utils';
 import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue } from './property';
 
 export class RepresentationManager<T extends MapperID> {
-    protected extendedProperties: Partial<MapperPropertiesConfig<MapperProperties[T]>> = {};
+    protected extendedProperties: Partial<MapperIDPropertiesConfig<MapperIDProperties[T]>> = {};
 
-    protected representation: MapperRepresentation<T>;
+    protected representation: MapperIDRepresentationItem<T>;
 
     public decorators: NodeDecorator[];
 
     constructor(
-        representation: MapperRepresentation<T>,
+        representation: MapperIDRepresentationItem<T>,
         decorators: NodeDecorator[],
     ) {
         this.representation = representation;
@@ -38,11 +38,11 @@ export class RepresentationManager<T extends MapperID> {
      * @param type
      * @param decoratorOrIndex
      */
-    public getPropertyValue<P extends keyof MapperProperties[T]>(
+    public getPropertyValue<P extends keyof MapperIDProperties[T]>(
         type: P,
         decoratorOrIndex?: number | NodeDecorator,
-    ): MapperProperties[T][P] | undefined {
-        const config: MapperPropertyConfig = this.getPropertyConfiguration(type);
+    ): MapperIDProperties[T][P] | undefined {
+        const config: MapperIDPropertyConfig = this.getPropertyConfiguration(type);
         if (typeof config === 'undefined') {
             return undefined;
         }
@@ -68,7 +68,7 @@ export class RepresentationManager<T extends MapperID> {
 
     // -------------------------------------------
 
-    public getPropertyConfiguration(type: keyof MapperProperties[T]): MapperPropertyConfig | undefined {
+    public getPropertyConfiguration(type: keyof MapperIDProperties[T]): MapperIDPropertyConfig | undefined {
         if (!hasOwnProperty(this.representation.properties, type)) {
             return undefined;
         }
@@ -78,7 +78,7 @@ export class RepresentationManager<T extends MapperID> {
 
     // -------------------------------------------
 
-    protected extendProperty<P extends keyof MapperProperties[T]>(type: P): MapperPropertyConfig {
+    protected extendProperty<P extends keyof MapperIDProperties[T]>(type: P): MapperIDPropertyConfig {
         if (hasOwnProperty(this.extendedProperties, type)) {
             return this.extendedProperties[type];
         }

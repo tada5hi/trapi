@@ -10,11 +10,11 @@ import {
 } from 'yup';
 import {
     Config,
-    IncludedIDs,
     LibraryConfig,
-    MapperPropertyConfig,
-    MapperRepresentation,
-    MapperRepresentationMap,
+    MapperIDPropertyConfig,
+    MapperIDRepresentation,
+    MapperIDRepresentationItem,
+    MapperIDs,
 } from '../types';
 import { mapYupRuleToDictionary } from './yup';
 
@@ -25,7 +25,7 @@ export function useConfigValidator() : SchemaOf<Config> {
         return validatorInstance;
     }
 
-    const configMappingOptionValidator : SchemaOf<IncludedIDs> = lazy((value) => {
+    const configMappingOptionValidator : SchemaOf<MapperIDs> = lazy((value) => {
         if (typeof value === 'boolean') {
             return boolean();
         }
@@ -44,7 +44,7 @@ export function useConfigValidator() : SchemaOf<Config> {
         }
 
         return mixed().optional().default(undefined);
-    }) as unknown as SchemaOf<IncludedIDs>;
+    }) as unknown as SchemaOf<MapperIDs>;
 
     const useLibraryValidator : SchemaOf<LibraryConfig> = lazy((value) => {
         if (typeof value === 'string') {
@@ -63,17 +63,17 @@ export function useConfigValidator() : SchemaOf<Config> {
         return mixed().optional().default(undefined);
     }) as unknown as SchemaOf<LibraryConfig>;
 
-    const representationPropertyValidator : SchemaOf<MapperPropertyConfig> = object({
-        type: mixed().oneOf(['element', 'array'] as Array<MapperPropertyConfig['type']>),
+    const representationPropertyValidator : SchemaOf<MapperIDPropertyConfig> = object({
+        type: mixed().oneOf(['element', 'array'] as Array<MapperIDPropertyConfig['type']>),
         isType: boolean().optional().default(undefined),
-        srcArgumentType: mixed().oneOf(['argument', 'typeArgument'] as Array<MapperPropertyConfig['srcArgumentType']>),
+        srcArgumentType: mixed().oneOf(['argument', 'typeArgument'] as Array<MapperIDPropertyConfig['srcArgumentType']>),
         srcPosition: number().min(0).optional().default(0),
         srcAmount: number().optional().default(undefined),
         // todo: check if 'merge', 'none' or function
         srcStrategy: mixed().optional().default(undefined),
     });
 
-    const representationValidator : SchemaOf<MapperRepresentation<any>> = object({
+    const representationValidator : SchemaOf<MapperIDRepresentationItem<any>> = object({
         id: string().required(),
         properties: lazy((value) => {
             if (Object.prototype.toString.call(value) === '[object Object]') {
@@ -82,9 +82,9 @@ export function useConfigValidator() : SchemaOf<Config> {
 
             return mixed().optional().default(undefined);
         }),
-    }) as unknown as SchemaOf<MapperRepresentation<any>>;
+    }) as unknown as SchemaOf<MapperIDRepresentationItem<any>>;
 
-    const overrideValidator : SchemaOf<MapperRepresentationMap> = lazy((value) => {
+    const overrideValidator : SchemaOf<MapperIDRepresentation> = lazy((value) => {
         if (Object.prototype.toString.call(value) === '[object Object]') {
             return object(mapYupRuleToDictionary(value, lazy((val) => {
                 if (Array.isArray(val)) {
@@ -96,7 +96,7 @@ export function useConfigValidator() : SchemaOf<Config> {
         }
 
         return mixed().optional().default(undefined);
-    }) as unknown as SchemaOf<MapperRepresentationMap>;
+    }) as unknown as SchemaOf<MapperIDRepresentation>;
 
     validatorInstance = object({
         library: useLibraryValidator,

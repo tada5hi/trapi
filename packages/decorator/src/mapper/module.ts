@@ -10,8 +10,8 @@ import { RepresentationManager } from '../representation';
 import {
     Config,
     MapperID,
-    MapperRepresentation,
-    MapperRepresentationMap,
+    MapperIDRepresentation,
+    MapperIDRepresentationItem,
     NodeDecorator,
 } from '../types';
 import { getNodeDecorators, hasOwnProperty } from '../utils';
@@ -20,7 +20,7 @@ import { getDecoratorMap, isMappingTypeIncluded, reduceTypeRepresentationMapping
 export class DecoratorMapper {
     protected config?: Config;
 
-    protected map: Partial<MapperRepresentationMap> = {};
+    protected map: Partial<MapperIDRepresentation> = {};
 
     // -------------------------------------------
 
@@ -53,9 +53,9 @@ export class DecoratorMapper {
             data :
             getNodeDecorators(data);
 
-        const representations: Array<MapperRepresentation<T>> = (Array.isArray(this.map[id]) ?
+        const representations: Array<MapperIDRepresentationItem<T>> = (Array.isArray(this.map[id]) ?
             this.map[id] :
-            [this.map[id]]) as Array<MapperRepresentation<T>>;
+            [this.map[id]]) as Array<MapperIDRepresentationItem<T>>;
 
         for (let i = 0; i < representations.length; i++) {
             const items = decorators.filter((decorator) => decorator.text === representations[i].id);
@@ -78,7 +78,7 @@ export class DecoratorMapper {
             return;
         }
 
-        const items: Array<Partial<MapperRepresentationMap>> = [];
+        const items: Array<Partial<MapperIDRepresentation>> = [];
 
         // mapping - internal
         const internalMap = getDecoratorMap('internal');
@@ -89,8 +89,8 @@ export class DecoratorMapper {
         );
 
         // mapping - extension
-        if (typeof this.config.map !== 'undefined') {
-            items.push(this.config.map);
+        if (typeof this.config.custom !== 'undefined') {
+            items.push(this.config.custom);
         }
 
         // mapping - library
@@ -128,8 +128,8 @@ export class DecoratorMapper {
      * @param mappings
      * @private
      */
-    private merge(...mappings: Array<Partial<MapperRepresentationMap>>): Partial<MapperRepresentationMap> {
-        const result: Partial<MapperRepresentationMap> = {};
+    private merge(...mappings: Array<Partial<MapperIDRepresentation>>): Partial<MapperIDRepresentation> {
+        const result: Partial<MapperIDRepresentation> = {};
 
         // we need all available mapping keys :)
         let keys: MapperID[] = mappings
@@ -139,11 +139,11 @@ export class DecoratorMapper {
         keys = Array.from(new Set(keys));
 
         for (let i = 0; i < keys.length; i++) {
-            const representations: Array<MapperRepresentation<any>> = [];
+            const representations: Array<MapperIDRepresentationItem<any>> = [];
 
             for (let j = 0; j < mappings.length; j++) {
                 if (hasOwnProperty(mappings[j], keys[i])) {
-                    const value: MapperRepresentation<any> | Array<MapperRepresentation<any>> = mappings[j][keys[i]];
+                    const value: MapperIDRepresentationItem<any> | Array<MapperIDRepresentationItem<any>> = mappings[j][keys[i]];
 
                     if (typeof value === 'undefined') {
                         continue;

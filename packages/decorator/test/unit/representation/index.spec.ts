@@ -9,11 +9,11 @@ import {
     ArrayLiteralExpression, Expression, NodeArray, NodeFlags, SyntaxKind,
 } from 'typescript';
 import {
-    MapperRepresentation, NodeDecorator, RepresentationManager, mergeObjectArguments,
+    MapperIDRepresentationItem, NodeDecorator, RepresentationManager, mergeObjectArguments,
 } from '../../../src';
 
 describe('src/decorator/representation/index.ts', () => {
-    const swaggerTagsRepresentation : MapperRepresentation<'SWAGGER_TAGS'> = {
+    const swaggerTagsRepresentation : MapperIDRepresentationItem<'SWAGGER_TAGS'> = {
         id: 'SwaggerTags',
         properties: {
             DEFAULT: {
@@ -35,7 +35,7 @@ describe('src/decorator/representation/index.ts', () => {
 
     // ----------------------------------------------------------------------------------
 
-    const responseExampleRepresentation : MapperRepresentation<'RESPONSE_EXAMPLE'> = {
+    const responseExampleRepresentation : MapperIDRepresentationItem<'RESPONSE_EXAMPLE'> = {
         id: 'ResponseExample',
         properties: {
             TYPE: {

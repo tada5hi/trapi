@@ -10,11 +10,11 @@ import {
 } from 'typescript';
 import { getInitializerValue } from '../../resolver';
 import {
-    MapperID, MapperProperties, MapperPropertyConfig, MapperPropertyStrategy, NodeDecorator,
+    MapperID, MapperIDProperties, MapperIDPropertyConfig, MapperIDPropertyStrategy, NodeDecorator,
 } from '../../types';
 import { hasOwnProperty } from '../../utils';
 
-export function extendRepresentationPropertyConfig(property: MapperPropertyConfig): MapperPropertyConfig {
+export function extendRepresentationPropertyConfig(property: MapperIDPropertyConfig): MapperIDPropertyConfig {
     if (typeof property.isType === 'undefined') {
         property.isType = false;
     }
@@ -39,11 +39,11 @@ export function extendRepresentationPropertyConfig(property: MapperPropertyConfi
 
 export function extractRepresentationPropertyValue<
     T extends MapperID,
-    P extends keyof MapperProperties[T],
+    P extends keyof MapperIDProperties[T],
     >(
     decorator: NodeDecorator,
-    config: MapperPropertyConfig,
-): MapperProperties[T][P] | undefined {
+    config: MapperIDPropertyConfig,
+): MapperIDProperties[T][P] | undefined {
     let items : unknown[] = [];
 
     switch (config.srcArgumentType) {
@@ -67,7 +67,7 @@ export function extractRepresentationPropertyValue<
             case 'element':
                 return undefined;
             case 'array':
-                return [] as unknown as MapperProperties[T][P];
+                return [] as unknown as MapperIDProperties[T][P];
         }
     }
 
@@ -76,37 +76,37 @@ export function extractRepresentationPropertyValue<
         items.slice(srcPosition);
 
     if (data.length === 0) {
-        return (config.type === 'array' ? [] : undefined) as unknown as MapperProperties[T][P];
+        return (config.type === 'array' ? [] : undefined) as unknown as MapperIDProperties[T][P];
     }
 
-    const srcStrategy : MapperPropertyStrategy = config.srcStrategy ?? 'none';
+    const srcStrategy : MapperIDPropertyStrategy = config.srcStrategy ?? 'none';
 
     switch (srcStrategy) {
         case 'merge':
             switch (config.type) {
                 case 'array':
-                    return mergeArrayArguments(data) as unknown as MapperProperties[T][P];
+                    return mergeArrayArguments(data) as unknown as MapperIDProperties[T][P];
                 case 'element':
                 default:
-                    return mergeObjectArguments(data) as MapperProperties[T][P];
+                    return mergeObjectArguments(data) as MapperIDProperties[T][P];
             }
         case 'none':
             // if we dont have any merge strategy, we just return the first argument.
             switch (config.type) {
                 case 'array': {
                     const arr = Array.isArray(data[0]) ? data[0] : [data[0]];
-                    return arr as unknown as MapperProperties[T][P];
+                    return arr as unknown as MapperIDProperties[T][P];
                 }
                 case 'element':
                 default:
-                    return data[0] as MapperProperties[T][P];
+                    return data[0] as MapperIDProperties[T][P];
             }
         default:
             if (typeof config.srcStrategy === 'function') {
-                return config.srcStrategy(data) as MapperProperties[T][P];
+                return config.srcStrategy(data) as MapperIDProperties[T][P];
             }
 
-            return (config.type === 'array' ? [] : undefined) as unknown as MapperProperties[T][P];
+            return (config.type === 'array' ? [] : undefined) as unknown as MapperIDProperties[T][P];
     }
 }
 

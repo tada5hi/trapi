@@ -11,7 +11,7 @@
  * A decorator id is an identifier which is associated
  * to specific decorator names.
  */
-export interface MapperProperties {
+export interface MapperIDProperties {
     // Class Type
     SWAGGER_TAGS: {
         DEFAULT: string[]
@@ -123,7 +123,7 @@ export interface MapperProperties {
     };
 }
 
-export type MapperID = keyof MapperProperties;
+export type MapperID = keyof MapperIDProperties;
 
 export type MethodHttpVerbType = Extract<MapperID, 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' |
 'PATCH' | 'OPTIONS' | 'HEAD'>;
@@ -134,9 +134,9 @@ export type ParameterServerType = Extract<MapperID, 'SERVER_CONTEXT' | 'SERVER_P
 
 // -------------------------------------------
 
-export type MapperPropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
+export type MapperIDPropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
 
-export interface MapperPropertyConfig {
+export interface MapperIDPropertyConfig {
     /**
          * Default: 'element'
          */
@@ -165,11 +165,11 @@ export interface MapperPropertyConfig {
     /**
          * Default: 'none'
          */
-    srcStrategy?: MapperPropertyStrategy
+    srcStrategy?: MapperIDPropertyStrategy
 }
 
-export type MapperPropertiesConfig<P> = {
-    [K in keyof P]: MapperPropertyConfig
+export type MapperIDPropertiesConfig<P> = {
+    [K in keyof P]: MapperIDPropertyConfig
 };
 
 // -------------------------------------------
@@ -177,23 +177,23 @@ export type MapperPropertiesConfig<P> = {
 /**
  * This type maps a decorator ID to its representation config.
  */
-export type MapperRepresentationMap = {
-    [T in MapperID]: MapperRepresentation<T> | Array<MapperRepresentation<T>>;
+export type MapperIDRepresentation = {
+    [T in MapperID]: MapperIDRepresentationItem<T> | Array<MapperIDRepresentationItem<T>>;
 };
 
 /**
  * The id property is the name/text of the defined decorator.
  */
-export interface MapperRepresentation<T extends MapperID> {
+export interface MapperIDRepresentationItem<T extends MapperID> {
     id: string;
-    properties?: MapperPropertiesConfig<MapperProperties[T]>;
+    properties?: MapperIDPropertiesConfig<MapperIDProperties[T]>;
 }
 
 // -------------------------------------------
 
 export interface Config {
     /**
-     * Use a pre-defined third party TypeRepresentationMap in full scope or
+     * Use a pre-defined third party configuration in full scope or
      * only use a partial amount of defined type representations.
      *
      * Default: []
@@ -203,11 +203,11 @@ export interface Config {
      * Use all internal defined type representations or only use a subset.
      * Default: true
      */
-    internal?: IncludedIDs;
+    internal?: MapperIDs;
     /**
-     * Set up self defined representations.
+     * Set up self defined aka. custom representations.
      */
-    map?: Partial<MapperRepresentationMap>;
+    custom?: Partial<MapperIDRepresentation>;
 }
 
 // -------------------------------------------
@@ -215,7 +215,7 @@ export interface Config {
 /**
  * Activate/Deactivate specific type representations of a TypeRepresentationMap.
  */
-export type IncludedIDs = boolean | MapperID | MapperID[] | { [K in MapperID]?: boolean };
+export type MapperIDs = boolean | MapperID | MapperID[] | { [K in MapperID]?: boolean };
 
 // -------------------------------------------
 
@@ -223,4 +223,4 @@ export type IncludedIDs = boolean | MapperID | MapperID[] | { [K in MapperID]?: 
  * These are the current by default supported third party libraries.
  */
 export type Library = 'typescript-rest' | 'decorators-express';
-export type LibraryConfig = Library | Library[] | Record<string, IncludedIDs>;
+export type LibraryConfig = Library | Library[] | Record<string, MapperIDs>;

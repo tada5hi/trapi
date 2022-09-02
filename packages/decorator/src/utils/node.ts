@@ -6,7 +6,7 @@
  */
 
 import {
-    Node, isCallExpression, isNumericLiteral, isStringLiteral,
+    Node, isCallExpression, isNumericLiteral, isStringLiteral, canHaveDecorators, getDecorators,
 } from 'typescript';
 import { NodeDecorator } from '../types';
 
@@ -20,8 +20,13 @@ export function getNodeDecorators(
     node: Node,
     isMatching?: (data: NodeDecorator) => boolean,
 ): NodeDecorator[] {
-    const { decorators } = node;
-    if (!decorators || !decorators.length) {
+    if(!canHaveDecorators(node)) {
+        return [];
+    }
+
+    const decorators = getDecorators(node);
+
+    if(typeof decorators === 'undefined') {
         return [];
     }
 

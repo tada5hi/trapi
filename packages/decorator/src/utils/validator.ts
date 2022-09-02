@@ -101,7 +101,7 @@ export function useConfigValidator() : SchemaOf<Config> {
     validatorInstance = object({
         library: useLibraryValidator,
         internal: configMappingOptionValidator,
-        map: overrideValidator,
+        custom: overrideValidator,
     }).optional().default({
         library: ['typescript-rest', '@decorators/express'],
         internal: true,

@@ -6,7 +6,7 @@
  */
 
 import { Node, TypeChecker } from 'typescript';
-import { DecoratorMapper } from '../mapper';
+import { Mapper } from '../mapper';
 import { DependencyResolver, ReferenceType } from './resolver';
 
 export interface MetadataGeneratorInterface {
@@ -14,7 +14,7 @@ export interface MetadataGeneratorInterface {
 
     readonly typeChecker: TypeChecker;
 
-    readonly decoratorMapper: DecoratorMapper;
+    readonly decoratorMapper: Mapper;
 
     addReferenceType(referenceType: ReferenceType): void;
 

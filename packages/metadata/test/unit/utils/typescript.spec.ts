@@ -21,6 +21,6 @@ describe('src/typescript.ts', () => {
         expect(compilerOptions.allowJs).toBeTruthy();
 
         // with non-existing fileName or filePath
-        expect(() => getCompilerOptions({ cwd: './test/data', fileName: 'non-existing-tsconfig.json' })).toThrow();
+        expect(getCompilerOptions({ cwd: './test/data', fileName: 'non-existing-tsconfig.json' })).toBeUndefined();
     });
 });

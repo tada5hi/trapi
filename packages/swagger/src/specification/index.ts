@@ -7,5 +7,7 @@
 
 export * from './v2';
 export * from './v3';
+export * from './abstract';
+export * from './module';
 export * from './type';
 export * from './utils';

@@ -9,7 +9,6 @@ import {
     MapperIDProperties,
     MetadataGeneratorInterface,
     TypeNodeResolver,
-    TypeVariant,
     getInitializerValue, getNodeDecorators, isExistJSDocTag,
 } from '@trapi/decorator';
 import {

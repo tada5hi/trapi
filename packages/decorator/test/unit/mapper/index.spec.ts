@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { DecoratorMapper, NodeDecorator, RepresentationManager } from '../../../src';
+import { Mapper, NodeDecorator, RepresentationManager } from '../../../src';
 
 describe('src/decorator/mapper/index.ts', () => {
     const decorators : NodeDecorator[] = [
@@ -22,7 +22,7 @@ describe('src/decorator/mapper/index.ts', () => {
         },
     ];
 
-    const mapper = new DecoratorMapper({
+    const mapper = new Mapper({
         internal: false,
     });
 

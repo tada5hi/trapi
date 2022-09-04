@@ -7,6 +7,7 @@
 
 export * from './config';
 export * from './metadata';
+export * from './module';
 export * from './specification';
 export * from './type';
 export * from './utils';

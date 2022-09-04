@@ -6,8 +6,8 @@
  */
 
 import {
-    DecoratorMapper,
     DependencyResolver,
+    Mapper,
     MetadataGeneratorInterface, ReferenceType,
     ReferenceTypes,
     TypeNodeResolver,
@@ -38,7 +38,7 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
 
     public readonly typeChecker: TypeChecker;
 
-    public readonly decoratorMapper: DecoratorMapper;
+    public readonly decoratorMapper: Mapper;
 
     public readonly config: Config;
 
@@ -62,7 +62,7 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
         this.config = config;
 
         this.cache = new CacheDriver(config.cache);
-        this.decoratorMapper = new DecoratorMapper(config.decorator);
+        this.decoratorMapper = new Mapper(config.decorator);
 
         TypeNodeResolver.clearCache();
 
@@ -217,6 +217,7 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
         const sourceFilesExpressions = Array.isArray(sourceFiles) ? sourceFiles : [sourceFiles];
         const result: Set<string> = new Set<string>();
         const options = { cwd: process.cwd() };
+
         sourceFilesExpressions.forEach((pattern) => {
             const matches = sync(pattern, options);
             matches.forEach((file) => { result.add(file); });

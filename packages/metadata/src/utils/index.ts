@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './generator';
 export * from './object';
 export * from './path';
 export * from './typescript';

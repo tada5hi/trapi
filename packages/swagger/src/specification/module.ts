@@ -5,12 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 import { GeneratorOutput, MetadataGenerator } from '@trapi/metadata';
-import { AbstractSpecGenerator } from '../specification/abstract';
-import { Specification } from '../specification/type';
-import { Version2SpecGenerator } from '../specification/v2';
-import { Version3SpecGenerator } from '../specification/v3';
+import { AbstractSpecGenerator } from './abstract';
+import { Specification } from './type';
+import { Version2SpecGenerator } from './v2';
+import { Version3SpecGenerator } from './v3';
 
-export function createSpecGenerator(
+export function createSpecificationGenerator(
     metadata: GeneratorOutput | MetadataGenerator,
     config: Specification.Config = {},
 ) {

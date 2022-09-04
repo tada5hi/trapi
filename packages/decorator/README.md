@@ -21,35 +21,50 @@ npm install --save @trapi/decorator
 
 ## Configuration
 
-The configuration is relative complex and is not described in detail here yet.
-Please read the `source code` and the according `tests` for better understanding.
-
-- Tests: 
-  - `test/unit/decorator/mapper/index.spec.ts`
-  - `test/unit/decorator/representation/index.spec.ts`
-- Code: 
-  - `src/decorator/**/*.ts`
-
-If you are the author (or contributor) of a TypeScript Decorator API library and need help to set things up, feel free to open an Issue and ask for help.
 ```typescript
-export interface Config {
+declare type Config = {
     /**
-     * Use a pre defined third party TypeRepresentationMap in full scope or
+     * Use a pre-defined third party configuration in full scope or
      * only use a partial amount of defined type representations.
      *
      * Default: []
      */
-    library?: ConfigLibrary;
+    library?: LibraryConfig;
     /**
-     * Use all internal defined type representations or only use a subset.
+     * Use all internal defined representations or only use a subset.
+     *
      * Default: true
      */
-    internal?: TypeRepresentationConfig;
+    internal?: MapperIDs;
     /**
-     * Set up self defined type representations.
+     * Set up self defined aka. custom representations.
      */
-    map?: Partial<TypeRepresentationMap>;
+    custom?: Partial<MapperIDRepresentation>;
 }
 ```
 
 ## Usage
+
+```typescript
+import { Config, Mapper, NodeDecorator } from '@trapi/decorator';
+
+const mapper = new Mapper({
+    internal: true
+});
+
+const decorators : NodeDecorator[] = [
+    { text: 'SwaggerTags', arguments: [['auth', 'admin']], typeArguments: [] },
+    { text: 'SwaggerTags', arguments: [['auth'], ['admin']], typeArguments: [] },
+    { text: 'SwaggerTags', arguments: [], typeArguments: [] },
+];
+
+let match = mapper.match('SWAGGER_TAGS', decorators);
+let value = match.getPropertyValue('DEFAULT');
+console.log(value);
+// ['auth', 'admin']
+
+match = mapper.match('RESPONSE_EXAMPLE', decorators);
+console.log(match);
+// undefined
+
+```

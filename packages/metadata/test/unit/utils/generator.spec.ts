@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { createMetadataGenerator, generateMetadata } from '../../../src';
+import { generateMetadata } from '../../../src';
+import { createMetadataGenerator } from '../../../src/generator';
 
 describe('src/utils/factory.ts', () => {
     it('should create metadata generator', () => {
@@ -25,7 +26,7 @@ describe('src/utils/factory.ts', () => {
 
         generator = createMetadataGenerator({
             entryFile: './test/fake-path',
-        }, false);
+        });
 
         expect(generator).toBeDefined();
     });

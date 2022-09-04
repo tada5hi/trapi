@@ -5,23 +5,23 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CompilerOptions, Config as MetadataConfig, createMetadataGenerator } from '@trapi/metadata';
-import { Specification } from '../specification';
-import { SwaggerDocFormatData, SwaggerDocFormatType } from '../type';
-import { createSpecGenerator } from './generator';
+import { CompilerOptions, Config as MetadataConfig } from '@trapi/metadata';
+import { createMetadataGenerator } from '@trapi/metadata/src/generator';
+import { Specification, createSpecificationGenerator } from './specification';
+import { SwaggerDocFormatData, SwaggerDocFormatType } from './type';
 
 export async function generateDocumentation(
     config: {
         metadata: MetadataConfig,
         swagger: Specification.Config
     },
-    tsConfig?: CompilerOptions | boolean,
+    tsConfig?: CompilerOptions,
 ): Promise<Record<SwaggerDocFormatType, SwaggerDocFormatData>> {
     const metadataGenerator = createMetadataGenerator(config.metadata, tsConfig);
 
     const metadata = metadataGenerator.generate();
 
-    const specGenerator = createSpecGenerator(metadata, config.swagger);
+    const specGenerator = createSpecificationGenerator(metadata, config.swagger);
 
     specGenerator.build();
     return specGenerator.save();

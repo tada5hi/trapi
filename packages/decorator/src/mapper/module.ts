@@ -17,7 +17,7 @@ import {
 import { getNodeDecorators, hasOwnProperty } from '../utils';
 import { getDecoratorMap, isMappingTypeIncluded, reduceTypeRepresentationMapping } from './utils';
 
-export class DecoratorMapper {
+export class Mapper {
     protected config?: Config;
 
     protected map: Partial<MapperIDRepresentation> = {};
@@ -44,7 +44,7 @@ export class DecoratorMapper {
     public match<T extends MapperID>(
         id: T,
         data: NodeDecorator[] | Node,
-    ) {
+    ) : RepresentationManager<T> | undefined {
         if (!hasOwnProperty(this.map, id)) {
             return undefined;
         }

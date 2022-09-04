@@ -136,37 +136,37 @@ export type ParameterServerType = Extract<MapperID, 'SERVER_CONTEXT' | 'SERVER_P
 
 export type MapperIDPropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
 
-export interface MapperIDPropertyConfig {
+export type MapperIDPropertyConfig = {
     /**
-         * Default: 'element'
-         */
-    type?: 'element' | 'array';
+     * Default: 'element'
+     */
+    type?: 'element' | 'array',
 
     /**
-         * Default: false
-         */
-    isType?: boolean;
+     * Default: false
+     */
+    isType?: boolean,
 
     /**
-         * Default: 'argument'
-         */
-    srcArgumentType?: 'argument' | 'typeArgument';
+     * Default: 'argument'
+     */
+    srcArgumentType?: 'argument' | 'typeArgument',
 
     /**
-         * Default: 0
-         */
-    srcPosition?: number;
+     * Default: 0
+     */
+    srcPosition?: number,
 
     /**
-         * Default: undefined
-         */
-    srcAmount?: number;
+     * Default: undefined
+     */
+    srcAmount?: number,
 
     /**
-         * Default: 'none'
-         */
+     * Default: 'none'
+     */
     srcStrategy?: MapperIDPropertyStrategy
-}
+};
 
 export type MapperIDPropertiesConfig<P> = {
     [K in keyof P]: MapperIDPropertyConfig
@@ -184,31 +184,32 @@ export type MapperIDRepresentation = {
 /**
  * The id property is the name/text of the defined decorator.
  */
-export interface MapperIDRepresentationItem<T extends MapperID> {
-    id: string;
-    properties?: MapperIDPropertiesConfig<MapperIDProperties[T]>;
-}
+export type MapperIDRepresentationItem<T extends MapperID> = {
+    id: string,
+    properties?: MapperIDPropertiesConfig<MapperIDProperties[T]>
+};
 
 // -------------------------------------------
 
-export interface Config {
+export type Config = {
     /**
      * Use a pre-defined third party configuration in full scope or
      * only use a partial amount of defined type representations.
      *
      * Default: []
      */
-    library?: LibraryConfig;
+    library?: LibraryConfig,
     /**
-     * Use all internal defined type representations or only use a subset.
+     * Use all internal defined representations or only use a subset.
+     *
      * Default: true
      */
-    internal?: MapperIDs;
+    internal?: MapperIDs,
     /**
      * Set up self defined aka. custom representations.
      */
-    custom?: Partial<MapperIDRepresentation>;
-}
+    custom?: Partial<MapperIDRepresentation>
+};
 
 // -------------------------------------------
 

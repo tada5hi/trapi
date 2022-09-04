@@ -18,6 +18,7 @@ type CompilerOptionsContext = {
 export function getCompilerOptions(context?: CompilerOptionsContext): CompilerOptions {
     context ??= {};
     context.cwd ??= process.cwd();
+
     if (!path.isAbsolute(context.cwd)) {
         context.cwd = path.join(process.cwd(), context.cwd);
     }
@@ -27,14 +28,18 @@ export function getCompilerOptions(context?: CompilerOptionsContext): CompilerOp
     // get absolute file path
     const fullPath : string = path.join(context.cwd, context.fileName);
 
-    // check permission to read file
-    fs.accessSync(fullPath, fs.constants.R_OK);
+    try {
+        // check permission to read file
+        fs.accessSync(fullPath, fs.constants.R_OK | fs.constants.F_OK);
+    } catch (e) {
+        return undefined;
+    }
 
-    const raw : string = fs.readFileSync(fullPath, { encoding: 'utf-8' });
+    const raw: string = fs.readFileSync(fullPath, { encoding: 'utf-8' });
 
-    const content : any = JSON.parse(raw);
+    const content: any = JSON.parse(raw);
 
     return hasOwnProperty(content, 'compilerOptions') ?
-        convertCompilerOptionsFromJson(content.compilerOptions, context.cwd).options :
+        convertCompilerOptionsFromJson(content.compilerOptions, context.cwd, context.fileName).options :
         {};
 }

@@ -6,13 +6,13 @@
  */
 
 import { GeneratorOutput } from '@trapi/metadata';
-import { Version3SpecGenerator, createSpecGenerator } from '../../src';
+import { Version3SpecGenerator, createSpecificationGenerator } from '../../src';
 
 const jsonata = require('jsonata');
 
 const metadata : GeneratorOutput = require('../data/metadata.json');
 
-const specGenerator = createSpecGenerator(metadata, {
+const specGenerator = createSpecificationGenerator(metadata, {
     host: 'http://localhost:3000/',
 });
 

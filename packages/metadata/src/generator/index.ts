@@ -10,3 +10,4 @@ export * from './endpoint';
 export * from './method';
 export * from './module';
 export * from './parameter';
+export * from './utils';

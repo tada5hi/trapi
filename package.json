@@ -53,11 +53,11 @@
         "cross-env": "^7.0.3",
         "eslint": "^8.23.1",
         "jest": "^27.5.1",
-        "lerna": "^5.5.2",
+        "lerna": "^5.5.4",
         "rimraf": "^3.0.2",
         "ts-jest": "^27.1.4",
         "typescript": "^4.8.3",
-        "vitepress": "^1.0.0-alpha.13",
+        "vitepress": "^1.0.0-alpha.17",
         "vue": "^3.2.39"
     }
 }

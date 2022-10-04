@@ -24,9 +24,9 @@ import {
     Cache as MetadataCache,
     Config as MetadataConfig,
     GeneratorOutput as MetadataGeneratorOutput,
+    createMetadataGenerator,
     generateMetadata,
 } from '@trapi/metadata';
-import { createMetadataGenerator } from '@trapi/metadata/src/generator';
 
 type MetadataCacheConfig = MetadataCache.Config;
 

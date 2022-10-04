@@ -7,10 +7,10 @@
             "ignoreChanges": [
                 ".eslintrc",
                 "package.json"
-            ],
-            "version": {
-                "message": "build(release): publish %s"
-            }
+            ]
+        },
+        "version": {
+            "message": "build(release): publish %s"
         }
     },
     "npmClient": "npm",

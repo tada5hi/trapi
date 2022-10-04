@@ -11,7 +11,7 @@ import { createMetadataGenerator } from '../../../src/generator';
 describe('src/utils/factory.ts', () => {
     it('should create metadata generator', () => {
         const generator = createMetadataGenerator({
-            entryFile: './test/fake-path',
+            entryPoint: './test/fake-path',
         });
 
         expect(generator).toBeDefined();
@@ -19,13 +19,13 @@ describe('src/utils/factory.ts', () => {
 
     it('should skip loading compiler Options', () => {
         let generator = createMetadataGenerator({
-            entryFile: './test/fake-path',
+            entryPoint: './test/fake-path',
         }, {});
 
         expect(generator).toBeDefined();
 
         generator = createMetadataGenerator({
-            entryFile: './test/fake-path',
+            entryPoint: './test/fake-path',
         });
 
         expect(generator).toBeDefined();
@@ -33,7 +33,7 @@ describe('src/utils/factory.ts', () => {
 
     it('should generate metadata', () => {
         const data = generateMetadata({
-            entryFile: './test/fake-path',
+            entryPoint: './test/fake-path',
         });
 
         expect(data).toBeDefined();

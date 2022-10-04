@@ -20,18 +20,18 @@ export {
     CompilerOptions,
 };
 
+export type EntryPointConfig = {
+    cwd: string,
+    pattern: string
+};
+
+export type EntryPoint = string | string[] | EntryPointConfig | EntryPointConfig[];
+
 export interface Config {
     /**
      * The entry point to your API.
      */
-    entryFile: string | string[];
-
-    /**
-     * Root path.
-     *
-     * Default: process.cwd()
-     */
-    rootPath?: string,
+    entryPoint: EntryPoint;
 
     /**
      * Directory to ignore during TypeScript files scan.

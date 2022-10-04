@@ -29,7 +29,9 @@ import {
     isModuleBlock,
     isModuleDeclaration,
 } from 'typescript';
-import { Config, Controller, GeneratorOutput } from '../type';
+import {
+    Config, Controller, EntryPoint, GeneratorOutput,
+} from '../type';
 import { ControllerGenerator } from './controller';
 import { CacheDriver } from '../cache';
 
@@ -66,7 +68,7 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
 
         TypeNodeResolver.clearCache();
 
-        const sourceFiles = this.scanSourceFiles(config.entryFile);
+        const sourceFiles = this.scanSourceFiles(config.entryPoint);
         this.program = createProgram(sourceFiles, compilerOptions);
         this.typeChecker = this.program.getTypeChecker();
     }
@@ -213,19 +215,35 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
         return undefined;
     }
 
-    private scanSourceFiles(sourceFiles: string | string[]) {
-        const sourceFilesExpressions = Array.isArray(sourceFiles) ? sourceFiles : [sourceFiles];
+    private scanSourceFiles(input: EntryPoint) {
+        const sources = Array.isArray(input) ? input : [input];
         const result: Set<string> = new Set<string>();
+
         const options : IOptions = {
-            cwd: this.config.rootPath || process.cwd(),
             nodir: true,
             absolute: true,
         };
 
-        sourceFilesExpressions.forEach((pattern) => {
-            const matches = sync(pattern, options);
-            matches.forEach((file) => { result.add(file); });
-        });
+        for (let i = 0; i < sources.length; i++) {
+            const source = sources[i];
+
+            let matches : string[];
+
+            if (typeof source === 'string') {
+                matches = sync(source, {
+                    ...options,
+                });
+            } else {
+                matches = sync(source.pattern, {
+                    ...options,
+                    cwd: source.cwd,
+                });
+            }
+
+            for (let j = 0; j < matches.length; j++) {
+                result.add(matches[j]);
+            }
+        }
 
         return Array.from(result);
     }

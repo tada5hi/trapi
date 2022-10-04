@@ -34,11 +34,21 @@ and can be defined according the following type scheme:
 import { Config } from '@trapi/decorator';
 import { Cache } from '@trapi/metadata';
 
+export type EntryPointConfig = {
+    cwd: string,
+    pattern: string
+};
+
+export type EntryPoint = string |
+    string[] | 
+    EntryPointConfig |
+    EntryPointConfig[];
+
 export interface Config {
     /**
      * The entry point to your API.
      */
-    entryFile: string | string[];
+    entryPoint: EntryPoint;
     /**
      * Directory to ignore during TypeScript files scan.
      * Default: []
@@ -118,7 +128,10 @@ import * as path from "path";
 import * as process from "process";
 
 const metadata : Output = createMetadata({
-        entryFile: path.join(process.cwd(), 'src', 'controllers', '**', '*.ts'),
+        entryPoint: {
+            cwd: path.join(process.cwd(), 'src', 'controllers'),
+            pattern: '**/*.ts'
+        },
         ignore: ['**/node_modules/**'],
         cache: {
             enabled: true,    

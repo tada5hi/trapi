@@ -21,7 +21,7 @@ import {
 } from '../../../src';
 
 const config : Config = {
-    entryFile: ['./test/data/library/typescript-rest/api.ts'],
+    entryPoint: ['./test/data/library/typescript-rest/api.ts'],
     cache: {
         directoryPath: './writable',
         clearAtRandom: false,

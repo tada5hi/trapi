@@ -36,7 +36,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "@types/yup": "^0.29.14"
+        "@types/yup": "^0.32.0"
     },
     "dependencies": {
         "typescript": "^4.8.4",

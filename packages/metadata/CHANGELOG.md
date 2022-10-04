@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.3](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.2.2...@trapi/metadata@0.2.3) (2022-10-04)
+
+
+### Bug Fixes
+
+* **metadata:** return absolute path on scanning source files ([d1ff407](https://github.com/Tada5hi/trapi/commit/d1ff40760865c1db297253298c51159d06fa68fd))
+
+
+
+
+
 ## [0.2.2](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.2.1...@trapi/metadata@0.2.2) (2022-10-04)
 
 

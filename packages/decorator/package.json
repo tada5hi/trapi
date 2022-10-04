@@ -28,7 +28,8 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/trapi.git"
+        "url": "git+https://github.com/Tada5hi/trapi.git",
+        "directory": "packages/decorator"
     },
     "bugs": {
         "url": "https://github.com/Tada5hi/trapi/issues"
@@ -43,6 +44,5 @@
     },
     "publishConfig": {
         "access": "public"
-    },
-    "gitHead": "4355a7f0d19c3df26929981011a621e7f70590e6"
+    }
 }

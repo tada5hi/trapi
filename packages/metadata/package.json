@@ -31,7 +31,8 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/trapi.git"
+        "url": "git+https://github.com/Tada5hi/trapi.git",
+        "directory": "packagesA/metadata"
     },
     "bugs": {
         "url": "https://github.com/Tada5hi/trapi/issues"

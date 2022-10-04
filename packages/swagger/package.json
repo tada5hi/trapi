@@ -49,7 +49,8 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Tada5hi/trapi.git"
+        "url": "git+https://github.com/Tada5hi/trapi.git",
+        "directory": "packages/swagger"
     },
     "bugs": {
         "url": "https://github.com/Tada5hi/trapi/issues"

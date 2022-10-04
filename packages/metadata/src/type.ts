@@ -27,6 +27,13 @@ export interface Config {
     entryFile: string | string[];
 
     /**
+     * Root path.
+     *
+     * Default: process.cwd()
+     */
+    rootPath?: string,
+
+    /**
      * Directory to ignore during TypeScript files scan.
      * Default: []
      */

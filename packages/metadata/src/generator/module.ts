@@ -13,7 +13,7 @@ import {
     TypeNodeResolver,
 } from '@trapi/decorator';
 import minimatch from 'minimatch';
-import { sync } from 'glob';
+import { IOptions, sync } from 'glob';
 import {
     ClassDeclaration,
     CompilerOptions,
@@ -216,7 +216,9 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
     private scanSourceFiles(sourceFiles: string | string[]) {
         const sourceFilesExpressions = Array.isArray(sourceFiles) ? sourceFiles : [sourceFiles];
         const result: Set<string> = new Set<string>();
-        const options = { cwd: process.cwd() };
+        const options : IOptions = {
+            cwd: this.config.rootPath || process.cwd(),
+        };
 
         sourceFilesExpressions.forEach((pattern) => {
             const matches = sync(pattern, options);

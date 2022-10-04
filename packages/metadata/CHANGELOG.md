@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.2.3...@trapi/metadata@0.3.0) (2022-10-04)
+
+
+### Features
+
+* **metadata:** support multiple entry-points ([4f88c0d](https://github.com/Tada5hi/trapi/commit/4f88c0d58b69d61e634c9941f550371289efb2e0))
+
+
+
+
+
 ## [0.2.3](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.2.2...@trapi/metadata@0.2.3) (2022-10-04)
 
 

@@ -12,17 +12,17 @@ jobs:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
               with:
-                  node-version: 16
+                  node-version: 18
 
             - name: Install
               run: npm ci
 
             - name: Build
-              run: npm run docs:build
+              run: npm run build --workspace=packages/docs
 
             - name: CNAME
               run: |
-                    cd ./docs/.vitepress/dist/
+                    cd ./packages/docs/src/.vitepress/dist/
                     touch CNAME
                     echo "trapi.tada5hi.net" > CNAME
 
@@ -30,4 +30,4 @@ jobs:
               uses: peaceiris/actions-gh-pages@v3
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./docs/.vitepress/dist
+                  publish_dir: ./packages/docs/src/.vitepress/dist/

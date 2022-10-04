@@ -17,6 +17,7 @@ Inspect the `CHANGELOG.md` in the repository for breaking changes.
 - [Limitations](#limitations)
 - [Usage](#usage)
 - [Structure](#structure)
+- [License](#license)
 
 ## Installation
 
@@ -140,3 +141,9 @@ console.log(metadata);
 ## Structure
 
 **coming soon**
+
+## License
+
+Made with 💚
+
+Published under [MIT License](./LICENSE).

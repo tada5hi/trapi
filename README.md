@@ -13,6 +13,7 @@
 
 - [Packages](#packages)
 - [Documentation](#documentation)
+- [License](#license)
 
 ## Packages
 The repository contains the following packages:
@@ -26,3 +27,8 @@ The repository contains the following packages:
 
 To read the docs, visit [https://trapi.tada5hi.net](https://trapi.tada5hi.net)
 
+## License
+
+Made with 💚
+
+Published under [MIT License](./LICENSE).

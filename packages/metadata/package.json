@@ -40,7 +40,7 @@
     "devDependencies": {
         "@types/glob": "^8.0.0",
         "@types/minimatch": "^5.1.2",
-        "@types/yup": "^0.29.14",
+        "@types/yup": "^0.32.0",
         "jsonata": "^1.8.6"
     },
     "dependencies": {

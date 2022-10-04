@@ -12,6 +12,7 @@ Inspect the `CHANGELOG.md` in the repository for breaking changes.
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [License](#license)
 
 ## Installation
 
@@ -68,3 +69,9 @@ console.log(match);
 // undefined
 
 ```
+
+## License
+
+Made with 💚
+
+Published under [MIT License](./LICENSE).

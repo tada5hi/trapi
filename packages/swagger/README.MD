@@ -12,6 +12,7 @@ Please read the `CHANGELOG.md` in the repository for breaking changes.
 **Table of Contents**
 
 - [Installation](#installation)
+- [License](#license)
 
 ## Installation
 
@@ -25,3 +26,9 @@ npm install --save @trapi/swagger
 The `Readme.md` is under construction ☂ at the moment. So please stay patient, till it is available ⭐.
 
 ---
+
+## License
+
+Made with 💚
+
+Published under [MIT License](./LICENSE).

@@ -218,6 +218,8 @@ export class MetadataGenerator implements MetadataGeneratorInterface {
         const result: Set<string> = new Set<string>();
         const options : IOptions = {
             cwd: this.config.rootPath || process.cwd(),
+            nodir: true,
+            absolute: true,
         };
 
         sourceFilesExpressions.forEach((pattern) => {

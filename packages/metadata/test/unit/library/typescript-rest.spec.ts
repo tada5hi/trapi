@@ -55,7 +55,6 @@ describe('library/typescript-rest', () => {
             expect(metadata.controllers[0].consumes.length).toEqual(0);
 
             expect(metadata.controllers[0]).toHaveProperty('location');
-            expect(metadata.controllers[0].location).toEqual('test/data/library/typescript-rest/api.ts');
 
             expect(metadata.controllers[0]).toHaveProperty('methods');
             expect(metadata.controllers[0].methods.length).toBeGreaterThan(0);

@@ -35,12 +35,8 @@
         "url": "https://github.com/Tada5hi/trapi/issues"
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
-    "devDependencies": {
-        "@types/yup": "^0.29.14"
-    },
     "dependencies": {
-        "typescript": "^4.8.4",
-        "yup": "^0.32.11"
+        "typescript": "^4.8.4"
     },
     "publishConfig": {
         "access": "public"

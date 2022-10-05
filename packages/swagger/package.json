@@ -35,17 +35,19 @@
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
+        "@trapi/decorator": "^0.0.2",
+        "@trapi/metadata": "^0.3.0",
         "@types/yamljs": "^0.2.31",
-        "@types/yup": "^0.32.0",
         "jest": "^27.5.1",
         "rimraf": "^3.0.2"
     },
     "dependencies": {
-        "@trapi/decorator": "^0.0.2",
-        "@trapi/metadata": "^0.3.0",
-        "merge": "^2.1.1",
-        "yamljs": "^0.3.0",
-        "yup": "^0.32.11"
+        "smob": "^0.0.3",
+        "yamljs": "^0.3.0"
+    },
+    "peerDependencies": {
+        "@trapi/decorator": ">=0.0.2 <1.0.0",
+        "@trapi/metadata": ">=0.3.0 <1.0.0"
     },
     "repository": {
         "type": "git",
@@ -56,12 +58,8 @@
         "url": "https://github.com/Tada5hi/trapi/issues"
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
-    "directories": {
-        "lib": "dist",
-        "doc": "doc"
-    },
     "engines": {
-        "node": ">=6.0.0"
+        "node": ">=16.0.0"
     },
     "publishConfig": {
         "access": "public"

@@ -8,4 +8,3 @@
 export * from './object';
 export * from './path';
 export * from './typescript';
-export * from './validator';

@@ -14,7 +14,7 @@ import {
     RefObjectType,
     ResolverProperty,
     UnionType,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import jsonata from 'jsonata';
 import {
     Config, MetadataGenerator,

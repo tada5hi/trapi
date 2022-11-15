@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "paths": {
-            "@trapi/decorator": ["./packages/decorator/src"],
+            "@trapi/decorators": ["./packages/decorators/src"],
             "@trapi/metadata": ["./packages/metadata/src"]
         }
     }

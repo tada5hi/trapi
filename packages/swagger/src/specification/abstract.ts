@@ -14,7 +14,7 @@ import {
     isAnyType,
     isArrayType, isEnumType, isIntersectionType, isNestedObjectLiteralType,
     isReferenceType, isUnionType, isVoidType,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import { GeneratorOutput } from '@trapi/metadata';
 
 import * as path from 'path';

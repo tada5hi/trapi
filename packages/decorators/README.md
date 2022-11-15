@@ -1,9 +1,9 @@
-# @trapi/decorator 📚
+# @trapi/decorators 📚
 
 [![main](https://github.com/Tada5hi/trapi/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/trapi/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/Tada5hi/trapi/branch/main/graph/badge.svg?token=ZUJ8F5TTSX)](https://codecov.io/gh/Tada5hi/trapi)
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/trapi/badge.svg)](https://snyk.io/test/github/Tada5hi/trapi)
-[![npm version](https://badge.fury.io/js/@trapi%2Fdecorator.svg)](https://badge.fury.io/js/@trapi%2Fdecorator)
+[![npm version](https://badge.fury.io/js/@trapi%2Fdecorators.svg)](https://badge.fury.io/js/@trapi%2Fdecorators)
 
 Inspect the `CHANGELOG.md` in the repository for breaking changes.
 
@@ -17,7 +17,7 @@ Inspect the `CHANGELOG.md` in the repository for breaking changes.
 ## Installation
 
 ```bash
-npm install --save @trapi/decorator
+npm install --save @trapi/decorators
 ```
 
 ## Configuration
@@ -47,7 +47,7 @@ declare type Config = {
 ## Usage
 
 ```typescript
-import { Config, Mapper, NodeDecorator } from '@trapi/decorator';
+import { Config, Mapper, NodeDecorator } from '@trapi/decorators';
 
 const mapper = new Mapper({
     internal: true

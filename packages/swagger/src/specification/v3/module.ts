@@ -8,7 +8,7 @@
 import {
     EnumType,
     IntersectionType, ReferenceType, ResolverProperty, TypeVariant, isVoidType,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import { URL } from 'url';
 import {
     Method, Parameter, Response,

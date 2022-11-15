@@ -12,7 +12,7 @@ import {
     ResolverProperty,
     isRefAliasType, isRefEnumType,
     isRefObjectType,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import { merge } from 'smob';
 import { posix } from 'path';
 import { URL } from 'url';

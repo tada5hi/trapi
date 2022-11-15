@@ -18,7 +18,7 @@ import {
     SwaggerDeprecated,
     SwaggerHidden,
     SwaggerTags,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 
 import {
     Cache as MetadataCache,

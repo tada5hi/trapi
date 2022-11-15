@@ -12,7 +12,7 @@ import {
     NestedObjectLiteralType,
     RefObjectType,
     ReferenceTypes,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import { CompilerOptions } from 'typescript';
 import { Cache } from './cache';
 

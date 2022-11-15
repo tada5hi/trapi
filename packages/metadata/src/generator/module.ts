@@ -8,10 +8,11 @@
 import {
     DependencyResolver,
     Mapper,
-    MetadataGeneratorInterface, ReferenceType,
+    MetadataGeneratorInterface,
+    ReferenceType,
     ReferenceTypes,
     TypeNodeResolver,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import minimatch from 'minimatch';
 import { IOptions, sync } from 'glob';
 import {

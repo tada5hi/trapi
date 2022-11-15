@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './functions';
+export * from './annotations';
 export * from './mapper';
 export * from './representation';
 export * from './resolver';

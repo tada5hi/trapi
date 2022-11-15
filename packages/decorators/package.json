@@ -1,6 +1,6 @@
 {
-    "name": "@trapi/decorator",
-    "version": "0.0.3",
+    "name": "@trapi/decorators",
+    "version": "0.0.0",
     "description": "",
     "main": "./dist/index.js",
     "typings": "./dist/index.d.ts",
@@ -29,7 +29,7 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Tada5hi/trapi.git",
-        "directory": "packages/decorator"
+        "directory": "packages/decorators"
     },
     "bugs": {
         "url": "https://github.com/Tada5hi/trapi/issues"

@@ -9,8 +9,10 @@ import {
     MapperIDProperties,
     MetadataGeneratorInterface,
     TypeNodeResolver,
-    getInitializerValue, getNodeDecorators, isExistJSDocTag,
-} from '@trapi/decorator';
+    getInitializerValue,
+    getNodeDecorators,
+    isExistJSDocTag,
+} from '@trapi/decorators';
 import {
     ArrayLiteralExpression, Node, TypeNode, isArrayLiteralExpression,
 } from 'typescript';

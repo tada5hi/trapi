@@ -13,7 +13,7 @@ import {
     getJSDocDescription,
     getJSDocTagComment,
     getNodeDecorators, isVoidType,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
 import { hasOwnProperty } from '../utils';

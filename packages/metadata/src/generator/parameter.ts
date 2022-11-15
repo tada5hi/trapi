@@ -10,7 +10,7 @@ import {
     MetadataGeneratorInterface,
     ParameterServerType,
     RepresentationManager, TypeNodeResolver, TypeVariant, getInitializerValue, getNodeDecorators,
-} from '@trapi/decorator';
+} from '@trapi/decorators';
 import * as ts from 'typescript';
 import { ArrayParameter, Parameter } from '../type';
 

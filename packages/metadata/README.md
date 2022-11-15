@@ -31,7 +31,7 @@ npm install --save @trapi/metadata
 The metadata configuration object (Top-Level) is the main configuration object of this library
 and can be defined according the following type scheme:
 ```typescript
-import { Config } from '@trapi/decorator';
+import { Config as DecoratorConfig } from '@trapi/decorator';
 import { Cache } from '@trapi/metadata';
 
 export type EntryPointConfig = {
@@ -67,7 +67,7 @@ export interface Config {
      *      map: {}
      * }
      */
-    decorator?: Config;
+    decorator?: DecoratorConfig;
 }
 ```
 
@@ -142,7 +142,7 @@ const metadata : Output = createMetadata({
             // Because both libaries does not have any decorator
             // names in common, the represnetation also does not differ and 
             // we can use them both :)
-            library: ['decorators-express', 'typescript-rest']
+            preset: ['decorators-express', 'typescript-rest']
         }
 });
 

@@ -30,7 +30,7 @@ declare type Config = {
      *
      * Default: []
      */
-    library?: LibraryConfig;
+    preset?: PresetConfig;
     /**
      * Use all internal defined representations or only use a subset.
      *

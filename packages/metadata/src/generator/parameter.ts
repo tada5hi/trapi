@@ -12,43 +12,64 @@ import {
     RepresentationManager,
     TypeNodeResolver,
     TypeVariant,
-    getInitializerValue, getNodeDecorators,
+    getInitializerValue,
+    getNodeDecorators,
+    isExistJSDocTag,
 } from '@trapi/decorators';
 import * as ts from 'typescript';
+import { InvalidParameterException } from '../errors';
 import { ArrayParameter, Parameter } from '../type';
 
-const supportedParameterKeys : ParameterType[] = [
+const parameterKeys : ParameterType[] = [
     'SERVER_CONTEXT',
+    'SERVER_PARAM',
     'SERVER_PARAMS',
     'SERVER_QUERY',
     'SERVER_FORM',
     'SERVER_BODY',
+    'SERVER_HEADER',
     'SERVER_HEADERS',
+    'SERVER_COOKIE',
     'SERVER_COOKIES',
+    'SERVER_PATH_PARAM',
     'SERVER_PATH_PARAMS',
     'SERVER_FILES_PARAM',
 ];
 
 export class ParameterGenerator {
+    private readonly parameter: ts.ParameterDeclaration;
+
+    private readonly method: string;
+
+    private readonly path: string;
+
+    private readonly current: MetadataGeneratorInterface;
+
     constructor(
-        private readonly parameter: ts.ParameterDeclaration,
-        private readonly method: string,
-        private readonly path: string,
-        private readonly current: MetadataGeneratorInterface,
-    ) { }
+        parameter: ts.ParameterDeclaration,
+        method: string,
+        path: string,
+        current: MetadataGeneratorInterface,
+    ) {
+        this.parameter = parameter;
+        this.method = method;
+        this.path = path;
+        this.current = current;
+    }
 
     public generate(): Parameter {
         const decorators = getNodeDecorators(this.parameter);
 
-        for (let i = 0; i < supportedParameterKeys.length; i++) {
-            const representation = this.current.decoratorMapper.match(supportedParameterKeys[i], decorators);
+        for (let i = 0; i < parameterKeys.length; i++) {
+            const representation = this.current.decoratorMapper.match(parameterKeys[i], decorators);
             if (typeof representation === 'undefined') {
                 continue;
             }
 
-            switch (supportedParameterKeys[i]) {
+            switch (parameterKeys[i]) {
                 case 'SERVER_CONTEXT':
                     return this.getContextParameter();
+                case 'SERVER_PARAM':
                 case 'SERVER_PARAMS':
                     return this.getRequestParameter(representation);
                 case 'SERVER_FORM':
@@ -57,10 +78,13 @@ export class ParameterGenerator {
                     return this.getQueryParameter(representation);
                 case 'SERVER_BODY':
                     return this.getBodyParameter(representation);
+                case 'SERVER_HEADER':
                 case 'SERVER_HEADERS':
                     return this.getHeaderParameter(representation);
+                case 'SERVER_COOKIE':
                 case 'SERVER_COOKIES':
                     return this.getCookieParameter(representation);
+                case 'SERVER_PATH_PARAM':
                 case 'SERVER_PATH_PARAMS':
                     return this.getPathParameter(representation);
                 case 'SERVER_FILE_PARAM':
@@ -79,7 +103,7 @@ export class ParameterGenerator {
         return `${controllerId.text}.${methodId.text}`;
     }
 
-    private getRequestParameter(representationManager: RepresentationManager<'SERVER_PARAMS'>): Parameter {
+    private getRequestParameter(representationManager: RepresentationManager<'SERVER_PARAM' | 'SERVER_PARAMS'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
         const type = this.getValidatedType(this.parameter);
@@ -94,12 +118,14 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'param',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
@@ -107,7 +133,7 @@ export class ParameterGenerator {
         const parameterName = (this.parameter.name as ts.Identifier).text;
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            description: this.getParameterDescription(),
             in: 'context',
             name: parameterName,
             parameterName,
@@ -160,12 +186,14 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'formData',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
@@ -185,16 +213,18 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'formData',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
-    private getCookieParameter(representationManager: RepresentationManager<'SERVER_COOKIES'>): Parameter {
+    private getCookieParameter(representationManager: RepresentationManager<'SERVER_COOKIE' | 'SERVER_COOKIES'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -210,12 +240,14 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'cookie',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
@@ -237,16 +269,18 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'body',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
-    private getHeaderParameter(representationManager: RepresentationManager<'SERVER_HEADERS'>) : Parameter {
+    private getHeaderParameter(representationManager: RepresentationManager<'SERVER_HEADER' | 'SERVER_HEADERS'>) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -262,12 +296,14 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'header',
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
@@ -290,6 +326,7 @@ export class ParameterGenerator {
             // `Parameter '${parameterName}' can't be passed as a query parameter in '${this.getCurrentLocation()}'.`
             // );
         }
+
         let name : string = parameterName;
         let options : any = {};
 
@@ -307,7 +344,7 @@ export class ParameterGenerator {
             allowEmptyValue: options.allowEmptyValue,
             collectionFormat: options.collectionFormat,
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
-            description: this.getParameterDescription(this.parameter),
+            description: this.getParameterDescription(),
             in: 'query',
             maxItems: options.maxItems,
             minItems: options.minItems,
@@ -315,6 +352,7 @@ export class ParameterGenerator {
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
 
         if (type.typeName === 'array') {
@@ -328,7 +366,7 @@ export class ParameterGenerator {
         return properties;
     }
 
-    private getPathParameter(representationManager: RepresentationManager<'SERVER_PATH_PARAMS'>): Parameter {
+    private getPathParameter(representationManager: RepresentationManager<'SERVER_PATH_PARAM' | 'SERVER_PATH_PARAMS'>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let pathName = parameterName;
 
@@ -348,17 +386,19 @@ export class ParameterGenerator {
         }
 
         return {
-            description: this.getParameterDescription(this.parameter),
+            default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
+            description: this.getParameterDescription(),
             in: 'path',
             name: pathName,
             parameterName,
             required: true,
             type,
+            deprecated: this.getParameterDeprecation(),
         };
     }
 
-    private getParameterDescription(node: ts.ParameterDeclaration) {
-        const symbol = this.current.typeChecker.getSymbolAtLocation(node.name);
+    private getParameterDescription() {
+        const symbol = this.current.typeChecker.getSymbolAtLocation(this.parameter.name);
 
         if (symbol) {
             const comments = symbol.getDocumentationComment(this.current.typeChecker);
@@ -366,6 +406,16 @@ export class ParameterGenerator {
         }
 
         return '';
+    }
+
+    private getParameterDeprecation() : boolean {
+        if (isExistJSDocTag(this.parameter, (tag) => tag.tagName.text === 'deprecated')) {
+            return true;
+        }
+
+        const decorators = getNodeDecorators(this.parameter, (identifier) => identifier.text === 'Deprecated');
+
+        return decorators.length > 0;
     }
 
     private supportsBodyParameters(method: string) {
@@ -392,5 +442,3 @@ export class ParameterGenerator {
         return new TypeNodeResolver(typeNode, this.current, parameter).resolve();
     }
 }
-
-class InvalidParameterException extends Error { }

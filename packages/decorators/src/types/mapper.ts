@@ -84,6 +84,9 @@ export interface MapperIDProperties {
 
     // Parameter Server
     SERVER_CONTEXT: {};
+    SERVER_PARAM: {
+        DEFAULT: string
+    };
     SERVER_PARAMS: {
         // typescript-rest
         DEFAULT?: string
@@ -161,6 +164,7 @@ MapperID,
 'SERVER_HEADERS' |
 'SERVER_COOKIE' |
 'SERVER_COOKIES' |
+'SERVER_PATH_PARAM' |
 'SERVER_PATH_PARAMS' |
 'SERVER_FILE_PARAM' |
 'SERVER_FILES_PARAM'

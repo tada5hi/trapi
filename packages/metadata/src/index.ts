@@ -6,6 +6,7 @@
  */
 
 export * from './cache';
+export * from './errors';
 export * from './generator';
 export * from './module';
 export * from './utils';

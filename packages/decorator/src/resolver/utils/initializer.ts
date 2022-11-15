@@ -24,11 +24,23 @@ export function getInitializerValue(
             return arrayLiteral.elements.map((element) => getInitializerValue(element, typeChecker));
         }
         case ts.SyntaxKind.StringLiteral:
+        case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
             return (initializer as ts.StringLiteral).text;
         case ts.SyntaxKind.TrueKeyword:
             return true;
         case ts.SyntaxKind.FalseKeyword:
             return false;
+        case ts.SyntaxKind.PrefixUnaryExpression: {
+            const prefixUnary = initializer as ts.PrefixUnaryExpression;
+            switch (prefixUnary.operator) {
+                case ts.SyntaxKind.PlusToken:
+                    return Number((prefixUnary.operand as ts.NumericLiteral).text);
+                case ts.SyntaxKind.MinusToken:
+                    return Number(`-${(prefixUnary.operand as ts.NumericLiteral).text}`);
+                default:
+                    throw new Error(`Unsupported prefix operator token: ${prefixUnary.operator}`);
+            }
+        }
         case ts.SyntaxKind.NumberKeyword:
         case ts.SyntaxKind.FirstLiteralToken:
             return Number((initializer as ts.NumericLiteral).text);
@@ -55,6 +67,9 @@ export function getInitializerValue(
 
             return undefined;
         }
+        case ts.SyntaxKind.NullKeyword: {
+            return null;
+        }
         case ts.SyntaxKind.ObjectLiteralExpression: {
             const objectLiteral = initializer as ts.ObjectLiteralExpression;
             const nestedObject: any = {};
@@ -62,6 +77,22 @@ export function getInitializerValue(
                 nestedObject[p.name.text] = getInitializerValue(p.initializer, typeChecker);
             });
             return nestedObject;
+        }
+        case ts.SyntaxKind.ImportSpecifier: {
+            if (typeof typeChecker === 'undefined') {
+                return undefined;
+            }
+
+            const importSpecifier = (initializer as any) as ts.ImportSpecifier;
+            const importSymbol = typeChecker.getSymbolAtLocation(importSpecifier.name);
+            if (!importSymbol) {
+                return undefined;
+            }
+
+            const aliasedSymbol = typeChecker.getAliasedSymbol(importSymbol);
+            const declarations = aliasedSymbol.getDeclarations();
+            const declaration = declarations && declarations.length > 0 ? declarations[0] : undefined;
+            return getInitializerValue(extractInitializer(declaration), typeChecker);
         }
         default: {
             if (typeof initializer === 'undefined') {
@@ -79,12 +110,10 @@ export function getInitializerValue(
             }
 
             const symbol = typeChecker.getSymbolAtLocation(initializer);
-            const extractedInitializer = symbol &&
-                symbol.valueDeclaration &&
-                hasInitializer(symbol.valueDeclaration) &&
-                (symbol.valueDeclaration.initializer as ts.Expression);
-
-            return extractedInitializer ? getInitializerValue(extractedInitializer, typeChecker) : undefined;
+            return getInitializerValue(
+                extractInitializer(symbol.valueDeclaration) || extractInitializer(extractImportSpecifier(symbol)),
+                typeChecker,
+            );
         }
     }
 }
@@ -92,3 +121,9 @@ export function getInitializerValue(
 export const hasInitializer = (
     node: ts.Node,
 ): node is ts.HasInitializer => Object.prototype.hasOwnProperty.call(node, 'initializer');
+const extractInitializer = (
+    valueDeclaration?: ts.Declaration,
+) => (valueDeclaration && hasInitializer(valueDeclaration) && (valueDeclaration.initializer as ts.Expression)) || undefined;
+const extractImportSpecifier = (
+    symbol?: ts.Symbol,
+) => (symbol?.declarations && symbol.declarations.length > 0 && ts.isImportSpecifier(symbol.declarations[0]) && symbol.declarations[0]) || undefined;

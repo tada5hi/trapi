@@ -10,7 +10,8 @@ import * as ts from 'typescript';
 import {
     getJSDocTagComment,
     getJSDocTagNames,
-    getNodeDecorators, hasOwnProperty,
+    getNodeDecorators,
+    hasOwnProperty,
     isExistJSDocTag,
 } from '../utils';
 import { ResolverError } from './error';
@@ -342,6 +343,10 @@ export class TypeNodeResolver {
             }
         }
 
+        if (ts.isTypeOperatorNode(this.typeNode) && this.typeNode.operator === ts.SyntaxKind.ReadonlyKeyword) {
+            return new TypeNodeResolver(this.typeNode.type, this.current, this.typeNode, this.context, this.referencer).resolve();
+        }
+
         if (
             ts.isIndexedAccessTypeNode(this.typeNode) &&
             (
@@ -446,18 +451,29 @@ export class TypeNodeResolver {
                 return this.getDateType(this.parentNode);
             }
 
-            if (typeReference.typeName.text === 'Buffer' || typeReference.typeName.text === 'Readable') {
+            if (
+                typeReference.typeName.text === 'Buffer' ||
+                typeReference.typeName.text === 'Readable'
+            ) {
                 return { typeName: 'buffer' } as BufferType;
             }
 
-            if (typeReference.typeName.text === 'Array' && typeReference.typeArguments && typeReference.typeArguments.length >= 1) {
+            if (
+                typeReference.typeName.text === 'Array' &&
+                typeReference.typeArguments &&
+                typeReference.typeArguments.length >= 1
+            ) {
                 return {
                     typeName: 'array',
                     elementType: new TypeNodeResolver(typeReference.typeArguments[0], this.current, this.parentNode, this.context).resolve(),
                 } as ArrayType;
             }
 
-            if (typeReference.typeName.text === 'Promise' && typeReference.typeArguments && typeReference.typeArguments.length === 1) {
+            if (
+                typeReference.typeName.text === 'Promise' &&
+                typeReference.typeArguments &&
+                typeReference.typeArguments.length === 1
+            ) {
                 return new TypeNodeResolver(typeReference.typeArguments[0], this.current, this.parentNode, this.context).resolve();
             }
 
@@ -1269,7 +1285,11 @@ export class TypeNodeResolver {
         // this.context = {};
 
         const declaration = this.getModelTypeDeclaration(targetEntity);
-        const typeParameters = 'typeParameters' in declaration ? declaration.typeParameters : undefined;
+        if (typeof declaration === 'undefined' || !('typeParameters' in declaration)) {
+            return context;
+        }
+
+        const { typeParameters } = declaration;
 
         if (typeParameters) {
             for (let index = 0; index < typeParameters.length; index++) {

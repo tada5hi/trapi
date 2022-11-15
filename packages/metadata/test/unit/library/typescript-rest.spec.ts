@@ -30,7 +30,7 @@ const config : Config = {
     },
     decorator: {
         internal: true,
-        library: 'typescript-rest',
+        preset: 'typescript-rest',
     },
 };
 

@@ -4,10 +4,9 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-
 import { Node, TypeChecker } from 'typescript';
 import { Mapper } from '../mapper';
-import { DependencyResolver, ReferenceType } from './resolver';
+import { DependencyResolver, ReferenceType } from '../types';
 
 export interface MetadataGeneratorInterface {
     readonly nodes: Node[];

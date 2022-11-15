@@ -44,22 +44,22 @@ describe('src/decorator/mapper/index.ts', () => {
     });
 
     it('should work with library configurations', () => {
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': { RESPONSE_EXAMPLE: false } } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': { RESPONSE_EXAMPLE: false } } });
         expect(mapper.match('RESPONSE_EXAMPLE', decoratorsWithResponseExample)).toBeUndefined();
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': false } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': false } });
         expect(mapper.match('RESPONSE_EXAMPLE', decoratorsWithResponseExample)).toBeUndefined();
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': [] } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': [] } });
         expect(mapper.match('RESPONSE_EXAMPLE', decoratorsWithResponseExample)).toBeUndefined();
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': 'SWAGGER_TAGS' } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': 'SWAGGER_TAGS' } });
         expect(mapper.match('RESPONSE_EXAMPLE', decoratorsWithResponseExample)).toBeUndefined();
 
         const data = [...decorators, { text: 'Example', arguments: [], typeArguments: [] }];
 
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': { RESPONSE_EXAMPLE: true } } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': { RESPONSE_EXAMPLE: true } } });
         expect(mapper.match('RESPONSE_EXAMPLE', data)).toBeDefined();
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': true } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': true } });
         expect(mapper.match('RESPONSE_EXAMPLE', data)).toBeDefined();
-        mapper.setConfig({ internal: false, library: { 'typescript-rest': ['RESPONSE_EXAMPLE'] } });
+        mapper.setConfig({ internal: false, preset: { 'typescript-rest': ['RESPONSE_EXAMPLE'] } });
         expect(mapper.match('RESPONSE_EXAMPLE', data)).toBeDefined();
     });
 

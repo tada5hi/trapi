@@ -6,6 +6,7 @@
  */
 
 import path from 'path';
+import { loadScriptFileExportSync, locateFileSync } from 'locter';
 import { MapperID, MapperIDRepresentation, MapperIDs } from '../types';
 import { hasOwnProperty } from '../utils';
 
@@ -65,12 +66,15 @@ export function isMappingTypeIncluded(
 
 const decoratorMap : Record<string, Partial<MapperIDRepresentation>> = {};
 
-export function getDecoratorMap(name: string) : Partial<MapperIDRepresentation> {
+export function useDecoratorMap(name: string) : Partial<MapperIDRepresentation> {
     if (hasOwnProperty(decoratorMap, name)) {
         return decoratorMap[name];
     }
 
     const content = loadDecoratorMap(name);
+    if (!content) {
+        return {};
+    }
 
     (decoratorMap as Record<string, Partial<MapperIDRepresentation>>)[name] = content;
 
@@ -78,14 +82,13 @@ export function getDecoratorMap(name: string) : Partial<MapperIDRepresentation> 
 }
 
 /* istanbul ignore next */
-function loadDecoratorMap(library: string) : Partial<MapperIDRepresentation> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require,import/no-dynamic-require
-    const exp = require(path.resolve(__dirname, 'maps', `${library}`));
-
-    if (hasOwnProperty(exp, 'default')) {
-        return exp.default;
+function loadDecoratorMap(library: string) : Partial<MapperIDRepresentation | undefined> {
+    const fileInfo = locateFileSync(`${library}.{js,ts}`, { path: path.resolve(__dirname, '..', 'presets') });
+    if (!fileInfo) {
+        return undefined;
     }
 
-    /* istanbul ignore next */
-    return exp;
+    const file = loadScriptFileExportSync(fileInfo);
+
+    return file ? file.value : undefined;
 }

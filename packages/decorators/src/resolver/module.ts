@@ -23,7 +23,6 @@ import {
     DateType,
     EnumType,
     IntersectionType,
-    MetadataGeneratorInterface,
     NestedObjectLiteralType,
     NodeDecorator,
     PrimitiveType,
@@ -34,6 +33,7 @@ import {
     TypeVariant,
     UnionType,
 } from '../types';
+import { MetadataGeneratorInterface } from './type';
 import { getInitializerValue } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};

@@ -11,8 +11,7 @@ import {
     MethodHttpVerbType,
     TypeNodeResolver,
     getJSDocDescription,
-    getJSDocTagComment,
-    getNodeDecorators, isVoidType,
+    getJSDocTagComment, getNodeDecorators, isVoidType,
 } from '@trapi/decorators';
 import * as pathUtil from 'path';
 import * as ts from 'typescript';

@@ -4,12 +4,12 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import { MapperIDRepresentation } from '../../types';
+import { MapperIDRepresentation } from '../types';
 
 export default {
     // Class
     CLASS_PATH: {
-        id: 'Controller',
+        id: 'DController',
         properties: {
             DEFAULT: {},
         },
@@ -18,49 +18,49 @@ export default {
     // Method
     METHOD_PATH: [
         {
-            id: 'All',
+            id: 'DAll',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Get',
+            id: 'DGet',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Post',
+            id: 'DPost',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Put',
+            id: 'DPut',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Delete',
+            id: 'DDelete',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Patch',
+            id: 'DPatch',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Options',
+            id: 'DOptions',
             properties: {
                 DEFAULT: {},
             },
         },
         {
-            id: 'Head',
+            id: 'DHead',
             properties: {
                 DEFAULT: {},
             },
@@ -70,45 +70,63 @@ export default {
     // Parameter
     SERVER_CONTEXT: [
         {
-            id: 'Request',
+            id: 'DRequest',
             properties: {},
         },
         {
-            id: 'Response',
+            id: 'DResponse',
             properties: {},
         },
         {
-            id: 'Next',
+            id: 'DNext',
             properties: {},
         },
     ],
     SERVER_QUERY: {
-        id: 'Query',
+        id: 'DQuery',
         properties: {
             DEFAULT: {},
         },
     },
     SERVER_FORM: undefined,
     SERVER_BODY: {
-        id: 'Body',
+        id: 'DBody',
+        properties: {
+            DEFAULT: {},
+        },
+    },
+    SERVER_HEADER: {
+        id: 'DHeader',
         properties: {
             DEFAULT: {},
         },
     },
     SERVER_HEADERS: {
-        id: 'Headers',
+        id: 'DHeaders',
+        properties: {
+            DEFAULT: {},
+        },
+    },
+    SERVER_COOKIE: {
+        id: 'DCookie',
         properties: {
             DEFAULT: {},
         },
     },
     SERVER_COOKIES: {
-        id: 'Cookies',
+        id: 'DCookies',
+        properties: {
+            DEFAULT: {},
+        },
+    },
+    SERVER_PATH_PARAM: {
+        id: 'DParam',
         properties: {
             DEFAULT: {},
         },
     },
     SERVER_PATH_PARAMS: {
-        id: 'Params',
+        id: 'DParams',
         properties: {
             DEFAULT: {},
         },

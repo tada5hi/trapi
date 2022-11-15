@@ -15,7 +15,7 @@ import {
     NodeDecorator,
 } from '../types';
 import { getNodeDecorators, hasOwnProperty } from '../utils';
-import { getDecoratorMap, isMappingTypeIncluded, reduceTypeRepresentationMapping } from './utils';
+import { isMappingTypeIncluded, reduceTypeRepresentationMapping, useDecoratorMap } from './utils';
 
 export class Mapper {
     protected config?: Config;
@@ -81,7 +81,7 @@ export class Mapper {
         const items: Array<Partial<MapperIDRepresentation>> = [];
 
         // mapping - internal
-        const internalMap = getDecoratorMap('internal');
+        const internalMap = useDecoratorMap('internal');
         items.push(
             typeof this.config.internal === 'undefined' ?
                 internalMap :
@@ -94,25 +94,25 @@ export class Mapper {
         }
 
         // mapping - library
-        if (typeof this.config.library !== 'undefined') {
+        if (typeof this.config.preset !== 'undefined') {
             // check if string or string[]
 
             if (
-                typeof this.config.library === 'string' ||
-                Array.isArray(this.config.library)
+                typeof this.config.preset === 'string' ||
+                Array.isArray(this.config.preset)
             ) {
-                const libraries: string[] = Array.isArray(this.config.library) ?
-                    this.config.library :
-                    [this.config.library];
+                const libraries: string[] = Array.isArray(this.config.preset) ?
+                    this.config.preset :
+                    [this.config.preset];
 
-                items.push(...libraries.map((library) => getDecoratorMap(library)));
+                items.push(...libraries.map((library) => useDecoratorMap(library)));
             } else {
-                const keys = Object.keys(this.config.library);
+                const keys = Object.keys(this.config.preset);
                 for (let i = 0; i < keys.length; i++) {
                     items.push(
                         reduceTypeRepresentationMapping(
-                            getDecoratorMap(keys[i]),
-                            (type) => isMappingTypeIncluded(type, this.config.library[keys[i]]),
+                            useDecoratorMap(keys[i]),
+                            (type) => isMappingTypeIncluded(type, this.config.preset[keys[i]]),
                         ),
                     );
                 }

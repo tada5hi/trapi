@@ -101,13 +101,25 @@ export interface MapperIDProperties {
         // typescript-rest
         DEFAULT?: string
     };
+    SERVER_HEADER: {
+        // routup
+        DEFAULT: string
+    };
     SERVER_HEADERS: {
         // typescript-rest
         DEFAULT?: string
     };
+    SERVER_COOKIE: {
+        // routup
+        DEFAULT: string
+    };
     SERVER_COOKIES: {
         // typescript-rest
         DEFAULT?: string
+    };
+    SERVER_PATH_PARAM: {
+        // routup
+        DEFAULT: string
     };
     SERVER_PATH_PARAMS: {
         // typescript-rest
@@ -125,12 +137,34 @@ export interface MapperIDProperties {
 
 export type MapperID = keyof MapperIDProperties;
 
-export type MethodHttpVerbType = Extract<MapperID, 'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' |
-'PATCH' | 'OPTIONS' | 'HEAD'>;
+export type MethodHttpVerbType = Extract<
+MapperID,
+'ALL' |
+'GET' |
+'POST' |
+'PUT' |
+'DELETE' |
+'PATCH' |
+'OPTIONS' |
+'HEAD'
+>;
 
-export type ParameterServerType = Extract<MapperID, 'SERVER_CONTEXT' | 'SERVER_PARAMS' | 'SERVER_QUERY' | 'SERVER_FORM' |
-'SERVER_BODY' | 'SERVER_HEADERS' | 'SERVER_COOKIES' | 'SERVER_PATH_PARAMS' |
-'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>;
+export type ParameterType = Extract<
+MapperID,
+'SERVER_CONTEXT' |
+'SERVER_PARAM' |
+'SERVER_PARAMS' |
+'SERVER_QUERY' |
+'SERVER_FORM' |
+'SERVER_BODY' |
+'SERVER_HEADER' |
+'SERVER_HEADERS' |
+'SERVER_COOKIE' |
+'SERVER_COOKIES' |
+'SERVER_PATH_PARAMS' |
+'SERVER_FILE_PARAM' |
+'SERVER_FILES_PARAM'
+>;
 
 // -------------------------------------------
 
@@ -198,7 +232,7 @@ export type Config = {
      *
      * Default: []
      */
-    library?: LibraryConfig,
+    preset?: PresetConfig,
     /**
      * Use all internal defined representations or only use a subset.
      *
@@ -221,7 +255,7 @@ export type MapperIDs = boolean | MapperID | MapperID[] | { [K in MapperID]?: bo
 // -------------------------------------------
 
 /**
- * These are the current by default supported third party libraries.
+ * These are the current by default supported third party presets.
  */
-export type Library = 'typescript-rest' | 'decorators-express';
-export type LibraryConfig = Library | Library[] | Record<string, MapperIDs>;
+export type Preset = 'typescript-rest' | 'decorators-express' | 'routup';
+export type PresetConfig = Preset | Preset[] | Record<string, MapperIDs>;

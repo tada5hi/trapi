@@ -8,13 +8,16 @@
 import {
     BaseType,
     MetadataGeneratorInterface,
-    ParameterServerType,
-    RepresentationManager, TypeNodeResolver, TypeVariant, getInitializerValue, getNodeDecorators,
+    ParameterType,
+    RepresentationManager,
+    TypeNodeResolver,
+    TypeVariant,
+    getInitializerValue, getNodeDecorators,
 } from '@trapi/decorators';
 import * as ts from 'typescript';
 import { ArrayParameter, Parameter } from '../type';
 
-const supportedParameterKeys : ParameterServerType[] = [
+const supportedParameterKeys : ParameterType[] = [
     'SERVER_CONTEXT',
     'SERVER_PARAMS',
     'SERVER_QUERY',

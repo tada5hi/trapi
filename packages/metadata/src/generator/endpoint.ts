@@ -10,8 +10,7 @@ import {
     MetadataGeneratorInterface,
     TypeNodeResolver,
     getInitializerValue,
-    getNodeDecorators,
-    isExistJSDocTag,
+    getNodeDecorators, isExistJSDocTag,
 } from '@trapi/decorators';
 import {
     ArrayLiteralExpression, Node, TypeNode, isArrayLiteralExpression,

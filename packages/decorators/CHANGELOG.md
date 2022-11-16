@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@0.1.0...@trapi/decorators@0.1.1) (2022-11-16)
+
+
+### Bug Fixes
+
+* method generation ([739307e](https://github.com/Tada5hi/trapi/commit/739307e2459b8c2c3aecd8137452bdb1dae7d257))
+
+
+
+
+
 # 0.1.0 (2022-11-15)
 
 

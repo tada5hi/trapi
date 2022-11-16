@@ -140,7 +140,7 @@ export interface MapperIDProperties {
 
 export type MapperID = keyof MapperIDProperties;
 
-export type MethodHttpVerbType = Extract<
+export type MapperMethodType = Extract<
 MapperID,
 'ALL' |
 'GET' |
@@ -152,7 +152,7 @@ MapperID,
 'HEAD'
 >;
 
-export type ParameterType = Extract<
+export type MapperParameterType = Extract<
 MapperID,
 'SERVER_CONTEXT' |
 'SERVER_PARAM' |

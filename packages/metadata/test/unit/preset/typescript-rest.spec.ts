@@ -21,13 +21,8 @@ import {
 } from '../../../src';
 
 const config : Config = {
-    entryPoint: ['./test/data/library/typescript-rest/api.ts'],
-    cache: {
-        directoryPath: './writable',
-        clearAtRandom: false,
-        enabled: true,
-        fileName: 'metadata.json',
-    },
+    entryPoint: ['./test/data/preset/typescript-rest/api.ts'],
+    cache: false,
     decorator: {
         internal: true,
         preset: 'typescript-rest',

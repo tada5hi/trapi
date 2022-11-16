@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as swagger from '@trapi/decorator';
+import * as swagger from '@trapi/decorators';
 import {
     Accept, DELETE, FormParam, GET, POST,
     PUT, Path, PathParam, QueryParam,

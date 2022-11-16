@@ -7,11 +7,12 @@
 
 import {
     BaseType,
+    MapperMethodType,
     MetadataGeneratorInterface,
-    MethodHttpVerbType,
     TypeNodeResolver,
     getJSDocDescription,
-    getJSDocTagComment, getNodeDecorators, isVoidType,
+    getJSDocTagComment,
+    getNodeDecorators, isVoidType,
 } from '@trapi/decorators';
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
@@ -88,43 +89,80 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
     }
 
     private buildParameters() {
-        const parameters = this.node.parameters.map((p: ts.ParameterDeclaration) => {
+        const methodId = this.node.name as ts.Identifier;
+        const controllerId = (this.node.parent as ts.ClassDeclaration).name as ts.Identifier;
+
+        const parameters : Parameter[] = [];
+        let bodyParameterCount = 0;
+        let formParameterCount = 0;
+
+        for (let i = 0; i < this.node.parameters.length; i++) {
             try {
-                const path = pathUtil.posix.join('/', (this.controllerPath ? this.controllerPath : ''), this.path);
+                const parameter = new ParameterGenerator(
+                    this.node.parameters[i],
+                    this.method,
+                    pathUtil.posix.join('/', this.controllerPath || '', this.path),
+                    this.current,
+                )
+                    .generate();
 
-                return new ParameterGenerator(p, this.method, path, this.current).generate();
+                if (parameter.in === 'body') {
+                    bodyParameterCount++;
+                }
+
+                if (parameter.in === 'formData') {
+                    formParameterCount++;
+                }
+
+                if (parameter.in !== 'context') {
+                    parameters.push(parameter);
+                }
             } catch (e) {
-                const methodId = this.node.name as ts.Identifier;
-                const controllerId = (this.node.parent as ts.ClassDeclaration).name as ts.Identifier;
-                const parameterId = p.name as ts.Identifier;
-                throw new Error(`Error generate parameter method: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
+                const parameterId = this.node.parameters[i].name as ts.Identifier;
+                throw new Error(`Error generating parameter method: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
             }
-        }).filter((p: Parameter) => (p.in !== 'context') && (p.in !== 'cookie'));
+        }
 
-        const bodyParameters = parameters.filter((p: Parameter) => p.in === 'body');
-        const formParameters = parameters.filter((p: Parameter) => p.in === 'formData');
-
-        if (bodyParameters.length > 1) {
+        if (bodyParameterCount > 1) {
             throw new Error(`Only one body parameter allowed in '${this.getCurrentLocation()}' method.`);
         }
 
-        if (bodyParameters.length > 0 && formParameters.length > 0) {
-            throw new Error(`Choose either during @FormParam and @FileParam or body parameter  in '${this.getCurrentLocation()}' method.`);
+        if (bodyParameterCount > 0 && formParameterCount > 0) {
+            throw new Error(`Choose either form-, file- or body-parameter in '${this.getCurrentLocation()}' method.`);
         }
 
         return parameters;
     }
 
     private processMethodDecorators() {
-        const httpMethodDecorators = getNodeDecorators(this.node, (decorator) => this.supportsPathMethod(decorator.text));
+        const methods : MapperMethodType[] = [
+            'ALL',
+            'GET',
+            'POST',
+            'PUT',
+            'DELETE',
+            'PATCH',
+            'OPTIONS',
+            'HEAD',
+        ];
 
-        if (!httpMethodDecorators || !httpMethodDecorators.length) { return; }
-        if (httpMethodDecorators.length > 1) {
-            throw new Error(`Only one HTTP Method decorator in '${this.getCurrentLocation}' method is acceptable, Found: ${httpMethodDecorators.map((d) => d.text).join(', ')}`);
+        const decorators = getNodeDecorators(this.node);
+
+        let method : string | undefined;
+
+        for (let i = 0; i < methods.length; i++) {
+            const representationManager = this.current.decoratorMapper.match(methods[i], decorators);
+            if (typeof representationManager !== 'undefined') {
+                method = methods[i];
+                break;
+            }
         }
 
-        const methodDecorator = httpMethodDecorators[0];
-        this.method = methodDecorator.text.toLowerCase() as MethodType;
+        if (typeof method === 'undefined') {
+            return;
+        }
+
+        this.method = method.toLowerCase() as MethodType;
 
         this.generatePath('METHOD_PATH');
     }
@@ -193,9 +231,5 @@ export class MethodGenerator extends EndpointGenerator<ts.MethodDeclaration> {
             responses.push(defaultResponse);
         }
         return responses;
-    }
-
-    private supportsPathMethod(method: string) : boolean {
-        return (['ALL', 'GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS', 'HEAD'] as MethodHttpVerbType[]).some((m) => m.toLowerCase() === method.toLowerCase());
     }
 }

@@ -7,8 +7,8 @@
 
 import {
     BaseType,
+    MapperParameterType,
     MetadataGeneratorInterface,
-    ParameterType,
     RepresentationManager,
     TypeNodeResolver,
     TypeVariant,
@@ -20,7 +20,7 @@ import * as ts from 'typescript';
 import { InvalidParameterException } from '../errors';
 import { ArrayParameter, Parameter } from '../type';
 
-const parameterKeys : ParameterType[] = [
+const parameterKeys : MapperParameterType[] = [
     'SERVER_CONTEXT',
     'SERVER_PARAM',
     'SERVER_PARAMS',
@@ -378,7 +378,7 @@ export class ParameterGenerator {
         }
 
         if (!this.supportPathDataType(type)) {
-            throw new InvalidParameterException(`Parameter '${parameterName}:${type}' can't be passed as a path parameter in '${this.getCurrentLocation()}'.`);
+            throw new InvalidParameterException(`Parameter '${parameterName}:${type.typeName}' can't be passed as a path parameter in '${this.getCurrentLocation()}'.`);
         }
 
         if ((!this.path.includes(`{${pathName}}`)) && (!this.path.includes(`:${pathName}`))) {

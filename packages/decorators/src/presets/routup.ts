@@ -16,6 +16,40 @@ export default {
     },
 
     // Method
+    ALL: {
+        id: 'DAll',
+        properties: {},
+    },
+    GET: {
+        id: 'DGet',
+        properties: {},
+    },
+    POST: {
+        id: 'DPost',
+        properties: {},
+    },
+    PUT: {
+        id: 'DPut',
+        properties: {},
+    },
+    DELETE: {
+        id: 'DDelete',
+        properties: {},
+    },
+    PATCH: {
+        id: 'DPatch',
+        properties: {},
+    },
+    OPTIONS: {
+        id: 'DOptions',
+        properties: {},
+    },
+    HEAD: {
+        id: 'DHead',
+        properties: {},
+    },
+
+    // Method
     METHOD_PATH: [
         {
             id: 'DAll',

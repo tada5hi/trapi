@@ -5,7 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as swagger from '@trapi/decorator';
+import * as swagger from '@trapi/decorators';
+
+export interface ClassType extends Function {
+    new(...args: any[]): any;
+}
 
 export interface TestInterface {
     a: string;

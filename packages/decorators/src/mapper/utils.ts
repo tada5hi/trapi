@@ -83,7 +83,7 @@ export function useDecoratorMap(name: string) : Partial<MapperIDRepresentation> 
 
 /* istanbul ignore next */
 function loadDecoratorMap(library: string) : Partial<MapperIDRepresentation | undefined> {
-    const fileInfo = locateFileSync(`${library}.{js,ts}`, { path: path.resolve(__dirname, '..', 'presets') });
+    const fileInfo = locateFileSync(`${library}.{js,ts,.cjs}`, { path: path.resolve(__dirname, '..', 'presets') });
     if (!fileInfo) {
         return undefined;
     }

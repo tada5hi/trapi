@@ -42,7 +42,7 @@
         "@trapi/decorators": "^0.1.1",
         "@types/glob": "^8.0.0",
         "@types/minimatch": "^5.1.2",
-        "jsonata": "^1.8.6"
+        "jsonata": "^2.0.1"
     },
     "dependencies": {
         "glob": "^8.0.3",

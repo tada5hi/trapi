@@ -6,5 +6,5 @@
  */
 
 export * from './object';
-export * from './path';
+export * from './path-normalize';
 export * from './typescript';

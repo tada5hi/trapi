@@ -6,7 +6,7 @@
  */
 
 /**
- * Document the method or class comsumes property in generated swagger docs
+ * Document the method or class consumes property in generated swagger docs
  */
 export function RequestConsumes(...values: Array<string | string[]>): any {
     return () => { };

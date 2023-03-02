@@ -133,9 +133,9 @@ describe('library/typescript-rest', () => {
             expect(metadata.referenceTypes).toHaveProperty('NamedEntity');
         });
 
-        it('referenceType MyTypeWithUnion', () => {
+        it('referenceType MyTypeWithUnion', async () => {
             const expression = jsonata('MyTypeWithUnion.properties[0]');
-            const value : ResolverProperty = expression.evaluate(metadata.referenceTypes);
+            const value : ResolverProperty = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.name).toEqual('property');
             expect(value.required).toBeTruthy();
@@ -147,9 +147,9 @@ describe('library/typescript-rest', () => {
             expect((value.type as UnionType).members[1].typeName).toEqual('enum');
         });
 
-        it('referenceType Address', () => {
+        it('referenceType Address', async () => {
             const expression = jsonata('Address.properties[0]');
-            const value : ResolverProperty = expression.evaluate(metadata.referenceTypes);
+            const value : ResolverProperty = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.name).toEqual('street');
             expect(value.required).toBeTruthy();
@@ -157,9 +157,9 @@ describe('library/typescript-rest', () => {
             expect(value.type.typeName).toEqual('string');
         });
 
-        it('referenceType Person', () => {
+        it('referenceType Person', async () => {
             let expression = jsonata('Person.properties[0]');
-            let value : ResolverProperty = expression.evaluate(metadata.referenceTypes);
+            let value : ResolverProperty = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.name).toEqual('name');
             expect(value.required).toBeTruthy();
@@ -167,7 +167,7 @@ describe('library/typescript-rest', () => {
             expect(value.type.typeName).toEqual('string');
 
             expression = jsonata('Person.properties[1]');
-            value = expression.evaluate(metadata.referenceTypes);
+            value = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.name).toEqual('address');
             expect(value.required).toBeFalsy();
@@ -175,9 +175,9 @@ describe('library/typescript-rest', () => {
             expect(value.type.typeName).toEqual('refObject');
         });
 
-        it('referenceType TestEnum', () => {
+        it('referenceType TestEnum', async () => {
             const expression = jsonata('TestEnum');
-            const value : RefEnumType = expression.evaluate(metadata.referenceTypes);
+            const value : RefEnumType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refEnum');
             expect(value.members).toEqual(['option1', 'option2']);
@@ -185,9 +185,9 @@ describe('library/typescript-rest', () => {
             expect(value.deprecated).toBeFalsy();
         });
 
-        it('referenceType TestNumericEnum', () => {
+        it('referenceType TestNumericEnum', async () => {
             const expression = jsonata('TestNumericEnum');
-            const value : RefEnumType = expression.evaluate(metadata.referenceTypes);
+            const value : RefEnumType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refEnum');
             expect(value.members).toEqual([0, 1]);
@@ -195,9 +195,9 @@ describe('library/typescript-rest', () => {
             expect(value.deprecated).toBeFalsy();
         });
 
-        it('referenceType TestMixedEnum', () => {
+        it('referenceType TestMixedEnum', async () => {
             const expression = jsonata('TestMixedEnum');
-            const value : RefEnumType = expression.evaluate(metadata.referenceTypes);
+            const value : RefEnumType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refEnum');
             expect(value.members).toEqual([0, 'option2']);
@@ -205,9 +205,9 @@ describe('library/typescript-rest', () => {
             expect(value.deprecated).toBeFalsy();
         });
 
-        it('referenceType TestInterface', () => {
+        it('referenceType TestInterface', async () => {
             const expression = jsonata('TestInterface');
-            const value : RefObjectType = expression.evaluate(metadata.referenceTypes);
+            const value : RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refObject');
 
@@ -221,9 +221,9 @@ describe('library/typescript-rest', () => {
             expect(value.properties[1].type.typeName).toEqual('double');
         });
 
-        it('referenceType MyDataType2', () => {
+        it('referenceType MyDataType2', async () => {
             const expression = jsonata('MyDataType2');
-            const value : RefObjectType = expression.evaluate(metadata.referenceTypes);
+            const value : RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refObject');
 
@@ -237,18 +237,18 @@ describe('library/typescript-rest', () => {
             expect(value.properties[1].type.typeName).toEqual('string');
         });
 
-        it('referenceType UUID', () => {
+        it('referenceType UUID', async () => {
             const expression = jsonata('UUID');
-            const value : RefAliasType = expression.evaluate(metadata.referenceTypes);
+            const value : RefAliasType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refAlias');
             expect(value.refName).toEqual('UUID');
             expect(value.type.typeName).toEqual('string');
         });
 
-        it('referenceType Something', () => {
+        it('referenceType Something', async () => {
             const expression = jsonata('Something');
-            const value : RefObjectType = expression.evaluate(metadata.referenceTypes);
+            const value : RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refObject');
 
@@ -266,9 +266,9 @@ describe('library/typescript-rest', () => {
             expect(value.properties[2].type.typeName).toEqual('string');
         });
 
-        it('referenceType SimpleHelloType', () => {
+        it('referenceType SimpleHelloType', async () => {
             const expression = jsonata('SimpleHelloType');
-            const value : RefAliasType = expression.evaluate(metadata.referenceTypes);
+            const value : RefAliasType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.typeName).toEqual('refAlias');
 
@@ -298,10 +298,10 @@ describe('library/typescript-rest', () => {
             expect(typeValue.properties[3].type.typeName).toEqual('string');
         });
 
-        it('referenceType PrimitiveClassModel & PrimitiveInterfaceModel', () => {
+        it('referenceType PrimitiveClassModel & PrimitiveInterfaceModel', async () => {
             const values : RefObjectType[] = [
-                jsonata('PrimitiveClassModel').evaluate(metadata.referenceTypes),
-                jsonata('PrimitiveInterfaceModel').evaluate(metadata.referenceTypes),
+                await jsonata('PrimitiveClassModel').evaluate(metadata.referenceTypes),
+                await jsonata('PrimitiveInterfaceModel').evaluate(metadata.referenceTypes),
             ];
 
             values.map((value) => {
@@ -326,9 +326,9 @@ describe('library/typescript-rest', () => {
             });
         });
 
-        it('referenceType ResponseBodystringarray', () => {
+        it('referenceType ResponseBodystringarray', async () => {
             const expression = jsonata('ResponseBodystringarray');
-            const value: RefObjectType = expression.evaluate(metadata.referenceTypes);
+            const value: RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value.properties).toBeDefined();
             expect(value.properties[0].name).toEqual('data');
@@ -337,9 +337,9 @@ describe('library/typescript-rest', () => {
             expect((value.properties[0].type as ArrayType).elementType.typeName).toEqual('string');
         });
 
-        it('referenceType NamedEntity', () => {
+        it('referenceType NamedEntity', async () => {
             const expression = jsonata('NamedEntity');
-            const value: RefObjectType = expression.evaluate(metadata.referenceTypes);
+            const value: RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
             expect(value).toBeDefined();
             // todo: better testing.

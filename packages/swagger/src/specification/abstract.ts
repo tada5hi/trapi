@@ -5,27 +5,29 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     ArrayType,
     BaseType, EnumType, IntersectionType, NestedObjectLiteralType,
     PrimitiveTypeLiteral,
     ReferenceType, ResolverProperty, TypeVariant,
     UnionType,
+} from '@trapi/decorators';
+import {
     isAnyType,
     isArrayType, isEnumType, isIntersectionType, isNestedObjectLiteralType,
     isReferenceType, isUnionType, isVoidType,
 } from '@trapi/decorators';
-import { GeneratorOutput } from '@trapi/metadata';
+import type { GeneratorOutput } from '@trapi/metadata';
 
 import * as path from 'path';
 import { promises } from 'fs';
 import * as YAML from 'yamljs';
 import { hasOwnProperty } from '../utils';
-import { SpecificationV2 } from './v2/type';
-import { SpecificationV3 } from './v3/type';
+import type { SpecificationV2 } from './v2/type';
+import type { SpecificationV3 } from './v3/type';
 
-import { SwaggerDocFormatData, SwaggerDocFormatType } from '../type';
-import { Specification } from './type';
+import type { SwaggerDocFormatData, SwaggerDocFormatType } from '../type';
+import type { Specification } from './type';
 
 export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | SpecificationV3.Spec,
     Schema extends SpecificationV3.Schema | SpecificationV2.Schema> {

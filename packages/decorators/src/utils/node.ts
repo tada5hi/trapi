@@ -5,10 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type { Node } from 'typescript';
 import {
-    Node, canHaveDecorators, getDecorators, isCallExpression, isNumericLiteral, isStringLiteral,
+    canHaveDecorators, getDecorators, isCallExpression, isNumericLiteral, isStringLiteral,
 } from 'typescript';
-import { NodeDecorator } from '../types';
+import type { NodeDecorator } from '../types';
 
 /**
  * Get Decorators for a specific node.

@@ -5,20 +5,22 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     BaseType,
     MapperParameterType,
     MetadataGeneratorInterface,
     RepresentationManager,
-    TypeNodeResolver,
     TypeVariant,
+} from '@trapi/decorators';
+import {
+    TypeNodeResolver,
     getInitializerValue,
     getNodeDecorators,
     isExistJSDocTag,
 } from '@trapi/decorators';
 import * as ts from 'typescript';
 import { InvalidParameterException } from '../errors';
-import { ArrayParameter, Parameter } from '../type';
+import type { ArrayParameter, Parameter } from '../type';
 
 const parameterKeys : MapperParameterType[] = [
     'SERVER_CONTEXT',

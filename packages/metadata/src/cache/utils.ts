@@ -7,7 +7,7 @@
 
 import path from 'path';
 import crypto from 'crypto';
-import { Cache } from './type';
+import type { Cache } from './type';
 
 export function buildCacheConfig(config?: string | boolean | Partial<Cache.Config>) : Cache.Config {
     if (typeof config === 'string') {

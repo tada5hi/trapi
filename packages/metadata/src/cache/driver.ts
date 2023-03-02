@@ -9,7 +9,7 @@ import fs from 'fs';
 import * as glob from 'glob';
 import path from 'path';
 import { buildCacheConfig, buildFileHash } from './utils';
-import { Cache } from './type';
+import type { Cache } from './type';
 
 export class CacheDriver {
     private readonly config: Cache.Config;

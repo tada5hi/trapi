@@ -5,9 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    Identifier, JSDoc, JSDocTag, Node, SyntaxKind, isJSDocParameterTag,
+import type {
+    Identifier, JSDoc, JSDocTag, Node,
 } from 'typescript';
+import { SyntaxKind, isJSDocParameterTag } from 'typescript';
 import { hasOwnProperty } from './object';
 
 // -----------------------------------------

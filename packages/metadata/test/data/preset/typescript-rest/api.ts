@@ -12,16 +12,18 @@ import {
     Security,
 } from './decorators';
 import * as Return from './return-types';
-import {
+import type {
     BasicModel,
     MyDataType2,
+    SimpleHelloType,
+} from '../type';
+import {
     MyTypeWithUnion,
     NamedEntity,
     Person,
     PrimitiveClassModel,
     PrimitiveInterfaceModel,
     ResponseBody,
-    SimpleHelloType,
     TestEnum,
     TestInterface,
     TestMixedEnum,

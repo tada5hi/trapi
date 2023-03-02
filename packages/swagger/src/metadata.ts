@@ -20,8 +20,8 @@ import {
     SwaggerTags,
 } from '@trapi/decorators';
 
+import type { Cache as MetadataCache } from '@trapi/metadata';
 import {
-    Cache as MetadataCache,
     Config as MetadataConfig,
     GeneratorOutput as MetadataGeneratorOutput,
     createMetadataGenerator,

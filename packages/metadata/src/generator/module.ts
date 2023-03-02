@@ -5,32 +5,37 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     DependencyResolver,
-    Mapper,
     MetadataGeneratorInterface,
     ReferenceType,
     ReferenceTypes,
+} from '@trapi/decorators';
+import {
+    Mapper,
     TypeNodeResolver,
 } from '@trapi/decorators';
 import minimatch from 'minimatch';
-import { IOptions, sync } from 'glob';
-import {
+import type { IOptions } from 'glob';
+import { sync } from 'glob';
+import type {
     ClassDeclaration,
     CompilerOptions,
     InterfaceDeclaration,
     Node,
-    NodeFlags,
     Program,
     SourceFile,
-    SyntaxKind,
     TypeChecker,
+} from 'typescript';
+import {
+    NodeFlags,
+    SyntaxKind,
     createProgram,
     forEachChild,
     isModuleBlock,
     isModuleDeclaration,
 } from 'typescript';
-import {
+import type {
     Config, Controller, EntryPoint, GeneratorOutput,
 } from '../type';
 import { ControllerGenerator } from './controller';

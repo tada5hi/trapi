@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CompilerOptions, convertCompilerOptionsFromJson } from 'typescript';
+import type { CompilerOptions } from 'typescript';
+import { convertCompilerOptionsFromJson } from 'typescript';
 import fs from 'fs';
 import path from 'path';
 import { hasOwnProperty } from './object';

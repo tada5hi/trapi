@@ -5,11 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     EnumType, IntersectionType,
     RefObjectType,
     ReferenceType,
     ResolverProperty,
+} from '@trapi/decorators';
+import {
     isRefAliasType, isRefEnumType,
     isRefObjectType,
 } from '@trapi/decorators';
@@ -17,13 +19,13 @@ import { merge } from 'smob';
 import { posix } from 'path';
 import { URL } from 'url';
 
-import {
+import type {
     Method, Parameter, Response,
 } from '@trapi/metadata';
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 
-import { Specification } from '../type';
-import { SpecificationV2 } from './type';
+import type { Specification } from '../type';
+import type { SpecificationV2 } from './type';
 import { AbstractSpecGenerator } from '../abstract';
 
 export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.Spec, SpecificationV2.Schema> {

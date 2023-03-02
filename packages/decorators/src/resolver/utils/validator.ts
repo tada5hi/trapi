@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { ParameterDeclaration } from 'typescript';
-import { Validator } from '../../types';
+import type { ParameterDeclaration } from 'typescript';
+import type { Validator } from '../../types';
 import { getJSDocTags } from '../../utils';
 
 export function getParameterValidators(parameter: ParameterDeclaration, name: string): Record<string, Validator> {

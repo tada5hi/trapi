@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import { MapperIDRepresentation } from '../types';
+import type { MapperIDRepresentation } from '../types';
 
 export default {
     // Class

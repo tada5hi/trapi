@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     Expression,
 } from 'typescript';
 import { getInitializerValue } from '../../resolver';
-import {
+import type {
     MapperID, MapperIDProperties, MapperIDPropertyConfig, MapperIDPropertyStrategy, NodeDecorator,
 } from '../../types';
 import { hasOwnProperty } from '../../utils';

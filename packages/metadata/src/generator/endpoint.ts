@@ -5,18 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     MapperIDProperties,
     MetadataGeneratorInterface,
+} from '@trapi/decorators';
+import {
     TypeNodeResolver,
     getInitializerValue,
     getNodeDecorators, isExistJSDocTag,
 } from '@trapi/decorators';
-import {
-    ArrayLiteralExpression, Node, TypeNode, isArrayLiteralExpression,
-} from 'typescript';
+import type { ArrayLiteralExpression, Node, TypeNode } from 'typescript';
+import { isArrayLiteralExpression } from 'typescript';
 
-import { Response } from '../type';
+import type { Response } from '../type';
 import { normalizePath } from '../utils';
 
 export abstract class EndpointGenerator<T extends Node> {

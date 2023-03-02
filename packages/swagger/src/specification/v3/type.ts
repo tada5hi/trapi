@@ -104,20 +104,20 @@ export namespace SpecificationV3 {
         refreshUrl?: string;
     }
 
-    export interface OAuth2ImplicitFlow extends Oauth2BaseFlow{
+    export interface OAuth2ImplicitFlow extends Oauth2BaseFlow {
         authorizationUrl: string;
     }
 
-    export interface OAuth2PasswordFlow extends Oauth2BaseFlow{
+    export interface OAuth2PasswordFlow extends Oauth2BaseFlow {
         tokenUrl: string;
     }
 
-    export interface OAuth2AuthorizationCodeFlow extends Oauth2BaseFlow{
+    export interface OAuth2AuthorizationCodeFlow extends Oauth2BaseFlow {
         authorizationUrl: string;
         tokenUrl: string;
     }
 
-    export interface OAuth2ClientCredentialsFlow extends Oauth2BaseFlow{
+    export interface OAuth2ClientCredentialsFlow extends Oauth2BaseFlow {
         tokenUrl: string;
     }
 

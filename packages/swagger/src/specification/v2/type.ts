@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     Specification,
 } from '../type';
 
@@ -31,7 +31,7 @@ export namespace SpecificationV2 {
         produces?: [string];
     }
 
-    export interface Response extends Specification.BaseResponse{
+    export interface Response extends Specification.BaseResponse {
         schema?: Schema;
         headers?: { [headerName: string]: Header };
         examples?: { [exampleName: string]: Specification.Example };

@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CompilerOptions } from 'typescript';
-import { Config } from '../type';
+import type { CompilerOptions } from 'typescript';
+import type { Config } from '../type';
 import { MetadataGenerator } from './module';
 import { getCompilerOptions } from '../utils';
 

@@ -5,12 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    ArrayLiteralExpression, Expression, NodeArray, NodeFlags, SyntaxKind,
-} from 'typescript';
-import {
-    MapperIDRepresentationItem, NodeDecorator, RepresentationManager, mergeObjectArguments,
-} from '../../../src';
+import type { ArrayLiteralExpression, Expression, NodeArray } from 'typescript';
+import { NodeFlags, SyntaxKind } from 'typescript';
+import type { MapperIDRepresentationItem, NodeDecorator } from '../../../src';
+import { RepresentationManager, mergeObjectArguments } from '../../../src';
 
 describe('src/decorator/representation/index.ts', () => {
     const swaggerTagsRepresentation : MapperIDRepresentationItem<'SWAGGER_TAGS'> = {

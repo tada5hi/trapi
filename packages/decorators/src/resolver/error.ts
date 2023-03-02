@@ -6,7 +6,7 @@
  */
 
 import { normalize } from 'path';
-import { Node, TypeNode } from 'typescript';
+import type { Node, TypeNode } from 'typescript';
 
 export class ResolverError extends Error {
     constructor(message: string, node?: Node | TypeNode, onlyCurrent = false) {

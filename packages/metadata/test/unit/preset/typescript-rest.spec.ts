@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import {
+import type {
     ArrayType,
     NestedObjectLiteralType,
     RefAliasType,
@@ -16,9 +16,8 @@ import {
     UnionType,
 } from '@trapi/decorators';
 import jsonata from 'jsonata';
-import {
-    Config, MetadataGenerator,
-} from '../../../src';
+import type { Config } from '../../../src';
+import { MetadataGenerator } from '../../../src';
 
 const config : Config = {
     entryPoint: ['./test/data/preset/typescript-rest/api.ts'],

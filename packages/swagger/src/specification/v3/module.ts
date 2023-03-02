@@ -5,18 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     EnumType,
-    IntersectionType, ReferenceType, ResolverProperty, TypeVariant, isVoidType,
+    IntersectionType, ReferenceType, ResolverProperty, TypeVariant,
 } from '@trapi/decorators';
+import { isVoidType } from '@trapi/decorators';
 import { URL } from 'url';
-import {
+import type {
     Method, Parameter, Response,
 } from '@trapi/metadata';
 import { merge } from 'smob';
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
-import { Specification } from '../type';
-import { SpecificationV3 } from './type';
+import type { Specification } from '../type';
+import type { SpecificationV3 } from './type';
 import { removeFinalCharacter, removeRepeatingCharacter } from '../utils';
 import { AbstractSpecGenerator } from '../abstract';
 

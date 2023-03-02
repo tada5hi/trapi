@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { GeneratorOutput } from '@trapi/metadata';
+import type { GeneratorOutput } from '@trapi/metadata';
 import { Version3SpecGenerator, createSpecificationGenerator } from '../../src';
 
 const jsonata = require('jsonata');

@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Mapper, NodeDecorator, RepresentationManager } from '../../../src';
+import type { NodeDecorator } from '../../../src';
+import { Mapper, RepresentationManager } from '../../../src';
 
 describe('src/decorator/mapper/index.ts', () => {
     const decorators : NodeDecorator[] = [

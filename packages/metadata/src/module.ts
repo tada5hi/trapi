@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CompilerOptions } from 'typescript';
-import { Config, GeneratorOutput } from './type';
+import type { CompilerOptions } from 'typescript';
+import type { Config, GeneratorOutput } from './type';
 import { createMetadataGenerator } from './generator';
 
 export function generateMetadata(

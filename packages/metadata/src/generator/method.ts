@@ -5,10 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     BaseType,
     MapperMethodType,
     MetadataGeneratorInterface,
+} from '@trapi/decorators';
+import {
     TypeNodeResolver,
     getJSDocDescription,
     getJSDocTagComment,
@@ -19,7 +21,7 @@ import * as ts from 'typescript';
 import { hasOwnProperty } from '../utils';
 import { EndpointGenerator } from './endpoint';
 import { ParameterGenerator } from './parameter';
-import {
+import type {
     Method, MethodType, Parameter, Response,
 } from '../type';
 

@@ -15,7 +15,7 @@ import {
     isExistJSDocTag,
 } from '../utils';
 import { ResolverError } from './error';
-import {
+import type {
     AnyType,
     ArrayType,
     BufferType,
@@ -33,7 +33,7 @@ import {
     TypeVariant,
     UnionType,
 } from '../types';
-import { MetadataGeneratorInterface } from './type';
+import type { MetadataGeneratorInterface } from './type';
 import { getInitializerValue } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};

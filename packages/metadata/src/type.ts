@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
+import type {
     ArrayType,
     BaseType,
     Config as DecoratorConfig,
@@ -14,7 +14,7 @@ import {
     ReferenceTypes,
 } from '@trapi/decorators';
 import { CompilerOptions } from 'typescript';
-import { Cache } from './cache';
+import type { Cache } from './cache';
 
 export {
     CompilerOptions,

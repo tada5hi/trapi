@@ -5,11 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { MetadataGeneratorInterface } from '@trapi/decorators';
-import { ClassDeclaration, MethodDeclaration, SyntaxKind } from 'typescript';
+import type { MetadataGeneratorInterface } from '@trapi/decorators';
+import type { ClassDeclaration, MethodDeclaration } from 'typescript';
+import { SyntaxKind } from 'typescript';
 import { EndpointGenerator } from './endpoint';
 import { MethodGenerator } from './method';
-import { Controller, Method } from '../type';
+import type { Controller, Method } from '../type';
 
 export class ControllerGenerator extends EndpointGenerator<ClassDeclaration> {
     private genMethods: Set<string> = new Set<string>();

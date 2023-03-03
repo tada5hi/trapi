@@ -7,17 +7,27 @@
 
 import type {
     ArrayType,
-    BaseType, EnumType, IntersectionType, NestedObjectLiteralType,
+    BaseType,
+    EnumType,
+    IntersectionType,
+    MetadataGeneratorOutput,
+    NestedObjectLiteralType,
     PrimitiveTypeLiteral,
-    ReferenceType, ResolverProperty, TypeVariant,
+    ReferenceType,
+    ResolverProperty,
+    TypeVariant,
     UnionType,
-} from '@trapi/decorators';
+} from '@trapi/metadata';
 import {
     isAnyType,
-    isArrayType, isEnumType, isIntersectionType, isNestedObjectLiteralType,
-    isReferenceType, isUnionType, isVoidType,
-} from '@trapi/decorators';
-import type { GeneratorOutput } from '@trapi/metadata';
+    isArrayType,
+    isEnumType,
+    isIntersectionType,
+    isNestedObjectLiteralType,
+    isReferenceType,
+    isUnionType,
+    isVoidType,
+} from '@trapi/metadata';
 
 import * as path from 'path';
 import { promises } from 'fs';
@@ -33,11 +43,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
     Schema extends SpecificationV3.Schema | SpecificationV2.Schema> {
     protected spec: Spec;
 
-    protected readonly metadata: GeneratorOutput;
+    protected readonly metadata: MetadataGeneratorOutput;
 
     protected readonly config: Specification.Config;
 
-    constructor(metadata: GeneratorOutput, config: Specification.Config) {
+    constructor(metadata: MetadataGeneratorOutput, config: Specification.Config) {
         this.metadata = metadata;
         this.config = config;
     }

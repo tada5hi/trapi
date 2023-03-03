@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { GeneratorOutput } from '@trapi/metadata';
+import type { MetadataGeneratorOutput } from '@trapi/metadata';
 import { MetadataGenerator } from '@trapi/metadata';
 import type { AbstractSpecGenerator } from './abstract';
 import { Specification } from './type';
@@ -12,10 +12,10 @@ import { Version2SpecGenerator } from './v2';
 import { Version3SpecGenerator } from './v3';
 
 export function createSpecificationGenerator(
-    metadata: GeneratorOutput | MetadataGenerator,
+    metadata: MetadataGeneratorOutput | MetadataGenerator,
     config: Specification.Config = {},
 ) {
-    const data: GeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
+    const data: MetadataGeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
 
     const outputFormat: Specification.SpecificationOption = config.specification || Specification.SpecificationOption.V2;
 

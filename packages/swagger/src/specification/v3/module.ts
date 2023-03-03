@@ -7,13 +7,16 @@
 
 import type {
     EnumType,
-    IntersectionType, ReferenceType, ResolverProperty, TypeVariant,
-} from '@trapi/decorators';
-import { isVoidType } from '@trapi/decorators';
-import { URL } from 'url';
-import type {
-    Method, Parameter, Response,
+    IntersectionType,
+    Method,
+    Parameter,
+    ReferenceType,
+    ResolverProperty,
+    Response,
+    TypeVariant,
 } from '@trapi/metadata';
+import { isVoidType } from '@trapi/metadata';
+import { URL } from 'url';
 import { merge } from 'smob';
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 import type { Specification } from '../type';

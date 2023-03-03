@@ -30,21 +30,41 @@ npm install --save @trapi/metadata
 ### Metadata
 The metadata configuration object (Top-Level) is the main configuration object of this library
 and can be defined according the following type scheme:
-```typescript
-import { Config as DecoratorConfig } from '@trapi/decorator';
-import { Cache } from '@trapi/metadata';
 
-export type EntryPointConfig = {
+```typescript
+import {CacheOptions, PresetConfig} from "@trapi/metadata";
+
+export type AnnotationOptions = {
+    /**
+     * Use a pre-defined third party configuration in full scope or
+     * only use a partial amount of defined type representations.
+     *
+     * Default: []
+     */
+    preset?: PresetConfig;
+    /**
+     * Use all internal defined representations or only use a subset.
+     *
+     * Default: true
+     */
+    internal?: MapperIDs;
+    /**
+     * Set up self defined aka. custom representations.
+     */
+    custom?: Partial<MapperIDRepresentation>;
+}
+
+export type EntryPointOptions = {
     cwd: string,
     pattern: string
 };
 
 export type EntryPoint = string |
-    string[] | 
-    EntryPointConfig |
-    EntryPointConfig[];
+    string[] |
+    EntryPointOptions |
+    EntryPointOptions[];
 
-export interface Config {
+export interface Options {
     /**
      * The entry point to your API.
      */
@@ -58,16 +78,16 @@ export interface Config {
      * Directory to store and cache metadata files.
      * Default: false
      */
-    cache?: string | boolean | Partial<Cache.Config>;
+    cache?: string | boolean | Partial<CacheOptions>;
     /**
      * Decorator config.
      * Default: {
-     *      library: [], 
+     *      preset: [], 
      *      internal: true,
      *      map: {}
      * }
      */
-    decorator?: DecoratorConfig;
+    annotation?: AnnotationOptions;
 }
 ```
 
@@ -80,7 +100,7 @@ The Cache can be configured by providing different kind of values:
 - **string** Cache will be saved to `value` directory with generated hash file name ...
 - **object**:  obda
 ```typescript
-export interface Config {
+export interface CacheOptions {
     /**
      * Specify if the cache driver should be enabled.
      * 
@@ -121,6 +141,30 @@ At the moment only the following TypeScript UtilityTypes are supported:
 * Pick
 
 ## Usage
+
+```typescript
+import { Config, Mapper, NodeDecorator } from '@trapi/decorators';
+
+const mapper = new Mapper({
+    internal: true
+});
+
+const decorators : NodeDecorator[] = [
+    { text: 'SwaggerTags', arguments: [['auth', 'admin']], typeArguments: [] },
+    { text: 'SwaggerTags', arguments: [['auth'], ['admin']], typeArguments: [] },
+    { text: 'SwaggerTags', arguments: [], typeArguments: [] },
+];
+
+let match = mapper.match('SWAGGER_TAGS', decorators);
+let value = match.getPropertyValue('DEFAULT');
+console.log(value);
+// ['auth', 'admin']
+
+match = mapper.match('RESPONSE_EXAMPLE', decorators);
+console.log(match);
+// undefined
+
+```
 
 ```typescript
 import {createMetadata, Output} from "@trapi/metadata";

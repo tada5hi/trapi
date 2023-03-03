@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CompilerOptions, Config as MetadataConfig } from '@trapi/metadata';
+import type { CompilerOptions, Options as MetadataConfig } from '@trapi/metadata';
 import { createMetadataGenerator } from '@trapi/metadata';
 import type { Specification } from './specification';
 import { createSpecificationGenerator } from './specification';

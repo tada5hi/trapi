@@ -6,22 +6,23 @@
  */
 
 import type {
-    EnumType, IntersectionType,
+    EnumType,
+    IntersectionType,
+    Method,
+    Parameter,
     RefObjectType,
     ReferenceType,
-    ResolverProperty,
-} from '@trapi/decorators';
+    ResolverProperty, Response,
+} from '@trapi/metadata';
 import {
-    isRefAliasType, isRefEnumType,
+    isRefAliasType,
+    isRefEnumType,
     isRefObjectType,
-} from '@trapi/decorators';
+} from '@trapi/metadata';
 import { merge } from 'smob';
 import { posix } from 'path';
 import { URL } from 'url';
 
-import type {
-    Method, Parameter, Response,
-} from '@trapi/metadata';
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 
 import type { Specification } from '../type';

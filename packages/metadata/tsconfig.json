@@ -1,9 +1,6 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "experimentalDecorators": true,
-        "paths": {
-            "@trapi/decorators": ["./packages/decorators/src"]
-        }
+        "experimentalDecorators": true
     }
 }

@@ -10,25 +10,24 @@ import {
     IsFloat,
     IsInt,
     IsLong,
+    Options as MetadataConfig,
+    MetadataGeneratorOutput,
     RequestConsumes,
     RequestFileParam,
     ResponseDescription,
     ResponseExample,
     ResponseProduces,
     SwaggerDeprecated,
+
     SwaggerHidden,
     SwaggerTags,
-} from '@trapi/decorators';
-
-import type { Cache as MetadataCache } from '@trapi/metadata';
-import {
-    Config as MetadataConfig,
-    GeneratorOutput as MetadataGeneratorOutput,
     createMetadataGenerator,
     generateMetadata,
 } from '@trapi/metadata';
 
-type MetadataCacheConfig = MetadataCache.Config;
+import type { CacheOptions } from '@trapi/metadata';
+
+type MetadataCacheConfig = CacheOptions;
 
 export {
     // Utils

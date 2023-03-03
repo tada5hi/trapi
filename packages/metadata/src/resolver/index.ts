@@ -5,8 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './js-doc';
-export * from './node';
-export * from './object';
-export * from './path-normalize';
-export * from './typescript';
+export * from './error';
+export * from './module';
+export * from './utils';

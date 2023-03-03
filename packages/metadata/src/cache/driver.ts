@@ -5,23 +5,23 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import fs from 'fs';
-import * as glob from 'glob';
-import path from 'path';
-import { buildCacheConfig, buildFileHash } from './utils';
-import type { Cache } from './type';
+import { buildLoaderFilePath, locateManySync } from 'locter';
+import fs from 'node:fs';
+import path from 'node:path';
+import { buildCacheOptions, buildFileHash } from './utils';
+import type { CacheData, CacheOptions, CacheOptionsInput } from './type';
 
 export class CacheDriver {
-    private readonly config: Cache.Config;
+    private readonly options: CacheOptions;
 
-    constructor(config: string | boolean | Partial<Cache.Config>) {
-        this.config = buildCacheConfig(config);
+    constructor(config: string | boolean | CacheOptionsInput) {
+        this.options = buildCacheOptions(config);
     }
 
     // -------------------------------------------------------------------------
 
-    public save(data: Cache.Data): string | undefined {
-        if (!this.config.enabled) {
+    public save(data: CacheData): string | undefined {
+        if (!this.options.enabled) {
             return undefined;
         }
 
@@ -32,8 +32,8 @@ export class CacheDriver {
         return filePath;
     }
 
-    public get(sourceFilesSize: number): Cache.Data | undefined {
-        if (!this.config.enabled) {
+    public get(sourceFilesSize: number): CacheData | undefined {
+        if (!this.options.enabled) {
             return undefined;
         }
 
@@ -47,7 +47,7 @@ export class CacheDriver {
             const content: string = buffer.toString('utf-8');
 
             // todo: maybe add shape validation here :)
-            const cache: Cache.Data | undefined = JSON.parse(content) as Cache.Data;
+            const cache: CacheData | undefined = JSON.parse(content) as CacheData;
 
             if (typeof cache === 'undefined' || cache.sourceFilesSize !== sourceFilesSize) {
                 return undefined;
@@ -68,7 +68,7 @@ export class CacheDriver {
 
     /* istanbul ignore next */
     public clear(): void {
-        if (!this.config.enabled || !this.config.clearAtRandom) {
+        if (!this.options.enabled || !this.options.clearAtRandom) {
             return;
         }
 
@@ -77,19 +77,22 @@ export class CacheDriver {
             return;
         }
 
-        const files: string[] = glob.sync(this.buildFilePath('**'));
-        files.map((file) => fs.unlinkSync(file));
+        const files = locateManySync(this.buildFileName('**'), {
+            path: this.options.directoryPath,
+        });
+
+        files.map((file) => fs.unlinkSync(buildLoaderFilePath(file, true)));
     }
 
     // -------------------------------------------------------------------------
 
     private buildFilePath(hash?: string, sourceFilesSize?: number): string {
-        return path.join(this.config.directoryPath, this.buildFileName(hash, sourceFilesSize));
+        return path.join(this.options.directoryPath, this.buildFileName(hash, sourceFilesSize));
     }
 
     private buildFileName(hash?: string, sourceFilesSize?: number): string {
-        if (typeof this.config.fileName === 'string') {
-            return this.config.fileName;
+        if (typeof this.options.fileName === 'string') {
+            return this.options.fileName;
         }
         return `.swagger-${hash ?? buildFileHash(sourceFilesSize)}.json`;
     }

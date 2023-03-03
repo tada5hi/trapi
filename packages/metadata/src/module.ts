@@ -6,13 +6,14 @@
  */
 
 import type { CompilerOptions } from 'typescript';
-import type { Config, GeneratorOutput } from './type';
+import type { Options } from './config';
+import type { MetadataGeneratorOutput } from './generator';
 import { createMetadataGenerator } from './generator';
 
 export function generateMetadata(
-    config: Config,
+    config: Options,
     compilerOptions?: CompilerOptions,
-) : GeneratorOutput {
+) : MetadataGeneratorOutput {
     const generator = createMetadataGenerator(config, compilerOptions);
 
     return generator.generate();

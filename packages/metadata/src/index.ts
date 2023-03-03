@@ -6,8 +6,13 @@
  */
 
 export * from './cache';
+export * from './config';
 export * from './errors';
 export * from './generator';
+export * from './mapper';
+export * from './presets';
+export * from './representation';
+export * from './resolver';
 export * from './module';
+export * from './types';
 export * from './utils';
-export * from './type';

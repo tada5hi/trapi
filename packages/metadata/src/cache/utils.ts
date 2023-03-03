@@ -5,11 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from 'path';
-import crypto from 'crypto';
-import type { Cache } from './type';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import process from 'node:process';
+import type { CacheOptions, CacheOptionsInput } from './type';
 
-export function buildCacheConfig(config?: string | boolean | Partial<Cache.Config>) : Cache.Config {
+export function buildCacheOptions(config?: string | boolean | CacheOptionsInput) : CacheOptions {
     if (typeof config === 'string') {
         config = {
             enabled: true,
@@ -28,11 +30,16 @@ export function buildCacheConfig(config?: string | boolean | Partial<Cache.Confi
     /* istanbul ignore next */
     const isTestEnvironment : boolean = !!process.env.NODE_ENV && process.env.NODE_ENV === 'test';
 
+    let directoryPath = tmpdir();
+    if (typeof config.directoryPath === 'string') {
+        directoryPath = path.isAbsolute(config.directoryPath) ?
+            config.directoryPath :
+            path.join(process.cwd(), config.directoryPath);
+    }
+
     return {
         fileName: config.fileName,
-        directoryPath: typeof config.directoryPath === 'string' ?
-            path.isAbsolute(config.directoryPath) ? config.directoryPath : path.join(process.cwd(), config.directoryPath) :
-            process.cwd(),
+        directoryPath,
         enabled: config.enabled ?? false,
         clearAtRandom: config.clearAtRandom ?? !isTestEnvironment,
     };

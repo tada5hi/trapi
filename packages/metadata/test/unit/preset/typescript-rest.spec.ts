@@ -5,24 +5,24 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from 'path';
+import path from 'node:path';
+import jsonata from 'jsonata';
 import type {
     ArrayType,
     NestedObjectLiteralType,
+    Options,
     RefAliasType,
     RefEnumType,
     RefObjectType,
     ResolverProperty,
     UnionType,
-} from '@trapi/decorators';
-import jsonata from 'jsonata';
-import type { Config } from '../../../src';
+} from '../../../src';
 import { MetadataGenerator } from '../../../src';
 
-const config : Config = {
+const config : Options = {
     entryPoint: ['./test/data/preset/typescript-rest/api.ts'],
     cache: false,
-    decorator: {
+    annotation: {
         internal: true,
         preset: 'typescript-rest',
     },

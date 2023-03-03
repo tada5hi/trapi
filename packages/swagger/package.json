@@ -35,7 +35,6 @@
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
-        "@trapi/decorators": "^0.1.1",
         "@trapi/metadata": "^0.4.1",
         "@types/yamljs": "^0.2.31",
         "jest": "^27.5.1",
@@ -47,7 +46,6 @@
         "yamljs": "^0.3.0"
     },
     "peerDependencies": {
-        "@trapi/decorators": ">=0.1.1 <1.0.0",
         "@trapi/metadata": ">=0.4.1 <1.0.0"
     },
     "repository": {

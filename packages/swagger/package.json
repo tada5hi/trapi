@@ -40,7 +40,7 @@
         "@types/yamljs": "^0.2.31",
         "jest": "^27.5.1",
         "jsonata": "^2.0.2",
-        "rimraf": "^3.0.2"
+        "rimraf": "^4.2.0"
     },
     "dependencies": {
         "smob": "^0.0.6",

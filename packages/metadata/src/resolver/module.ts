@@ -25,7 +25,6 @@ import type {
     EnumType,
     IntersectionType,
     NestedObjectLiteralType,
-    NodeDecorator,
     PrimitiveType,
     RefEnumType,
     ReferenceType,
@@ -33,7 +32,7 @@ import type {
     StringType,
     TypeVariant,
     UnionType,
-} from '../types';
+} from './type';
 import { getInitializerValue } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
@@ -627,7 +626,7 @@ export class TypeNodeResolver {
                 ].some((m) => m.toLowerCase() === name.toLowerCase()))
                 .map((name) => name.toLowerCase());
 
-            const data : NodeDecorator[] = getNodeDecorators(parentNode, (identifier) => [
+            const data = getNodeDecorators(parentNode, (identifier) => [
                 'isInt',
                 'isLong',
                 'isFloat',

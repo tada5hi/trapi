@@ -6,7 +6,7 @@
  */
 
 import * as ts from 'typescript';
-import type { TypeVariant } from '../../types';
+import type { TypeVariant } from '..';
 import { hasOwnProperty } from '../../utils';
 
 export function getInitializerValue(

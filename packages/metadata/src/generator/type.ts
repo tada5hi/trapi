@@ -6,7 +6,7 @@
  */
 
 import type { CompilerOptions } from 'typescript';
-import type { BaseType, NestedObjectLiteralType, RefObjectType } from '../types';
+import type { BaseType, NestedObjectLiteralType, RefObjectType } from '../resolver';
 
 export {
     CompilerOptions,

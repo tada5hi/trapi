@@ -12,8 +12,8 @@ import type {
     MapperID,
     MapperIDRepresentation,
     MapperIDRepresentationItem,
-    NodeDecorator,
-} from '../types';
+} from './type';
+import type { NodeDecorator } from '../utils';
 import { getNodeDecorators, hasOwnProperty } from '../utils';
 import { isMappingTypeIncluded, reduceTypeRepresentationMapping, useDecoratorMap } from './utils';
 

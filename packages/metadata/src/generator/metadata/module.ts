@@ -27,7 +27,7 @@ import {
 import type { EntryPoint, Options } from '../../config';
 import { Mapper } from '../../mapper';
 import { TypeNodeResolver } from '../../resolver';
-import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../types';
+import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
 import { CacheDriver } from '../../cache';

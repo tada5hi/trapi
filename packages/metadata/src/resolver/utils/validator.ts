@@ -6,7 +6,7 @@
  */
 
 import type { ParameterDeclaration } from 'typescript';
-import type { Validator } from '../../types';
+import type { Validator } from '../../type';
 import { getJSDocTags } from '../../utils';
 
 export function getParameterValidators(parameter: ParameterDeclaration, name: string): Record<string, Validator> {

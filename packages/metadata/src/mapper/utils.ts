@@ -7,7 +7,7 @@
 
 import path from 'path';
 import { getExportItem, loadSync, locateSync } from 'locter';
-import type { MapperID, MapperIDRepresentation, MapperIDs } from '../types';
+import type { MapperID, MapperIDRepresentation, MapperIDs } from './type';
 import { hasOwnProperty } from '../utils';
 
 /**

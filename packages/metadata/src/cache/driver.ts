@@ -8,14 +8,14 @@
 import { buildLoaderFilePath, locateManySync } from 'locter';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildCacheOptions, buildFileHash } from './utils';
+import { buildCacheOptions, generateFileHash } from './utils';
 import type { CacheData, CacheOptions, CacheOptionsInput } from './type';
 
 export class CacheDriver {
     private readonly options: CacheOptions;
 
-    constructor(config: string | boolean | CacheOptionsInput) {
-        this.options = buildCacheOptions(config);
+    constructor(input?: string | boolean | CacheOptionsInput) {
+        this.options = buildCacheOptions(input);
     }
 
     // -------------------------------------------------------------------------
@@ -94,6 +94,6 @@ export class CacheDriver {
         if (typeof this.options.fileName === 'string') {
             return this.options.fileName;
         }
-        return `.swagger-${hash ?? buildFileHash(sourceFilesSize)}.json`;
+        return `.swagger-${hash ?? generateFileHash(sourceFilesSize)}.json`;
     }
 }

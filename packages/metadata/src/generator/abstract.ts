@@ -10,7 +10,7 @@ import { isArrayLiteralExpression } from 'typescript';
 import { TypeNodeResolver, getInitializerValue } from '../resolver';
 
 import type { Response } from './type';
-import type { MapperIDProperties } from '../types';
+import type { MapperIDProperties } from '../mapper';
 import { getNodeDecorators, isExistJSDocTag, normalizePath } from '../utils';
 import type { MetadataGenerator } from './metadata';
 

@@ -10,8 +10,9 @@ import type {
 } from 'typescript';
 import { getInitializerValue } from '../../resolver';
 import type {
-    MapperID, MapperIDProperties, MapperIDPropertyConfig, MapperIDPropertyStrategy, NodeDecorator,
-} from '../../types';
+    MapperID, MapperIDProperties, MapperIDPropertyConfig, MapperIDPropertyStrategy,
+} from '../../mapper';
+import type { NodeDecorator } from '../../utils';
 import { hasOwnProperty } from '../../utils';
 
 export function extendRepresentationPropertyConfig(property: MapperIDPropertyConfig): MapperIDPropertyConfig {

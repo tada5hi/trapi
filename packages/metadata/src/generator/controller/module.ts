@@ -9,8 +9,8 @@ import type { ClassDeclaration, MethodDeclaration } from 'typescript';
 import { SyntaxKind } from 'typescript';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
-import { MethodGenerator } from '../method/module';
-import type { MetadataGenerator } from '../metadata/module';
+import { MethodGenerator } from '../method';
+import type { MetadataGenerator } from '../metadata';
 import type { Controller } from './type';
 
 export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {

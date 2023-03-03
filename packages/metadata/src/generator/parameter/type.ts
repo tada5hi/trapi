@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ArrayType, BaseType, Validator } from '../../types';
+import type { Validator } from '../../type';
+import type { ArrayType, BaseType } from '../../resolver';
 
 export interface Parameter {
     parameterName: string;

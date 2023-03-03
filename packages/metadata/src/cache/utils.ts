@@ -11,41 +11,41 @@ import crypto from 'node:crypto';
 import process from 'node:process';
 import type { CacheOptions, CacheOptionsInput } from './type';
 
-export function buildCacheOptions(config?: string | boolean | CacheOptionsInput) : CacheOptions {
-    if (typeof config === 'string') {
-        config = {
+export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) : CacheOptions {
+    if (typeof input === 'string') {
+        input = {
             enabled: true,
-            directoryPath: config,
+            directoryPath: input,
         };
     }
 
-    if (typeof config === 'boolean') {
-        config = {
-            enabled: config,
+    if (typeof input === 'boolean') {
+        input = {
+            enabled: input,
         };
     }
 
-    config ??= {};
+    input = input || {};
 
     /* istanbul ignore next */
     const isTestEnvironment : boolean = !!process.env.NODE_ENV && process.env.NODE_ENV === 'test';
 
     let directoryPath = tmpdir();
-    if (typeof config.directoryPath === 'string') {
-        directoryPath = path.isAbsolute(config.directoryPath) ?
-            config.directoryPath :
-            path.join(process.cwd(), config.directoryPath);
+    if (typeof input.directoryPath === 'string') {
+        directoryPath = path.isAbsolute(input.directoryPath) ?
+            input.directoryPath :
+            path.join(process.cwd(), input.directoryPath);
     }
 
     return {
-        fileName: config.fileName,
+        fileName: input.fileName,
         directoryPath,
-        enabled: config.enabled ?? false,
-        clearAtRandom: config.clearAtRandom ?? !isTestEnvironment,
+        enabled: input.enabled ?? true,
+        clearAtRandom: input.clearAtRandom ?? !isTestEnvironment,
     };
 }
 
-export function buildFileHash(sourceFilesSize?: number): string {
+export function generateFileHash(sourceFilesSize?: number): string {
     const hash = crypto.createHash('sha256');
 
     const strSize: string = (sourceFilesSize ?? 0).toString();

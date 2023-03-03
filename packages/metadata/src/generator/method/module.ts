@@ -7,16 +7,16 @@
 
 import * as pathUtil from 'path';
 import * as ts from 'typescript';
-import { TypeNodeResolver } from '../../resolver';
-import type { BaseType, MapperMethodType } from '../../types';
-import { isVoidType } from '../../types';
+import type { MapperMethodType } from '../../mapper';
+import { TypeNodeResolver, isVoidType } from '../../resolver';
+import type { BaseType } from '../../resolver';
 import {
     getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
 } from '../../utils';
 import { AbstractGenerator } from '../abstract';
-import type { MetadataGenerator } from '../metadata/module';
+import type { MetadataGenerator } from '../metadata';
 import type { Parameter } from '../parameter';
-import { ParameterGenerator } from '../parameter/module';
+import { ParameterGenerator } from '../parameter';
 import type {
     Response,
 } from '../type';

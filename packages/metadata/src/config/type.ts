@@ -6,12 +6,13 @@
  */
 
 import type { CacheOptions } from '../cache';
-import type { AnnotationOptions } from '../types';
+import type { AnnotationOptions } from '../mapper';
 
 export type EntryPointOptions = {
     cwd: string,
     pattern: string
 };
+
 export type EntryPoint = string | string[] | EntryPointOptions | EntryPointOptions[];
 
 export interface Options {

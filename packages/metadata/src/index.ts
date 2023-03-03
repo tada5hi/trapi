@@ -14,5 +14,5 @@ export * from './presets';
 export * from './representation';
 export * from './resolver';
 export * from './module';
-export * from './types';
+export * from './type';
 export * from './utils';

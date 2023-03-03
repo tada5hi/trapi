@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { MapperIDRepresentation } from '../types';
+import type { MapperIDRepresentation } from '../mapper';
 
 export default {
     // Class

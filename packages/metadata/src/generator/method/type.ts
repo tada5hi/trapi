@@ -6,7 +6,7 @@
  */
 
 import type { Response, Security } from '../type';
-import type { BaseType } from '../../types';
+import type { BaseType } from '../../resolver';
 import type { Parameter } from '../parameter';
 
 export interface Method {

@@ -7,11 +7,10 @@
 
 import * as fs from 'fs';
 import { CacheDriver } from '../../src';
-import { getWritableDirPath } from '../../src/config';
 
 describe('src/cache/index.ts', () => {
     it('should save cache', () => {
-        const cache = new CacheDriver(getWritableDirPath());
+        const cache = new CacheDriver();
 
         const cachePath : string = cache.save({
             controllers: [],

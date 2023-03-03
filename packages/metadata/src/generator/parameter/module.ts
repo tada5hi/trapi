@@ -7,11 +7,12 @@
 
 import * as ts from 'typescript';
 import { InvalidParameterException } from '../../errors';
+import type { MapperParameterType } from '../../mapper';
 import type { RepresentationManager } from '../../representation';
 import { TypeNodeResolver, getInitializerValue } from '../../resolver';
-import type { BaseType, MapperParameterType, TypeVariant } from '../../types';
+import type { BaseType, TypeVariant } from '../../resolver';
 import { getNodeDecorators, isExistJSDocTag } from '../../utils';
-import type { MetadataGenerator } from '../metadata/module';
+import type { MetadataGenerator } from '../metadata';
 import type { ArrayParameter, Parameter } from './type';
 
 const parameterKeys : MapperParameterType[] = [

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -9,7 +9,7 @@ import type { Node } from 'typescript';
 import {
     canHaveDecorators, getDecorators, isCallExpression, isNumericLiteral, isStringLiteral,
 } from 'typescript';
-import type { NodeDecorator } from '../types';
+import type { NodeDecorator } from './type';
 
 /**
  * Get Decorators for a specific node.

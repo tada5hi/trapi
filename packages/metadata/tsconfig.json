@@ -1,6 +1,11 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "paths": {
+            "@trapi/preset-built-in": [
+                "./packages/preset-built-in/src"
+            ]
+        }
     }
 }

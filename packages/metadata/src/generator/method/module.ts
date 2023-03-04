@@ -5,11 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as pathUtil from 'path';
+import * as console from 'console';
+import path from 'node:path';
 import * as ts from 'typescript';
-import type { MapperMethodType } from '../../mapper';
-import { TypeNodeResolver, isVoidType } from '../../resolver';
+import { AnnotationKey } from '../../annotation';
 import type { BaseType } from '../../resolver';
+import { TypeNodeResolver, isVoidType } from '../../resolver';
 import {
     getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
 } from '../../utils';
@@ -17,9 +18,7 @@ import { AbstractGenerator } from '../abstract';
 import type { MetadataGenerator } from '../metadata';
 import type { Parameter } from '../parameter';
 import { ParameterGenerator } from '../parameter';
-import type {
-    Response,
-} from '../type';
+import type { Response } from '../type';
 import type { Method, MethodType } from './type';
 
 export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
@@ -100,7 +99,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
                 const parameter = new ParameterGenerator(
                     this.node.parameters[i],
                     this.method,
-                    pathUtil.posix.join('/', this.controllerPath || '', this.path),
+                    path.posix.join('/', this.controllerPath || '', this.path),
                     this.current,
                 )
                     .generate();
@@ -134,15 +133,15 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private processMethodDecorators() {
-        const methods : MapperMethodType[] = [
-            'ALL',
-            'GET',
-            'POST',
-            'PUT',
-            'DELETE',
-            'PATCH',
-            'OPTIONS',
-            'HEAD',
+        const methods = [
+            AnnotationKey.METHOD_ALL,
+            AnnotationKey.METHOD_DELETE,
+            AnnotationKey.METHOD_GET,
+            AnnotationKey.METHOD_HEAD,
+            AnnotationKey.METHOD_OPTIONS,
+            AnnotationKey.METHOD_PATCH,
+            AnnotationKey.METHOD_POST,
+            AnnotationKey.METHOD_PUT,
         ];
 
         const decorators = getNodeDecorators(this.node);
@@ -151,7 +150,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
 
         for (let i = 0; i < methods.length; i++) {
             const representationManager = this.current.decoratorMapper.match(methods[i], decorators);
-            if (typeof representationManager !== 'undefined') {
+            if (representationManager) {
                 method = methods[i];
                 break;
             }
@@ -163,7 +162,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
 
         this.method = method.toLowerCase() as MethodType;
 
-        this.generatePath('METHOD_PATH');
+        this.generatePath(AnnotationKey.METHOD_PATH);
     }
 
     private getMethodSuccessResponse(type: BaseType): Response {
@@ -183,12 +182,12 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             return type;
         }
 
-        const representation = this.current.decoratorMapper.match('RESPONSE_EXAMPLE', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return type;
         }
 
-        const value = representation.getPropertyValue('TYPE');
+        const value = representation.getPropertyValue('type');
 
         if (
             typeof value !== 'undefined' &&
@@ -202,12 +201,12 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private getMethodSuccessExamples() {
-        const representation = this.current.decoratorMapper.match('RESPONSE_EXAMPLE', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
 
-        const value : unknown = representation.getPropertyValue('PAYLOAD');
+        const value : unknown = representation.getPropertyValue('payload');
         if (typeof value === 'undefined') {
             return [];
         }

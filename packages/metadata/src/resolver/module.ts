@@ -6,6 +6,7 @@
  */
 
 import * as ts from 'typescript';
+import { AnnotationKey } from '../annotation';
 import type { MetadataGenerator } from '../generator';
 
 import {
@@ -874,7 +875,7 @@ export class TypeNodeResolver {
             (tag) => tag.tagName.text === 'deprecated',
         ) ||
             typeof this.current.decoratorMapper.match(
-                'DEPRECATED',
+                AnnotationKey.DEPRECATED,
                 modelType,
             ) !== 'undefined';
 

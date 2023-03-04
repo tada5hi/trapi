@@ -5,6 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './constants';
-export * from './module';
-export * from './type';
+import type { AnnotationRepresentations } from '../type';
+
+export type PresetSchema = {
+    extends: string[],
+    items: AnnotationRepresentations
+};

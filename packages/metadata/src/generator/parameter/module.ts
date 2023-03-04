@@ -6,29 +6,30 @@
  */
 
 import * as ts from 'typescript';
+import { AnnotationKey } from '../../annotation';
+import type { AnnotationPropertyManager } from '../../annotation';
 import { InvalidParameterException } from '../../errors';
-import type { MapperParameterType } from '../../mapper';
-import type { RepresentationManager } from '../../representation';
-import { TypeNodeResolver, getInitializerValue } from '../../resolver';
 import type { BaseType, TypeVariant } from '../../resolver';
+import { TypeNodeResolver, getInitializerValue } from '../../resolver';
 import { getNodeDecorators, isExistJSDocTag } from '../../utils';
 import type { MetadataGenerator } from '../metadata';
 import type { ArrayParameter, Parameter } from './type';
 
-const parameterKeys : MapperParameterType[] = [
-    'SERVER_CONTEXT',
-    'SERVER_PARAM',
-    'SERVER_PARAMS',
-    'SERVER_QUERY',
-    'SERVER_FORM',
-    'SERVER_BODY',
-    'SERVER_HEADER',
-    'SERVER_HEADERS',
-    'SERVER_COOKIE',
-    'SERVER_COOKIES',
-    'SERVER_PATH_PARAM',
-    'SERVER_PATH_PARAMS',
-    'SERVER_FILES_PARAM',
+const parameterKeys : `${AnnotationKey}`[] = [
+    AnnotationKey.SERVER_CONTEXT,
+    AnnotationKey.SERVER_PARAM,
+    AnnotationKey.SERVER_PARAMS,
+    AnnotationKey.SERVER_QUERY,
+    AnnotationKey.SERVER_FORM,
+    AnnotationKey.SERVER_BODY,
+    AnnotationKey.SERVER_HEADER,
+    AnnotationKey.SERVER_HEADERS,
+    AnnotationKey.SERVER_COOKIE,
+    AnnotationKey.SERVER_COOKIES,
+    AnnotationKey.SERVER_PATH_PARAM,
+    AnnotationKey.SERVER_PATH_PARAMS,
+    AnnotationKey.SERVER_FILE_PARAM,
+    AnnotationKey.SERVER_FILES_PARAM,
 ];
 
 export class ParameterGenerator {
@@ -61,31 +62,31 @@ export class ParameterGenerator {
                 continue;
             }
 
-            switch (parameterKeys[i]) {
-                case 'SERVER_CONTEXT':
+            switch (representation.key) {
+                case AnnotationKey.SERVER_CONTEXT:
                     return this.getContextParameter();
-                case 'SERVER_PARAM':
-                case 'SERVER_PARAMS':
-                    return this.getRequestParameter(representation);
-                case 'SERVER_FORM':
-                    return this.getFormParameter(representation);
-                case 'SERVER_QUERY':
-                    return this.getQueryParameter(representation);
-                case 'SERVER_BODY':
-                    return this.getBodyParameter(representation);
-                case 'SERVER_HEADER':
-                case 'SERVER_HEADERS':
-                    return this.getHeaderParameter(representation);
-                case 'SERVER_COOKIE':
-                case 'SERVER_COOKIES':
-                    return this.getCookieParameter(representation);
-                case 'SERVER_PATH_PARAM':
-                case 'SERVER_PATH_PARAMS':
-                    return this.getPathParameter(representation);
-                case 'SERVER_FILE_PARAM':
-                    return this.getFileParameter(representation);
-                case 'SERVER_FILES_PARAM':
-                    return this.getFileParameter(representation, true);
+                case AnnotationKey.SERVER_PARAM:
+                case AnnotationKey.SERVER_PARAMS:
+                    return this.getRequestParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_PARAM}`>);
+                case AnnotationKey.SERVER_FORM:
+                    return this.getFormParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FORM}`>);
+                case AnnotationKey.SERVER_QUERY:
+                    return this.getQueryParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_QUERY}`>);
+                case AnnotationKey.SERVER_BODY:
+                    return this.getBodyParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_BODY}`>);
+                case AnnotationKey.SERVER_HEADER:
+                case AnnotationKey.SERVER_HEADERS:
+                    return this.getHeaderParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_HEADER}`>);
+                case AnnotationKey.SERVER_COOKIE:
+                case AnnotationKey.SERVER_COOKIES:
+                    return this.getCookieParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_COOKIE}`>);
+                case AnnotationKey.SERVER_PATH_PARAM:
+                case AnnotationKey.SERVER_PATH_PARAMS:
+                    return this.getPathParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_PATH_PARAM}`>);
+                case AnnotationKey.SERVER_FILE_PARAM:
+                    return this.getFileParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FILE_PARAM}`>);
+                case AnnotationKey.SERVER_FILES_PARAM:
+                    return this.getFileParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FILES_PARAM}`>, true);
             }
         }
 
@@ -98,7 +99,9 @@ export class ParameterGenerator {
         return `${controllerId.text}.${methodId.text}`;
     }
 
-    private getRequestParameter(representationManager: RepresentationManager<'SERVER_PARAM' | 'SERVER_PARAMS'>): Parameter {
+    private getRequestParameter(
+        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_PARAM}` | `${AnnotationKey.SERVER_PARAMS}`>,
+    ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
         const type = this.getValidatedType(this.parameter);
@@ -107,7 +110,7 @@ export class ParameterGenerator {
             throw new Error(`Param can't support '${this.getCurrentLocation()}' method.`);
         }
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -157,7 +160,7 @@ export class ParameterGenerator {
      */
 
     private getFileParameter(
-        representationManager: RepresentationManager<'SERVER_FILE_PARAM' | 'SERVER_FILES_PARAM'>,
+        representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_FILE_PARAM}` | `${AnnotationKey.SERVER_FILES_PARAM}`>,
         isArray?: boolean,
     ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
@@ -167,7 +170,7 @@ export class ParameterGenerator {
             throw new Error(`File(s)Param can't support '${this.getCurrentLocation()}' method.`);
         }
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = representationManager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -192,7 +195,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getFormParameter(representationManager: RepresentationManager<'SERVER_FORM'>): Parameter {
+    private getFormParameter(representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_FORM}`>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -202,7 +205,7 @@ export class ParameterGenerator {
             throw new Error(`Form can't support '${this.getCurrentLocation()}' method.`);
         }
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = representationManager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -219,7 +222,9 @@ export class ParameterGenerator {
         };
     }
 
-    private getCookieParameter(representationManager: RepresentationManager<'SERVER_COOKIE' | 'SERVER_COOKIES'>): Parameter {
+    private getCookieParameter(
+        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_COOKIE}` | `${AnnotationKey.SERVER_COOKIES}`>,
+    ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -229,7 +234,7 @@ export class ParameterGenerator {
             throw new Error(`Cookie can't support '${this.getCurrentLocation()}' method.`);
         }
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -246,7 +251,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getBodyParameter(representationManager?: RepresentationManager<'SERVER_BODY'>): Parameter {
+    private getBodyParameter(manager?: AnnotationPropertyManager<`${AnnotationKey.SERVER_BODY}`>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -256,8 +261,8 @@ export class ParameterGenerator {
             throw new Error(`Body can't support ${this.method} method`);
         }
 
-        if (typeof representationManager !== 'undefined') {
-            const value = representationManager.getPropertyValue('DEFAULT');
+        if (typeof manager !== 'undefined') {
+            const value = manager.getPropertyValue('value');
             if (typeof value === 'string') {
                 name = value;
             }
@@ -275,7 +280,9 @@ export class ParameterGenerator {
         };
     }
 
-    private getHeaderParameter(representationManager: RepresentationManager<'SERVER_HEADER' | 'SERVER_HEADERS'>) : Parameter {
+    private getHeaderParameter(
+        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_HEADER}` | `${AnnotationKey.SERVER_HEADERS}`>,
+    ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -285,7 +292,7 @@ export class ParameterGenerator {
             throw new InvalidParameterException(`Parameter '${parameterName}' can't be passed as a header parameter in '${this.getCurrentLocation()}'.`);
         }
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -302,7 +309,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getQueryParameter(representationManager: RepresentationManager<'SERVER_QUERY'>): Parameter | ArrayParameter {
+    private getQueryParameter(representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_QUERY}`>): Parameter | ArrayParameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         const type = this.getValidatedType(this.parameter);
 
@@ -325,12 +332,12 @@ export class ParameterGenerator {
         let name : string = parameterName;
         let options : any = {};
 
-        const nameValue = representationManager.getPropertyValue('DEFAULT');
+        const nameValue = representationManager.getPropertyValue('value');
         if (typeof nameValue === 'string') {
             name = nameValue;
         }
 
-        const optionsValue = representationManager.getPropertyValue('OPTIONS');
+        const optionsValue = representationManager.getPropertyValue('options');
         if (typeof optionsValue !== 'undefined') {
             options = optionsValue;
         }
@@ -361,13 +368,15 @@ export class ParameterGenerator {
         return properties;
     }
 
-    private getPathParameter(representationManager: RepresentationManager<'SERVER_PATH_PARAM' | 'SERVER_PATH_PARAMS'>): Parameter {
+    private getPathParameter(
+        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_PATH_PARAM}` | `${AnnotationKey.SERVER_PATH_PARAMS}`>,
+    ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let pathName = parameterName;
 
         const type = this.getValidatedType(this.parameter);
 
-        const value = representationManager.getPropertyValue('DEFAULT');
+        const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             pathName = value;
         }

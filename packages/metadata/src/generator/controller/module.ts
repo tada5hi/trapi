@@ -7,6 +7,7 @@
 
 import type { ClassDeclaration, MethodDeclaration } from 'typescript';
 import { SyntaxKind } from 'typescript';
+import { AnnotationKey } from '../../annotation';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
 import { MethodGenerator } from '../method';
@@ -21,7 +22,7 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
     constructor(node: ClassDeclaration, current: MetadataGenerator) {
         super(node, current);
 
-        this.generatePath('CLASS_PATH');
+        this.generatePath(AnnotationKey.CLASS_PATH);
     }
 
     public isValid() {

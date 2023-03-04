@@ -6,21 +6,8 @@
  */
 
 import {
-    IsDouble,
-    IsFloat,
-    IsInt,
-    IsLong,
     Options as MetadataConfig,
     MetadataGeneratorOutput,
-    RequestConsumes,
-    RequestFileParam,
-    ResponseDescription,
-    ResponseExample,
-    ResponseProduces,
-    SwaggerDeprecated,
-
-    SwaggerHidden,
-    SwaggerTags,
     createMetadataGenerator,
     generateMetadata,
 } from '@trapi/metadata';
@@ -38,18 +25,4 @@ export {
     MetadataGeneratorOutput,
     MetadataCacheConfig,
     MetadataConfig,
-
-    // Internal Decorators
-    RequestConsumes,
-    RequestFileParam,
-    ResponseDescription,
-    ResponseExample,
-    ResponseProduces,
-    SwaggerTags,
-    SwaggerHidden,
-    SwaggerDeprecated,
-    IsDouble,
-    IsFloat,
-    IsLong,
-    IsInt,
 };

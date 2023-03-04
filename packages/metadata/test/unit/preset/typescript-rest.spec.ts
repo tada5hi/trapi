@@ -7,6 +7,7 @@
 
 import path from 'node:path';
 import jsonata from 'jsonata';
+import process from 'node:process';
 import type {
     ArrayType,
     NestedObjectLiteralType,
@@ -22,10 +23,7 @@ import { MetadataGenerator } from '../../../src';
 const config : Options = {
     entryPoint: ['./test/data/preset/typescript-rest/api.ts'],
     cache: false,
-    annotation: {
-        internal: true,
-        preset: 'typescript-rest',
-    },
+    annotation: '@trapi/preset-typescript-rest',
 };
 
 const generator = new MetadataGenerator(config, {});

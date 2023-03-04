@@ -5,7 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as swagger from '@trapi/decorators';
+import {
+    IsDouble, IsFloat, IsInt, IsLong,
+} from '@trapi/preset-built-in';
 
 export interface ClassType extends Function {
     new(...args: any[]): any;
@@ -93,16 +95,16 @@ export class PrimitiveClassModel {
     /**
      * An integer
      */
-    @swagger.IsInt
+    @IsInt
     public int?: number;
 
-    @swagger.IsLong
+    @IsLong
     public long?: number;
 
-    @swagger.IsFloat
+    @IsFloat
     public float?: number;
 
-    @swagger.IsDouble
+    @IsDouble
     public double?: number;
 }
 

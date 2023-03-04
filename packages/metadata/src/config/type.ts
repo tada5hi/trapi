@@ -6,7 +6,7 @@
  */
 
 import type { CacheOptions } from '../cache';
-import type { AnnotationOptions } from '../mapper';
+import type { AnnotationRepresentations } from '../annotation';
 
 export type EntryPointOptions = {
     cwd: string,
@@ -40,11 +40,7 @@ export interface Options {
     cache?: string | boolean | Partial<CacheOptions>;
 
     /**
-     * Decorator config.
-     * Default: {
-     *      preset: ['decorators-express', 'typescript-rest'],
-     *      internal: true
-     * }
+     * Annotation preset or manual configuration.
      */
-    annotation?: AnnotationOptions;
+    annotation?: string | AnnotationRepresentations;
 }

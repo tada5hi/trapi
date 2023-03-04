@@ -7,10 +7,10 @@
 
 import type { ArrayLiteralExpression, Node, TypeNode } from 'typescript';
 import { isArrayLiteralExpression } from 'typescript';
+import { AnnotationKey } from '../annotation';
 import { TypeNodeResolver, getInitializerValue } from '../resolver';
 
 import type { Response } from './type';
-import type { MapperIDProperties } from '../mapper';
 import { getNodeDecorators, isExistJSDocTag, normalizePath } from '../utils';
 import type { MetadataGenerator } from './metadata';
 
@@ -28,13 +28,13 @@ export abstract class AbstractGenerator<T extends Node> {
     // --------------------------------------------------------------------
 
     protected generatePath(
-        key: Extract<keyof MapperIDProperties, 'CLASS_PATH' | 'METHOD_PATH'>,
+        key: `${AnnotationKey.CLASS_PATH}` | `${AnnotationKey.METHOD_PATH}`,
     ) : void {
         const values : string[] = [];
 
         const representation = this.current.decoratorMapper.match(key, this.node);
         if (typeof representation !== 'undefined') {
-            const value = representation.getPropertyValue('DEFAULT');
+            const value = representation.getPropertyValue('value');
             if (typeof value !== 'undefined') {
                 values.push(value);
             }
@@ -113,7 +113,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     protected getResponses(): Response[] {
-        const representation = this.current.decoratorMapper.match('RESPONSE_DESCRIPTION', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_DESCRIPTION, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -121,11 +121,11 @@ export abstract class AbstractGenerator<T extends Node> {
         const responses : Response[] = [];
 
         for (let i = 0; i < representation.decorators.length; i++) {
-            const description = representation.getPropertyValue('DESCRIPTION', i) || 'Ok';
-            const status = representation.getPropertyValue('STATUS_CODE', i) || '200';
-            const examples : unknown | unknown[] = representation.getPropertyValue('PAYLOAD', i);
+            const description = representation.getPropertyValue('description', i) || 'Ok';
+            const status = representation.getPropertyValue('statusCode', i) || '200';
+            const examples : unknown | unknown[] = representation.getPropertyValue('payload', i);
 
-            const type = representation.getPropertyValue('TYPE');
+            const type = representation.getPropertyValue('type');
 
             const response : Response = {
                 description,
@@ -144,12 +144,12 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     public getProduces() : string[] {
-        const representation = this.current.decoratorMapper.match('RESPONSE_PRODUCES', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_PRODUCES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
 
-        const value : string[] = representation.getPropertyValue('DEFAULT');
+        const value : string[] = representation.getPropertyValue('value');
         if (typeof value === 'undefined') {
             return [];
         }
@@ -158,12 +158,12 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getConsumes() : string[] {
-        const representation = this.current.decoratorMapper.match('REQUEST_CONSUMES', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.REQUEST_CONSUMES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
 
-        let value : string[] = representation.getPropertyValue('DEFAULT');
+        let value : string[] = representation.getPropertyValue('value');
         if (typeof value === 'undefined') {
             return [];
         }
@@ -174,12 +174,12 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getTags() : string[] {
-        const representation = this.current.decoratorMapper.match('SWAGGER_TAGS', this.node);
+        const representation = this.current.decoratorMapper.match(AnnotationKey.SWAGGER_TAGS, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
 
-        let value : string[] = representation.getPropertyValue('DEFAULT');
+        let value : string[] = representation.getPropertyValue('value');
         if (typeof value === 'undefined') {
             return [];
         }
@@ -196,7 +196,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     public isHidden(node: Node) : boolean {
-        return typeof this.current.decoratorMapper.match('HIDDEN', node) !== 'undefined';
+        return typeof this.current.decoratorMapper.match(AnnotationKey.HIDDEN, node) !== 'undefined';
     }
 
     public isDeprecated(node: Node) : boolean {
@@ -204,6 +204,6 @@ export abstract class AbstractGenerator<T extends Node> {
             return true;
         }
 
-        return typeof this.current.decoratorMapper.match('DEPRECATED', node) !== 'undefined';
+        return typeof this.current.decoratorMapper.match(AnnotationKey.DEPRECATED, node) !== 'undefined';
     }
 }

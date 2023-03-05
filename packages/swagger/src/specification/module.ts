@@ -22,7 +22,7 @@ export async function createSpecificationGenerator(
         data = metadata;
     }
 
-    const outputFormat: Specification.SpecificationOption = config.specification || Specification.SpecificationOption.V2;
+    const outputFormat = config.specification || Specification.SpecificationOption.V2;
 
     let specGenerator: AbstractSpecGenerator<any, any>;
 

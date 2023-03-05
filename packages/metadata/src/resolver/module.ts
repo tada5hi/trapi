@@ -158,7 +158,7 @@ export class TypeNodeResolver {
 
                     const property: ResolverProperty = {
                         deprecated: isExistJSDocTag(propertySignature, (tag) => tag.tagName.text === 'deprecated'),
-                        example: TypeNodeResolver.getNodeExample(propertySignature),
+                        example: this.getNodeExample(propertySignature),
                         default: getJSDocTagComment(propertySignature, 'default'),
                         description: this.getNodeDescription(propertySignature),
                         format: TypeNodeResolver.getNodeFormat(propertySignature),
@@ -848,7 +848,7 @@ export class TypeNodeResolver {
             type = new TypeNodeResolver(declaration.type, this.current, declaration, this.context, this.referencer || referencer).resolve();
         }
 
-        const example = TypeNodeResolver.getNodeExample(declaration);
+        const example = this.getNodeExample(declaration);
 
         return {
             typeName: 'refAlias',
@@ -869,7 +869,7 @@ export class TypeNodeResolver {
         utilityType?: UtilityType,
         utilityOptions?: UtilityOptions,
     ) : ReferenceType {
-        const example = TypeNodeResolver.getNodeExample(modelType);
+        const example = this.getNodeExample(modelType);
         const description : string = this.getNodeDescription(modelType);
         const deprecated : boolean = isExistJSDocTag(
             modelType,
@@ -1151,7 +1151,7 @@ export class TypeNodeResolver {
             deprecated: isExistJSDocTag(propertySignature, (tag) => tag.tagName.text === 'deprecated'),
             default: getJSDocTagComment(propertySignature, 'default'),
             description: this.getNodeDescription(propertySignature),
-            example: TypeNodeResolver.getNodeExample(propertySignature),
+            example: this.getNodeExample(propertySignature),
             format: TypeNodeResolver.getNodeFormat(propertySignature),
             name: identifier.text,
             required,
@@ -1207,7 +1207,7 @@ export class TypeNodeResolver {
             deprecated: isExistJSDocTag(propertyDeclaration, (tag) => tag.tagName.text === 'deprecated'),
             default: getInitializerValue(propertyDeclaration.initializer, this.current.typeChecker),
             description: this.getNodeDescription(propertyDeclaration),
-            example: TypeNodeResolver.getNodeExample(propertyDeclaration),
+            example: this.getNodeExample(propertyDeclaration),
             format: TypeNodeResolver.getNodeFormat(propertyDeclaration),
             name: identifier.text,
             required,
@@ -1334,33 +1334,47 @@ export class TypeNodeResolver {
     }
 
     private hasPublicModifier(node: ts.Node) {
-        return (
-            !node.modifiers ||
-            node.modifiers.every((modifier) => modifier.kind !== ts.SyntaxKind.ProtectedKeyword && modifier.kind !== ts.SyntaxKind.PrivateKeyword)
-        );
+        if (!ts.canHaveModifiers(node)) {
+            return true;
+        }
+
+        const modifiers = ts.getModifiers(node);
+        if (!modifiers) {
+            return true;
+        }
+
+        return modifiers.every((modifier) => modifier.kind !== ts.SyntaxKind.ProtectedKeyword && modifier.kind !== ts.SyntaxKind.PrivateKeyword);
     }
 
     private hasStaticModifier(node: ts.Node) {
-        return (
-            node.modifiers &&
-            node.modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword)
-        );
+        if (!ts.canHaveModifiers(node)) {
+            return false;
+        }
+
+        const modifiers = ts.getModifiers(node);
+
+        return modifiers && modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword);
     }
 
     private isAccessibleParameter(node: ts.Node) {
         // No modifiers
-        if (!node.modifiers) {
+        if (!ts.canHaveModifiers(node)) {
+            return false;
+        }
+
+        const modifiers = ts.getModifiers(node);
+        if (!modifiers) {
             return false;
         }
 
         // public || public readonly
-        if (node.modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword)) {
+        if (modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword)) {
             return true;
         }
 
         // readonly, not private readonly, not public readonly
-        const isReadonly = node.modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword);
-        const isProtectedOrPrivate = node.modifiers.some(
+        const isReadonly = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword);
+        const isProtectedOrPrivate = modifiers.some(
             (modifier) => modifier.kind === ts.SyntaxKind.ProtectedKeyword ||
                 modifier.kind === ts.SyntaxKind.PrivateKeyword,
         );
@@ -1390,21 +1404,23 @@ export class TypeNodeResolver {
         return undefined;
     }
 
-    private static getNodeFormat(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
+    private static getNodeFormat(
+        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+    ) {
         return getJSDocTagComment(node, 'format');
     }
 
-    private static getNodeExample(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
+    private getNodeExample(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
         const example = getJSDocTagComment(node, 'example');
 
         if (example) {
             try {
                 return JSON.parse(example);
             } catch {
-                return undefined;
+                // do nothing
             }
-        } else {
-            return undefined;
         }
+
+        return undefined;
     }
 }

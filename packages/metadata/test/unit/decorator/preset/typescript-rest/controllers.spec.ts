@@ -9,19 +9,17 @@ import path from 'node:path';
 import type {
     Metadata,
 } from '../../../../../src';
-import { MetadataGenerator } from '../../../../../src';
+import { generateMetadata } from '../../../../../src';
 
 describe('library/typescript-rest', () => {
     let metadata : Metadata;
 
     beforeAll(async () => {
-        const generator = new MetadataGenerator({
+        metadata = await generateMetadata({
             entryPoint: ['./test/data/preset/typescript-rest/api.ts'],
             cache: false,
             preset: '@trapi/preset-typescript-rest',
-        }, {});
-
-        metadata = await generator.generate();
+        });
     });
 
     it('should be generated and have top level properties', () => {

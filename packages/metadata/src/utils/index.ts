@@ -10,4 +10,5 @@ export * from './js-doc';
 export * from './node';
 export * from './object';
 export * from './path-normalize';
-export * from './typescript';
+export * from './source-files';
+export * from './tsconfig';

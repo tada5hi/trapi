@@ -5,11 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildFilePath, locateManySync } from 'locter';
 import minimatch from 'minimatch';
 import type {
     ClassDeclaration,
-    CompilerOptions,
     InterfaceDeclaration,
     Node,
     Program,
@@ -24,14 +22,14 @@ import {
     isModuleBlock,
     isModuleDeclaration,
 } from 'typescript';
-import type { EntryPoint, Options } from '../../config';
+import type { Options } from '../../config';
 import { DecoratorID, DecoratorResolver } from '../../decorator';
 import { TypeNodeResolver } from '../../resolver';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
 import { CacheDriver } from '../../cache';
-import type { Metadata } from './type';
+import type { Metadata, MetadataGeneratorContext } from './type';
 
 export class MetadataGenerator {
     public readonly nodes : Node[];
@@ -54,21 +52,20 @@ export class MetadataGenerator {
 
     // -------------------------------------------------------------------------
 
-    constructor(
-        config: Options,
-        compilerOptions: CompilerOptions,
-    ) {
+    constructor(context: MetadataGeneratorContext) {
         this.nodes = [];
-        this.config = config;
+        this.config = context.options;
 
-        this.cache = new CacheDriver(config.cache);
+        this.cache = new CacheDriver(context.options.cache);
         this.decoratorResolver = new DecoratorResolver();
 
-        TypeNodeResolver.clearCache();
-
-        const sourceFiles = this.scanSourceFiles(config.entryPoint);
-        this.program = createProgram(sourceFiles, compilerOptions);
+        this.program = createProgram(
+            context.sourceFiles,
+            context.compilerOptions || {},
+        );
         this.typeChecker = this.program.getTypeChecker();
+
+        TypeNodeResolver.clearCache();
     }
 
     // -------------------------------------------------------------------------
@@ -219,31 +216,6 @@ export class MetadataGenerator {
             return found[0];
         }
         return undefined;
-    }
-
-    private scanSourceFiles(input: EntryPoint) : string[] {
-        const sources = Array.isArray(input) ? input : [input];
-        const result: Set<string> = new Set<string>();
-
-        for (let i = 0; i < sources.length; i++) {
-            const source = sources[i];
-
-            let matches : string[];
-
-            if (typeof source === 'string') {
-                matches = locateManySync(source)
-                    .map((info) => buildFilePath(info));
-            } else {
-                matches = locateManySync(source.pattern)
-                    .map((info) => buildFilePath(info));
-            }
-
-            for (let j = 0; j < matches.length; j++) {
-                result.add(matches[j]);
-            }
-        }
-
-        return Array.from(result);
     }
 
     private buildControllers() : void {

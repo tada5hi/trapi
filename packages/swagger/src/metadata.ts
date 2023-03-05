@@ -8,7 +8,6 @@
 import {
     Metadata,
     Options as MetadataOptions,
-    createMetadataGenerator,
     generateMetadata,
 } from '@trapi/metadata';
 
@@ -17,7 +16,6 @@ import type { CacheOptions } from '@trapi/metadata';
 export {
     // Utils
     generateMetadata,
-    createMetadataGenerator,
 
     CacheOptions,
 

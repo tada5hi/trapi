@@ -6,7 +6,7 @@
  */
 
 import type { CompilerOptions, Options as MetadataConfig } from '@trapi/metadata';
-import { createMetadataGenerator } from '@trapi/metadata';
+import { generateMetadata } from '@trapi/metadata';
 import type { Specification } from './specification';
 import { createSpecificationGenerator } from './specification';
 import type { SwaggerDocFormatData, SwaggerDocFormatType } from './type';
@@ -18,12 +18,10 @@ export async function generateDocumentation(
     },
     tsConfig?: CompilerOptions,
 ): Promise<Record<SwaggerDocFormatType, SwaggerDocFormatData>> {
-    const metadataGenerator = createMetadataGenerator(config.metadata, tsConfig);
-
-    const metadata = await metadataGenerator.generate();
+    const metadata = await generateMetadata(config.metadata, tsConfig);
 
     const specGenerator = await createSpecificationGenerator(metadata, config.swagger);
-
     specGenerator.build();
+
     return specGenerator.save();
 }

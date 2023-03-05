@@ -8,7 +8,7 @@
 import * as ts from 'typescript';
 import { DecoratorID } from '../../decorator';
 import type { DecoratorPropertyManager } from '../../decorator';
-import { InvalidParameterException } from '../../errors';
+import { InvalidParameterException } from '../../error';
 import type { BaseType, TypeVariant } from '../../resolver';
 import { TypeNodeResolver } from '../../resolver';
 import {

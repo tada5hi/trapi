@@ -7,7 +7,11 @@
 
 import type { Node } from 'typescript';
 import {
-    canHaveDecorators, getDecorators, isCallExpression, isNumericLiteral, isStringLiteral,
+    canHaveDecorators,
+    getDecorators,
+    isCallExpression,
+    isNumericLiteral,
+    isStringLiteral,
 } from 'typescript';
 import type { NodeDecorator } from './type';
 

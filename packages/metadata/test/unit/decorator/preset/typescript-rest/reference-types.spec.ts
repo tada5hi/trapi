@@ -6,7 +6,7 @@
  */
 
 import jsonata from 'jsonata';
-import { MetadataGenerator } from '../../../../../src';
+import { generateMetadata } from '../../../../../src';
 import type {
     ArrayType, Metadata,
     NestedObjectLiteralType,
@@ -21,13 +21,11 @@ describe('check referenceTypes', () => {
     let metadata : Metadata;
 
     beforeAll(async () => {
-        const generator = new MetadataGenerator({
+        metadata = await generateMetadata({
             entryPoint: ['./test/data/preset/typescript-rest/api.ts'],
             cache: false,
             preset: '@trapi/preset-typescript-rest',
-        }, {});
-
-        metadata = await generator.generate();
+        });
     });
 
     it('referenceTypes should be defined', () => {

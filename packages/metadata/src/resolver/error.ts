@@ -5,11 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { normalize } from 'path';
+import { normalize } from 'node:path';
 import type { Node, TypeNode } from 'typescript';
+import { BaseError } from '../error';
 
-export class ResolverError extends Error {
-    constructor(message: string, node?: Node | TypeNode, onlyCurrent = false) {
+export class ResolverError extends BaseError {
+    constructor(
+        message: string,
+        node?: Node | TypeNode,
+        onlyCurrent = false,
+    ) {
         super(message);
 
         if (node) {
@@ -34,5 +39,6 @@ export function prettyTroubleCause(node: Node | TypeNode, onlyCurrent = false) {
     } else {
         name = node.parent.pos !== -1 ? node.parent.getText() : (node as any).parent.name.text;
     }
+
     return `This was caused by '${name}'`;
 }

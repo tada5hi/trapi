@@ -25,7 +25,7 @@ import {
     isModuleDeclaration,
 } from 'typescript';
 import type { EntryPoint, Options } from '../../config';
-import { AnnotationKey, AnnotationResolver } from '../../annotation';
+import { DecoratorID, DecoratorResolver } from '../../decorator';
 import { TypeNodeResolver } from '../../resolver';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
 import type { Controller } from '../controller';
@@ -38,7 +38,7 @@ export class MetadataGenerator {
 
     public readonly typeChecker: TypeChecker;
 
-    public readonly decoratorMapper: AnnotationResolver;
+    public readonly decoratorMapper: DecoratorResolver;
 
     public readonly config: Options;
 
@@ -62,7 +62,7 @@ export class MetadataGenerator {
         this.config = config;
 
         this.cache = new CacheDriver(config.cache);
-        this.decoratorMapper = new AnnotationResolver(config.annotation);
+        this.decoratorMapper = new DecoratorResolver({ preset: config.preset, decorators: config.decorators });
 
         TypeNodeResolver.clearCache();
 
@@ -242,11 +242,11 @@ export class MetadataGenerator {
         this.controllers = this.nodes
             .filter((node) => node.kind === SyntaxKind.ClassDeclaration)
             .filter((node) => {
-                const isHidden = this.decoratorMapper.match(AnnotationKey.HIDDEN, node);
+                const isHidden = this.decoratorMapper.match(DecoratorID.HIDDEN, node);
 
                 return typeof isHidden === 'undefined';
             })
-            .filter((node) => typeof this.decoratorMapper.match(AnnotationKey.CLASS_PATH, node) !== 'undefined')
+            .filter((node) => typeof this.decoratorMapper.match(DecoratorID.CLASS_PATH, node) !== 'undefined')
             .map((classDeclaration: ClassDeclaration) => new ControllerGenerator(classDeclaration, this))
             .filter((generator) => generator.isValid())
             .map((generator) => generator.generate());

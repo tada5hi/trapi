@@ -7,7 +7,7 @@
 
 import {
     IsDouble, IsFloat, IsInt, IsLong,
-} from '@trapi/preset-built-in';
+} from '@trapi/preset-swagger/dist';
 
 export interface ClassType extends Function {
     new(...args: any[]): any;

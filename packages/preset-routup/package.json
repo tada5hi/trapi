@@ -4,7 +4,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "dependencies": {
-        "@trapi/preset-built-in": "^0.0.0"
+        "@trapi/preset-swagger": "^0.0.0"
     },
     "devDependencies": {
         "@trapi/metadata": "^0.4.1"

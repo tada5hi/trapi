@@ -5,6 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './module';
-export * from './validator';
-export * from './type';
+import type { DecoratorConfig } from '../type';
+
+export type PresetSchema = {
+    extends: string[],
+    items: DecoratorConfig[]
+};

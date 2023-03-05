@@ -6,10 +6,11 @@
  */
 
 import * as ts from 'typescript';
-import { AnnotationKey } from '../annotation';
+import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
 
 import {
+    getInitializerValue,
     getJSDocTagComment,
     getJSDocTagNames,
     getNodeDecorators,
@@ -34,7 +35,6 @@ import type {
     TypeVariant,
     UnionType,
 } from './type';
-import { getInitializerValue } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
 const inProgressTypes: { [typeName: string]: boolean } = {};
@@ -875,7 +875,7 @@ export class TypeNodeResolver {
             (tag) => tag.tagName.text === 'deprecated',
         ) ||
             typeof this.current.decoratorMapper.match(
-                AnnotationKey.DEPRECATED,
+                DecoratorID.DEPRECATED,
                 modelType,
             ) !== 'undefined';
 

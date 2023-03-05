@@ -6,30 +6,32 @@
  */
 
 import * as ts from 'typescript';
-import { AnnotationKey } from '../../annotation';
-import type { AnnotationPropertyManager } from '../../annotation';
+import { DecoratorID } from '../../decorator';
+import type { DecoratorPropertyManager } from '../../decorator';
 import { InvalidParameterException } from '../../errors';
 import type { BaseType, TypeVariant } from '../../resolver';
-import { TypeNodeResolver, getInitializerValue } from '../../resolver';
-import { getNodeDecorators, isExistJSDocTag } from '../../utils';
+import { TypeNodeResolver } from '../../resolver';
+import {
+    getInitializerValue, getNodeDecorators, isExistJSDocTag,
+} from '../../utils';
 import type { MetadataGenerator } from '../metadata';
 import type { ArrayParameter, Parameter } from './type';
 
-const parameterKeys : `${AnnotationKey}`[] = [
-    AnnotationKey.SERVER_CONTEXT,
-    AnnotationKey.SERVER_PARAM,
-    AnnotationKey.SERVER_PARAMS,
-    AnnotationKey.SERVER_QUERY,
-    AnnotationKey.SERVER_FORM,
-    AnnotationKey.SERVER_BODY,
-    AnnotationKey.SERVER_HEADER,
-    AnnotationKey.SERVER_HEADERS,
-    AnnotationKey.SERVER_COOKIE,
-    AnnotationKey.SERVER_COOKIES,
-    AnnotationKey.SERVER_PATH_PARAM,
-    AnnotationKey.SERVER_PATH_PARAMS,
-    AnnotationKey.SERVER_FILE_PARAM,
-    AnnotationKey.SERVER_FILES_PARAM,
+const parameterKeys : `${DecoratorID}`[] = [
+    DecoratorID.CONTEXT,
+    DecoratorID.PARAM,
+    DecoratorID.PARAMS,
+    DecoratorID.QUERY,
+    DecoratorID.FORM,
+    DecoratorID.BODY,
+    DecoratorID.HEADER,
+    DecoratorID.HEADERS,
+    DecoratorID.COOKIE,
+    DecoratorID.COOKIES,
+    DecoratorID.PATH_PARAM,
+    DecoratorID.PATH_PARAMS,
+    DecoratorID.FILE_PARAM,
+    DecoratorID.FILES_PARAM,
 ];
 
 export class ParameterGenerator {
@@ -63,30 +65,30 @@ export class ParameterGenerator {
             }
 
             switch (representation.key) {
-                case AnnotationKey.SERVER_CONTEXT:
+                case DecoratorID.CONTEXT:
                     return this.getContextParameter();
-                case AnnotationKey.SERVER_PARAM:
-                case AnnotationKey.SERVER_PARAMS:
-                    return this.getRequestParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_PARAM}`>);
-                case AnnotationKey.SERVER_FORM:
-                    return this.getFormParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FORM}`>);
-                case AnnotationKey.SERVER_QUERY:
-                    return this.getQueryParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_QUERY}`>);
-                case AnnotationKey.SERVER_BODY:
-                    return this.getBodyParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_BODY}`>);
-                case AnnotationKey.SERVER_HEADER:
-                case AnnotationKey.SERVER_HEADERS:
-                    return this.getHeaderParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_HEADER}`>);
-                case AnnotationKey.SERVER_COOKIE:
-                case AnnotationKey.SERVER_COOKIES:
-                    return this.getCookieParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_COOKIE}`>);
-                case AnnotationKey.SERVER_PATH_PARAM:
-                case AnnotationKey.SERVER_PATH_PARAMS:
-                    return this.getPathParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_PATH_PARAM}`>);
-                case AnnotationKey.SERVER_FILE_PARAM:
-                    return this.getFileParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FILE_PARAM}`>);
-                case AnnotationKey.SERVER_FILES_PARAM:
-                    return this.getFileParameter(representation as AnnotationPropertyManager<`${AnnotationKey.SERVER_FILES_PARAM}`>, true);
+                case DecoratorID.PARAM:
+                case DecoratorID.PARAMS:
+                    return this.getRequestParameter(representation as DecoratorPropertyManager<`${DecoratorID.PARAM}`>);
+                case DecoratorID.FORM:
+                    return this.getFormParameter(representation as DecoratorPropertyManager<`${DecoratorID.FORM}`>);
+                case DecoratorID.QUERY:
+                    return this.getQueryParameter(representation as DecoratorPropertyManager<`${DecoratorID.QUERY}`>);
+                case DecoratorID.BODY:
+                    return this.getBodyParameter(representation as DecoratorPropertyManager<`${DecoratorID.BODY}`>);
+                case DecoratorID.HEADER:
+                case DecoratorID.HEADERS:
+                    return this.getHeaderParameter(representation as DecoratorPropertyManager<`${DecoratorID.HEADER}`>);
+                case DecoratorID.COOKIE:
+                case DecoratorID.COOKIES:
+                    return this.getCookieParameter(representation as DecoratorPropertyManager<`${DecoratorID.COOKIE}`>);
+                case DecoratorID.PATH_PARAM:
+                case DecoratorID.PATH_PARAMS:
+                    return this.getPathParameter(representation as DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}`>);
+                case DecoratorID.FILE_PARAM:
+                    return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}`>);
+                case DecoratorID.FILES_PARAM:
+                    return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILES_PARAM}`>, true);
             }
         }
 
@@ -100,7 +102,7 @@ export class ParameterGenerator {
     }
 
     private getRequestParameter(
-        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_PARAM}` | `${AnnotationKey.SERVER_PARAMS}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.PARAM}` | `${DecoratorID.PARAMS}`>,
     ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -160,7 +162,7 @@ export class ParameterGenerator {
      */
 
     private getFileParameter(
-        representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_FILE_PARAM}` | `${AnnotationKey.SERVER_FILES_PARAM}`>,
+        representationManager: DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}` | `${DecoratorID.FILES_PARAM}`>,
         isArray?: boolean,
     ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
@@ -195,7 +197,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getFormParameter(representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_FORM}`>): Parameter {
+    private getFormParameter(representationManager: DecoratorPropertyManager<`${DecoratorID.FORM}`>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -223,7 +225,7 @@ export class ParameterGenerator {
     }
 
     private getCookieParameter(
-        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_COOKIE}` | `${AnnotationKey.SERVER_COOKIES}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.COOKIE}` | `${DecoratorID.COOKIES}`>,
     ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -251,7 +253,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getBodyParameter(manager?: AnnotationPropertyManager<`${AnnotationKey.SERVER_BODY}`>): Parameter {
+    private getBodyParameter(manager?: DecoratorPropertyManager<`${DecoratorID.BODY}`>): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -281,7 +283,7 @@ export class ParameterGenerator {
     }
 
     private getHeaderParameter(
-        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_HEADER}` | `${AnnotationKey.SERVER_HEADERS}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.HEADER}` | `${DecoratorID.HEADERS}`>,
     ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -309,7 +311,7 @@ export class ParameterGenerator {
         };
     }
 
-    private getQueryParameter(representationManager: AnnotationPropertyManager<`${AnnotationKey.SERVER_QUERY}`>): Parameter | ArrayParameter {
+    private getQueryParameter(representationManager: DecoratorPropertyManager<`${DecoratorID.QUERY}`>): Parameter | ArrayParameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         const type = this.getValidatedType(this.parameter);
 
@@ -369,7 +371,7 @@ export class ParameterGenerator {
     }
 
     private getPathParameter(
-        manager: AnnotationPropertyManager<`${AnnotationKey.SERVER_PATH_PARAM}` | `${AnnotationKey.SERVER_PATH_PARAMS}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}` | `${DecoratorID.PATH_PARAMS}`>,
     ): Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let pathName = parameterName;

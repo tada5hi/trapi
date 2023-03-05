@@ -6,7 +6,7 @@
  */
 
 import type { CacheOptions } from '../cache';
-import type { AnnotationRepresentations } from '../annotation';
+import type { DecoratorConfig } from '../decorator';
 
 export type EntryPointOptions = {
     cwd: string,
@@ -40,7 +40,12 @@ export interface Options {
     cache?: string | boolean | Partial<CacheOptions>;
 
     /**
-     * Annotation preset or manual configuration.
+     * Manual decorator properties configuration.
      */
-    annotation?: string | AnnotationRepresentations;
+    decorators?: DecoratorConfig[],
+
+    /**
+     * Load a specific preset configuration.
+     */
+    preset?: string;
 }

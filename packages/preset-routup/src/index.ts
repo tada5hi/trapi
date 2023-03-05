@@ -6,143 +6,157 @@
  */
 
 import type { PresetSchema } from '@trapi/metadata';
-import { AnnotationKey } from '@trapi/metadata';
+import { DecoratorID } from '@trapi/metadata';
 
 export default {
-    extends: ['@trapi/preset-built-in'],
+    extends: ['@trapi/preset-swagger'],
     items: [
         {
-            key: AnnotationKey.CLASS_PATH,
-            id: 'DController',
+            id: DecoratorID.CLASS_PATH,
+            name: 'DController',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.METHOD_ALL,
-            id: 'DAll',
+            id: DecoratorID.ALL,
+            name: 'DAll',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DAll',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DAll',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.DELETE,
+            name: 'DDelete',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_DELETE,
-            id: 'DDelete',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DDelete',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.HEAD,
+            name: 'DHead',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DDelete',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DHead',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.OPTIONS,
+            name: 'DOptions',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_HEAD,
-            id: 'DHead',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DOptions',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.PATCH,
+            name: 'DPatch',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DHead',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DPatch',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.POST,
+            name: 'DPost',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_OPTIONS,
-            id: 'DOptions',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DPost',
+            properties: {
+                value: {},
+            },
+        },
+        {
+            id: DecoratorID.PUT,
+            name: 'DPut',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DOptions',
+            id: DecoratorID.METHOD_PATH,
+            name: 'DPut',
+            properties: {
+                value: {},
+            },
+        },
+
+        {
+            id: DecoratorID.CONTEXT,
+            name: 'DRequest',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATCH,
-            id: 'DPatch',
+            id: DecoratorID.CONTEXT,
+            name: 'DResponse',
             properties: {},
         },
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DPatch',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.METHOD_POST,
-            id: 'DPost',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DPost',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.METHOD_PUT,
-            id: 'DPut',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'DPut',
+            id: DecoratorID.CONTEXT,
+            name: 'DNext',
             properties: {},
         },
 
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'DRequest',
+            id: DecoratorID.QUERY,
+            name: 'DQuery',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'DResponse',
+            id: DecoratorID.BODY,
+            name: 'DBody',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'DNext',
-            properties: {},
-        },
-
-        {
-            key: AnnotationKey.SERVER_QUERY,
-            id: 'DQuery',
+            id: DecoratorID.HEADER,
+            name: 'DHeader',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_BODY,
-            id: 'DBody',
+            id: DecoratorID.HEADERS,
+            name: 'DHeaders',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_HEADER,
-            id: 'DHeader',
+            id: DecoratorID.COOKIE,
+            name: 'DCookie',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_HEADERS,
-            id: 'DHeaders',
+            id: DecoratorID.COOKIES,
+            name: 'DCookies',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_COOKIE,
-            id: 'DCookie',
+            id: DecoratorID.PATH_PARAM,
+            name: 'DParam',
             properties: {},
         },
         {
-            key: AnnotationKey.SERVER_COOKIES,
-            id: 'DCookies',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.SERVER_PATH_PARAM,
-            id: 'DParam',
-            properties: {},
-        },
-        {
-            key: AnnotationKey.SERVER_PATH_PARAMS,
-            id: 'DParams',
+            id: DecoratorID.PATH_PARAMS,
+            name: 'DParams',
             properties: {},
         },
     ],

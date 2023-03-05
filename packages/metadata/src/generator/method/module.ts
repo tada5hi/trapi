@@ -8,7 +8,7 @@
 import * as console from 'console';
 import path from 'node:path';
 import * as ts from 'typescript';
-import { AnnotationKey } from '../../annotation';
+import { DecoratorID } from '../../decorator';
 import type { BaseType } from '../../resolver';
 import { TypeNodeResolver, isVoidType } from '../../resolver';
 import {
@@ -134,14 +134,14 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
 
     private processMethodDecorators() {
         const methods = [
-            AnnotationKey.METHOD_ALL,
-            AnnotationKey.METHOD_DELETE,
-            AnnotationKey.METHOD_GET,
-            AnnotationKey.METHOD_HEAD,
-            AnnotationKey.METHOD_OPTIONS,
-            AnnotationKey.METHOD_PATCH,
-            AnnotationKey.METHOD_POST,
-            AnnotationKey.METHOD_PUT,
+            DecoratorID.ALL,
+            DecoratorID.DELETE,
+            DecoratorID.GET,
+            DecoratorID.HEAD,
+            DecoratorID.OPTIONS,
+            DecoratorID.PATCH,
+            DecoratorID.POST,
+            DecoratorID.PUT,
         ];
 
         const decorators = getNodeDecorators(this.node);
@@ -162,7 +162,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
 
         this.method = method.toLowerCase() as MethodType;
 
-        this.generatePath(AnnotationKey.METHOD_PATH);
+        this.generatePath(DecoratorID.METHOD_PATH);
     }
 
     private getMethodSuccessResponse(type: BaseType): Response {
@@ -182,7 +182,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             return type;
         }
 
-        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return type;
         }
@@ -201,7 +201,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private getMethodSuccessExamples() {
-        const representation = this.current.decoratorMapper.match(AnnotationKey.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }

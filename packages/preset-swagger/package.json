@@ -1,11 +1,8 @@
 {
-    "name": "@trapi/preset-typescript-rest",
+    "name": "@trapi/preset-swagger",
     "version": "0.0.0",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "dependencies": {
-        "@trapi/preset-swagger": "^0.0.0"
-    },
     "devDependencies": {
         "@trapi/metadata": "^0.4.1"
     },

@@ -6,29 +6,29 @@
  */
 
 import type { PresetSchema } from '@trapi/metadata';
-import { AnnotationKey } from '@trapi/metadata';
+import { DecoratorID } from '@trapi/metadata';
 
 export default {
-    extends: ['@trapi/preset-built-in'],
+    extends: ['@trapi/preset-swagger'],
     items: [
         {
-            key: AnnotationKey.CLASS_PATH,
-            id: 'Path',
+            id: DecoratorID.CLASS_PATH,
+            name: 'Path',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.RESPONSE_DESCRIPTION,
-            id: 'Description',
+            id: DecoratorID.RESPONSE_DESCRIPTION,
+            name: 'Description',
             properties: {
                 type: { isType: true, srcArgumentType: 'typeArgument' },
                 payload: {},
             },
         },
         {
-            key: AnnotationKey.RESPONSE_EXAMPLE,
-            id: 'Example',
+            id: DecoratorID.RESPONSE_EXAMPLE,
+            name: 'Example',
             properties: {
                 type: { isType: true, srcArgumentType: 'typeArgument' },
                 payload: {},
@@ -36,111 +36,111 @@ export default {
         },
 
         {
-            key: AnnotationKey.METHOD_PATH,
-            id: 'Path',
+            id: DecoratorID.METHOD_PATH,
+            name: 'Path',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.METHOD_ALL,
-            id: 'ALL',
+            id: DecoratorID.ALL,
+            name: 'ALL',
         },
         {
-            key: AnnotationKey.METHOD_DELETE,
-            id: 'DELETE',
+            id: DecoratorID.DELETE,
+            name: 'DELETE',
         },
         {
-            key: AnnotationKey.METHOD_GET,
-            id: 'GET',
+            id: DecoratorID.GET,
+            name: 'GET',
         },
         {
-            key: AnnotationKey.METHOD_HEAD,
-            id: 'HEAD',
+            id: DecoratorID.HEAD,
+            name: 'HEAD',
         },
         {
-            key: AnnotationKey.METHOD_OPTIONS,
-            id: 'OPTIONS',
+            id: DecoratorID.OPTIONS,
+            name: 'OPTIONS',
         },
         {
-            key: AnnotationKey.METHOD_PATCH,
-            id: 'PATCH',
+            id: DecoratorID.PATCH,
+            name: 'PATCH',
         },
         {
-            key: AnnotationKey.METHOD_POST,
-            id: 'POST',
+            id: DecoratorID.POST,
+            name: 'POST',
         },
         {
-            key: AnnotationKey.METHOD_PUT,
-            id: 'PUT',
+            id: DecoratorID.PUT,
+            name: 'PUT',
         },
 
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'ContextRequest',
+            id: DecoratorID.CONTEXT,
+            name: 'ContextRequest',
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'ContextResponse',
+            id: DecoratorID.CONTEXT,
+            name: 'ContextResponse',
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'ContextNext',
+            id: DecoratorID.CONTEXT,
+            name: 'ContextNext',
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'ContextLanguage',
+            id: DecoratorID.CONTEXT,
+            name: 'ContextLanguage',
         },
         {
-            key: AnnotationKey.SERVER_CONTEXT,
-            id: 'ContextAccept',
+            id: DecoratorID.CONTEXT,
+            name: 'ContextAccept',
         },
 
         {
-            key: AnnotationKey.SERVER_QUERY,
-            id: 'QueryParam',
+            id: DecoratorID.QUERY,
+            name: 'QueryParam',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_HEADERS,
-            id: 'HeaderParam',
+            id: DecoratorID.HEADERS,
+            name: 'HeaderParam',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_COOKIES,
-            id: 'CookieParam',
+            id: DecoratorID.COOKIES,
+            name: 'CookieParam',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_PARAMS,
-            id: 'Param',
+            id: DecoratorID.PARAMS,
+            name: 'Param',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_PATH_PARAMS,
-            id: 'PathParam',
+            id: DecoratorID.PATH_PARAMS,
+            name: 'PathParam',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_FILE_PARAM,
-            id: 'FileParam',
+            id: DecoratorID.FILE_PARAM,
+            name: 'FileParam',
             properties: {
                 value: {},
             },
         },
         {
-            key: AnnotationKey.SERVER_FILES_PARAM,
-            id: 'FilesParam',
+            id: DecoratorID.FILES_PARAM,
+            name: 'FilesParam',
             properties: {
                 value: {},
             },

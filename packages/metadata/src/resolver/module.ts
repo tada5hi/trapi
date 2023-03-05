@@ -693,7 +693,7 @@ export class TypeNodeResolver {
         }
     }
 
-    private static getDesignatedModels(nodes: ts.Node[], typeName: string): ts.Node[] {
+    private static getDesignatedModels<T extends ts.Node>(nodes: T[], typeName: string): T[] {
         return nodes;
     }
 
@@ -800,7 +800,7 @@ export class TypeNodeResolver {
 
             inProgressTypes[name] = true;
 
-            const declaration : UsableDeclaration = this.getModelTypeDeclaration(type);
+            const declaration = this.getModelTypeDeclaration(type);
 
             let referenceType: ReferenceType;
             if (ts.isTypeAliasDeclaration(declaration)) {
@@ -814,7 +814,8 @@ export class TypeNodeResolver {
                     deprecated: isExistJSDocTag(declaration, (tag) => tag.tagName.text === 'deprecated'),
                 };
             } else {
-                referenceType = this.getModelReference(declaration, name, utilityType, utilityOptions);
+                // todo: dont cast handle property-signature
+                referenceType = this.getModelReference(declaration as ts.InterfaceDeclaration, name, utilityType, utilityOptions);
             }
 
             localReferenceTypeCache[name] = referenceType;
@@ -1022,7 +1023,7 @@ export class TypeNodeResolver {
         return referenceType;
     }
 
-    private static nodeIsUsable(node: ts.Node) {
+    private static nodeIsUsable(node: ts.Node) : node is UsableDeclaration {
         switch (node.kind) {
             case ts.SyntaxKind.InterfaceDeclaration:
             case ts.SyntaxKind.ClassDeclaration:
@@ -1035,82 +1036,29 @@ export class TypeNodeResolver {
         }
     }
 
-    private static resolveLeftmostIdentifier(type: ts.EntityName): ts.Identifier {
-        while (type.kind !== ts.SyntaxKind.Identifier) {
-            type = type.left;
-        }
-        return type;
-    }
+    private getModelTypeDeclaration(type: ts.EntityName) : UsableDeclaration {
+        let typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
 
-    private static resolveRightMostIdentifier(type: ts.EntityName) : ts.Identifier {
-        while (type.kind !== ts.SyntaxKind.Identifier) {
-            type = type.right;
-        }
-
-        return type;
-    }
-
-    private findMatchingModuleOrEnumDeclaration(statements: ts.Node[], name: string) : Array<ts.ModuleDeclaration | ts.EnumDeclaration> {
-        return statements.filter((node: ts.Node) => {
-            if ((node.kind !== ts.SyntaxKind.ModuleDeclaration ||
-                !this.current.isExportedNode(node)) && !ts.isEnumDeclaration(node)
-            ) {
-                return false;
-            }
-
-            const moduleDeclaration = node as ts.ModuleDeclaration | ts.EnumDeclaration;
-
-            return (moduleDeclaration.name as ts.Identifier).text.toLowerCase() === name.toLowerCase();
-        }) as Array<ts.ModuleDeclaration | ts.EnumDeclaration>;
-    }
-
-    private resolveModelTypeScope(
-        leftmost: ts.EntityName,
-        statements: ts.Node[],
-    ) : Array<ts.ModuleDeclaration | ts.EnumDeclaration | ts.Node> {
-        while (leftmost.parent && leftmost.parent.kind === ts.SyntaxKind.QualifiedName) {
-            const leftmostName : string = leftmost.kind === ts.SyntaxKind.Identifier ? leftmost.text : leftmost.right.text;
-            const moduleDeclarations : Array<
-            ts.ModuleDeclaration |
-            ts.EnumDeclaration
-            > = this.findMatchingModuleOrEnumDeclaration(statements, leftmostName);
-
-            if (moduleDeclarations.length > 0) {
-                statements = Array.prototype.concat(
-                    ...moduleDeclarations.map((declaration) => {
-                        if (ts.isEnumDeclaration(declaration)) {
-                            return declaration.members;
-                        }
-                        if (!declaration.body || !ts.isModuleBlock(declaration.body)) {
-                            throw new ResolverError(`Module declaration found for ${leftmostName} has no body.`);
-                        }
-                        return declaration.body.statements;
-                    }),
-                );
-            }
-
-            leftmost = leftmost.parent as ts.EntityName;
+        const symbol = this.getSymbolAtLocation(type);
+        const declarations = symbol.getDeclarations();
+        if (declarations.length === 0) {
+            throw new ResolverError(
+                `No models found for referenced type ${typeName}.`,
+            );
         }
 
-        return statements;
-    }
+        if (symbol.escapedName !== typeName && symbol.escapedName !== 'default') {
+            typeName = symbol.escapedName as string;
+        }
 
-    private getModelTypeDeclaration(type: ts.EntityName) {
-        type UsableDeclarationWithoutPropertySignature = Exclude<UsableDeclaration, ts.PropertySignature>;
-
-        const leftmostIdentifier = TypeNodeResolver.resolveLeftmostIdentifier(type);
-        const statements : ts.Node[] = this.resolveModelTypeScope(leftmostIdentifier, this.current.nodes);
-
-        const typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
-
-        let modelTypes = statements.filter((node) => {
+        let modelTypes = declarations.filter((node) => {
             if (!TypeNodeResolver.nodeIsUsable(node) || !this.current.isExportedNode(node)) {
                 return false;
             }
 
             const modelTypeDeclaration = node as UsableDeclaration;
             return (modelTypeDeclaration.name as ts.Identifier)?.text === typeName;
-        }) as UsableDeclarationWithoutPropertySignature[];
+        });
 
         if (!modelTypes.length) {
             throw new ResolverError(
@@ -1120,16 +1068,33 @@ export class TypeNodeResolver {
 
         if (modelTypes.length > 1) {
             // remove types that are from typescript e.g. 'Account'
-            modelTypes = modelTypes.filter((modelType) => modelType.getSourceFile().fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules') <= -1);
+            modelTypes = modelTypes.filter((modelType) => modelType.getSourceFile()
+                .fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules/typescript') <= -1);
 
-            modelTypes = TypeNodeResolver.getDesignatedModels(modelTypes, typeName) as UsableDeclarationWithoutPropertySignature[];
+            modelTypes = TypeNodeResolver.getDesignatedModels(modelTypes, typeName);
         }
         if (modelTypes.length > 1) {
             const conflicts = modelTypes.map((modelType) => modelType.getSourceFile().fileName).join('"; "');
-            throw new ResolverError(`Multiple matching models found for referenced type ${typeName}; please make model names unique. Conflicts found: "${conflicts}".`);
+            throw new ResolverError(
+                `Multiple matching models found for referenced type ${typeName}; please make model names unique. Conflicts found: "${conflicts}".`,
+            );
         }
 
-        return modelTypes[0];
+        return modelTypes[0] as UsableDeclaration;
+    }
+
+    private hasFlag(type: ts.Symbol | ts.Declaration, flag: number) {
+        return (type.flags & flag) === flag;
+    }
+
+    private getSymbolAtLocation(type: ts.Node) : ts.Symbol {
+        const symbol = this.current.typeChecker.getSymbolAtLocation(type) || ((type as any).symbol as ts.Symbol);
+        // resolve alias if it is an alias, otherwise take symbol directly
+        return (
+            symbol &&
+            this.hasFlag(symbol, ts.SymbolFlags.Alias) &&
+            this.current.typeChecker.getAliasedSymbol(symbol)
+        ) || symbol;
     }
 
     private getModelProperties(
@@ -1150,10 +1115,10 @@ export class TypeNodeResolver {
 
         // Class model
         let properties = node.members
-            .filter((member) => !isIgnored(member))
-            .filter((member) => member.kind === ts.SyntaxKind.PropertyDeclaration)
-            .filter((member) => !this.hasStaticModifier(member))
-            .filter((member) => this.hasPublicModifier(member)) as Array<ts.PropertyDeclaration | ts.ParameterDeclaration>;
+            .filter((member) => !isIgnored(member) &&
+                    member.kind === ts.SyntaxKind.PropertyDeclaration &&
+                !this.hasStaticModifier(member) &&
+                this.hasPublicModifier(member)) as Array<ts.PropertyDeclaration | ts.ParameterDeclaration>;
 
         const classConstructor = node.members.find((member) => ts.isConstructorDeclaration(member)) as ts.ConstructorDeclaration;
 

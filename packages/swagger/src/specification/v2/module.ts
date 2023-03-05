@@ -20,8 +20,8 @@ import {
     isRefObjectType,
 } from '@trapi/metadata';
 import { merge } from 'smob';
-import { posix } from 'path';
-import { URL } from 'url';
+import path from 'node:path';
+import { URL } from 'node:url';
 
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 
@@ -237,7 +237,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
         this.metadata.controllers.forEach((controller) => {
             controller.methods.forEach((method) => {
-                let fullPath : string = posix.join('/', (controller.path ? controller.path : ''), method.path);
+                let fullPath : string = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
                 fullPath = normalizePathParameters(fullPath);
 
                 paths[fullPath] = paths[fullPath] || {};

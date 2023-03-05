@@ -29,12 +29,12 @@ import {
     isVoidType,
 } from '@trapi/metadata';
 
-import * as path from 'path';
-import { promises } from 'fs';
-import * as YAML from 'yamljs';
+import path from 'node:path';
+import fs from 'node:fs';
+import YAML from 'yamljs';
 import { hasOwnProperty } from '../utils';
-import type { SpecificationV2 } from './v2/type';
-import type { SpecificationV3 } from './v3/type';
+import type { SpecificationV2 } from './v2';
+import type { SpecificationV3 } from './v3';
 
 import type { SwaggerDocFormatData, SwaggerDocFormatType } from '../type';
 import type { Specification } from './type';
@@ -56,7 +56,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         const spec = this.build();
         const swaggerDir: string = path.resolve(this.config.outputDirectory);
 
-        await promises.mkdir(swaggerDir, { recursive: true });
+        await fs.promises.mkdir(swaggerDir, { recursive: true });
 
         const data: Record<SwaggerDocFormatType, SwaggerDocFormatData> = {
             json: {
@@ -85,7 +85,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
 
             const output = data[keys[i]];
 
-            filePromises.push(promises.writeFile(output.path, output.content));
+            filePromises.push(fs.promises.writeFile(output.path, output.content));
         }
 
         await Promise.all(filePromises);

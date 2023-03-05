@@ -8,7 +8,7 @@
 // todo: implement character in regex matching
 
 export function removeRepeatingCharacter(str: string, character: string) : string {
-    return str.replace('/([^:]$)\/+/g', '$1');
+    return str.replace('/([^:]$)/+/g', '$1');
 }
 
 export function removeFinalCharacter(str: string, character: string) {

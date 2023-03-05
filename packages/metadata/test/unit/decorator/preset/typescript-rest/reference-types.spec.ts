@@ -8,7 +8,7 @@
 import jsonata from 'jsonata';
 import { MetadataGenerator } from '../../../../../src';
 import type {
-    ArrayType, MetadataGeneratorOutput,
+    ArrayType, Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefEnumType,
@@ -18,7 +18,7 @@ import type {
 } from '../../../../../src';
 
 describe('check referenceTypes', () => {
-    let metadata : MetadataGeneratorOutput;
+    let metadata : Metadata;
 
     beforeAll(async () => {
         const generator = new MetadataGenerator({

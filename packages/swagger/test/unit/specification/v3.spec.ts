@@ -8,7 +8,7 @@
 import { load } from 'locter';
 import type {
     AbstractSpecGenerator,
-    MetadataGeneratorOutput,
+    Metadata,
 } from '../../../src';
 import {
     Version3SpecGenerator,
@@ -19,7 +19,7 @@ describe('SpecGenerator', () => {
     let specGenerator : AbstractSpecGenerator<any, any>;
 
     beforeAll(async () => {
-        const metadata : MetadataGeneratorOutput = await load('./test/data/metadata.json');
+        const metadata : Metadata = await load('./test/data/metadata.json');
 
         specGenerator = await createSpecificationGenerator(metadata, {
             host: 'http://localhost:3000/',

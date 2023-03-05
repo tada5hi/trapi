@@ -6,7 +6,7 @@
  */
 
 import {
-    MetadataGeneratorOutput,
+    Metadata,
     Options as MetadataOptions,
     createMetadataGenerator,
     generateMetadata,
@@ -22,6 +22,6 @@ export {
     CacheOptions,
 
     // Types & Interfaces
-    MetadataGeneratorOutput,
+    Metadata,
     MetadataOptions,
 };

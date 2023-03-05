@@ -7,13 +7,13 @@
 
 import type { CompilerOptions } from 'typescript';
 import type { Options } from './config';
-import type { MetadataGeneratorOutput } from './generator';
+import type { Metadata } from './generator';
 import { createMetadataGenerator } from './generator';
 
 export async function generateMetadata(
     config: Options,
     compilerOptions?: CompilerOptions,
-) : Promise<MetadataGeneratorOutput> {
+) : Promise<Metadata> {
     const generator = createMetadataGenerator(config, compilerOptions);
 
     return generator.generate();

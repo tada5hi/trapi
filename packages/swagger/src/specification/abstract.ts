@@ -10,7 +10,7 @@ import type {
     BaseType,
     EnumType,
     IntersectionType,
-    MetadataGeneratorOutput,
+    Metadata,
     NestedObjectLiteralType,
     PrimitiveTypeLiteral,
     ReferenceType,
@@ -43,11 +43,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
     Schema extends SpecificationV3.Schema | SpecificationV2.Schema> {
     protected spec: Spec;
 
-    protected readonly metadata: MetadataGeneratorOutput;
+    protected readonly metadata: Metadata;
 
     protected readonly config: Specification.Config;
 
-    constructor(metadata: MetadataGeneratorOutput, config: Specification.Config) {
+    constructor(metadata: Metadata, config: Specification.Config) {
         this.metadata = metadata;
         this.config = config;
     }

@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { MetadataGeneratorOutput } from '../generator';
+import type { Metadata } from '../generator';
 
 export interface CacheOptions {
     /**
@@ -40,4 +40,4 @@ export type CacheOptionsInput = Partial<CacheOptions>;
 
 export type CacheData = {
     sourceFilesSize: number;
-} & MetadataGeneratorOutput;
+} & Metadata;

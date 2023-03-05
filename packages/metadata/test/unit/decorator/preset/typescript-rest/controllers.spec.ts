@@ -7,12 +7,12 @@
 
 import path from 'node:path';
 import type {
-    MetadataGeneratorOutput,
+    Metadata,
 } from '../../../../../src';
 import { MetadataGenerator } from '../../../../../src';
 
 describe('library/typescript-rest', () => {
-    let metadata : MetadataGeneratorOutput;
+    let metadata : Metadata;
 
     beforeAll(async () => {
         const generator = new MetadataGenerator({

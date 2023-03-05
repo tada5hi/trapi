@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { MetadataGeneratorOutput } from '@trapi/metadata';
+import type { Metadata } from '@trapi/metadata';
 import { MetadataGenerator } from '@trapi/metadata';
 import type { AbstractSpecGenerator } from './abstract';
 import { Specification } from './type';
@@ -12,10 +12,10 @@ import { Version2SpecGenerator } from './v2';
 import { Version3SpecGenerator } from './v3';
 
 export async function createSpecificationGenerator(
-    metadata: MetadataGeneratorOutput | MetadataGenerator,
+    metadata: Metadata | MetadataGenerator,
     config: Specification.Config = {},
 ) : Promise<AbstractSpecGenerator<any, any>> {
-    let data: MetadataGeneratorOutput;
+    let data: Metadata;
     if (metadata instanceof MetadataGenerator) {
         data = await metadata.generate();
     } else {

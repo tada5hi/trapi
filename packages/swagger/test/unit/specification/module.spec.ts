@@ -7,14 +7,14 @@
 
 import jsonata from 'jsonata';
 import { load } from 'locter';
-import type { MetadataGeneratorOutput, SpecificationV2, SpecificationV3 } from '../../../src';
+import type { Metadata, SpecificationV2, SpecificationV3 } from '../../../src';
 import { createSpecificationGenerator } from '../../../src';
 
 describe('generating swagger spec from metadata', () => {
     let spec : SpecificationV2.Spec | SpecificationV3.Spec;
 
     beforeAll(async () => {
-        const metadata : MetadataGeneratorOutput = await load('./test/data/metadata.json');
+        const metadata : Metadata = await load('./test/data/metadata.json');
 
         const specGenerator = await createSpecificationGenerator(metadata, {
             host: 'http://localhost:3000/',

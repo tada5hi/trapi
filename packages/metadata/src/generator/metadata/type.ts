@@ -10,7 +10,7 @@ import type { Controller } from '../controller';
 /**
  * The output specification for metadata generation.
  */
-export interface MetadataGeneratorOutput {
+export interface Metadata {
     /**
      * A Controller is a collection of grouped methods (GET, POST, ...)
      * for a common URL path (i.e /users) or an more explicit URL path (i.e. /users/:id).

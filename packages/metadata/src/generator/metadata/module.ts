@@ -31,7 +31,7 @@ import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../re
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
 import { CacheDriver } from '../../cache';
-import type { MetadataGeneratorOutput } from './type';
+import type { Metadata } from './type';
 
 export class MetadataGenerator {
     public readonly nodes : Node[];
@@ -73,7 +73,7 @@ export class MetadataGenerator {
 
     // -------------------------------------------------------------------------
 
-    async generate(): Promise<MetadataGeneratorOutput> {
+    async generate(): Promise<Metadata> {
         const sourceFileSize : number = this.buildNodesFromSourceFiles();
 
         let cache = await this.cache.get(sourceFileSize);

@@ -6,23 +6,22 @@
  */
 
 import {
-    Options as MetadataConfig,
     MetadataGeneratorOutput,
+    Options as MetadataOptions,
     createMetadataGenerator,
     generateMetadata,
 } from '@trapi/metadata';
 
 import type { CacheOptions } from '@trapi/metadata';
 
-type MetadataCacheConfig = CacheOptions;
-
 export {
     // Utils
     generateMetadata,
     createMetadataGenerator,
 
+    CacheOptions,
+
     // Types & Interfaces
     MetadataGeneratorOutput,
-    MetadataCacheConfig,
-    MetadataConfig,
+    MetadataOptions,
 };

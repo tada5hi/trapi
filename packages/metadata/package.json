@@ -42,7 +42,7 @@
         "jsonata": "^2.0.2"
     },
     "dependencies": {
-        "locter": "^1.0.6",
+        "locter": "^1.0.7",
         "minimatch": "^7.4.2",
         "typescript": "^4.9.4"
     },

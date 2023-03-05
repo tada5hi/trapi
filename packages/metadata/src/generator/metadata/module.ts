@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildLoaderFilePath, locateManySync } from 'locter';
+import { buildFilePath, locateManySync } from 'locter';
 import minimatch from 'minimatch';
 import type {
     ClassDeclaration,
@@ -232,10 +232,10 @@ export class MetadataGenerator {
 
             if (typeof source === 'string') {
                 matches = locateManySync(source)
-                    .map((info) => buildLoaderFilePath(info, true));
+                    .map((info) => buildFilePath(info));
             } else {
                 matches = locateManySync(source.pattern)
-                    .map((info) => buildLoaderFilePath(info, true));
+                    .map((info) => buildFilePath(info));
             }
 
             for (let j = 0; j < matches.length; j++) {

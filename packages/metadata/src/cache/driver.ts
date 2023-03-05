@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildLoaderFilePath, locateMany } from 'locter';
+import { buildFilePath, locateMany } from 'locter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildCacheOptions, generateFileHash } from './utils';
@@ -81,7 +81,7 @@ export class CacheDriver {
 
         const unlinkPromises : Promise<void>[] = [];
         for (let i = 0; files.length; i++) {
-            unlinkPromises.push(fs.promises.unlink(buildLoaderFilePath(files[i], true)));
+            unlinkPromises.push(fs.promises.unlink(buildFilePath(files[i])));
         }
 
         await Promise.all(unlinkPromises);

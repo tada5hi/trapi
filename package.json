@@ -50,7 +50,6 @@
         "@tada5hi/eslint-config-typescript": "^1.1.4",
         "@types/jest": "^27.5.0",
         "@types/node": "^18.11.18",
-        "codecov": "^3.8.3",
         "cross-env": "^7.0.3",
         "eslint": "^8.35.0",
         "husky": "^8.0.3",

@@ -874,7 +874,7 @@ export class TypeNodeResolver {
             modelType,
             (tag) => tag.tagName.text === 'deprecated',
         ) ||
-            typeof this.current.decoratorMapper.match(
+            typeof this.current.decoratorResolver.match(
                 DecoratorID.DEPRECATED,
                 modelType,
             ) !== 'undefined';

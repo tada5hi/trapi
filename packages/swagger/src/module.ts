@@ -20,9 +20,9 @@ export async function generateDocumentation(
 ): Promise<Record<SwaggerDocFormatType, SwaggerDocFormatData>> {
     const metadataGenerator = createMetadataGenerator(config.metadata, tsConfig);
 
-    const metadata = metadataGenerator.generate();
+    const metadata = await metadataGenerator.generate();
 
-    const specGenerator = createSpecificationGenerator(metadata, config.swagger);
+    const specGenerator = await createSpecificationGenerator(metadata, config.swagger);
 
     specGenerator.build();
     return specGenerator.save();

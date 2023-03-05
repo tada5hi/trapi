@@ -149,7 +149,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         let method : string | undefined;
 
         for (let i = 0; i < methods.length; i++) {
-            const representationManager = this.current.decoratorMapper.match(methods[i], decorators);
+            const representationManager = this.current.decoratorResolver.match(methods[i], decorators);
             if (representationManager) {
                 method = methods[i];
                 break;
@@ -182,7 +182,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             return type;
         }
 
-        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return type;
         }
@@ -201,7 +201,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private getMethodSuccessExamples() {
-        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }

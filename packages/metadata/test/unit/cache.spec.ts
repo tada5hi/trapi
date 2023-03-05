@@ -5,14 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as fs from 'fs';
+import fs from 'node:fs';
 import { CacheDriver } from '../../src';
 
 describe('src/cache/index.ts', () => {
-    it('should save cache', () => {
+    it('should save cache', async () => {
         const cache = new CacheDriver();
 
-        const cachePath : string = cache.save({
+        const cachePath : string = await cache.save({
             controllers: [],
             referenceTypes: {},
             sourceFilesSize: 0,
@@ -21,7 +21,7 @@ describe('src/cache/index.ts', () => {
         expect(cachePath).toBeDefined();
         expect(fs.existsSync(cachePath)).toBeTruthy();
 
-        const output = cache.get(0);
+        const output = await cache.get(0);
 
         expect(output).toBeDefined();
         expect(output).toHaveProperty('controllers');
@@ -29,10 +29,10 @@ describe('src/cache/index.ts', () => {
         expect(output).toHaveProperty('sourceFilesSize');
     });
 
-    it('should not save & get cache', () => {
+    it('should not save & get cache', async () => {
         const cacheNone = new CacheDriver(false);
 
-        const cachePath : string = cacheNone.save({
+        const cachePath : string = await cacheNone.save({
             controllers: [],
             referenceTypes: {},
             sourceFilesSize: 0,
@@ -40,7 +40,7 @@ describe('src/cache/index.ts', () => {
 
         expect(cachePath).toBeUndefined();
 
-        const output = cacheNone.get(0);
+        const output = await cacheNone.get(0);
 
         expect(output).toBeUndefined();
     });

@@ -11,7 +11,9 @@ import { DecoratorID } from '../decorator';
 import { TypeNodeResolver } from '../resolver';
 
 import type { Response } from './type';
-import {getInitializerValue, getNodeDecorators, isExistJSDocTag, normalizePath} from '../utils';
+import {
+    getInitializerValue, getNodeDecorators, isExistJSDocTag, normalizePath,
+} from '../utils';
 import type { MetadataGenerator } from './metadata';
 
 export abstract class AbstractGenerator<T extends Node> {
@@ -32,7 +34,7 @@ export abstract class AbstractGenerator<T extends Node> {
     ) : void {
         const values : string[] = [];
 
-        const representation = this.current.decoratorMapper.match(key, this.node);
+        const representation = this.current.decoratorResolver.match(key, this.node);
         if (typeof representation !== 'undefined') {
             const value = representation.getPropertyValue('value');
             if (typeof value !== 'undefined') {
@@ -113,7 +115,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     protected getResponses(): Response[] {
-        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_DESCRIPTION, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_DESCRIPTION, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -144,7 +146,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     public getProduces() : string[] {
-        const representation = this.current.decoratorMapper.match(DecoratorID.RESPONSE_PRODUCES, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_PRODUCES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -158,7 +160,7 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getConsumes() : string[] {
-        const representation = this.current.decoratorMapper.match(DecoratorID.REQUEST_CONSUMES, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.REQUEST_CONSUMES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -174,7 +176,7 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getTags() : string[] {
-        const representation = this.current.decoratorMapper.match(DecoratorID.SWAGGER_TAGS, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.SWAGGER_TAGS, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -196,7 +198,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     public isHidden(node: Node) : boolean {
-        return typeof this.current.decoratorMapper.match(DecoratorID.HIDDEN, node) !== 'undefined';
+        return typeof this.current.decoratorResolver.match(DecoratorID.HIDDEN, node) !== 'undefined';
     }
 
     public isDeprecated(node: Node) : boolean {
@@ -204,6 +206,6 @@ export abstract class AbstractGenerator<T extends Node> {
             return true;
         }
 
-        return typeof this.current.decoratorMapper.match(DecoratorID.DEPRECATED, node) !== 'undefined';
+        return typeof this.current.decoratorResolver.match(DecoratorID.DEPRECATED, node) !== 'undefined';
     }
 }

@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { MetadataGeneratorOutput } from '../generator/metadata';
+import type { MetadataGeneratorOutput } from '../generator';
 
 export interface CacheOptions {
     /**

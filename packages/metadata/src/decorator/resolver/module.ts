@@ -14,16 +14,18 @@ import type {
 } from '../type';
 import type { NodeDecorator } from '../../utils';
 import { getNodeDecorators, hasOwnProperty } from '../../utils';
-import type { DecoratorResolverContext, DecoratorResolverMap } from './type';
+import type { DecoratorResolverMap } from './type';
 
 export class DecoratorResolver {
+    protected items : DecoratorConfig[];
+
     protected map: DecoratorResolverMap;
 
     // -------------------------------------------
 
-    constructor(input?: DecoratorResolverContext) {
+    constructor() {
+        this.items = [];
         this.map = {};
-        this.setup(input || {});
     }
 
     // -------------------------------------------
@@ -65,31 +67,29 @@ export class DecoratorResolver {
 
     // -------------------------------------------
 
-    setup(context: DecoratorResolverContext): void {
-        const items: DecoratorConfig[] = [];
+    apply(items: DecoratorConfig[]) {
+        this.items.push(...items);
 
-        if (context.preset) {
-            items.push(...loadPreset(context.preset));
-        }
+        this.aggregate();
+    }
 
-        if (context.decorators) {
-            items.push(...context.decorators);
-        }
+    async applyPreset(name: string) {
+        const items = await loadPreset(name);
+        this.items.push(...items);
 
-        this.map = this.aggregate(...items);
+        this.aggregate();
     }
 
     /**
      * Aggregate/group different annotation sources.
      *
-     * @param input
      * @private
      */
-    private aggregate(...input: DecoratorConfig[]): DecoratorResolverMap {
+    private aggregate(): void {
         const result: DecoratorResolverMap = {};
 
-        for (let i = 0; i < input.length; i++) {
-            const mapping = input[i];
+        for (let i = 0; i < this.items.length; i++) {
+            const mapping = this.items[i];
             if (!Object.prototype.hasOwnProperty.call(result, mapping.id)) {
                 result[mapping.id] = [];
             }
@@ -97,6 +97,6 @@ export class DecoratorResolver {
             (result[mapping.id] as DecoratorConfig[]).push(mapping);
         }
 
-        return result;
+        this.map = result;
     }
 }

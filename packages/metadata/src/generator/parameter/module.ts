@@ -59,7 +59,7 @@ export class ParameterGenerator {
         const decorators = getNodeDecorators(this.parameter);
 
         for (let i = 0; i < parameterKeys.length; i++) {
-            const representation = this.current.decoratorMapper.match(parameterKeys[i], decorators);
+            const representation = this.current.decoratorResolver.match(parameterKeys[i], decorators);
             if (typeof representation === 'undefined') {
                 continue;
             }

@@ -11,11 +11,16 @@ import { Specification } from './type';
 import { Version2SpecGenerator } from './v2';
 import { Version3SpecGenerator } from './v3';
 
-export function createSpecificationGenerator(
+export async function createSpecificationGenerator(
     metadata: MetadataGeneratorOutput | MetadataGenerator,
     config: Specification.Config = {},
-) {
-    const data: MetadataGeneratorOutput = metadata instanceof MetadataGenerator ? metadata.generate() : metadata;
+) : Promise<AbstractSpecGenerator<any, any>> {
+    let data: MetadataGeneratorOutput;
+    if (metadata instanceof MetadataGenerator) {
+        data = await metadata.generate();
+    } else {
+        data = metadata;
+    }
 
     const outputFormat: Specification.SpecificationOption = config.specification || Specification.SpecificationOption.V2;
 

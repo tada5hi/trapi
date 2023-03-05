@@ -10,10 +10,10 @@ import type { Options } from './config';
 import type { MetadataGeneratorOutput } from './generator';
 import { createMetadataGenerator } from './generator';
 
-export function generateMetadata(
+export async function generateMetadata(
     config: Options,
     compilerOptions?: CompilerOptions,
-) : MetadataGeneratorOutput {
+) : Promise<MetadataGeneratorOutput> {
     const generator = createMetadataGenerator(config, compilerOptions);
 
     return generator.generate();

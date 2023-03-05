@@ -38,7 +38,7 @@ export class MetadataGenerator {
 
     public readonly typeChecker: TypeChecker;
 
-    public readonly decoratorMapper: DecoratorResolver;
+    public readonly decoratorResolver: DecoratorResolver;
 
     public readonly config: Options;
 
@@ -62,7 +62,7 @@ export class MetadataGenerator {
         this.config = config;
 
         this.cache = new CacheDriver(config.cache);
-        this.decoratorMapper = new DecoratorResolver({ preset: config.preset, decorators: config.decorators });
+        this.decoratorResolver = new DecoratorResolver();
 
         TypeNodeResolver.clearCache();
 
@@ -73,12 +73,20 @@ export class MetadataGenerator {
 
     // -------------------------------------------------------------------------
 
-    public generate(): MetadataGeneratorOutput {
+    async generate(): Promise<MetadataGeneratorOutput> {
         const sourceFileSize : number = this.buildNodesFromSourceFiles();
 
-        let cache = this.cache.get(sourceFileSize);
+        let cache = await this.cache.get(sourceFileSize);
 
         if (!cache) {
+            if (this.config.decorators) {
+                this.decoratorResolver.apply(this.config.decorators);
+            }
+
+            if (this.config.preset) {
+                await this.decoratorResolver.applyPreset(this.config.preset);
+            }
+
             this.buildControllers();
 
             this.circularDependencyResolvers.forEach((resolve) => resolve(this.referenceTypes));
@@ -89,7 +97,7 @@ export class MetadataGenerator {
                 sourceFilesSize: sourceFileSize,
             };
 
-            this.cache.save(cache);
+            await this.cache.save(cache);
         }
 
         return {
@@ -242,11 +250,11 @@ export class MetadataGenerator {
         this.controllers = this.nodes
             .filter((node) => node.kind === SyntaxKind.ClassDeclaration)
             .filter((node) => {
-                const isHidden = this.decoratorMapper.match(DecoratorID.HIDDEN, node);
+                const isHidden = this.decoratorResolver.match(DecoratorID.HIDDEN, node);
 
                 return typeof isHidden === 'undefined';
             })
-            .filter((node) => typeof this.decoratorMapper.match(DecoratorID.CLASS_PATH, node) !== 'undefined')
+            .filter((node) => typeof this.decoratorResolver.match(DecoratorID.CLASS_PATH, node) !== 'undefined')
             .map((classDeclaration: ClassDeclaration) => new ControllerGenerator(classDeclaration, this))
             .filter((generator) => generator.isValid())
             .map((generator) => generator.generate());

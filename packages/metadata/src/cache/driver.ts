@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildLoaderFilePath, locateManySync } from 'locter';
+import { buildLoaderFilePath, locateMany } from 'locter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildCacheOptions, generateFileHash } from './utils';
@@ -20,36 +20,34 @@ export class CacheDriver {
 
     // -------------------------------------------------------------------------
 
-    public save(data: CacheData): string | undefined {
+    async save(data: CacheData): Promise<string | undefined> {
         if (!this.options.enabled) {
             return undefined;
         }
 
         const filePath: string = this.buildFilePath(undefined, data.sourceFilesSize);
 
-        fs.writeFileSync(filePath, JSON.stringify(data));
+        await fs.promises.writeFile(filePath, JSON.stringify(data));
 
         return filePath;
     }
 
-    public get(sourceFilesSize: number): CacheData | undefined {
+    async get(sourceFilesSize: number): Promise<CacheData | undefined> {
         if (!this.options.enabled) {
             return undefined;
         }
 
-        this.clear();
+        await this.clear();
 
         const filePath: string = this.buildFilePath(undefined, sourceFilesSize);
 
         try {
-            const buffer: Buffer = fs.readFileSync(filePath);
-
-            const content: string = buffer.toString('utf-8');
+            const content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
 
             // todo: maybe add shape validation here :)
             const cache: CacheData | undefined = JSON.parse(content) as CacheData;
 
-            if (typeof cache === 'undefined' || cache.sourceFilesSize !== sourceFilesSize) {
+            if (!cache || cache.sourceFilesSize !== sourceFilesSize) {
                 return undefined;
             }
 
@@ -67,7 +65,7 @@ export class CacheDriver {
      */
 
     /* istanbul ignore next */
-    public clear(): void {
+    async clear(): Promise<void> {
         if (!this.options.enabled || !this.options.clearAtRandom) {
             return;
         }
@@ -77,11 +75,16 @@ export class CacheDriver {
             return;
         }
 
-        const files = locateManySync(this.buildFileName('**'), {
+        const files = await locateMany(this.buildFileName('**'), {
             path: this.options.directoryPath,
         });
 
-        files.map((file) => fs.unlinkSync(buildLoaderFilePath(file, true)));
+        const unlinkPromises : Promise<void>[] = [];
+        for (let i = 0; files.length; i++) {
+            unlinkPromises.push(fs.promises.unlink(buildLoaderFilePath(files[i], true)));
+        }
+
+        await Promise.all(unlinkPromises);
     }
 
     // -------------------------------------------------------------------------

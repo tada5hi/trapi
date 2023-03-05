@@ -30,8 +30,8 @@ describe('src/utils/factory.ts', () => {
         expect(generator).toBeDefined();
     });
 
-    it('should generate metadata', () => {
-        const data = generateMetadata({
+    it('should generate metadata', async () => {
+        const data = await generateMetadata({
             entryPoint: './test/fake-path',
         });
 

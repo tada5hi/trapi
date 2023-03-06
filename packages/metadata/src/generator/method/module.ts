@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as console from 'console';
 import path from 'node:path';
 import * as ts from 'typescript';
 import { DecoratorID } from '../../decorator';
@@ -17,7 +16,7 @@ import {
 import { AbstractGenerator } from '../abstract';
 import type { MetadataGenerator } from '../metadata';
 import type { Parameter } from '../parameter';
-import { ParameterGenerator } from '../parameter';
+import { ParameterGenerator, ParameterSource } from '../parameter';
 import type { Response } from '../type';
 import type { Method, MethodType } from './type';
 
@@ -104,15 +103,15 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
                 )
                     .generate();
 
-                if (parameter.in === 'body') {
+                if (parameter.in === ParameterSource.BODY) {
                     bodyParameterCount++;
                 }
 
-                if (parameter.in === 'formData') {
+                if (parameter.in === ParameterSource.FORM_DATA) {
                     formParameterCount++;
                 }
 
-                if (parameter.in !== 'context') {
+                if (parameter.in !== ParameterSource.CONTEXT) {
                     parameters.push(parameter);
                 }
             } catch (e) {

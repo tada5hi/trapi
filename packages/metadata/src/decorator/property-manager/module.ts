@@ -31,7 +31,7 @@ export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
         this.decorators = decorators;
     }
 
-    get key() : T {
+    get id() : T {
         return this.representation.id;
     }
 

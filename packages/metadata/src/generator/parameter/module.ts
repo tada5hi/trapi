@@ -65,7 +65,7 @@ export class ParameterGenerator {
                 continue;
             }
 
-            switch (representation.key) {
+            switch (representation.id) {
                 case DecoratorID.CONTEXT:
                     return this.getContextParameter();
                 case DecoratorID.PARAM:
@@ -89,7 +89,7 @@ export class ParameterGenerator {
                 case DecoratorID.FILE_PARAM:
                     return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}`>);
                 case DecoratorID.FILES_PARAM:
-                    return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILES_PARAM}`>, true);
+                    return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILES_PARAM}`>);
             }
         }
 
@@ -143,28 +143,8 @@ export class ParameterGenerator {
         };
     }
 
-    /*
-    private getFileParameter(parameter: ts.ParameterDeclaration): Metadata.Parameter{
-        const parameterName = (parameter.name as ts.Identifier).text;
-
-        if (!this.supportsBodyParameters(this.method)) {
-            throw new Error(`FileParam can't support '${this.getCurrentLocation()}' method.`);
-        }
-
-        return {
-            description: this.getParameterDescription(parameter),
-            in: 'formData',
-            name: getDecoratorTextValue(this.parameter, ident => ident.text === 'FileParam') || parameterName,
-            parameterName: parameterName,
-            required: !parameter.questionToken,
-            type: { typeName: 'file' }
-        };
-    }
-     */
-
     private getFileParameter(
-        representationManager: DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}` | `${DecoratorID.FILES_PARAM}`>,
-        isArray?: boolean,
+        manager: DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}` | `${DecoratorID.FILES_PARAM}`>,
     ) : Parameter {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -173,14 +153,14 @@ export class ParameterGenerator {
             throw new Error(`File(s)Param can't support '${this.getCurrentLocation()}' method.`);
         }
 
-        const value = representationManager.getPropertyValue('value');
+        const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
         }
 
         const elementType: TypeVariant = { typeName: 'file' };
         let type: TypeVariant;
-        if (isArray) {
+        if (manager.id === DecoratorID.FILES_PARAM) {
             type = { typeName: 'array', elementType };
         } else {
             type = elementType;
@@ -420,9 +400,9 @@ export class ParameterGenerator {
             return true;
         }
 
-        const decorators = getNodeDecorators(this.parameter, (identifier) => identifier.text === 'Deprecated');
+        const match = this.current.decoratorResolver.match(DecoratorID.DEPRECATED, this.parameter);
 
-        return decorators.length > 0;
+        return !!match;
     }
 
     private supportsBodyParameters(method: string) {

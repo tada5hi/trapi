@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.1](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.0...@trapi/metadata@1.0.0-alpha.1) (2023-03-06)
+
+
+### Features
+
+* allow multiple inputs for generating metadata ([b625b71](https://github.com/Tada5hi/trapi/commit/b625b715d61c085d5438dd1941ee1206e93bef78))
+
+
+
+
+
 # [1.0.0-alpha.0](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.4.1...@trapi/metadata@1.0.0-alpha.0) (2023-03-06)
 
 

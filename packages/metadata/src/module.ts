@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type { CompilerOptions } from 'typescript';
 import type { Options } from './config';
 import type { Metadata } from './generator';
 import { MetadataGenerator } from './generator';
@@ -15,8 +16,15 @@ export async function generateMetadata(
     input: Options | string | string[],
     tsconfig?: string | TsConfig,
 ) : Promise<Metadata> {
-    if (typeof tsconfig === 'string' || typeof tsconfig === 'undefined') {
-        tsconfig = await softLoadTsconfig({ name: tsconfig });
+    let compilerOptions : CompilerOptions | undefined;
+
+    if (tsconfig) {
+        if (typeof tsconfig === 'string') {
+            tsconfig = await softLoadTsconfig({ name: tsconfig });
+            compilerOptions = tsconfig.compilerOptions;
+        } else {
+            compilerOptions = tsconfig.compilerOptions || {};
+        }
     }
 
     let options : Options;
@@ -32,7 +40,7 @@ export async function generateMetadata(
 
     const generator = new MetadataGenerator({
         sourceFiles,
-        compilerOptions: tsconfig.compilerOptions,
+        compilerOptions,
         options,
     });
 

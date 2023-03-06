@@ -12,11 +12,20 @@ import { scanSourceFiles, softLoadTsconfig } from './utils';
 import type { TsConfig } from './utils';
 
 export async function generateMetadata(
-    options: Options,
+    input: Options | string | string[],
     tsconfig?: string | TsConfig,
 ) : Promise<Metadata> {
     if (typeof tsconfig === 'string' || typeof tsconfig === 'undefined') {
         tsconfig = await softLoadTsconfig({ name: tsconfig });
+    }
+
+    let options : Options;
+    if (typeof input === 'string' || Array.isArray(input)) {
+        options = {
+            entryPoint: input,
+        };
+    } else {
+        options = input;
     }
 
     const sourceFiles = await scanSourceFiles(options.entryPoint);

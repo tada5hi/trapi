@@ -1,8 +1,29 @@
 {
     "name": "@trapi/preset-routup",
     "version": "0.0.0",
+    "description": "Preset for @routup/decorators library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "keywords": [
+        "metadata",
+        "decorators",
+        "preset"
+    ],
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Tada5hi/trapi.git",
+        "directory": "packages/preset-routup"
+    },
+    "bugs": {
+        "url": "https://github.com/Tada5hi/trapi/issues"
+    },
+    "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
         "@trapi/preset-swagger": "^0.0.0"
     },
@@ -10,7 +31,7 @@
         "@trapi/metadata": "^0.4.1"
     },
     "peerDependencies": {
-        "@trapi/metadata": "^0.x"
+        "@trapi/metadata": "1.x || >=1.0.0-alpha.0"
     },
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json"

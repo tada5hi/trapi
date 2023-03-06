@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-routup",
-    "version": "0.0.0",
+    "version": "1.0.0-alpha.0",
     "description": "Preset for @routup/decorators library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/preset-swagger": "^0.0.0"
+        "@trapi/preset-swagger": "^0.1.0-alpha.0"
     },
     "devDependencies": {
-        "@trapi/metadata": "^0.4.1"
+        "@trapi/metadata": "^1.0.0-alpha.0"
     },
     "peerDependencies": {
         "@trapi/metadata": "1.x || >=1.0.0-alpha.0"

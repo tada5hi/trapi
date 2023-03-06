@@ -32,33 +32,35 @@ import {
 import path from 'node:path';
 import fs from 'node:fs';
 import YAML from 'yamljs';
+import type { Options } from '../config';
+import type { DocumentFormat } from '../constants';
 import { hasOwnProperty } from '../utils';
 import type { SpecificationV2 } from './v2';
 import type { SpecificationV3 } from './v3';
 
-import type { SwaggerDocFormatData, SwaggerDocFormatType } from '../type';
-import type { Specification } from './type';
+import type { DocumentFormatData } from '../type';
+import type { BaseSchema, Info } from './type';
 
-export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | SpecificationV3.Spec,
-    Schema extends SpecificationV3.Schema | SpecificationV2.Schema> {
+export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.SpecV2 | SpecificationV3.SpecV3,
+    Schema extends SpecificationV3.SchemaV3 | SpecificationV2.SchemaV2> {
     protected spec: Spec;
 
     protected readonly metadata: Metadata;
 
-    protected readonly config: Specification.Config;
+    protected readonly config: Options;
 
-    constructor(metadata: Metadata, config: Specification.Config) {
+    constructor(metadata: Metadata, config: Options) {
         this.metadata = metadata;
         this.config = config;
     }
 
-    public async save(): Promise<Record<SwaggerDocFormatType, SwaggerDocFormatData>> {
+    public async save(): Promise<Record<`${DocumentFormat}`, DocumentFormatData>> {
         const spec = this.build();
         const swaggerDir: string = path.resolve(this.config.outputDirectory);
 
         await fs.promises.mkdir(swaggerDir, { recursive: true });
 
-        const data: Record<SwaggerDocFormatType, SwaggerDocFormatData> = {
+        const data: Record<`${DocumentFormat}`, DocumentFormatData> = {
             json: {
                 path: path.join(swaggerDir, 'swagger.json'),
                 name: 'swagger.json',
@@ -77,7 +79,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
 
         const filePromises: Array<Promise<void>> = [];
 
-        const keys = Object.keys(data) as SwaggerDocFormatType[];
+        const keys = Object.keys(data);
         for (let i = 0; i < keys.length; i++) {
             if (typeof data[keys[i]] === 'undefined') {
                 continue;
@@ -102,7 +104,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
     public abstract build(): Spec;
 
     protected buildInfo() {
-        const info: Specification.Info = {
+        const info: Info = {
             title: this.config.name || '',
             version: this.config.version || '1.0.0',
         };
@@ -118,7 +120,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return info;
     }
 
-    protected getSwaggerType(type: BaseType): Schema | Specification.BaseSchema<Schema> {
+    protected getSwaggerType(type: BaseType): Schema | BaseSchema<Schema> {
         if (isVoidType(type)) {
             return {} as Schema;
         } if (isReferenceType(type)) {
@@ -159,7 +161,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
 
     protected abstract getSwaggerTypeForEnumType(enumType: EnumType): Schema;
 
-    protected getSwaggerTypeForUnionType(type: UnionType): Schema | Specification.BaseSchema<Schema> {
+    protected getSwaggerTypeForUnionType(type: UnionType): Schema | BaseSchema<Schema> {
         if (type.members.every((subType: TypeVariant) => subType.typeName === 'enum')) {
             const mergedEnum: EnumType = { typeName: 'enum', members: [] };
             type.members.forEach((t: TypeVariant) => {
@@ -205,8 +207,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return { type: 'object' } as Schema;
     }
 
-    private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): Specification.BaseSchema<Schema> {
-        const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, Specification.BaseSchema<Schema>> = {
+    private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): BaseSchema<Schema> {
+        const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, BaseSchema<Schema>> = {
             any: {
                 // While the any type is discouraged, it does explicitly allows anything, so it should always allow additionalProperties
                 additionalProperties: true,
@@ -229,11 +231,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
         return PrimitiveSwaggerTypeMap[type];
     }
 
-    private getSwaggerTypeForArrayType(arrayType: ArrayType): Specification.BaseSchema<Schema> {
+    private getSwaggerTypeForArrayType(arrayType: ArrayType): BaseSchema<Schema> {
         return { type: 'array', items: this.getSwaggerType(arrayType.elementType) };
     }
 
-    public getSwaggerTypeForObjectLiteral(objectLiteral: NestedObjectLiteralType): Specification.BaseSchema<Schema> {
+    public getSwaggerTypeForObjectLiteral(objectLiteral: NestedObjectLiteralType): BaseSchema<Schema> {
         const properties = this.buildProperties(objectLiteral.properties);
 
         const additionalProperties = objectLiteral.additionalProperties && this.getSwaggerType(objectLiteral.additionalProperties);
@@ -248,7 +250,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.Spec | 
             ...(additionalProperties && { additionalProperties }),
             ...(required && required.length && { required }),
             type: 'object',
-        } as Specification.BaseSchema<Schema>;
+        } as BaseSchema<Schema>;
     }
 
     protected abstract getSwaggerTypeForReferenceType(referenceType: ReferenceType): Schema;

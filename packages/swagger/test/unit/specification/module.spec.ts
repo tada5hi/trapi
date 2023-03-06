@@ -5,13 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { CollectionFormat } from '@trapi/metadata/src';
 import jsonata from 'jsonata';
 import { load } from 'locter';
 import type { Metadata, SpecificationV2, SpecificationV3 } from '../../../src';
 import { createSpecificationGenerator } from '../../../src';
 
 describe('generating swagger spec from metadata', () => {
-    let spec : SpecificationV2.Spec | SpecificationV3.Spec;
+    let spec : SpecificationV2.SpecV2 | SpecificationV3.SpecV3;
 
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');
@@ -156,7 +157,7 @@ describe('generating swagger spec from metadata', () => {
         expect(param.type).toEqual('array');
         expect(param.items).toBeDefined();
         expect(param.items.type).toEqual('string');
-        expect(param.collectionFormat).toEqual('multi');
+        expect(param.collectionFormat).toEqual(CollectionFormat.MULTI);
     });
 
     it('should generate an array query param for parameter with compatible array and primitive intersection type', async () => {

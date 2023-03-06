@@ -12,7 +12,8 @@ import type {
     Parameter,
     RefObjectType,
     ReferenceType,
-    ResolverProperty, Response,
+    ResolverProperty,
+    Response,
 } from '@trapi/metadata';
 import {
     isRefAliasType,
@@ -22,29 +23,32 @@ import {
 import { merge } from 'smob';
 import path from 'node:path';
 import { URL } from 'node:url';
+import type { SecurityDefinition, SecurityDefinitions } from '../../type';
 
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 
-import type { Specification } from '../type';
+import type {
+    DataFormat, Example, Path, SpecificationParameter,
+} from '../type';
 import type { SpecificationV2 } from './type';
 import { AbstractSpecGenerator } from '../abstract';
 
-export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.Spec, SpecificationV2.Schema> {
-    public getSwaggerSpec(): SpecificationV2.Spec {
+export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.SpecV2, SpecificationV2.SchemaV2> {
+    public getSwaggerSpec(): SpecificationV2.SpecV2 {
         return this.build();
     }
 
-    public build() : SpecificationV2.Spec {
+    public build() : SpecificationV2.SpecV2 {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
 
-        let spec: SpecificationV2.Spec = {
+        let spec: SpecificationV2.SpecV2 = {
             basePath: this.config.basePath,
             definitions: this.buildDefinitions(),
             info: this.buildInfo(),
             paths: this.buildPaths(),
-            swagger: '2.0',
+            swagger: '2.0.0',
         };
 
         spec.securityDefinitions = this.config.securityDefinitions ?
@@ -76,13 +80,13 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return spec;
     }
 
-    private static translateSecurityDefinitions(securityDefinitions: Specification.SecurityDefinitions) : Record<string, SpecificationV2.Security> {
-        const definitions : Record<string, SpecificationV2.Security> = {};
+    private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SpecificationV2.SecurityV2> {
+        const definitions : Record<string, SpecificationV2.SecurityV2> = {};
 
         // tslint:disable-next-line:forin
         const keys = Object.keys(securityDefinitions);
         for (let i = 0; i < keys.length; i++) {
-            const securityDefinition : Specification.SecurityDefinition = securityDefinitions[keys[i]];
+            const securityDefinition : SecurityDefinition = securityDefinitions[keys[i]];
 
             switch (securityDefinition.type) {
                 case 'http':
@@ -145,7 +149,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
      */
 
     private buildDefinitions() {
-        const definitions: { [definitionsName: string]: SpecificationV2.Schema } = {};
+        const definitions: { [definitionsName: string]: SpecificationV2.SchemaV2 } = {};
         Object.keys(this.metadata.referenceTypes).map((typeName) => {
             const referenceType : ReferenceType = this.metadata.referenceTypes[typeName];
             // const key : string = referenceType.typeName.replace('_', '');
@@ -180,7 +184,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 }
             } else if (isRefAliasType(referenceType)) {
                 const swaggerType = this.getSwaggerType(referenceType.type);
-                const format : Specification.DataFormat = referenceType.format as Specification.DataFormat;
+                const format = referenceType.format as DataFormat;
                 const validators = Object.keys(referenceType.validators)
                     .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
                     .reduce((acc, key) => ({
@@ -189,9 +193,9 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     }), {});
 
                 definitions[referenceType.refName] = {
-                    ...(swaggerType as SpecificationV2.Schema),
+                    ...(swaggerType as SpecificationV2.SchemaV2),
                     default: referenceType.default || swaggerType.default,
-                    example: referenceType.example as {[p: string]: Specification.Example},
+                    example: referenceType.example as {[p: string]: Example},
                     format: format || swaggerType.format,
                     description: referenceType.description,
                     ...validators,
@@ -231,7 +235,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
      */
 
     private buildPaths() {
-        const paths: { [pathName: string]: Specification.Path<SpecificationV2.Operation, SpecificationV2.Response> } = {};
+        const paths: { [pathName: string]: Path<SpecificationV2.OperationV2, SpecificationV2.ResponseV2> } = {};
 
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
@@ -296,13 +300,14 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     type: p.type,
                 }));
             });
-        if (pathMethod.parameters.filter((p: Specification.BaseParameter<SpecificationV2.Schema>) => p.in === 'body').length > 1) {
+
+        if (pathMethod.parameters.filter((p) => p.in === 'body').length > 1) {
             throw new Error('Only one body parameter allowed per controller method.');
         }
         return pathMethod;
     }
 
-    private buildParameter(parameter: Parameter): Specification.Parameter<SpecificationV2.Schema> {
+    private buildParameter(parameter: Parameter): SpecificationParameter<SpecificationV2.SchemaV2> {
         const swaggerParameter: any = {
             description: parameter.description,
             in: parameter.in,
@@ -363,7 +368,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         Swagger Type ( + utils)
      */
 
-    protected getSwaggerTypeForEnumType(enumType: EnumType) : SpecificationV2.Schema {
+    protected getSwaggerTypeForEnumType(enumType: EnumType) : SpecificationV2.SchemaV2 {
         const types = this.determineTypesUsedInEnum(enumType.members);
 
         if (types.size === 1) {
@@ -375,7 +380,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV2.Schema {
+    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV2.SchemaV2 {
         // tslint:disable-next-line:no-shadowed-variable
         const properties = type.members.reduce((acc, type) => {
             if (type.typeName === 'refObject') {
@@ -396,12 +401,12 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return { type: 'object', properties };
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SpecificationV2.Schema {
+    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SpecificationV2.SchemaV2 {
         return { $ref: `#/definitions/${referenceType.refName}` };
     }
 
-    protected buildProperties(properties: ResolverProperty[]) : Record<string, SpecificationV2.Schema> {
-        const swaggerProperties: { [propertyName: string]: SpecificationV2.Schema } = {};
+    protected buildProperties(properties: ResolverProperty[]) : Record<string, SpecificationV2.SchemaV2> {
+        const swaggerProperties: { [propertyName: string]: SpecificationV2.SchemaV2 } = {};
 
         properties.forEach((property) => {
             const swaggerType = this.getSwaggerType(property.type);
@@ -442,7 +447,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return operation;
     }
 
-    private getMimeType(swaggerType: SpecificationV2.Schema) {
+    private getMimeType(swaggerType: SpecificationV2.SchemaV2) {
         if (
             swaggerType.$ref ||
             swaggerType.type === 'array' ||

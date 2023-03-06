@@ -11,7 +11,7 @@ import type { Metadata, SpecificationV2, SpecificationV3 } from '../../../src';
 import { createSpecificationGenerator } from '../../../src';
 
 describe('ParameterizedEndpoint', () => {
-    let spec : SpecificationV2.Spec | SpecificationV3.Spec;
+    let spec : SpecificationV2.SpecV2 | SpecificationV3.SpecV3;
 
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');

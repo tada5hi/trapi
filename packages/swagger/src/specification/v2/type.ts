@@ -5,88 +5,96 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type { SecurityType } from '../../constants';
+import type { ApiKeySecurity, BaseSecurity } from '../../type';
 import type {
-    Specification,
+    BaseOperation,
+    BaseResponse,
+    BaseSchema,
+    BaseSpec,
+    Example,
+    Path,
+    SpecificationParameter,
 } from '../type';
 
 export namespace SpecificationV2 {
-    export interface Spec extends Specification.BaseSpec {
-        swagger: '2.0';
+    export interface SpecV2 extends BaseSpec {
+        swagger: '2.0.0';
         host?: string;
         basePath?: string;
         schemes?: string[];
         consumes?: string[];
         produces?: string[];
-        paths: { [pathName: string]: Specification.Path<Operation, Response> };
-        definitions?: { [definitionsName: string]: Schema };
-        parameters?: { [parameterName: string]: Schema | Specification.QueryParameter<Schema> };
-        responses?: { [responseName: string]: Response };
-        security?: Security[];
-        securityDefinitions?: { [name: string]: Security };
+        paths: { [pathName: string]: Path<OperationV2, ResponseV2> };
+        definitions?: { [definitionsName: string]: SchemaV2 };
+        parameters?: { [parameterName: string]: ParameterV2 };
+        responses?: { [responseName: string]: ResponseV2 };
+        security?: SecurityV2[];
+        securityDefinitions?: { [name: string]: SecurityV2 };
     }
 
-    export type Parameter = Omit<Specification.Parameter<Schema> & {'x-deprecated'?: boolean }, 'deprecated'>;
+    export type ParameterV2 = SpecificationParameter<SchemaV2> & {'x-deprecated'?: boolean };
 
-    export interface Operation extends Specification.BaseOperation<Parameter, Response, Security> {
+    export interface OperationV2 extends BaseOperation<ParameterV2, ResponseV2, SecurityV2> {
         produces?: [string];
     }
 
-    export interface Response extends Specification.BaseResponse {
-        schema?: Schema;
-        headers?: { [headerName: string]: Header };
-        examples?: { [exampleName: string]: Specification.Example };
+    export interface ResponseV2 extends BaseResponse {
+        schema?: SchemaV2;
+        headers?: { [headerName: string]: HeaderV2 };
+        examples?: { [exampleName: string]: Example };
     }
 
-    export interface Header {
+    export interface HeaderV2 {
         type: 'string' | 'number' | 'integer' | 'boolean' | 'array';
     }
 
     // tslint:disable-next-line:no-shadowed-variable
-    export interface Schema extends Specification.BaseSchema<Schema> {
+    export interface SchemaV2 extends BaseSchema<SchemaV2> {
         ['x-nullable']?: boolean;
         ['x-deprecated']?: boolean;
     }
 
-    export interface BasicSecurity extends Specification.BaseSecurity {
-        type: 'basic';
+    export interface BasicSecurityV2 extends BaseSecurity {
+        type: `${SecurityType.BASIC}`;
     }
 
-    export interface BaseOAuthSecurity extends Specification.BaseSecurity {
-        type: 'oauth2';
+    export interface BaseOAuthSecurityV2 extends BaseSecurity {
+        type: `${SecurityType.OAUTH2}`;
     }
 
-    export interface OAuth2ImplicitSecurity extends BaseOAuthSecurity {
+    export interface OAuth2ImplicitSecurityV2 extends BaseOAuthSecurityV2 {
         flow: 'implicit';
         authorizationUrl: string;
         scopes?: Record<string, string>;
     }
 
-    export interface OAuth2PasswordSecurity extends BaseOAuthSecurity {
+    export interface OAuth2PasswordSecurityV2 extends BaseOAuthSecurityV2 {
         flow: 'password';
         tokenUrl: string;
         scopes?: Record<string, string>;
     }
 
-    export interface OAuth2ApplicationSecurity extends BaseOAuthSecurity {
+    export interface OAuth2ApplicationSecurityV2 extends BaseOAuthSecurityV2 {
         flow: 'application';
         tokenUrl: string;
         scopes?: Record<string, string>;
     }
 
-    export interface OAuth2AccessCodeSecurity extends BaseOAuthSecurity {
+    export interface OAuth2AccessCodeSecurityV2 extends BaseOAuthSecurityV2 {
         flow: 'accessCode';
         tokenUrl: string;
         authorizationUrl: string;
         scopes?: Record<string, string>;
     }
 
-    export type OAuth2Security = OAuth2AccessCodeSecurity |
-    OAuth2ApplicationSecurity |
-    OAuth2ImplicitSecurity |
-    OAuth2PasswordSecurity;
+    export type OAuth2SecurityV2 = OAuth2AccessCodeSecurityV2 |
+    OAuth2ApplicationSecurityV2 |
+    OAuth2ImplicitSecurityV2 |
+    OAuth2PasswordSecurityV2;
 
-    export type Security =
-        BasicSecurity |
-        OAuth2Security |
-        Specification.ApiKeySecurity;
+    export type SecurityV2 =
+        BasicSecurityV2 |
+        OAuth2SecurityV2 |
+        ApiKeySecurity;
 }

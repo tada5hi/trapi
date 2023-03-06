@@ -15,6 +15,7 @@ import {
     JSDocTagName, getInitializerValue, getNodeDecorators, hasJSDocTag,
 } from '../../utils';
 import type { MetadataGenerator } from '../metadata';
+import { CollectionFormat, ParameterSource } from './constants';
 import type { ArrayParameter, Parameter } from './type';
 
 const parameterKeys : `${DecoratorID}`[] = [
@@ -120,7 +121,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'param',
+            in: ParameterSource.PARAM,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken,
@@ -134,7 +135,7 @@ export class ParameterGenerator {
 
         return {
             description: this.getParameterDescription(),
-            in: 'context',
+            in: ParameterSource.CONTEXT,
             name: parameterName,
             parameterName,
             required: !this.parameter.questionToken,
@@ -188,7 +189,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'formData',
+            in: ParameterSource.FORM_DATA,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -215,7 +216,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'formData',
+            in: ParameterSource.FORM_DATA,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -244,7 +245,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'cookie',
+            in: ParameterSource.COOKIE,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -273,7 +274,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'body',
+            in: ParameterSource.BODY,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -302,7 +303,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'header',
+            in: ParameterSource.HEADER,
             name: name || parameterName,
             parameterName,
             required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -349,7 +350,7 @@ export class ParameterGenerator {
             collectionFormat: options.collectionFormat,
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'query',
+            in: ParameterSource.QUERY,
             maxItems: options.maxItems,
             minItems: options.minItems,
             name,
@@ -362,7 +363,7 @@ export class ParameterGenerator {
         if (type.typeName === 'array') {
             return {
                 ...properties,
-                collectionFormat: 'multi',
+                collectionFormat: CollectionFormat.MULTI,
                 type,
             };
         }
@@ -394,7 +395,7 @@ export class ParameterGenerator {
         return {
             default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
             description: this.getParameterDescription(),
-            in: 'path',
+            in: ParameterSource.PATH,
             name: pathName,
             parameterName,
             required: true,

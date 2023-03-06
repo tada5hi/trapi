@@ -7,15 +7,16 @@
 
 import type { Validator } from '../../type';
 import type { ArrayType, BaseType } from '../../resolver';
+import type { CollectionFormat, ParameterSource } from './constants';
 
 export interface Parameter {
     parameterName: string;
     description: string;
-    in: string;
+    in: `${ParameterSource}`;
     name: string;
     required: boolean;
     type: BaseType;
-    collectionFormat?: 'csv' | 'multi' | 'pipes' | 'ssv' | 'tsv';
+    collectionFormat?: `${CollectionFormat}`;
     allowEmptyValue?: boolean;
     default?: any;
     maxItems?: number;

@@ -5,124 +5,140 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Specification } from '../type';
+import type { SecurityType } from '../../constants';
+import type { ApiKeySecurity, BaseSecurity } from '../../type';
+import type {
+    BaseOperation, BaseResponse, BaseSchema, BaseSpec, DataFormat,
+    DataType, Example, Path,
+    SpecificationParameter,
+} from '../type';
 
 export namespace SpecificationV3 {
-    import BaseParameter = Specification.BaseParameter;
-
-    export interface Spec extends Specification.BaseSpec {
+    export interface SpecV3 extends BaseSpec {
         openapi: '3.0.0';
-        servers: Server[];
-        components: Components;
-        paths: Paths;
+        servers: ServerV3[];
+        components: ComponentsV3;
+        paths: PathsV3;
     }
 
     // Server
-    export interface Server {
+    export interface ServerV3 {
         url: string;
         description?: string;
-        variables?: Record<string, Variable>;
+        variables?: Record<string, VariableV3>;
     }
 
-    export interface Variable {
+    export interface VariableV3 {
         enum?: string[];
         description?: string;
         default: string;
     }
 
     // Components
-    export interface Components {
+    export interface ComponentsV3 {
         callbacks?: { [name: string]: any };
-        examples?: { [name: string]: Specification.Example | string };
+        examples?: { [name: string]: Example | string };
         headers?: { [name: string]: any };
         links?: { [name: string]: any };
-        parameters?: { [name: string]: Parameter };
+        parameters?: { [name: string]: ParameterV3 };
         requestBodies?: { [name: string]: any };
-        responses?: { [name: string]: Response };
-        schemas?: { [name: string]: Schema };
-        securitySchemes?: { [name: string]: Security };
+        responses?: { [name: string]: ResponseV3 };
+        schemas?: { [name: string]: SchemaV3 };
+        securitySchemes?: { [name: string]: SecurityV3 };
     }
 
     // Paths
-    export interface Paths {
-        [key: string] : Specification.Path<Operation, Parameter>;
+    export interface PathsV3 {
+        [key: string] : Path<OperationV3, ParameterV3>;
     }
 
-    export type Parameter = Specification.Parameter<Schema>;
+    export type ParameterV3 = SpecificationParameter<SchemaV3>;
 
-    export interface Operation extends Specification.BaseOperation<Parameter, Response, Security> {
-        requestBody?: RequestBody;
+    export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3, SecurityV3> {
+        requestBody?: RequestBodyV3;
         [key: string]: unknown;
     }
 
-    export interface Response extends Specification.BaseResponse {
-        content?: { [name: string]: Schema & Specification.Examples };
-        headers?: { [name: string]: Header };
+    export interface ResponseV3 extends BaseResponse {
+        content?: {
+            [name: string]: SchemaV3 & {
+                examples?: Record<string, Example>
+            }
+        };
+        headers?: { [name: string]: HeaderV3 };
     }
 
-    export type Header = Partial<Pick<BaseParameter<Schema>, 'name' | 'in'>> & Omit<BaseParameter<Schema>, 'name' | 'in'>;
+    export interface HeaderV3 extends Omit<BaseSchema<SchemaV3>, 'required'> {
+        required?: boolean;
+        description?: string;
+        example?: unknown;
+        examples?: Record<string, Example | string>;
+        schema: BaseSchema<SchemaV3>;
+        type?: DataType;
+        format?: DataFormat;
+    }
 
-    export interface RequestBody {
-        content: { [name: string]: MediaType };
+    export interface RequestBodyV3 {
+        content: { [name: string]: MediaTypeV3 };
         description?: string;
         required?: boolean;
     }
 
-    export interface MediaType {
-        schema?: Schema;
+    export interface MediaTypeV3 {
+        schema?: SchemaV3;
         example?: unknown;
-        examples?: { [name: string]: Specification.Example | string };
+        examples?: { [name: string]: Example | string };
         encoding?: { [name: string]: any };
     }
 
     // tslint:disable-next-line:no-shadowed-variable
-    export interface Schema extends Specification.BaseSchema<Schema> {
+    export interface SchemaV3 extends BaseSchema<SchemaV3> {
         nullable?: boolean;
-        anyOf?: Schema[];
-        allOf?: Schema[];
+        anyOf?: SchemaV3[];
+        allOf?: SchemaV3[];
         deprecated?: boolean;
     }
 
     // tslint:disable-next-line:no-shadowed-variable
-    export interface BasicSecurity extends Specification.BaseSecurity {
-        type: 'http';
+    export interface BasicSecurityV3 extends BaseSecurity {
+        type: `${SecurityType.HTTP}`;
         schema: 'basic';
     }
 
-    export interface OAuth2Security extends Specification.BaseSecurity {
-        type: 'oauth2';
+    export interface OAuth2SecurityV3 extends BaseSecurity {
+        type: `${SecurityType.OAUTH2}`;
         flows: {
-            implicit?: OAuth2ImplicitFlow,
-            password?: OAuth2PasswordFlow,
-            authorizationCode?: OAuth2AuthorizationCodeFlow,
-            clientCredentials?: OAuth2ClientCredentialsFlow
+            implicit?: OAuth2ImplicitFlowV3,
+            password?: OAuth2PasswordFlowV3,
+            authorizationCode?: OAuth2AuthorizationCodeFlowV3,
+            clientCredentials?: OAuth2ClientCredentialsFlowV3
         };
     }
 
-    export interface Oauth2BaseFlow {
+    export interface Oauth2BaseFlowV3 {
         scopes?: Record<string, string>;
         refreshUrl?: string;
     }
 
-    export interface OAuth2ImplicitFlow extends Oauth2BaseFlow {
+    export interface OAuth2ImplicitFlowV3 extends Oauth2BaseFlowV3 {
         authorizationUrl: string;
     }
 
-    export interface OAuth2PasswordFlow extends Oauth2BaseFlow {
+    export interface OAuth2PasswordFlowV3 extends Oauth2BaseFlowV3 {
         tokenUrl: string;
     }
 
-    export interface OAuth2AuthorizationCodeFlow extends Oauth2BaseFlow {
+    export interface OAuth2AuthorizationCodeFlowV3 extends Oauth2BaseFlowV3 {
         authorizationUrl: string;
         tokenUrl: string;
     }
 
-    export interface OAuth2ClientCredentialsFlow extends Oauth2BaseFlow {
+    export interface OAuth2ClientCredentialsFlowV3 extends Oauth2BaseFlowV3 {
         tokenUrl: string;
     }
 
-    export type Security =
-        BasicSecurity |
-        OAuth2Security |
-        Specification.ApiKeySecurity;
+    export type SecurityV3 =
+        BasicSecurityV3 |
+        OAuth2SecurityV3 |
+        ApiKeySecurity;
 }

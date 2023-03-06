@@ -12,7 +12,7 @@ import { TypeNodeResolver } from '../resolver';
 
 import type { Response } from './type';
 import {
-    getInitializerValue, getNodeDecorators, isExistJSDocTag, normalizePath,
+    JSDocTagName, getInitializerValue, getNodeDecorators, hasJSDocTag, normalizePath,
 } from '../utils';
 import type { MetadataGenerator } from './metadata';
 
@@ -202,7 +202,7 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public isDeprecated(node: Node) : boolean {
-        if (isExistJSDocTag(node, (tag) => tag.tagName.text === 'deprecated')) {
+        if (hasJSDocTag(node, JSDocTagName.DEPRECATED)) {
             return true;
         }
 

@@ -9,24 +9,24 @@ import type {
     JSDoc, JSDocTag, Node, NodeArray,
 } from 'typescript';
 import {
+    JSDocTagName,
     getJSDoc,
     getJSDocDescription,
     getJSDocTagComment,
     getJSDocTagNames,
-    getJSDocTags,
-    isExistJSDocTag,
+    getJSDocTags, hasJSDocTag,
 } from '../../../src';
 
 describe('src/utils/js-doc.ts', () => {
     const tags : NodeArray<JSDocTag> = [
         {
             tagName: {
-                text: 'foo',
+                text: 'ignore',
             },
         },
         {
             tagName: {
-                text: 'bar',
+                text: 'description',
             },
             comment: 'comment',
         },
@@ -81,24 +81,24 @@ describe('src/utils/js-doc.ts', () => {
     });
 
     it('should check jsDoc tag', () => {
-        let data = isExistJSDocTag(fakeNode as Node, 'foo');
+        let data = hasJSDocTag(fakeNode as Node, JSDocTagName.IGNORE);
         expect(data).toBeTruthy();
 
-        data = isExistJSDocTag(fakeNode as Node, (tag) => tag.tagName.text === 'baz');
+        data = hasJSDocTag(fakeNode as Node, (tag) => tag.tagName.text === 'baz');
         expect(data).toBeFalsy();
     });
 
     it('should get jsDoc tag comment', () => {
-        let data = getJSDocTagComment(fakeNode as Node, 'foo');
+        let data = getJSDocTagComment(fakeNode as Node, JSDocTagName.IGNORE);
         expect(data).toBeUndefined();
 
-        data = getJSDocTagComment(fakeNode as Node, (tag) => tag.tagName.text === 'bar');
+        data = getJSDocTagComment(fakeNode as Node, JSDocTagName.DESCRIPTION);
         expect(data).toEqual('comment');
     });
 
     it('should get jsDoc tag names', () => {
         let data = getJSDocTagNames(fakeNode as Node);
-        expect(data).toEqual(['foo', 'bar']);
+        expect(data).toEqual([JSDocTagName.IGNORE, JSDocTagName.DESCRIPTION]);
 
         data = getJSDocTagNames({} as Node);
         expect(data).toEqual([]);

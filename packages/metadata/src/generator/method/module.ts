@@ -12,7 +12,7 @@ import { DecoratorID } from '../../decorator';
 import type { BaseType } from '../../resolver';
 import { TypeNodeResolver, isVoidType } from '../../resolver';
 import {
-    getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
+    JSDocTagName, getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
 } from '../../utils';
 import { AbstractGenerator } from '../abstract';
 import type { MetadataGenerator } from '../metadata';
@@ -74,7 +74,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             produces: this.getProduces(),
             responses,
             security: this.getSecurity(),
-            summary: getJSDocTagComment(this.node, 'summary'),
+            summary: getJSDocTagComment(this.node, JSDocTagName.SUMMARY),
             tags: this.getTags(),
             type,
         };

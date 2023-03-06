@@ -6,16 +6,18 @@
  */
 
 import * as ts from 'typescript';
+import type { DecoratorPropertyManager } from '../decorator';
 import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
 
 import {
+    JSDocTagName,
     getInitializerValue,
     getJSDocTagComment,
     getJSDocTagNames,
     getNodeDecorators,
+    hasJSDocTag,
     hasOwnProperty,
-    isExistJSDocTag,
 } from '../utils';
 import { ResolverError } from './error';
 import type {
@@ -157,9 +159,9 @@ export class TypeNodeResolver {
                     ).resolve();
 
                     const property: ResolverProperty = {
-                        deprecated: isExistJSDocTag(propertySignature, (tag) => tag.tagName.text === 'deprecated'),
+                        deprecated: hasJSDocTag(propertySignature, JSDocTagName.DEPRECATED),
                         example: this.getNodeExample(propertySignature),
-                        default: getJSDocTagComment(propertySignature, 'default'),
+                        default: getJSDocTagComment(propertySignature, JSDocTagName.DEFAULT),
                         description: this.getNodeDescription(propertySignature),
                         format: TypeNodeResolver.getNodeFormat(propertySignature),
                         name: (propertySignature.name as ts.Identifier).text,
@@ -618,39 +620,48 @@ export class TypeNodeResolver {
                 return { typeName: 'double' };
             }
 
-            const tags = getJSDocTagNames(parentNode)
-                .filter((name) => [
-                    'isInt',
-                    'isLong',
-                    'isFloat',
-                    'isDouble',
-                ].some((m) => m.toLowerCase() === name.toLowerCase()))
-                .map((name) => name.toLowerCase());
-
-            const data = getNodeDecorators(parentNode, (identifier) => [
+            const lookupTags = [
                 'isInt',
                 'isLong',
                 'isFloat',
                 'isDouble',
-            ].some((m) => m.toLowerCase() === identifier.text.toLowerCase()));
+            ];
+            const tags = getJSDocTagNames(parentNode)
+                .filter((name) => lookupTags.some((m) => m.toLowerCase() === name.toLowerCase()))
+                .map((name) => name.toLowerCase());
 
-            let decorator : string | undefined = data.length > 0 ? data[0].text : undefined;
+            const decoratorIds = [
+                DecoratorID.IS_INT,
+                DecoratorID.IS_LONG,
+                DecoratorID.IS_FLOAT,
+                DecoratorID.IS_DOUBLE,
+            ];
 
-            if (typeof decorator !== 'undefined') {
-                decorator = decorator.toLowerCase();
+            let decoratorID : DecoratorID | undefined;
+
+            for (let i = 0; i < decoratorIds.length; i++) {
+                const decorator = this.current.decoratorResolver.match(decoratorIds[i], parentNode);
+                if (decorator) {
+                    decoratorID = decoratorIds[i];
+                    break;
+                }
             }
 
-            if (!decorator && tags.length === 0) {
+            if (!decoratorID && tags.length === 0) {
                 return { typeName: 'double' };
             }
 
-            switch (decorator || tags[0]) {
+            switch (decoratorID || tags[0]) {
+                case DecoratorID.IS_INT:
                 case 'isint':
                     return { typeName: 'integer' };
+                case DecoratorID.IS_LONG:
                 case 'islong':
                     return { typeName: 'long' };
+                case DecoratorID.IS_FLOAT:
                 case 'isfloat':
                     return { typeName: 'float' };
+                case DecoratorID.IS_DOUBLE:
                 case 'isdouble':
                     return { typeName: 'double' };
                 default:
@@ -670,7 +681,9 @@ export class TypeNodeResolver {
             };
         } else {
             // todo: should not occur
-            return resolvedType;
+            return {
+                typeName: resolvedType,
+            };
         }
     }
 
@@ -726,7 +739,7 @@ export class TypeNodeResolver {
             members: enums as string[],
             memberNames: enumNames,
             refName: enumName,
-            deprecated: isExistJSDocTag(enumDeclaration, (tag) => tag.tagName.text === 'deprecated'),
+            deprecated: hasJSDocTag(enumDeclaration, JSDocTagName.DEPRECATED),
         };
     }
 
@@ -811,7 +824,7 @@ export class TypeNodeResolver {
                     refName: TypeNodeResolver.getRefTypeName(name, utilityType),
                     members: [this.current.typeChecker.getConstantValue(declaration)!],
                     memberNames: [declaration.name.getText()],
-                    deprecated: isExistJSDocTag(declaration, (tag) => tag.tagName.text === 'deprecated'),
+                    deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
                 };
             } else {
                 // todo: dont cast handle property-signature
@@ -852,13 +865,13 @@ export class TypeNodeResolver {
 
         return {
             typeName: 'refAlias',
-            default: getJSDocTagComment(declaration, 'default'),
+            default: getJSDocTagComment(declaration, JSDocTagName.DEFAULT),
             description: this.getNodeDescription(declaration),
             refName,
             format: TypeNodeResolver.getNodeFormat(declaration),
             type,
             validators: getPropertyValidators(declaration) || {},
-            deprecated: isExistJSDocTag(declaration, (tag) => tag.tagName.text === 'deprecated'),
+            deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
             ...(example && { example }),
         };
     }
@@ -871,14 +884,14 @@ export class TypeNodeResolver {
     ) : ReferenceType {
         const example = this.getNodeExample(modelType);
         const description : string = this.getNodeDescription(modelType);
-        const deprecated : boolean = isExistJSDocTag(
+        const deprecated : boolean = hasJSDocTag(
             modelType,
-            (tag) => tag.tagName.text === 'deprecated',
+            JSDocTagName.DEPRECATED,
         ) ||
-            typeof this.current.decoratorResolver.match(
+            !!this.current.decoratorResolver.match(
                 DecoratorID.DEPRECATED,
                 modelType,
-            ) !== 'undefined';
+            );
 
         // Handle toJSON methods
         if (!modelType.name) {
@@ -1103,7 +1116,7 @@ export class TypeNodeResolver {
         utilityType?: UtilityType,
         utilityOptions?: UtilityOptions,
     ) : ResolverProperty[] {
-        const isIgnored = (e: ts.TypeElement | ts.ClassElement) => isExistJSDocTag(e, (tag) => tag.tagName.text === 'ignore');
+        const isIgnored = (e: ts.TypeElement | ts.ClassElement) => hasJSDocTag(e, JSDocTagName.IGNORE);
 
         // Interface model
         if (ts.isInterfaceDeclaration(node)) {
@@ -1148,8 +1161,8 @@ export class TypeNodeResolver {
         }
 
         const property: ResolverProperty = {
-            deprecated: isExistJSDocTag(propertySignature, (tag) => tag.tagName.text === 'deprecated'),
-            default: getJSDocTagComment(propertySignature, 'default'),
+            deprecated: hasJSDocTag(propertySignature, JSDocTagName.DEPRECATED),
+            default: getJSDocTagComment(propertySignature, JSDocTagName.DEFAULT),
             description: this.getNodeDescription(propertySignature),
             example: this.getNodeExample(propertySignature),
             format: TypeNodeResolver.getNodeFormat(propertySignature),
@@ -1204,7 +1217,7 @@ export class TypeNodeResolver {
         }
 
         const property: ResolverProperty = {
-            deprecated: isExistJSDocTag(propertyDeclaration, (tag) => tag.tagName.text === 'deprecated'),
+            deprecated: hasJSDocTag(propertyDeclaration, JSDocTagName.DEPRECATED),
             default: getInitializerValue(propertyDeclaration.initializer, this.current.typeChecker),
             description: this.getNodeDescription(propertyDeclaration),
             example: this.getNodeExample(propertyDeclaration),
@@ -1407,11 +1420,11 @@ export class TypeNodeResolver {
     private static getNodeFormat(
         node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
     ) {
-        return getJSDocTagComment(node, 'format');
+        return getJSDocTagComment(node, JSDocTagName.FORMAT);
     }
 
     private getNodeExample(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
-        const example = getJSDocTagComment(node, 'example');
+        const example = getJSDocTagComment(node, JSDocTagName.EXAMPLE);
 
         if (example) {
             try {

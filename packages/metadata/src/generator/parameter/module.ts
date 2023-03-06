@@ -12,7 +12,7 @@ import { InvalidParameterException } from '../../error';
 import type { BaseType, TypeVariant } from '../../resolver';
 import { TypeNodeResolver } from '../../resolver';
 import {
-    getInitializerValue, getNodeDecorators, isExistJSDocTag,
+    JSDocTagName, getInitializerValue, getNodeDecorators, hasJSDocTag,
 } from '../../utils';
 import type { MetadataGenerator } from '../metadata';
 import type { ArrayParameter, Parameter } from './type';
@@ -415,7 +415,7 @@ export class ParameterGenerator {
     }
 
     private getParameterDeprecation() : boolean {
-        if (isExistJSDocTag(this.parameter, (tag) => tag.tagName.text === 'deprecated')) {
+        if (hasJSDocTag(this.parameter, JSDocTagName.DEPRECATED)) {
             return true;
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -9,24 +9,27 @@ import type {
     Identifier, JSDoc, JSDocTag, Node,
 } from 'typescript';
 import { SyntaxKind, isJSDocParameterTag } from 'typescript';
-import { hasOwnProperty } from './object';
+import { hasOwnProperty } from '../object';
+import type { JSDocTagName } from './constants';
 
 // -----------------------------------------
 // Description
 // -----------------------------------------
-export function getJSDocDescription(node: Node) : string | undefined {
-    if (!hasOwnProperty(node, 'jsDoc')) {
+export function getJSDocDescription(node: Node, index?: number) : string | undefined {
+    const jsDoc = getJSDoc(node, index);
+    if (!jsDoc) {
         return undefined;
     }
 
-    const jsDocs = ((node as any).jsDoc as JSDoc[])
-        .filter((jsDoc) => typeof jsDoc.comment === 'string');
+    if (Array.isArray(jsDoc.comment)) {
+        if (jsDoc.comment.length === 0) {
+            return undefined;
+        }
 
-    if (jsDocs.length === 0) {
-        return undefined;
+        return jsDoc.comment[0];
     }
 
-    return Array.isArray(jsDocs[0].comment) ? (jsDocs[0].comment.length === 0 ? undefined : jsDocs[0].comment[0]) : jsDocs[0].comment;
+    return jsDoc.comment as string;
 }
 
 // -----------------------------------------
@@ -50,7 +53,7 @@ export function getJSDoc(node: Node, index?: number) : undefined | JSDoc {
 
 export function getJSDocTags(
     node: Node,
-    isMatching?: string | string[] | ((tag: JSDocTag) => boolean),
+    isMatching?: `${JSDocTagName}` | `${JSDocTagName}`[] | ((tag: JSDocTag) => boolean),
 ) : JSDocTag[] {
     const jsDoc : JSDoc = getJSDoc(node);
     if (typeof jsDoc === 'undefined') {
@@ -76,7 +79,7 @@ export function getJSDocTags(
     return jsDocTags.filter((tag) => tagNames.indexOf(tag.tagName.text) !== -1);
 }
 
-export function isExistJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | string) : boolean {
+export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : boolean {
     const tags : JSDocTag[] = getJSDocTags(node, tagName);
 
     return !(!tags || !tags.length);
@@ -86,7 +89,7 @@ export function isExistJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean
 // Tag Comment(s)
 // -----------------------------------------
 
-export function getJSDocTagComment(node: Node, tagName: ((tag: JSDocTag) => boolean) | string) : undefined | string {
+export function getJSDocTagComment(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : undefined | string {
     const tags : JSDocTag[] = getJSDocTags(node, tagName);
 
     if (!tags || !tags.length || typeof tags[0].comment !== 'string') {

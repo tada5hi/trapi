@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-typescript-rest",
-    "version": "1.0.0-alpha.1",
+    "version": "1.0.0-alpha.2",
     "description": "Preset for typescript-rest library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/preset-swagger": "^0.1.0-alpha.1"
+        "@trapi/preset-swagger": "^0.1.0-alpha.2"
     },
     "devDependencies": {
-        "@trapi/metadata": "^1.0.0-alpha.1"
+        "@trapi/metadata": "^1.0.0-alpha.2"
     },
     "peerDependencies": {
         "@trapi/metadata": "1.x || >=1.0.0-alpha.0"

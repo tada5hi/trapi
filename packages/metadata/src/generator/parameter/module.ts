@@ -6,14 +6,19 @@
  */
 
 import * as ts from 'typescript';
-import { DecoratorID } from '../../decorator';
 import type { DecoratorPropertyManager } from '../../decorator';
+import { DecoratorID } from '../../decorator';
 import type {
     BaseType, NestedObjectLiteralType, RefObjectType, TypeVariant,
 } from '../../resolver';
 import { TypeNodeResolver } from '../../resolver';
 import {
-    JSDocTagName, getInitializerValue, getJSDocTags, getNodeDecorators, hasJSDocTag, transformJSDocComment,
+    JSDocTagName,
+    getInitializerValue,
+    getJSDocTags,
+    getNodeDecorators,
+    hasJSDocTag,
+    transformJSDocComment,
 } from '../../utils';
 import type { MetadataGenerator } from '../metadata';
 import { CollectionFormat, ParameterSource } from './constants';
@@ -347,10 +352,13 @@ export class ParameterGenerator {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
+        let source = ParameterSource.BODY;
+
         if (manager) {
             const value = manager.getPropertyValue('value');
             if (typeof value === 'string') {
                 name = value;
+                source = ParameterSource.BODY_PROP;
             }
         }
 
@@ -372,7 +380,7 @@ export class ParameterGenerator {
                 description: this.getParameterDescription(),
                 examples,
                 exampleLabels,
-                in: ParameterSource.BODY,
+                in: source,
                 name: name || parameterName,
                 parameterName,
                 required: !this.parameter.questionToken && !this.parameter.initializer,
@@ -439,9 +447,12 @@ export class ParameterGenerator {
         let name : string = parameterName;
         let options : any = {};
 
+        let source = ParameterSource.QUERY;
+
         const nameValue = manager.getPropertyValue('value');
         if (typeof nameValue === 'string') {
             name = nameValue;
+            source = ParameterSource.QUERY_PROP;
         }
 
         const optionsValue = manager.getPropertyValue('options');
@@ -458,7 +469,7 @@ export class ParameterGenerator {
             description: this.getParameterDescription(),
             examples,
             exampleLabels,
-            in: ParameterSource.QUERY,
+            in: source,
             maxItems: options.maxItems,
             minItems: options.minItems,
             name,
@@ -469,12 +480,23 @@ export class ParameterGenerator {
             validators: getParameterValidators(this.parameter, parameterName),
         };
 
-        if (type.typeName === 'nestedObjectLiteral' || type.typeName === 'refObject') {
-            return this.buildParametersForObject(type, {
-                in: ParameterSource.QUERY,
+        if (
+            type.typeName === 'nestedObjectLiteral' ||
+            type.typeName === 'refObject'
+        ) {
+            const output = this.buildParametersForObject(type, {
+                in: ParameterSource.QUERY_PROP,
                 examples,
                 exampleLabels,
             });
+
+            if (source === ParameterSource.QUERY_PROP) {
+                for (let i = 0; i < output.length; i++) {
+                    output[i].name = `${name}.${output[i].name}`;
+                }
+            }
+
+            return output;
         }
 
         if (type.typeName === 'array') {

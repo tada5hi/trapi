@@ -30,6 +30,11 @@ type PathMatchInvalidContext = {
     node?: Node
 };
 
+type ScopeRequiredContext = {
+    decoratorName: string,
+    node?: Node
+};
+
 export class ParameterError extends BaseError {
     static typeUnsupported(context: UnsupportedTypeContext) {
         let text = `@${context.decoratorName}('${context.propertyName}') Does not support '${context.type.typeName}' type`;
@@ -57,6 +62,18 @@ export class ParameterError extends BaseError {
 
     static invalidPathMatch(context: PathMatchInvalidContext) {
         let text = `@${context.decoratorName}('${context.propertyName}') Does not exist in path ${context.path}`;
+        if (context.node) {
+            const location = ParameterError.getCurrentLocation(context.node);
+            if (location) {
+                text += ` at location ${location}`;
+            }
+        }
+
+        return new ParameterError(`${text}.`);
+    }
+
+    static scopeRequired(context: ScopeRequiredContext) {
+        let text = `@${context.decoratorName}(xxx) a scope is required`;
         if (context.node) {
             const location = ParameterError.getCurrentLocation(context.node);
             if (location) {

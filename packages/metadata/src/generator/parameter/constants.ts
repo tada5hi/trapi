@@ -7,11 +7,13 @@
 
 export enum ParameterSource {
     BODY = 'body',
+    BODY_PROP = 'bodyProp',
     CONTEXT = 'context',
     COOKIE = 'cookie',
     HEADER = 'header',
     FORM_DATA = 'formData',
     QUERY = 'query',
+    QUERY_PROP = 'queryProp',
     PARAM = 'param',
     PATH = 'path',
 }

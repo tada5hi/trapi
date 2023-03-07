@@ -15,7 +15,7 @@ import type {
     Response,
     TypeVariant,
 } from '@trapi/metadata';
-import { isVoidType } from '@trapi/metadata';
+import { ParameterSource, isVoidType } from '@trapi/metadata';
 import { URL } from 'url';
 import { merge } from 'smob';
 import type { SpecificationParameterSource } from '../../constants';
@@ -145,7 +145,10 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         const formParams = method.parameters.filter((p) => p.in === 'formData');
 
         pathMethod.parameters = method.parameters
-            .filter((p) => ['body', 'formData', 'request', 'body-prop', 'res'].indexOf(p.in) === -1)
+            .filter((p) => p.in === ParameterSource.QUERY ||
+                    p.in === ParameterSource.HEADER ||
+                    p.in === ParameterSource.PATH ||
+                    p.in === ParameterSource.COOKIE)
             .map((p) => this.buildParameter(p));
 
         if (bodyParams.length > 1) {
@@ -322,16 +325,16 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         sourceParameter: Parameter,
     ) {
         if (
-            (Array.isArray(sourceParameter.example) && sourceParameter.example.length === 1) ||
-            typeof sourceParameter.example === 'undefined'
+            (Array.isArray(sourceParameter.examples) && sourceParameter.examples.length === 1) ||
+            typeof sourceParameter.examples === 'undefined'
         ) {
-            parameter.example = Array.isArray(sourceParameter.example) &&
-            sourceParameter.example.length === 1 ?
-                sourceParameter.example[0] :
+            parameter.example = Array.isArray(sourceParameter.examples) &&
+            sourceParameter.examples.length === 1 ?
+                sourceParameter.examples[0] :
                 undefined;
         } else {
             parameter.examples = {};
-            sourceParameter.example.forEach((example, index) => Object.assign(parameter.examples, {
+            sourceParameter.examples.forEach((example, index) => Object.assign(parameter.examples, {
                 [`Example ${index + 1}`]: { value: example } as Example,
             }));
         }

@@ -7,19 +7,29 @@
 
 import type { ParameterDeclaration } from 'typescript';
 import type { Validator } from '../../type';
-import { getJSDocTags } from '../../utils';
+import { getJSDocTags, transformJSDocComment } from '../../utils';
 
-export function getParameterValidators(parameter: ParameterDeclaration, name: string): Record<string, Validator> {
+export function getParameterValidators(
+    parameter: ParameterDeclaration,
+    name: string,
+): Record<string, Validator> {
     if (!parameter.parent) {
         return {};
     }
 
     const getCommentValue = (comment?: string) => comment && comment.split(' ')[0];
 
+    const parameterTags = getSupportedParameterTags();
     const tags = getJSDocTags(parameter.parent, (tag) => {
         const { comment } = tag;
-        const text : string = Array.isArray(comment) ? (comment.length > 0 ? comment[0].text : undefined) : comment;
-        return getSupportedParameterTags().some((value) => !!comment && value === tag.tagName.text && getCommentValue(text) === name);
+        const text : string = transformJSDocComment(comment);
+        if (!comment) {
+            return false;
+        }
+
+        const commentValue = getCommentValue(text);
+
+        return parameterTags.some((value) => value === tag.tagName.text && commentValue === name);
     });
 
     function getErrorMsg(comment?: string, isValue = true) : string {
@@ -29,7 +39,7 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
         if (isValue) {
             const indexOf = comment.indexOf(' ');
             if (indexOf > 0) {
-                return comment.substr(indexOf + 1);
+                return comment.substring(indexOf + 1);
             }
             return undefined;
         }
@@ -39,15 +49,17 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
 
     const validators : Record<string, Validator> = {};
 
-    tags.map((tag) => {
+    for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i];
+
         if (!tag.comment) {
-            return;
+            continue;
         }
 
         const name = tag.tagName.text;
 
-        let comment = typeof tag.comment === 'string' ? tag.comment : tag.comment[0].text ?? '';
-        comment = comment.substr(comment.indexOf(' ') + 1).trim();
+        let comment = transformJSDocComment(tag.comment);
+        comment = comment.substring(comment.indexOf(' ') + 1).trim();
 
         const value = getCommentValue(comment);
 
@@ -64,7 +76,7 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
             case 'maxItems':
             case 'minLength':
             case 'maxLength':
-                if (isNaN(value as any)) {
+                if (Number.isNaN(value)) {
                     throw new Error(`${name} parameter use number.`);
                 }
                 validators[name] = {
@@ -104,7 +116,7 @@ export function getParameterValidators(parameter: ParameterDeclaration, name: st
                 }
                 break;
         }
-    });
+    }
 
     return validators;
 }

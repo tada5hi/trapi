@@ -19,9 +19,9 @@ import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue 
 export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
     protected extendedProperties: Partial<DecoratorPropertiesConfig<DecoratorProperties<T>>> = {};
 
-    protected representation: DecoratorConfig<T>;
+    public readonly representation: DecoratorConfig<T>;
 
-    public decorators: NodeDecorator[];
+    public readonly decorators: NodeDecorator[];
 
     constructor(
         representation: DecoratorConfig<T>,

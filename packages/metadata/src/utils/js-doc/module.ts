@@ -11,6 +11,7 @@ import type {
 import { SyntaxKind, isJSDocParameterTag } from 'typescript';
 import { hasOwnProperty } from '../object';
 import type { JSDocTagName } from './constants';
+import { transformJSDocComment } from './utils';
 
 // -----------------------------------------
 // Description
@@ -21,15 +22,7 @@ export function getJSDocDescription(node: Node, index?: number) : string | undef
         return undefined;
     }
 
-    if (Array.isArray(jsDoc.comment)) {
-        if (jsDoc.comment.length === 0) {
-            return undefined;
-        }
-
-        return jsDoc.comment[0];
-    }
-
-    return jsDoc.comment as string;
+    return transformJSDocComment(jsDoc.comment);
 }
 
 // -----------------------------------------

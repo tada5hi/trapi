@@ -23,7 +23,8 @@ export interface Parameter {
     minItems?: number;
     deprecated?: boolean;
 
-    example?: unknown[];
+    examples?: unknown[];
+    exampleLabels?: string[],
     validators?: Record<string, Validator>;
 }
 

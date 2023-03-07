@@ -86,33 +86,38 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private buildParameters() {
-        const methodId = this.node.name as ts.Identifier;
         const controllerId = (this.node.parent as ts.ClassDeclaration).name as ts.Identifier;
 
-        const parameters : Parameter[] = [];
+        const methodId = this.node.name as ts.Identifier;
+        const methodPath = path.posix.join('/', this.controllerPath || '', this.path);
+
+        const output : Parameter[] = [];
         let bodyParameterCount = 0;
         let formParameterCount = 0;
 
         for (let i = 0; i < this.node.parameters.length; i++) {
             try {
-                const parameter = new ParameterGenerator(
+                const generator = new ParameterGenerator(
                     this.node.parameters[i],
                     this.method,
-                    path.posix.join('/', this.controllerPath || '', this.path),
+                    methodPath,
                     this.current,
-                )
-                    .generate();
+                );
 
-                if (parameter.in === ParameterSource.BODY) {
-                    bodyParameterCount++;
-                }
+                const parameters = generator.generate();
 
-                if (parameter.in === ParameterSource.FORM_DATA) {
-                    formParameterCount++;
-                }
+                for (let j = 0; j < parameters.length; j++) {
+                    if (parameters[j].in === ParameterSource.BODY) {
+                        bodyParameterCount++;
+                    }
 
-                if (parameter.in !== ParameterSource.CONTEXT) {
-                    parameters.push(parameter);
+                    if (parameters[j].in === ParameterSource.FORM_DATA) {
+                        formParameterCount++;
+                    }
+
+                    if (parameters[j].in !== ParameterSource.CONTEXT) {
+                        output.push(parameters[j]);
+                    }
                 }
             } catch (e) {
                 const parameterId = this.node.parameters[i].name as ts.Identifier;
@@ -128,7 +133,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             throw new Error(`Choose either form-, file- or body-parameter in '${this.getCurrentLocation()}' method.`);
         }
 
-        return parameters;
+        return output;
     }
 
     private processMethodDecorators() {

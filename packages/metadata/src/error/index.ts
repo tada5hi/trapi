@@ -6,4 +6,3 @@
  */
 
 export * from './base';
-export * from './parameter-invalid';

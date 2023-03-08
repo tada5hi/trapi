@@ -41,7 +41,7 @@ export function FilesParam(name: string) {
     return (...args) => { };
 }
 
-export function QueryParam(name: string) {
+export function QueryParam(name: string, options?: Record<string, any>) {
     return (...args) => { };
 }
 

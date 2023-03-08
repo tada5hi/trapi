@@ -8,7 +8,7 @@
 import type {
     EnumType,
     IntersectionType,
-    Method,
+    Method, NestedObjectLiteralType,
     Parameter,
     ReferenceType,
     ResolverProperty,
@@ -17,13 +17,14 @@ import type {
 } from '@trapi/metadata';
 import { ParameterSource, isVoidType } from '@trapi/metadata';
 import { URL } from 'url';
-import { merge } from 'smob';
-import type { SpecificationParameterSource } from '../../constants';
+import { isObject, merge } from 'smob';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
 import { hasOwnProperty, normalizePathParameters } from '../../utils';
 import type {
-    DataFormat, DataType, Example, Path,
+    DataFormat,
+    DataType, Example, Path,
 } from '../type';
+import { ParameterSourceV3 } from './constants';
 import type { SpecificationV3 } from './type';
 import { removeFinalCharacter, removeRepeatingCharacter } from '../utils';
 import { AbstractSpecGenerator } from '../abstract';
@@ -120,36 +121,40 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
     }
 
     private buildMethod(controllerName: string, method: Method, pathObject: any) {
-        const operation = this.buildOperation(controllerName, method);
-        if (typeof pathObject === 'object') {
-            pathObject[method.method] = operation;
+        const output = this.buildOperation(controllerName, method);
+        if (isObject(pathObject)) {
+            pathObject[method.method] = output;
         }
 
-        const pathMethod: SpecificationV3.OperationV3 = operation;
-        pathMethod.description = method.description;
-        pathMethod.summary = method.summary;
-        pathMethod.tags = method.tags;
+        output.description = method.description;
+        output.summary = method.summary;
+        output.tags = method.tags;
 
-        // Use operationId tag otherwise fallback to generated. Warning: This doesn't check uniqueness.
-        pathMethod.operationId = method.operationId || pathMethod.operationId;
+        // Use operationId tag otherwise fallback to generate. Warning: This doesn't check uniqueness.
+        output.operationId = method.operationId || output.operationId;
 
         if (method.deprecated) {
-            pathMethod.deprecated = method.deprecated;
+            output.deprecated = method.deprecated;
         }
 
         if (method.security) {
-            pathMethod.security = method.security as any[];
+            output.security = method.security as any[];
         }
 
-        const bodyParams = method.parameters.filter((p) => p.in === 'body');
-        const formParams = method.parameters.filter((p) => p.in === 'formData');
+        const parameters = this.groupParameters(method.parameters);
 
-        pathMethod.parameters = method.parameters
-            .filter((p) => p.in === ParameterSource.QUERY ||
-                    p.in === ParameterSource.HEADER ||
-                    p.in === ParameterSource.PATH ||
-                    p.in === ParameterSource.COOKIE)
+        output.parameters = [
+            ...(parameters[ParameterSource.QUERY_PROP] || []),
+            ...(parameters[ParameterSource.HEADER] || []),
+            ...(parameters[ParameterSource.PATH] || []),
+            ...(parameters[ParameterSource.COOKIE] || []),
+        ]
             .map((p) => this.buildParameter(p));
+
+        // ignore ParameterSource.QUERY!
+
+        const bodyParams = parameters[ParameterSource.BODY] || [];
+        const formParams = parameters[ParameterSource.FORM_DATA] || [];
 
         if (bodyParams.length > 1) {
             throw new Error('Only one body parameter allowed per controller method.');
@@ -159,14 +164,41 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
             throw new Error('Either body parameter or form parameters allowed per controller method - not both.');
         }
 
+        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
+        if (bodyPropParams.length > 0) {
+            const type : NestedObjectLiteralType = {
+                typeName: 'nestedObjectLiteral',
+                properties: [],
+            };
+
+            for (let i = 0; i < bodyPropParams.length; i++) {
+                type.properties.push(bodyPropParams[i] as ResolverProperty);
+            }
+
+            if (!bodyParams.length) {
+                bodyParams.push({
+                    in: 'body',
+                    name: 'body',
+                    description: '',
+                    parameterName: bodyPropParams[0].parameterName || 'body',
+                    required: true,
+                    type,
+                    validators: {},
+                    deprecated: false,
+                });
+            } else if (bodyParams[0].type.typeName === 'nestedObjectLiteral') {
+                bodyParams[0].type = type;
+            }
+        }
+
         if (bodyParams.length > 0) {
-            pathMethod.requestBody = this.buildRequestBody(bodyParams[0]);
+            output.requestBody = this.buildRequestBody(bodyParams[0]);
         } else if (formParams.length > 0) {
-            pathMethod.requestBody = this.buildRequestBodyWithFormData(formParams);
+            output.requestBody = this.buildRequestBodyWithFormData(formParams);
         }
 
         for (let i = 0; i < method.extensions.length; i++) {
-            pathMethod[method.extensions[i].key] = method.extensions[i].value;
+            output[method.extensions[i].key] = method.extensions[i].value;
         }
     }
 
@@ -275,37 +307,62 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         };
     }
 
-    private buildParameter(source: Parameter): SpecificationV3.ParameterV3 {
+    protected transformParameterSource(
+        source: `${ParameterSource}`,
+    ) : `${ParameterSourceV3}` | undefined {
+        if (source === ParameterSource.COOKIE) {
+            return ParameterSourceV3.COOKIE;
+        }
+
+        if (source === ParameterSource.HEADER) {
+            return ParameterSourceV3.HEADER;
+        }
+
+        if (source === ParameterSource.PATH) {
+            return ParameterSourceV3.PATH;
+        }
+
+        if (source === ParameterSource.QUERY_PROP || source === ParameterSource.QUERY) {
+            return ParameterSourceV3.QUERY;
+        }
+
+        return undefined;
+    }
+
+    protected buildParameter(input: Parameter): SpecificationV3.ParameterV3 {
+        const sourceIn = this.transformParameterSource(input.in);
+        if (!sourceIn) {
+            throw new Error(`The parameter source ${input.in} is not valid for generating a document.`);
+        }
+
         const parameter : SpecificationV3.ParameterV3 = {
-            description: source.description,
-            in: source.in as SpecificationParameterSource,
-            // todo: narrow down parameter-source to specification-source
-            name: source.name,
-            required: source.required,
+            allowEmptyValue: false,
+            deprecated: false,
+            description: input.description,
+            in: sourceIn,
+            name: input.name,
+            required: input.required,
             schema: {
-                default: source.default,
+                default: input.default,
                 format: undefined,
             },
         };
 
-        if (source.deprecated) {
+        if (input.deprecated) {
             parameter.deprecated = true;
         }
 
-        const parameterType = this.getSwaggerType(source.type);
+        const parameterType = this.getSwaggerType(input.type);
         if (parameterType.format) {
             parameter.schema.format = parameterType.format;
         }
 
-        if (
-            hasOwnProperty(parameterType, '$ref') &&
-            parameterType.$ref
-        ) {
-            parameter.schema = parameterType as SpecificationV3.SchemaV3;
+        if (parameterType.$ref) {
+            parameter.schema = parameterType;
             return parameter;
         }
 
-        if (source.type.typeName === 'any') {
+        if (input.type.typeName === 'any') {
             parameter.schema.type = 'string';
         } else {
             if (parameterType.type) {
@@ -315,7 +372,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
             parameter.schema.enum = parameterType.enum;
         }
 
-        this.buildFromParameterExamples(parameter, source);
+        this.buildFromParameterExamples(parameter, input);
 
         return parameter;
     }

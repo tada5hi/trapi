@@ -8,12 +8,15 @@
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
 import type {
-    BaseOperation, BaseResponse, BaseSchema, BaseSpec, DataFormat,
-    DataType, Example, Path,
-    SpecificationParameter,
+    BaseOperation, BaseResponse,
+    BaseSchema, BaseSpec, BodyParameter, DataFormat, DataType, Example,
+    FormDataParameter, HeaderParameter, Path, PathParameter, QueryParameter,
 } from '../type';
+import { SpecificationV2 } from '../v2';
+import type { ParameterSourceV3 } from './constants';
 
 export namespace SpecificationV3 {
+
     export interface SpecV3 extends BaseSpec {
         openapi: '3.0.0';
         servers: ServerV3[];
@@ -52,7 +55,61 @@ export namespace SpecificationV3 {
         [key: string] : Path<OperationV3, ParameterV3>;
     }
 
-    export type ParameterV3 = SpecificationParameter<SchemaV3>;
+    export interface BaseParameterV3 {
+        /**
+         * Default: false
+         */
+        deprecated?: boolean,
+        /**
+         * Default: false
+         */
+        allowEmptyValue?: boolean
+
+        // --------------------------------
+
+        style?: string,
+        explode?: boolean,
+        allowReserved?: boolean,
+
+        schema?: BaseSchema<SchemaV3>,
+        example?: unknown;
+        examples?: Record<string, Example | string>;
+
+        // --------------------------------
+
+        content?: Record<string, any>,
+    }
+
+    export interface BodyParameterV3 extends BodyParameter, BaseParameterV3 {
+
+    }
+
+    export interface CookieParameterV3 extends BaseParameterV3 {
+        in: `${ParameterSourceV3.COOKIE}`
+    }
+
+    export interface QueryParameterV3 extends QueryParameter, BaseParameterV3 {
+
+    }
+
+    export interface PathParameterV3 extends PathParameter, BaseParameterV3 {
+
+    }
+
+    export interface HeaderParameterV3 extends HeaderParameter, BaseParameterV3 {
+
+    }
+
+    export interface FormDataParameterV3 extends FormDataParameter, BaseParameterV3 {
+
+    }
+
+    export type ParameterV3 = BodyParameterV3 |
+    CookieParameterV3 |
+    QueryParameterV3 |
+    PathParameterV3 |
+    HeaderParameterV3 |
+    FormDataParameterV3;
 
     export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3, SecurityV3> {
         requestBody?: RequestBodyV3;

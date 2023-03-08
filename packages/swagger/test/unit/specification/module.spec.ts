@@ -55,27 +55,43 @@ describe('generating swagger spec from metadata', () => {
         expect(await expression.evaluate(spec)).toEqual(false);
         expression = jsonata('paths."/mypath/secondpath".get.parameters[3]');
         const evaluate = await expression.evaluate(spec);
-        expect(evaluate.schema).toHaveProperty('$ref');
-        expect(evaluate.schema.$ref).toEqual('#/definitions/TestEnum');
+        expect(evaluate.type).toEqual('string');
+        expect(evaluate.enum).toBeDefined();
+
+        // todo: this in v3 the case
+        // expect(evaluate.schema).toHaveProperty('$ref');
+        // expect(evaluate.schema.$ref).toEqual('#/definitions/TestEnum');
     });
 
     it('should generate specs for enum params based on it values types', async () => {
         let expression = jsonata('paths."/mypath/secondpath".get.parameters[3]');
         let paramSpec = await expression.evaluate(spec);
-        expect(paramSpec.schema).toHaveProperty('$ref');
-        expect(paramSpec.schema.$ref).toEqual('#/definitions/TestEnum');
+        expect(paramSpec.type).toEqual('string');
+        expect(paramSpec.name).toEqual('testEnum');
+        expect(paramSpec.enum).toBeDefined();
+
+        // todo v3
+        // expect(paramSpec.schema).toHaveProperty('$ref');
+        // expect(paramSpec.schema.$ref).toEqual('#/definitions/TestEnum');
         expect(paramSpec.in).toEqual('query');
 
         expression = jsonata('paths."/mypath/secondpath".get.parameters[4]');
         paramSpec = await expression.evaluate(spec);
-        expect(paramSpec.schema).toHaveProperty('$ref');
-        expect(paramSpec.schema.$ref).toEqual('#/definitions/TestNumericEnum');
-        expect(paramSpec.in).toEqual('query');
+        expect(paramSpec.type).toEqual('number');
+        expect(paramSpec.name).toEqual('testNumericEnum');
+        expect(paramSpec.enum).toBeDefined();
+
+        // expect(paramSpec.schema).toHaveProperty('$ref');
+        // expect(paramSpec.schema.$ref).toEqual('#/definitions/TestNumericEnum');
+        // expect(paramSpec.in).toEqual('query');
 
         expression = jsonata('paths."/mypath/secondpath".get.parameters[5]');
         paramSpec = await expression.evaluate(spec);
+        expect(paramSpec.type).toEqual('string');
+        expect(paramSpec.name).toEqual('testMixedEnum');
+        expect(paramSpec.enum).toEqual(['0', 'option2']);
 
-        expect(paramSpec.schema.$ref).toEqual('#/definitions/TestMixedEnum');
+        // expect(paramSpec.schema.$ref).toEqual('#/definitions/TestMixedEnum');
     });
 
     it('should generate description for methods and parameters', async () => {

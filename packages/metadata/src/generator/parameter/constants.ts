@@ -14,7 +14,6 @@ export enum ParameterSource {
     FORM_DATA = 'formData',
     QUERY = 'query',
     QUERY_PROP = 'queryProp',
-    PARAM = 'param',
     PATH = 'path',
 }
 

@@ -12,10 +12,12 @@ import type {
     IntersectionType,
     Metadata,
     NestedObjectLiteralType,
+    Parameter,
+    ParameterSource,
     PrimitiveTypeLiteral,
     ReferenceType,
-    ResolverProperty,
-    TypeVariant,
+    ResolverProperty, TypeVariant,
+
     UnionType,
 } from '@trapi/metadata';
 import {
@@ -26,6 +28,7 @@ import {
     isNestedObjectLiteralType,
     isReferenceType,
     isUnionType,
+
     isVoidType,
 } from '@trapi/metadata';
 
@@ -39,7 +42,9 @@ import type { SpecificationV2 } from './v2';
 import type { SpecificationV3 } from './v3';
 
 import type { DocumentFormatData } from '../type';
-import type { BaseSchema, Info } from './type';
+import type {
+    BaseParameter, BaseSchema, Info,
+} from './type';
 
 export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.SpecV2 | SpecificationV3.SpecV3,
     Schema extends SpecificationV3.SchemaV3 | SpecificationV2.SchemaV2> {
@@ -268,5 +273,19 @@ export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.SpecV2 
 
     protected getOperationId(methodName: string) {
         return methodName.charAt(0).toUpperCase() + methodName.substring(1);
+    }
+
+    protected groupParameters(items: Parameter[]) : Partial<Record<ParameterSource, Parameter[]>> {
+        const output : Partial<Record<ParameterSource, Parameter[]>> = {};
+
+        for (let i = 0; i < items.length; i++) {
+            if (typeof output[items[i].in] === 'undefined') {
+                output[items[i].in] = [];
+            }
+
+            output[items[i].in].push(items[i]);
+        }
+
+        return output;
     }
 }

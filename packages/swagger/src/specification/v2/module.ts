@@ -16,22 +16,21 @@ import type {
     Response,
 } from '@trapi/metadata';
 import {
-    isRefAliasType,
-    isRefEnumType,
-    isRefObjectType,
+    ParameterSource, isRefAliasType, isRefEnumType, isRefObjectType,
 } from '@trapi/metadata';
-import { merge } from 'smob';
 import path from 'node:path';
 import { URL } from 'node:url';
+import { merge } from 'smob';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
 
-import { hasOwnProperty, normalizePathParameters } from '../../utils';
+import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
+import { AbstractSpecGenerator } from '../abstract';
 
 import type {
-    DataFormat, Example, Path, SpecificationParameter,
+    BaseSchema, DataFormat, Example, Path,
 } from '../type';
+import { ParameterSourceV2 } from './constants';
 import type { SpecificationV2 } from './type';
-import { AbstractSpecGenerator } from '../abstract';
 
 export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.SpecV2, SpecificationV2.SchemaV2> {
     public getSwaggerSpec(): SpecificationV2.SpecV2 {
@@ -252,91 +251,219 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 // todo: unique for objects
                 method.responses = unique([...controller.responses, ...method.responses]);
                 const pathObject: any = paths[fullPath];
-                pathObject[method.method] = this.buildPathMethod(controller.name, method);
+                pathObject[method.method] = this.buildPathMethod(method);
             });
         });
 
         return paths;
     }
 
-    private buildPathMethod(controllerName: string, method: Method) {
-        const pathMethod: any = this.buildOperation(method);
-        pathMethod.description = method.description;
+    private buildPathMethod(method: Method) {
+        const output = this.buildOperation(method);
+        output.description = method.description;
         if (method.summary) {
-            pathMethod.summary = method.summary;
+            output.summary = method.summary;
         }
 
-        if (method.deprecated) { pathMethod.deprecated = method.deprecated; }
-        if (method.tags.length) { pathMethod.tags = method.tags; }
+        if (method.deprecated) { output.deprecated = method.deprecated; }
+        if (method.tags.length) { output.tags = method.tags; }
         if (method.security) {
-            pathMethod.security = method.security.map((s) => ({
+            output.security = method.security.map((s) => ({
                 [s.name]: s.scopes || [],
             }));
         }
 
-        this.handleMethodConsumes(method, pathMethod);
+        this.handleMethodConsumes(method, output);
 
-        pathMethod.parameters = method.parameters
-            .filter((p) => (p.in !== 'param'))
-            .map((p) => this.buildParameter(p));
+        const parameters = this.groupParameters(method.parameters);
 
-        method.parameters
-            .filter((p) => (p.in === 'param'))
-            .forEach((p) => {
-                pathMethod.parameters.push(this.buildParameter({
-                    description: p.description,
-                    in: 'query',
-                    name: p.name,
-                    parameterName: p.parameterName,
-                    required: false,
-                    type: p.type,
-                }));
-                pathMethod.parameters.push(this.buildParameter({
-                    description: p.description,
-                    in: 'formData',
-                    name: p.name,
-                    parameterName: p.parameterName,
-                    required: false,
-                    type: p.type,
-                }));
-            });
+        output.parameters = [
+            ...(parameters[ParameterSource.PATH] || []),
+            ...(parameters[ParameterSource.QUERY_PROP] || []),
+            ...(parameters[ParameterSource.HEADER] || []),
+            ...(parameters[ParameterSource.FORM_DATA] || []),
+            ...(parameters[ParameterSource.COOKIE] || []),
+        ].map((p) => this.buildParameter(p));
 
-        if (pathMethod.parameters.filter((p) => p.in === 'body').length > 1) {
+        // ignore ParameterSource.QUERY!
+
+        // ------------------------------------------------------
+
+        const bodyParameters = (parameters[ParameterSource.BODY] || []);
+        if (bodyParameters.length > 1) {
             throw new Error('Only one body parameter allowed per controller method.');
         }
-        return pathMethod;
-    }
 
-    private buildParameter(parameter: Parameter): SpecificationParameter<SpecificationV2.SchemaV2> {
-        const swaggerParameter: any = {
-            description: parameter.description,
-            in: parameter.in,
-            name: parameter.name,
-            required: parameter.required,
-        };
+        const bodyParameter = bodyParameters.length > 0 ?
+            this.buildParameter(bodyParameters[0]) :
+            undefined;
 
-        const parameterType = this.getSwaggerType(parameter.type);
-        if ((hasOwnProperty(parameterType, '$ref') && parameterType.$ref) || parameter.in === 'body') {
-            swaggerParameter.schema = parameterType;
-        } else {
-            swaggerParameter.type = parameterType.type;
+        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
+        if (bodyPropParams.length > 0) {
+            const schema : BaseSchema<SpecificationV2.SchemaV2> = {
+                type: 'object',
+                title: 'Body',
+                properties: {},
+            };
 
-            if (parameterType.items) {
-                swaggerParameter.items = parameterType.items;
+            const required : string[] = [];
 
-                if (parameter.collectionFormat || this.config.collectionFormat) {
-                    swaggerParameter.collectionFormat = parameter.collectionFormat || this.config.collectionFormat;
+            for (let i = 0; i < bodyPropParams.length; i++) {
+                const bodyProp = this.getSwaggerType(bodyPropParams[i].type);
+                bodyProp.default = bodyPropParams[i].default;
+                bodyProp.description = bodyPropParams[i].description;
+                bodyProp.example = bodyPropParams[i].examples;
+
+                if (bodyProp.required) {
+                    required.push(bodyPropParams[i].name);
                 }
+
+                schema.properties[bodyPropParams[i].name] = bodyProp;
             }
+
+            if (
+                bodyParameter &&
+                bodyParameter.in === ParameterSourceV2.BODY
+            ) {
+                if (bodyParameter.schema.type === 'object') {
+                    bodyParameter.schema.properties = {
+                        ...(bodyParameter.schema.properties || {}),
+                        ...schema.properties,
+                    };
+
+                    bodyParameter.schema.required = [
+                        ...(bodyParameter.schema.required || []),
+                        ...required,
+                    ];
+                } else {
+                    bodyParameter.schema = schema;
+                }
+
+                output.parameters.push(bodyParameter);
+            } else {
+                const parameter : SpecificationV2.ParameterV2 = {
+                    in: 'body',
+                    name: 'body',
+                    schema,
+                };
+
+                if (required.length) {
+                    parameter.schema.required = required;
+                }
+
+                output.parameters.push(parameter);
+            }
+        } else if (bodyParameter) {
+            output.parameters.push(bodyParameter);
         }
 
-        if (parameterType.format) { swaggerParameter.format = parameterType.format; }
+        for (let i = 0; i < method.extensions.length; i++) {
+            output[method.extensions[i].key] = method.extensions[i].value;
+        }
 
-        if (parameter.default !== undefined) { swaggerParameter.default = parameter.default; }
+        return output;
+    }
 
-        if (parameterType.enum) { swaggerParameter.enum = parameterType.enum; }
+    private transformParameterSource(
+        source: `${ParameterSource}`,
+    ) : `${ParameterSourceV2}` | undefined {
+        if (
+            source === ParameterSource.BODY
+        ) {
+            return ParameterSourceV2.BODY;
+        }
 
-        return swaggerParameter;
+        if (source === ParameterSource.FORM_DATA) {
+            return ParameterSourceV2.FORM_DATA;
+        }
+
+        if (source === ParameterSource.HEADER) {
+            return ParameterSourceV2.HEADER;
+        }
+
+        if (source === ParameterSource.PATH) {
+            return ParameterSourceV2.PATH;
+        }
+
+        if (source === ParameterSource.QUERY || source === ParameterSource.QUERY_PROP) {
+            return ParameterSourceV2.QUERY;
+        }
+
+        return undefined;
+    }
+
+    protected buildParameter(input: Parameter): SpecificationV2.ParameterV2 {
+        const sourceIn = this.transformParameterSource(input.in);
+        if (!sourceIn) {
+            throw new Error(`The parameter source ${input.in} is not valid for generating a document.`);
+        }
+
+        const parameter = {
+            description: input.description,
+            in: sourceIn,
+            name: input.name,
+            required: input.required,
+        } as SpecificationV2.ParameterV2;
+
+        if (
+            input.in !== ParameterSource.BODY &&
+            isRefEnumType(input.type)
+        ) {
+            input.type = {
+                typeName: 'enum',
+                members: input.type.members,
+            };
+        }
+
+        const parameterType = this.getSwaggerType(input.type);
+        if (
+            parameter.in !== ParameterSourceV2.BODY &&
+            parameterType.format
+        ) {
+            parameter.format = parameterType.format;
+        }
+
+        // collectionFormat, might be valid for all parameters (if value != multi)
+        if (
+            (parameter.in === ParameterSourceV2.FORM_DATA || parameter.in === ParameterSourceV2.QUERY) &&
+            (input.type.typeName === 'array' || parameterType.type === 'array')
+        ) {
+            parameter.collectionFormat = input.collectionFormat || this.config.collectionFormat || 'multi';
+        }
+
+        if (parameter.in === ParameterSourceV2.BODY) {
+            if ((input.type.typeName === 'array' || parameterType.type === 'array')) {
+                parameter.schema = {
+                    items: parameterType.items,
+                    type: 'array',
+                };
+            } else if (input.type.typeName === 'any') {
+                parameter.schema = { type: 'object' };
+            } else {
+                parameter.schema = parameterType;
+            }
+
+            return parameter;
+        }
+
+        if (input.type.typeName === 'any') {
+            parameter.type = 'string';
+        } else if (parameterType.type) {
+            parameter.type = parameterType.type;
+        }
+
+        if (parameterType.items) {
+            parameter.items = parameterType.items;
+        }
+        if (parameterType.enum) {
+            parameter.enum = parameterType.enum;
+        }
+
+        if (typeof input.default !== 'undefined') {
+            parameter.default = input.default;
+        }
+
+        return parameter;
     }
 
     private handleMethodConsumes(method: Method, pathMethod: any) {
@@ -370,14 +497,13 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
     protected getSwaggerTypeForEnumType(enumType: EnumType) : SpecificationV2.SchemaV2 {
         const types = this.determineTypesUsedInEnum(enumType.members);
-
-        if (types.size === 1) {
-            const type = types.values().next().value;
-            const nullable = !!enumType.members.includes(null);
-            return { type, enum: enumType.members.map((member: string | number | boolean | null) => (member === null ? null : String(member))), 'x-nullable': nullable };
-        }
-        const valuesDelimited = Array.from(types).join(',');
-        throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
+        const type = types.size === 1 ? (types.values().next().value) : 'string';
+        const nullable = !!enumType.members.includes(null);
+        return {
+            type,
+            enum: enumType.members.map((member) => transformValueTo(type, member)),
+            'x-nullable': nullable,
+        };
     }
 
     protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV2.SchemaV2 {

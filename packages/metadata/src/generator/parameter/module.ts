@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { isObject } from 'locter';
 import * as ts from 'typescript';
 import type { DecoratorPropertyManager } from '../../decorator';
 import { DecoratorID } from '../../decorator';
@@ -138,7 +139,7 @@ export class ParameterGenerator {
                 deprecated: property.deprecated || this.getParameterDeprecation(),
             });
 
-            // todo: example, format, default, description
+            // todo: example, format
         }
 
         return output;
@@ -147,53 +148,9 @@ export class ParameterGenerator {
     private getParamParameter(
         manager: DecoratorPropertyManager<`${DecoratorID.PARAM}` | `${DecoratorID.PARAMS}`>,
     ): Parameter[] {
-        const parameterName = (this.parameter.name as ts.Identifier).text;
-        let name = parameterName;
-        const type = this.getValidatedType(this.parameter);
-
-        const value = manager.getPropertyValue('value');
-        if (typeof value === 'string') {
-            name = value;
-        }
-
-        if (!this.isBodySupportedForMethod(this.method)) {
-            throw ParameterError.methodUnsupported({
-                decoratorName: manager.representation.name,
-                propertyName: name,
-                method: this.method,
-                node: this.parameter,
-            });
-        }
-
-        const { examples, exampleLabels } = this.getParameterExample(parameterName);
-
-        if (
-            type.typeName === 'nestedObjectLiteral' ||
-            type.typeName === 'refObject'
-        ) {
-            return this.buildParametersForObject(type, {
-                in: ParameterSource.PARAM,
-                examples,
-                exampleLabels,
-            });
-        }
-
-        // todo: return form, body, query parameter :)
-
         return [
-            {
-                default: getInitializerValue(this.parameter.initializer, this.current.typeChecker, type),
-                description: this.getParameterDescription(),
-                examples,
-                exampleLabels,
-                in: ParameterSource.PARAM,
-                name: name || parameterName,
-                parameterName,
-                required: !this.parameter.questionToken,
-                type,
-                deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
-            },
+            ...this.getBodyParameter(manager),
+            ...this.getCookieParameter(manager),
         ];
     }
 
@@ -218,7 +175,6 @@ export class ParameterGenerator {
     ) : Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
-
         const value = manager.getPropertyValue('value');
         if (typeof value === 'string') {
             name = value;
@@ -300,7 +256,12 @@ export class ParameterGenerator {
     }
 
     private getCookieParameter(
-        manager: DecoratorPropertyManager<`${DecoratorID.COOKIE}` | `${DecoratorID.COOKIES}`>,
+        manager: DecoratorPropertyManager<
+            `${DecoratorID.COOKIE}` |
+            `${DecoratorID.COOKIES}` |
+            `${DecoratorID.PARAM}` |
+            `${DecoratorID.PARAMS}`
+        >,
     ): Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -309,7 +270,10 @@ export class ParameterGenerator {
 
         const { examples, exampleLabels } = this.getParameterExample(parameterName);
 
-        if (type.typeName === 'nestedObjectLiteral' || type.typeName === 'refObject') {
+        if (
+            type.typeName === 'nestedObjectLiteral' ||
+            type.typeName === 'refObject'
+        ) {
             return this.buildParametersForObject(type, {
                 in: ParameterSource.COOKIE,
                 examples,
@@ -348,7 +312,9 @@ export class ParameterGenerator {
         ];
     }
 
-    private getBodyParameter(manager?: DecoratorPropertyManager<`${DecoratorID.BODY}`>): Parameter[] {
+    private getBodyParameter(
+        manager?: DecoratorPropertyManager<`${DecoratorID.BODY}` | `${DecoratorID.PARAM}` | `${DecoratorID.PARAMS}`>,
+    ): Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
 
@@ -440,12 +406,14 @@ export class ParameterGenerator {
         ];
     }
 
-    private getQueryParameter(manager: DecoratorPropertyManager<`${DecoratorID.QUERY}`>): Parameter[] | ArrayParameter[] {
+    private getQueryParameter(
+        manager: DecoratorPropertyManager<`${DecoratorID.QUERY}`>,
+    ): Parameter[] | ArrayParameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         const type = this.getValidatedType(this.parameter);
 
         let name : string = parameterName;
-        let options : any = {};
+        let options : Record<string, any> = {};
 
         let source = ParameterSource.QUERY;
 
@@ -456,11 +424,27 @@ export class ParameterGenerator {
         }
 
         const optionsValue = manager.getPropertyValue('options');
-        if (typeof optionsValue !== 'undefined') {
+        if (isObject(optionsValue)) {
             options = optionsValue;
         }
 
         const { examples, exampleLabels } = this.getParameterExample(parameterName);
+
+        if (source === ParameterSource.QUERY) {
+            // yeah! we can transform the object to individual properties.
+            if (
+                type.typeName === 'nestedObjectLiteral' ||
+                type.typeName === 'refObject'
+            ) {
+                return this.buildParametersForObject(type, {
+                    in: ParameterSource.QUERY_PROP,
+                    examples,
+                    exampleLabels,
+                });
+
+                // todo: transform ( type.typeName === 'array')
+            }
+        }
 
         const properties : Parameter = {
             allowEmptyValue: options.allowEmptyValue,
@@ -480,25 +464,6 @@ export class ParameterGenerator {
             validators: getParameterValidators(this.parameter, parameterName),
         };
 
-        if (
-            type.typeName === 'nestedObjectLiteral' ||
-            type.typeName === 'refObject'
-        ) {
-            const output = this.buildParametersForObject(type, {
-                in: ParameterSource.QUERY_PROP,
-                examples,
-                exampleLabels,
-            });
-
-            if (source === ParameterSource.QUERY_PROP) {
-                for (let i = 0; i < output.length; i++) {
-                    output[i].name = `${name}.${output[i].name}`;
-                }
-            }
-
-            return output;
-        }
-
         if (type.typeName === 'array') {
             if (!this.isTypeSupported(type.elementType)) {
                 throw ParameterError.typeUnsupported({
@@ -517,11 +482,7 @@ export class ParameterGenerator {
         }
 
         // todo: investigate if this refEnum and union are valid types
-        if (
-            !this.isTypeSupported(type) &&
-            type.typeName !== 'refEnum' &&
-            type.typeName !== 'union'
-        ) {
+        if (!this.isTypeSupportedForQueryParameter(type)) {
             throw ParameterError.typeUnsupported({
                 decoratorName: manager.representation.name,
                 propertyName: name,
@@ -531,6 +492,12 @@ export class ParameterGenerator {
         }
 
         return [properties];
+    }
+
+    private isTypeSupportedForQueryParameter(type: TypeVariant) {
+        return this.isTypeSupported(type) ||
+        type.typeName === 'refEnum' ||
+        type.typeName === 'union';
     }
 
     private getPathParameter(

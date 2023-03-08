@@ -5,16 +5,20 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type { CollectionFormat } from '@trapi/metadata';
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
 import type {
-    BaseOperation,
-    BaseResponse,
-    BaseSchema,
-    BaseSpec,
-    Example,
+    BaseOperation, BaseResponse,
+    BaseSchema, BaseSpec,
+    BodyParameter,
+    DataFormat,
+    DataType,
+    Example, FormDataParameter,
+    HeaderParameter,
     Path,
-    SpecificationParameter,
+    PathParameter,
+    QueryParameter,
 } from '../type';
 
 export namespace SpecificationV2 {
@@ -33,7 +37,56 @@ export namespace SpecificationV2 {
         securityDefinitions?: { [name: string]: SecurityV2 };
     }
 
-    export type ParameterV2 = SpecificationParameter<SchemaV2> & {'x-deprecated'?: boolean };
+    type PatternField = `x-${string}`;
+
+    export interface BaseParameterV2 {
+        type?: DataType;
+        format?: DataFormat;
+        allowEmptyValue?: boolean,
+        items?: Record<string, any>, // items object
+        collectionFormat?: `${CollectionFormat}`,
+        default?: any,
+        maximum?: number,
+        exclusiveMaximum?: number,
+        minimum?: number,
+        exclusiveMinimum?: number,
+        maxLength?: number,
+        minLength?: number,
+        pattern?: string,
+        maxItems?: number,
+        minItems?: number,
+        uniqueItems?: number,
+        enum?: unknown[],
+        multipleOf?: number,
+    }
+
+    export interface BodyParameterV2 extends BodyParameter {
+        schema: BaseSchema<SchemaV2>;
+    }
+
+    export interface QueryParameterV2 extends QueryParameter, BaseParameterV2 {
+
+    }
+
+    export interface PathParameterV2 extends PathParameter, BaseParameterV2 {
+
+    }
+
+    export interface HeaderParameterV2 extends HeaderParameter, BaseParameterV2 {
+
+    }
+
+    export interface FormDataParameterV2 extends FormDataParameter, BaseParameterV2 {
+
+    }
+
+    export type ParameterV2 = (
+        BodyParameterV2 |
+        QueryParameterV2 |
+        PathParameterV2 |
+        HeaderParameterV2 |
+        FormDataParameterV2
+    ) & { [key: PatternField]: any | undefined };
 
     export interface OperationV2 extends BaseOperation<ParameterV2, ResponseV2, SecurityV2> {
         produces?: [string];

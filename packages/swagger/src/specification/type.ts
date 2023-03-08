@@ -6,7 +6,7 @@
  */
 
 import type { CollectionFormat } from '@trapi/metadata';
-import type { SpecificationParameterSource } from '../constants';
+import type { ParameterSourceV2 } from './v2';
 
 export interface BaseSpec {
     info: Info;
@@ -96,7 +96,7 @@ export interface BaseSchema<T> {
     uniqueItems?: boolean;
     maxProperties?: number;
     minProperties?: number;
-    enum?: Array<string | number>;
+    enum?: Array<string | number | boolean>;
     'x-enum-varnames'?: string[];
     items?: T | BaseSchema<T> | any;
     additionalProperties?: boolean | { [ref: string]: string } | T;
@@ -123,48 +123,35 @@ export type DataFormat = 'int32' | 'int64' | 'float' | 'double' | 'byte' | 'bina
 
 // ------------------------------------------------------
 
-interface BaseParameter<T> {
+export interface BaseParameter {
     name: string;
-    in: `${SpecificationParameterSource}`;
+    in: `${ParameterSourceV2}`;
     required?: boolean;
     description?: string;
-    example?: unknown;
-    examples?: Record<string, Example | string>;
-    schema: BaseSchema<T>;
-    type?: DataType;
-    format?: DataFormat;
-    deprecated?: boolean;
 }
 
-interface BodyParameter<T> extends BaseParameter<T> {
-    in: `${SpecificationParameterSource.BODY}`;
+export interface BodyParameter extends BaseParameter {
+    in: `${ParameterSourceV2.BODY}`;
 }
 
-interface QueryParameter<T> extends BaseParameter<T> {
-    in: `${SpecificationParameterSource.QUERY}`;
+export interface QueryParameter extends BaseParameter {
+    in: `${ParameterSourceV2.QUERY}`;
     allowEmptyValue?: boolean;
     collectionFormat?: `${CollectionFormat}`;
 }
 
-interface PathParameter<T> extends BaseParameter<T> {
-    in: `${SpecificationParameterSource.PATH}`;
+export interface PathParameter extends BaseParameter {
+    in: `${ParameterSourceV2.PATH}`;
 }
 
-interface HeaderParameter<T> extends BaseParameter<T> {
-    in: `${SpecificationParameterSource.HEADER}`;
+export interface HeaderParameter extends BaseParameter {
+    in: `${ParameterSourceV2.HEADER}`;
 }
 
-interface FormDataParameter<T> extends BaseParameter<T> {
-    in: `${SpecificationParameterSource.FORM_DATA}`;
+export interface FormDataParameter extends BaseParameter {
+    in: `${ParameterSourceV2.FORM_DATA}`;
     collectionFormat?: `${CollectionFormat}`;
 }
-
-export type SpecificationParameter<T> =
-    BodyParameter<T> |
-    FormDataParameter<T> |
-    QueryParameter<T> |
-    PathParameter<T> |
-    HeaderParameter<T>;
 
 // ------------------------------------------------------
 

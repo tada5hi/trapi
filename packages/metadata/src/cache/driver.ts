@@ -25,7 +25,7 @@ export class CacheDriver {
             return undefined;
         }
 
-        const filePath: string = this.buildFilePath(undefined, data.sourceFilesSize);
+        const filePath = this.buildFilePath(undefined, data.sourceFilesSize);
 
         await fs.promises.writeFile(filePath, JSON.stringify(data));
 

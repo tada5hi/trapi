@@ -95,7 +95,7 @@ export class MyService {
     @Path('multi-query')
     public testMultiQuery(
     @QueryParam('id') ids: string[],
-        @QueryParam('name'/* , { collectionFormat: 'multi', allowEmptyValue: true } */) names?: string | string[],
+        @QueryParam('name', { collectionFormat: 'multi', allowEmptyValue: true }) names?: string | string[],
     ) {
         return { ids, names };
     }

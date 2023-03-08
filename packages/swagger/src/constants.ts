@@ -10,14 +10,6 @@ export enum SpecificationVersion {
     V3 = 'V3',
 }
 
-export enum SpecificationParameterSource {
-    BODY = 'body',
-    FORM_DATA = 'formData',
-    HEADER = 'header',
-    PATH = 'path',
-    QUERY = 'query',
-}
-
 export enum DocumentFormat {
     YAML = 'yaml',
     JSON = 'json',

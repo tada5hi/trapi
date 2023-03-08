@@ -7,3 +7,4 @@
 
 export * from './path';
 export * from './object';
+export * from './value';

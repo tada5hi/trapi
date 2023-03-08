@@ -23,7 +23,9 @@ export default {
             name: 'Description',
             properties: {
                 type: { isType: true, srcArgumentType: 'typeArgument' },
-                payload: {},
+                payload: { srcPosition: 2 },
+                statusCode: { srcPosition: 0 },
+                description: { srcPosition: 1 },
             },
         },
         {
@@ -31,7 +33,7 @@ export default {
             name: 'Example',
             properties: {
                 type: { isType: true, srcArgumentType: 'typeArgument' },
-                payload: {},
+                payload: { srcPosition: 0 },
             },
         },
 

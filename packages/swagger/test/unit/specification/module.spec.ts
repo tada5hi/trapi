@@ -139,6 +139,7 @@ describe('generating swagger spec from metadata', () => {
         expect(Object.keys(await expression.evaluate(spec)).length).toEqual(2);
         expression = jsonata('paths."/promise/{id}".get.responses."200".description');
         expect(await expression.evaluate(spec)).toEqual('All Good');
+
         expression = jsonata('paths."/promise/{id}".get.responses."200".examples."application/json".name');
         expect(await expression.evaluate(spec)).toEqual('Test Person');
         expression = jsonata('paths."/promise/{id}".get.responses."401".description');

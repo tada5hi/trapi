@@ -7,20 +7,20 @@
 
 export function transformValueTo(
     type: 'string' | 'number' | 'integer' | 'boolean',
-    member: unknown,
+    value: unknown,
 ): string | number | boolean | null {
-    if (member === null) {
+    if (value === null) {
         return null;
     }
 
     switch (type) {
         case 'integer':
         case 'number':
-            return Number(member);
+            return Number(value);
         case 'boolean':
-            return !!member;
+            return !!value;
         case 'string':
         default:
-            return String(member);
+            return String(value);
     }
 }

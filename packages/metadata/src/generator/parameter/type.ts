@@ -6,7 +6,7 @@
  */
 
 import type { Validator } from '../../type';
-import type { ArrayType, BaseType, TypeVariant } from '../../resolver';
+import type { ArrayType, TypeVariant } from '../../resolver';
 import type { CollectionFormat, ParameterSource } from './constants';
 
 export interface Parameter {

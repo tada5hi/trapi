@@ -42,7 +42,7 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
             name: this.getCurrentLocation(),
             path: this.path || '',
             produces: this.getProduces(),
-            responses: this.getResponses(),
+            responses: this.buildResponses(),
             security: this.getSecurity(),
             tags: this.getTags(),
         };

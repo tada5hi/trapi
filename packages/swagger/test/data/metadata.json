@@ -94,6 +94,7 @@
                     "responses": [
                         {
                             "description": "Error",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -102,6 +103,7 @@
                         },
                         {
                             "description": "The request format was incorrect.",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -110,6 +112,7 @@
                         },
                         {
                             "description": "There was an unexpected error.",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -249,9 +252,13 @@
                     "responses": [
                         {
                             "description": "The success test.",
-                            "examples": {
-                                "name": "Joe"
-                            },
+                            "examples": [
+                                {
+                                    "value": {
+                                        "name": "Joe"
+                                    }
+                                }
+                            ],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -362,7 +369,11 @@
                             "description": "Ok",
                             "examples": [
                                 {
-                                    "name": "Joe"
+                                    "value": [
+                                        {
+                                            "name": "Joe"
+                                        }
+                                    ]
                                 }
                             ],
                             "schema": {
@@ -910,6 +921,7 @@
                     "responses": [
                         {
                             "description": "Unauthorized",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -1027,9 +1039,13 @@
                     "responses": [
                         {
                             "description": "All Good",
-                            "examples": {
-                                "name": "Test Person"
-                            },
+                            "examples": [
+                                {
+                                    "value": {
+                                        "name": "Test Person"
+                                    }
+                                }
+                            ],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -1073,6 +1089,7 @@
                         },
                         {
                             "description": "Unauthorized",
+                            "examples": [],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -1216,9 +1233,13 @@
                     "responses": [
                         {
                             "description": "Person Created",
-                            "examples": {
-                                "name": "Test Person"
-                            },
+                            "examples": [
+                                {
+                                    "value": {
+                                        "name": "Test Person"
+                                    }
+                                }
+                            ],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -1262,6 +1283,7 @@
                         },
                         {
                             "description": "Unauthorized",
+                            "examples": [],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -1305,9 +1327,13 @@
                         },
                         {
                             "description": "Ok",
-                            "examples": {
-                                "name": "Example Person"
-                            },
+                            "examples": [
+                                {
+                                    "value": {
+                                        "name": "Example Person"
+                                    }
+                                }
+                            ],
                             "schema": {
                                 "typeName": "refObject",
                                 "properties": [
@@ -2830,6 +2856,7 @@
                     "responses": [
                         {
                             "description": "Unauthorized.",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -2838,6 +2865,7 @@
                         },
                         {
                             "description": "Internal server error.",
+                            "examples": [],
                             "schema": {
                                 "typeName": "string"
                             },
@@ -2866,6 +2894,7 @@
             "responses": [
                 {
                     "description": "The request format was incorrect.",
+                    "examples": [],
                     "schema": {
                         "typeName": "string"
                     },
@@ -2874,6 +2903,7 @@
                 },
                 {
                     "description": "There was an unexpected error.",
+                    "examples": [],
                     "schema": {
                         "typeName": "string"
                     },

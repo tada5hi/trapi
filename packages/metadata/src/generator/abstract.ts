@@ -10,7 +10,7 @@ import { isArrayLiteralExpression } from 'typescript';
 import { DecoratorID } from '../decorator';
 import { TypeNodeResolver } from '../resolver';
 
-import type { Response } from './type';
+import type { Example, Response } from './type';
 import {
     JSDocTagName, getInitializerValue, getNodeDecorators, hasJSDocTag, normalizePath,
 } from '../utils';
@@ -114,7 +114,7 @@ export abstract class AbstractGenerator<T extends Node> {
 
     // -------------------------------------------
 
-    protected getResponses(): Response[] {
+    protected buildResponses(): Response[] {
         const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_DESCRIPTION, this.node);
         if (typeof representation === 'undefined') {
             return [];
@@ -125,7 +125,14 @@ export abstract class AbstractGenerator<T extends Node> {
         for (let i = 0; i < representation.decorators.length; i++) {
             const description = representation.getPropertyValue('description', i) || 'Ok';
             const status = representation.getPropertyValue('statusCode', i) || '200';
-            const examples : unknown | unknown[] = representation.getPropertyValue('payload', i);
+            const payload = representation.getPropertyValue('payload', i);
+
+            const examples : Example[] = [];
+            if (typeof payload !== 'undefined') {
+                examples.push({
+                    value: payload,
+                });
+            }
 
             const type = representation.getPropertyValue('type');
 

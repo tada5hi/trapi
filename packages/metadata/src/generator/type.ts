@@ -17,9 +17,16 @@ export interface Security {
     scopes?: string[];
 }
 
+export interface Example {
+    value: unknown | unknown[];
+    summary?: string;
+    description?: string;
+    label?: string
+}
+
 export interface Response {
     description: string;
-    examples?: unknown[] | unknown;
+    examples?: Example[];
     headers?: NestedObjectLiteralType | RefObjectType;
     name: string;
     status: string;

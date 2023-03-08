@@ -17,7 +17,7 @@ import { AbstractGenerator } from '../abstract';
 import type { MetadataGenerator } from '../metadata';
 import type { Parameter } from '../parameter';
 import { ParameterGenerator, ParameterSource } from '../parameter';
-import type { Response } from '../type';
+import type { Example, Response } from '../type';
 import type { Method, MethodType } from './type';
 
 export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
@@ -57,7 +57,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         }
 
         const type = new TypeNodeResolver(nodeType, this.current).resolve();
-        const responses = this.mergeResponses(this.getResponses(), this.getMethodSuccessResponse(type));
+        const responses = this.mergeResponses(this.buildResponses(), this.buildResponse(type));
 
         return {
             // todo: implement extensions
@@ -121,7 +121,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
                 }
             } catch (e) {
                 const parameterId = this.node.parameters[i].name as ts.Identifier;
-                throw new Error(`Error generating parameter method: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
+                throw new Error(`Parameter generation: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
             }
         }
 
@@ -169,19 +169,19 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         this.generatePath(DecoratorID.METHOD_PATH);
     }
 
-    private getMethodSuccessResponse(type: BaseType): Response {
-        type = this.getMethodSuccessResponseType(type);
+    private buildResponse(type: BaseType): Response {
+        type = this.guessResponseType(type);
 
         return {
             description: isVoidType(type) ? 'No content' : 'Ok',
-            examples: this.getMethodSuccessExamples(),
+            examples: this.getResponseExamples(),
             schema: type,
             status: isVoidType(type) ? '204' : '200',
             name: isVoidType(type) ? '204' : '200',
         };
     }
 
-    private getMethodSuccessResponseType(type: BaseType) : BaseType {
+    private guessResponseType(type: BaseType) : BaseType {
         if (!isVoidType(type)) {
             return type;
         }
@@ -204,34 +204,41 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         return type;
     }
 
-    private getMethodSuccessExamples() {
+    private getResponseExamples() : Example[] {
         const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
 
-        const value : unknown = representation.getPropertyValue('payload');
-        if (typeof value === 'undefined') {
-            return [];
+        const output : Example[] = [];
+        for (let i = 0; i < representation.decorators.length; i++) {
+            const value = representation.getPropertyValue('payload');
+            const label = representation.getPropertyValue('label');
+            if (typeof value !== 'undefined') {
+                output.push({ value, label });
+            }
         }
 
-        return value;
+        return output;
     }
 
-    private mergeResponses(responses: Response[], defaultResponse: Response) {
+    private mergeResponses(responses: Response[], exampleResponse: Response) {
         if (!responses || !responses.length) {
-            return [defaultResponse];
+            return [exampleResponse];
         }
 
-        const index = responses.findIndex((resp) => resp.status === defaultResponse.status);
-
+        const index = responses.findIndex((resp) => resp.status === exampleResponse.status);
         if (index >= 0) {
-            if (defaultResponse.examples && !responses[index].examples) {
-                responses[index].examples = defaultResponse.examples;
+            if (
+                exampleResponse.examples &&
+                (!responses[index].examples || !responses[index].examples.length)
+            ) {
+                responses[index].examples = exampleResponse.examples;
             }
         } else {
-            responses.push(defaultResponse);
+            responses.push(exampleResponse);
         }
+
         return responses;
     }
 }

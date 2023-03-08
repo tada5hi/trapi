@@ -47,7 +47,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             definitions: this.buildDefinitions(),
             info: this.buildInfo(),
             paths: this.buildPaths(),
-            swagger: '2.0.0',
+            swagger: '2.0',
         };
 
         spec.securityDefinitions = this.config.securityDefinitions ?
@@ -546,8 +546,9 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     }
 
     private buildOperation(method: Method) {
-        const operation: any = {
+        const operation : SpecificationV2.OperationV2 = {
             operationId: this.getOperationId(method.name),
+            consumes: method.consumes,
             produces: [],
             responses: {},
         };
@@ -565,11 +566,26 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                 }
                 methodReturnTypes.add(this.getMimeType(swaggerType));
             }
-            if (res.examples) {
-                operation.responses[res.status].examples = { 'application/json': res.examples };
+
+            if (
+                res.examples &&
+                res.examples.length > 0
+            ) {
+                const example = res.examples[0];
+                if (example.value) {
+                    operation.responses[res.status].examples = { 'application/json': example.value };
+                }
             }
         });
-        this.handleMethodProduces(method, operation, methodReturnTypes);
+
+        if (method.produces.length) {
+            operation.produces = method.produces;
+        }
+
+        if (methodReturnTypes && methodReturnTypes.size > 0) {
+            operation.produces = Array.from(methodReturnTypes);
+        }
+
         return operation;
     }
 
@@ -587,13 +603,5 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             return 'application/octet-stream';
         }
         return 'text/html';
-    }
-
-    private handleMethodProduces(method: Method, operation: any, methodReturnTypes: Set<string>) {
-        if (method.produces.length) {
-            operation.produces = method.produces;
-        } else if (methodReturnTypes && methodReturnTypes.size > 0) {
-            operation.produces = Array.from(methodReturnTypes);
-        }
     }
 }

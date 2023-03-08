@@ -12,7 +12,6 @@ import type {
     BaseSchema, BaseSpec, BodyParameter, DataFormat, DataType, Example,
     FormDataParameter, HeaderParameter, Path, PathParameter, QueryParameter,
 } from '../type';
-import { SpecificationV2 } from '../v2';
 import type { ParameterSourceV3 } from './constants';
 
 export namespace SpecificationV3 {
@@ -111,7 +110,7 @@ export namespace SpecificationV3 {
     HeaderParameterV3 |
     FormDataParameterV3;
 
-    export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3, SecurityV3> {
+    export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3> {
         requestBody?: RequestBodyV3;
         [key: string]: unknown;
     }

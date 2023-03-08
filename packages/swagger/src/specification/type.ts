@@ -53,7 +53,7 @@ export interface BaseResponse {
 
 // ------------------------------------------------------
 
-export interface BaseOperation<P, R, S> {
+export interface BaseOperation<P, R> {
     responses: { [name: string]: R };
     summary?: string;
     description?: string;
@@ -63,7 +63,7 @@ export interface BaseOperation<P, R, S> {
     parameters?: P[];
     schemes?: string[];
     deprecated?: boolean;
-    security?: S[];
+    security?: Record<string, string[]>[];
     tags?: string[];
 }
 

@@ -8,9 +8,12 @@
 import type { CollectionFormat } from '@trapi/metadata';
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
+import type { TransferProtocol } from '../constants';
 import type {
-    BaseOperation, BaseResponse,
-    BaseSchema, BaseSpec,
+    BaseOperation,
+    BaseResponse,
+    BaseSchema,
+    BaseSpec,
     BodyParameter,
     DataFormat,
     DataType,
@@ -23,7 +26,7 @@ import type {
 
 export namespace SpecificationV2 {
     export interface SpecV2 extends BaseSpec {
-        swagger: '2.0.0';
+        swagger: '2.0';
         host?: string;
         basePath?: string;
         schemes?: string[];
@@ -88,14 +91,16 @@ export namespace SpecificationV2 {
         FormDataParameterV2
     ) & { [key: PatternField]: any | undefined };
 
-    export interface OperationV2 extends BaseOperation<ParameterV2, ResponseV2, SecurityV2> {
-        produces?: [string];
+    export interface OperationV2 extends BaseOperation<ParameterV2, ResponseV2> {
+        consumes?: string[],
+        produces?: string[];
+        schemes?: `${TransferProtocol}`[]
     }
 
     export interface ResponseV2 extends BaseResponse {
         schema?: SchemaV2;
         headers?: { [headerName: string]: HeaderV2 };
-        examples?: { [exampleName: string]: Example };
+        examples?: { [exampleName: string]: unknown };
     }
 
     export interface HeaderV2 {

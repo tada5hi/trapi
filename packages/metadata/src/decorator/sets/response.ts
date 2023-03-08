@@ -17,7 +17,8 @@ export type DecoratorResponseDescriptionProperties = {
 
 export type DecoratorResponseExampleProperties = {
     type: unknown,
-    payload: unknown | unknown[]
+    payload: unknown | unknown[],
+    label?: string
 };
 export type DecoratorResponseProducesProperties = DecoratorPropertyValueSchema<string[]>;
 

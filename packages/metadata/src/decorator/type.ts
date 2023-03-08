@@ -38,42 +38,33 @@ export type DecoratorProperties<T extends `${DecoratorID}`> =
                             DecoratorResponseSetProperties<T> :
                             never;
 
-export type DecoratorPropertyStrategy = 'merge' | 'none' | ((...items: unknown[] | unknown[][]) => unknown | unknown[]);
+export type DecoratorPropertyStrategy = 'merge' | ((...items: any[]) => any);
 
 export type DecoratorPropertyConfig = {
     /**
-     * Default: 'element'
-     */
-    type?: 'element' | 'array',
-
-    /**
      * Default: false
      */
-    isType?: boolean,
-
-    /**
-     * Default: 'argument'
-     */
-    srcArgumentType?: 'argument' | 'typeArgument',
+    isType: boolean,
 
     /**
      * Default: 0
      */
-    srcPosition?: number,
+    index: number,
 
     /**
      * Default: undefined
      */
-    srcAmount?: number,
+    amount?: number,
 
     /**
-     * Default: 'none'
+     * Default: undefined
      */
-    srcStrategy?: DecoratorPropertyStrategy
+    strategy?: DecoratorPropertyStrategy
 };
 
+export type DecoratorPropertyConfigInput = Partial<DecoratorPropertyConfig>;
 export type DecoratorPropertiesConfig<P extends Record<string, any>> = {
-    [K in keyof P]: DecoratorPropertyConfig
+    [K in keyof P]: DecoratorPropertyConfigInput
 };
 
 // -------------------------------------------

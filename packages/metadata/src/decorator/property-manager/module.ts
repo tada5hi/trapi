@@ -9,19 +9,18 @@ import type {
     DecoratorConfig,
     DecoratorID,
     DecoratorProperties,
-    DecoratorPropertiesConfig,
     DecoratorPropertyConfig,
 } from '../index';
 import type { NodeDecorator } from '../../utils';
 import { hasOwnProperty } from '../../utils';
-import { extendRepresentationPropertyConfig, extractRepresentationPropertyValue } from './utils';
+import { buildDecoratorPropertyConfig, extractPropertyFromDecorator } from './utils';
 
 export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
-    protected extendedProperties: Partial<DecoratorPropertiesConfig<DecoratorProperties<T>>> = {};
-
     public readonly representation: DecoratorConfig<T>;
 
     public readonly decorators: NodeDecorator[];
+
+    protected properties: Record<string, DecoratorPropertyConfig>;
 
     constructor(
         representation: DecoratorConfig<T>,
@@ -29,10 +28,9 @@ export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
     ) {
         this.representation = representation;
         this.decorators = decorators;
-    }
+        this.properties = {};
 
-    get id() : T {
-        return this.representation.id;
+        this.build();
     }
 
     // -------------------------------------------
@@ -43,14 +41,15 @@ export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
      * @param type
      * @param decoratorOrIndex
      */
-    public getPropertyValue<P extends keyof DecoratorProperties<T>>(
+    public get<P extends keyof DecoratorProperties<T>>(
         type: P,
         decoratorOrIndex?: number | NodeDecorator,
     ): DecoratorProperties<T>[P] | undefined {
-        const config = this.getPropertyConfiguration(type);
-        if (typeof config === 'undefined') {
+        if (!hasOwnProperty(this.properties, type)) {
             return undefined;
         }
+
+        const config = this.properties[type];
 
         let decorator: NodeDecorator;
 
@@ -68,29 +67,22 @@ export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
             decorator = decoratorOrIndex;
         }
 
-        return extractRepresentationPropertyValue(decorator, config) as DecoratorProperties<T>[P];
+        return extractPropertyFromDecorator(decorator, config) as DecoratorProperties<T>[P];
     }
 
     // -------------------------------------------
 
-    public getPropertyConfiguration(type: keyof DecoratorProperties<T>): DecoratorPropertyConfig | undefined {
-        if (!hasOwnProperty(this.representation.properties, type)) {
-            return undefined;
+    protected build() {
+        if (!this.representation.properties) {
+            return;
         }
 
-        return this.extendProperty(type);
-    }
-
-    // -------------------------------------------
-
-    protected extendProperty<P extends keyof DecoratorProperties<T>>(type: P): DecoratorPropertyConfig {
-        if (hasOwnProperty(this.extendedProperties, type)) {
-            return this.extendedProperties[type];
+        const keys = Object.keys(this.representation.properties);
+        const output : Record<string, DecoratorPropertyConfig> = {};
+        for (let i = 0; i < keys.length; i++) {
+            output[keys[i]] = buildDecoratorPropertyConfig(this.representation.properties[keys[i]]);
         }
 
-        const property = this.representation.properties[type];
-        this.extendedProperties[type] = extendRepresentationPropertyConfig(property);
-
-        return this.extendedProperties[type];
+        this.properties = output;
     }
 }

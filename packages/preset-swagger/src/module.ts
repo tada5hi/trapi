@@ -15,31 +15,31 @@ export const schema = {
             id: DecoratorID.EXTENSION,
             name: 'Extension',
             properties: {
-                key: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
-                value: { type: 'element', srcArgumentType: 'argument', srcPosition: 1 },
+                key: { index: 0 },
+                value: { index: 1 },
             },
         }, {
             id: DecoratorID.SWAGGER_TAGS,
             name: 'SwaggerTags',
             properties: {
-                value: { type: 'array', srcArgumentType: 'argument' },
+                value: { amount: -1 },
             },
         },
         {
             id: DecoratorID.RESPONSE_EXAMPLE,
             name: 'ResponseExample',
             properties: {
-                type: { isType: true, srcArgumentType: 'typeArgument' },
-                payload: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
+                type: { isType: true },
+                payload: { index: 0 },
             },
         }, {
             id: DecoratorID.RESPONSE_DESCRIPTION,
             name: 'ResponseDescription',
             properties: {
-                type: { isType: true, srcArgumentType: 'typeArgument' },
-                statusCode: { type: 'element', srcArgumentType: 'argument', srcPosition: 0 },
-                description: { type: 'element', srcArgumentType: 'argument', srcPosition: 1 },
-                payload: { type: 'element', srcArgumentType: 'argument', srcPosition: 2 },
+                type: { isType: true },
+                statusCode: { index: 0 },
+                description: { index: 1 },
+                payload: { index: 2 },
             },
         },
         {
@@ -47,7 +47,7 @@ export const schema = {
             name: 'ResponseProduces',
             properties: {
                 value: {
-                    type: 'array', srcArgumentType: 'argument', srcAmount: -1, srcStrategy: 'merge',
+                    amount: -1, strategy: 'merge',
                 },
             },
         },
@@ -56,7 +56,7 @@ export const schema = {
             name: 'RequestConsumes',
             properties: {
                 value: {
-                    type: 'array', srcArgumentType: 'argument', srcAmount: -1, srcStrategy: 'merge',
+                    amount: -1, strategy: 'merge',
                 },
             },
         },

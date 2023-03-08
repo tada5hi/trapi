@@ -69,35 +69,35 @@ export class ParameterGenerator {
         const decorators = getNodeDecorators(this.parameter);
 
         for (let i = 0; i < parameterKeys.length; i++) {
-            const representation = this.current.decoratorResolver.match(parameterKeys[i], decorators);
-            if (typeof representation === 'undefined') {
+            const manager = this.current.decoratorResolver.match(parameterKeys[i], decorators);
+            if (typeof manager === 'undefined') {
                 continue;
             }
 
-            switch (representation.id) {
+            switch (manager.representation.id) {
                 case DecoratorID.CONTEXT:
                     return this.getContextParameter();
                 case DecoratorID.PARAM:
                 case DecoratorID.PARAMS:
-                    return this.getParamParameter(representation as DecoratorPropertyManager<`${DecoratorID.PARAM}`>);
+                    return this.getParamParameter(manager as DecoratorPropertyManager<`${DecoratorID.PARAM}`>);
                 case DecoratorID.FORM:
-                    return this.getFormParameter(representation as DecoratorPropertyManager<`${DecoratorID.FORM}`>);
+                    return this.getFormParameter(manager as DecoratorPropertyManager<`${DecoratorID.FORM}`>);
                 case DecoratorID.QUERY:
-                    return this.getQueryParameter(representation as DecoratorPropertyManager<`${DecoratorID.QUERY}`>);
+                    return this.getQueryParameter(manager as DecoratorPropertyManager<`${DecoratorID.QUERY}`>);
                 case DecoratorID.BODY:
-                    return this.getBodyParameter(representation as DecoratorPropertyManager<`${DecoratorID.BODY}`>);
+                    return this.getBodyParameter(manager as DecoratorPropertyManager<`${DecoratorID.BODY}`>);
                 case DecoratorID.HEADER:
                 case DecoratorID.HEADERS:
-                    return this.getHeaderParameter(representation as DecoratorPropertyManager<`${DecoratorID.HEADER}`>);
+                    return this.getHeaderParameter(manager as DecoratorPropertyManager<`${DecoratorID.HEADER}`>);
                 case DecoratorID.COOKIE:
                 case DecoratorID.COOKIES:
-                    return this.getCookieParameter(representation as DecoratorPropertyManager<`${DecoratorID.COOKIE}`>);
+                    return this.getCookieParameter(manager as DecoratorPropertyManager<`${DecoratorID.COOKIE}`>);
                 case DecoratorID.PATH_PARAM:
                 case DecoratorID.PATH_PARAMS:
-                    return this.getPathParameter(representation as DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}`>);
+                    return this.getPathParameter(manager as DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}`>);
                 case DecoratorID.FILE_PARAM:
                 case DecoratorID.FILES_PARAM:
-                    return this.getFileParameter(representation as DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}`>);
+                    return this.getFileParameter(manager as DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}`>);
             }
         }
 
@@ -175,7 +175,7 @@ export class ParameterGenerator {
     ) : Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -191,7 +191,7 @@ export class ParameterGenerator {
 
         const elementType: TypeVariant = { typeName: 'file' };
         let type: TypeVariant;
-        if (manager.id === DecoratorID.FILES_PARAM) {
+        if (manager.representation.id === DecoratorID.FILES_PARAM) {
             type = { typeName: 'array', elementType };
         } else {
             type = elementType;
@@ -231,7 +231,7 @@ export class ParameterGenerator {
             });
         }
 
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -290,7 +290,7 @@ export class ParameterGenerator {
             });
         }
 
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -321,7 +321,7 @@ export class ParameterGenerator {
         let source = ParameterSource.BODY;
 
         if (manager) {
-            const value = manager.getPropertyValue('value');
+            const value = manager.get('value');
             if (typeof value === 'string') {
                 name = value;
                 source = ParameterSource.BODY_PROP;
@@ -365,7 +365,7 @@ export class ParameterGenerator {
 
         const type = this.getValidatedType(this.parameter);
 
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         if (typeof value === 'string') {
             name = value;
         }
@@ -417,13 +417,13 @@ export class ParameterGenerator {
 
         let source = ParameterSource.QUERY;
 
-        const nameValue = manager.getPropertyValue('value');
+        const nameValue = manager.get('value');
         if (typeof nameValue === 'string') {
             name = nameValue;
             source = ParameterSource.QUERY_PROP;
         }
 
-        const optionsValue = manager.getPropertyValue('options');
+        const optionsValue = manager.get('options');
         if (isObject(optionsValue)) {
             options = optionsValue;
         }
@@ -508,7 +508,7 @@ export class ParameterGenerator {
 
         const type = this.getValidatedType(this.parameter);
 
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         if (typeof value === 'string') {
             name = value;
         }

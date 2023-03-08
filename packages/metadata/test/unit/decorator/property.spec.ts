@@ -9,19 +9,18 @@ import type { ArrayLiteralExpression, Expression, NodeArray } from 'typescript';
 import { NodeFlags, SyntaxKind } from 'typescript';
 import type { DecoratorConfig, NodeDecorator } from '../../../src';
 import {
-    DecoratorID, DecoratorPropertyManager, mergeObjectArguments,
+    DecoratorID,
+    DecoratorPropertyManager,
 } from '../../../src';
 
-describe('src/decorator/representation/index.ts', () => {
+describe('src/decorator/property/index.ts', () => {
     const swaggerTagsRepresentation : DecoratorConfig<`${DecoratorID.SWAGGER_TAGS}`> = {
         id: `${DecoratorID.SWAGGER_TAGS}`,
         name: 'SwaggerTags',
         properties: {
             value: {
-                srcArgumentType: 'argument',
-                type: 'array',
-                srcAmount: -1,
-                srcStrategy: 'merge',
+                strategy: 'merge',
+                amount: -1,
             },
         },
     };
@@ -29,6 +28,7 @@ describe('src/decorator/representation/index.ts', () => {
     const swaggerTagsDecorators : NodeDecorator[] = [
         { text: 'SwaggerTags', arguments: [['auth', 'admin']], typeArguments: [] },
         { text: 'SwaggerTags', arguments: [['auth'], ['admin']], typeArguments: [] },
+        { text: 'SwaggerTags', arguments: ['auth'], typeArguments: [] },
         { text: 'SwaggerTags', arguments: [], typeArguments: [] },
     ];
 
@@ -42,13 +42,10 @@ describe('src/decorator/representation/index.ts', () => {
         properties: {
             type: {
                 isType: true,
-                srcArgumentType: 'typeArgument',
-                srcStrategy: 'none',
             },
             payload: {
-                srcArgumentType: 'argument',
-                srcAmount: -1,
-                srcStrategy: (items: unknown[] | unknown[][]) => mergeObjectArguments(items),
+                amount: -1,
+                strategy: 'merge',
             },
         },
     };
@@ -60,20 +57,25 @@ describe('src/decorator/representation/index.ts', () => {
 
     const responseExampleRepresentationManager = new DecoratorPropertyManager(responseExampleRepresentation, responseExampleDecorators);
 
-    it('should get property value', () => {
-        let value = swaggerTagsRepresentationManager.getPropertyValue('value');
+    it('should get property value for swagger decorator', () => {
+        let value = swaggerTagsRepresentationManager.get('value');
         expect(value).toEqual(['auth', 'admin']);
 
-        value = swaggerTagsRepresentationManager.getPropertyValue('value', 1);
+        value = swaggerTagsRepresentationManager.get('value', 1);
         expect(value).toEqual(['auth', 'admin']);
 
-        let payloadValue = responseExampleRepresentationManager.getPropertyValue('payload');
+        value = swaggerTagsRepresentationManager.get('value', 2);
+        expect(value).toEqual(['auth']);
+    });
+
+    it('should get property value for example decorator', () => {
+        let payloadValue = responseExampleRepresentationManager.get('payload');
         expect(payloadValue).toEqual({ foo: 'bar' });
 
-        payloadValue = responseExampleRepresentationManager.getPropertyValue('type');
+        payloadValue = responseExampleRepresentationManager.get('type');
         expect(payloadValue).toEqual({ foo: 'bar' });
 
-        payloadValue = responseExampleRepresentationManager.getPropertyValue('payload', 1);
+        payloadValue = responseExampleRepresentationManager.get('payload', 1);
         expect(payloadValue).toEqual({ foo: 'bar', bar: 'baz' });
     });
 
@@ -90,15 +92,15 @@ describe('src/decorator/representation/index.ts', () => {
             { text: 'SwaggerTags', arguments: [arrayLiteralExpression], typeArguments: [] },
         ]);
 
-        const value = manager.getPropertyValue('value');
+        const value = manager.get('value');
         expect(value).toEqual(['auth', 'admin']);
     });
 
     it('should not get property value', () => {
-        let value = swaggerTagsRepresentationManager.getPropertyValue('value', 2);
-        expect(value).toEqual([]);
+        let value = swaggerTagsRepresentationManager.get('value', 3);
+        expect(value).toBeUndefined();
 
-        value = swaggerTagsRepresentationManager.getPropertyValue('value', 3);
+        value = swaggerTagsRepresentationManager.get('value', 4);
         expect(value).toBeUndefined();
     });
 });

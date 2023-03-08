@@ -40,7 +40,7 @@ export class TestUnionType {
 
 @Accept('text/plain')
 @Path('mypath')
-@swagger.SwaggerTags('My Services')
+@swagger.SwaggerTags('My Services', 'Foo')
 export class MyService {
     @swagger.ResponseDescription<string>('default', 'Error')
     @swagger.ResponseDescription<string>(400, 'The request format was incorrect.')

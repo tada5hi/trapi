@@ -5,131 +5,97 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type {
-    Expression,
-} from 'typescript';
-import { getInitializerValue, hasOwnProperty } from '../../utils';
-import type {
-    DecoratorPropertyConfig, DecoratorPropertyStrategy,
-} from '../type';
+import { isObject } from 'locter';
+import type { Expression } from 'typescript';
 import type { NodeDecorator } from '../../utils';
+import { getInitializerValue, hasOwnProperty } from '../../utils';
+import type { DecoratorPropertyConfig, DecoratorPropertyConfigInput } from '../type';
 
-export function extendRepresentationPropertyConfig(property: DecoratorPropertyConfig): DecoratorPropertyConfig {
-    if (typeof property.isType === 'undefined') {
-        property.isType = false;
-    }
-
-    if (typeof property.type === 'undefined') {
-        property.type = 'element';
-    }
-
-    if (typeof property.srcArgumentType === 'undefined') {
-        property.srcArgumentType = 'argument';
-    }
-
-    if (
-        property.type === 'element' &&
-        typeof property.srcPosition === 'undefined'
-    ) {
-        property.srcPosition = 0;
-    }
-
-    return property;
+export function buildDecoratorPropertyConfig(property: DecoratorPropertyConfigInput): DecoratorPropertyConfig {
+    return {
+        ...property,
+        isType: property.isType ?? false,
+        index: property.index ?? 0,
+        amount: property.amount ?? 1,
+    };
 }
 
-export function extractRepresentationPropertyValue(
+export function extractPropertyFromDecorator(
     decorator: NodeDecorator,
     config: DecoratorPropertyConfig,
 ): unknown | undefined {
-    let items : unknown[] = [];
+    const items = config.isType ?
+        decorator.typeArguments :
+        extractValueFromArgumentType(decorator.arguments);
 
-    switch (config.srcArgumentType) {
-        case 'typeArgument':
-            items = decorator.typeArguments;
-            break;
-        case 'argument':
-            items = decorator.arguments;
-            break;
+    if (items.length <= config.index) {
+        return undefined;
     }
 
-    if (!config.isType) {
-        items = extractValueFromArgumentType(items);
-    }
-
-    const srcPosition : number = config.srcPosition ?? 0;
-    const srcAmount : number = config.srcAmount ?? 1;
-
-    if (items.length <= srcPosition) {
-        switch (config.type) {
-            case 'element':
-                return undefined;
-            case 'array':
-                return [];
-        }
-    }
-
-    const data : unknown[] | unknown[][] = srcAmount >= 1 ?
-        items.slice(srcPosition, srcPosition + srcAmount) :
-        items.slice(srcPosition);
+    const data = (
+        config.amount >= 1 ?
+            items.slice(config.index, config.index + config.amount) :
+            items.slice(config.index)
+    );
 
     if (data.length === 0) {
-        return (config.type === 'array' ? [] : undefined);
+        return undefined;
     }
 
-    const srcStrategy : DecoratorPropertyStrategy = config.srcStrategy ?? 'none';
+    if (config.strategy) {
+        if (config.strategy === 'merge') {
+            return mergeArguments(data);
+        }
 
-    switch (srcStrategy) {
-        case 'merge':
-            switch (config.type) {
-                case 'array':
-                    return mergeArrayArguments(data);
-                case 'element':
-                default:
-                    return mergeObjectArguments(data);
-            }
-        case 'none':
-            // if we don't have any merge strategy, we just return the first argument.
-            switch (config.type) {
-                case 'array': {
-                    const arr = Array.isArray(data[0]) ? data[0] : [data[0]];
-                    return arr;
-                }
-                case 'element':
-                default:
-                    return data[0];
-            }
-        default:
-            if (typeof config.srcStrategy === 'function') {
-                return config.srcStrategy(data);
-            }
-
-            return (config.type === 'array' ? [] : undefined);
+        return config.strategy(data);
     }
+
+    if (config.amount === 1) {
+        if (data.length > 0) {
+            return data[0];
+        }
+
+        return undefined;
+    }
+
+    return data;
 }
 
-export function mergeObjectArguments(data: unknown[]) {
-    let output : Record<string, any> = {};
-    for (let i = 0; i < data.length; i++) {
-        const prototype = Object.prototype.toString.call(data[i]);
-        if (prototype === '[object Object]') {
-            output = Object.assign(output, data[i]);
+export function mergeArguments(data: unknown[]) {
+    if (data.length === 0) {
+        return undefined;
+    }
+
+    // we are merging object properties
+    if (isObject(data[0])) {
+        const element = data[0];
+        if (data.length === 1) {
+            return element;
+        }
+
+        for (let i = 1; i < data.length; i++) {
+            if (isObject(data[i])) {
+                Object.assign(element, data[i]);
+            }
+        }
+
+        return element;
+    }
+
+    const output : any[] = Array.isArray(data[0]) ? data[0] : [data[0]];
+    if (data.length === 1) {
+        return output;
+    }
+
+    for (let i = 1; i < data.length; i++) {
+        if (Array.isArray(data[i])) {
+            output.push(...(data[i] as unknown[]));
+        } else {
+            output.push(data[i]);
         }
     }
 
     return output;
-}
-
-export function mergeArrayArguments(data: unknown[]) {
-    let merged : unknown[] = [];
-    for (let i = 0; i < data.length; i++) {
-        if (Array.isArray(data[i])) {
-            merged = [...merged, ...data[i] as unknown[]];
-        } else {
-            merged.push(data[i]);
-        }
-    }
-
-    return merged;
 }
 
 function extractValueFromArgumentType(argument: unknown[]) {

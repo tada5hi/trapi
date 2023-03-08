@@ -36,7 +36,7 @@ export abstract class AbstractGenerator<T extends Node> {
 
         const representation = this.current.decoratorResolver.match(key, this.node);
         if (typeof representation !== 'undefined') {
-            const value = representation.getPropertyValue('value');
+            const value = representation.get('value');
             if (typeof value !== 'undefined') {
                 values.push(value);
             }
@@ -123,9 +123,9 @@ export abstract class AbstractGenerator<T extends Node> {
         const responses : Response[] = [];
 
         for (let i = 0; i < representation.decorators.length; i++) {
-            const description = representation.getPropertyValue('description', i) || 'Ok';
-            const status = representation.getPropertyValue('statusCode', i) || '200';
-            const payload = representation.getPropertyValue('payload', i);
+            const description = representation.get('description', i) || 'Ok';
+            const status = representation.get('statusCode', i) || '200';
+            const payload = representation.get('payload', i);
 
             const examples : Example[] = [];
             if (typeof payload !== 'undefined') {
@@ -134,7 +134,7 @@ export abstract class AbstractGenerator<T extends Node> {
                 });
             }
 
-            const type = representation.getPropertyValue('type');
+            const type = representation.get('type');
 
             const response : Response = {
                 description,
@@ -158,7 +158,7 @@ export abstract class AbstractGenerator<T extends Node> {
             return [];
         }
 
-        const value : string[] = representation.getPropertyValue('value');
+        const value : string[] = representation.get('value');
         if (typeof value === 'undefined') {
             return [];
         }
@@ -172,7 +172,7 @@ export abstract class AbstractGenerator<T extends Node> {
             return [];
         }
 
-        let value : string[] = representation.getPropertyValue('value');
+        let value : string[] = representation.get('value');
         if (typeof value === 'undefined') {
             return [];
         }
@@ -188,7 +188,7 @@ export abstract class AbstractGenerator<T extends Node> {
             return [];
         }
 
-        let value : string[] = representation.getPropertyValue('value');
+        let value : string[] = representation.get('value');
         if (typeof value === 'undefined') {
             return [];
         }

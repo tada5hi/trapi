@@ -191,7 +191,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             return type;
         }
 
-        const value = representation.getPropertyValue('type');
+        const value = representation.get('type');
 
         if (
             typeof value !== 'undefined' &&
@@ -212,8 +212,8 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
 
         const output : Example[] = [];
         for (let i = 0; i < representation.decorators.length; i++) {
-            const value = representation.getPropertyValue('payload');
-            const label = representation.getPropertyValue('label');
+            const value = representation.get('payload');
+            const label = representation.get('label');
             if (typeof value !== 'undefined') {
                 output.push({ value, label });
             }

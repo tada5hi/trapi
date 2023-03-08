@@ -22,18 +22,18 @@ export default {
             id: DecoratorID.RESPONSE_DESCRIPTION,
             name: 'Description',
             properties: {
-                type: { isType: true, srcArgumentType: 'typeArgument' },
-                payload: { srcPosition: 2 },
-                statusCode: { srcPosition: 0 },
-                description: { srcPosition: 1 },
+                type: { isType: true },
+                payload: { index: 2 },
+                statusCode: { index: 0 },
+                description: { index: 1 },
             },
         },
         {
             id: DecoratorID.RESPONSE_EXAMPLE,
             name: 'Example',
             properties: {
-                type: { isType: true, srcArgumentType: 'typeArgument' },
-                payload: { srcPosition: 0 },
+                type: { isType: true },
+                payload: {},
             },
         },
 

@@ -887,7 +887,8 @@
             "produces": [],
             "responses": [],
             "tags": [
-                "My Services"
+                "My Services",
+                "Foo"
             ]
         },
         {

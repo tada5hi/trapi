@@ -27,7 +27,7 @@
     ],
     "scripts": {
         "start": "tsc -p tsconfig.build.json -w",
-        "build": "npm run clean && tsc -p tsconfig.build.json",
+        "build": "npm run clean && tsc -p tsconfig.build.json && node bin/metadata.js",
         "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
         "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
         "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",

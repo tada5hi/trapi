@@ -7,11 +7,11 @@
 
 import { load } from 'locter';
 import jsonata from 'jsonata';
-import type { Metadata, SpecificationV2, SpecificationV3 } from '../../../src';
+import type { Metadata, SpecV2, SpecV3 } from '../../../src';
 import { createSpecificationGenerator } from '../../../src';
 
 describe('PrimitiveEndpoint', () => {
-    let spec : SpecificationV2.SpecV2 | SpecificationV3.SpecV3;
+    let spec : SpecV2 | SpecV3;
 
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');

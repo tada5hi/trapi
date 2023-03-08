@@ -6,7 +6,6 @@
  */
 
 import * as ts from 'typescript';
-import type { DecoratorPropertyManager } from '../decorator';
 import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
 
@@ -15,7 +14,6 @@ import {
     getInitializerValue,
     getJSDocTagComment,
     getJSDocTagNames,
-    getNodeDecorators,
     hasJSDocTag,
     hasOwnProperty,
 } from '../utils';
@@ -56,7 +54,7 @@ interface TypeNodeResolverContext {
     [name: string]: ts.TypeReferenceNode | ts.TypeNode;
 }
 
-function getPropertyValidators(property: ts.PropertyDeclaration |
+function getPropertyValidators(_property: ts.PropertyDeclaration |
 ts.TypeAliasDeclaration |
 ts.PropertySignature |
 ts.ParameterDeclaration) {
@@ -69,13 +67,29 @@ interface UtilityOptions {
 }
 
 export class TypeNodeResolver {
+    private readonly typeNode : ts.TypeNode;
+
+    private readonly current: MetadataGenerator;
+
+    private readonly parentNode?: ts.Node;
+
+    private context: TypeNodeResolverContext;
+
+    private readonly referencer : ts.TypeNode;
+
     constructor(
-        private readonly typeNode: ts.TypeNode,
-        private readonly current: MetadataGenerator,
-        private readonly parentNode?: ts.Node,
-        private context: TypeNodeResolverContext = {},
-        private readonly referencer?: ts.TypeNode,
-    ) {}
+        typeNode: ts.TypeNode,
+        current: MetadataGenerator,
+        parentNode?: ts.Node,
+        context?: TypeNodeResolverContext,
+        referencer?: ts.TypeNode,
+    ) {
+        this.typeNode = typeNode;
+        this.current = current;
+        this.parentNode = parentNode;
+        this.context = context || {};
+        this.referencer = referencer;
+    }
 
     public static clearCache() {
         Object.keys(localReferenceTypeCache).forEach((key) => {
@@ -241,7 +255,11 @@ export class TypeNodeResolver {
 
                     // Resolve default value, required and typeNode
                     let required = false;
-                    const typeNode = this.current.typeChecker.typeToTypeNode(propertyType, undefined, ts.NodeBuilderFlags.NoTruncation)!;
+                    const typeNode = this.current.typeChecker.typeToTypeNode(
+                        propertyType,
+                        undefined,
+                        ts.NodeBuilderFlags.NoTruncation,
+                    );
                     if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.MinusToken) {
                         required = true;
                     } else if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.QuestionToken) {
@@ -311,7 +329,7 @@ export class TypeNodeResolver {
                         type,
                         undefined,
                         ts.NodeBuilderFlags.NoTruncation,
-                    )!,
+                    ),
                     this.current,
                     this.typeNode,
                     this.context,
@@ -333,7 +351,7 @@ export class TypeNodeResolver {
                         type,
                         undefined,
                         ts.NodeBuilderFlags.NoTruncation,
-                    )!,
+                    ),
                     this.current,
                     this.typeNode,
                     this.context,
@@ -363,7 +381,7 @@ export class TypeNodeResolver {
                 throw new ResolverError(`Could not determine ${numberIndexType ? 'number' : 'string'} index on ${this.current.typeChecker.typeToString(objectType)}`, this.typeNode);
             }
             return new TypeNodeResolver(
-                this.current.typeChecker.typeToTypeNode(type, undefined, undefined)!,
+                this.current.typeChecker.typeToTypeNode(type, undefined, undefined),
                 this.current,
                 this.typeNode,
                 this.context,
@@ -395,7 +413,7 @@ export class TypeNodeResolver {
             const declaration = this.current.typeChecker.getTypeOfSymbolAtLocation(symbol, this.typeNode.objectType);
             try {
                 return new TypeNodeResolver(
-                    this.current.typeChecker.typeToTypeNode(declaration, undefined, undefined)!,
+                    this.current.typeChecker.typeToTypeNode(declaration, undefined, undefined),
                     this.current,
                     this.typeNode,
                     this.context,
@@ -405,7 +423,7 @@ export class TypeNodeResolver {
                 throw new ResolverError(
                     `Could not determine the keys on ${this.current.typeChecker.typeToString(
                         this.current.typeChecker.getTypeFromTypeNode(
-                            this.current.typeChecker.typeToTypeNode(declaration, undefined, undefined)!,
+                            this.current.typeChecker.typeToTypeNode(declaration, undefined, undefined),
                         ),
                     )}`,
                     this.typeNode,
@@ -822,7 +840,7 @@ export class TypeNodeResolver {
                 referenceType = {
                     typeName: 'refEnum',
                     refName: TypeNodeResolver.getRefTypeName(name, utilityType),
-                    members: [this.current.typeChecker.getConstantValue(declaration)!],
+                    members: [this.current.typeChecker.getConstantValue(declaration)],
                     memberNames: [declaration.name.getText()],
                     deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
                 };
@@ -910,7 +928,7 @@ export class TypeNodeResolver {
             let nodeType = toJSON.valueDeclaration.type;
             if (!nodeType) {
                 const signature = this.current.typeChecker.getSignatureFromDeclaration(toJSON.valueDeclaration);
-                const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature!);
+                const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature);
                 nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
             }
 

@@ -19,27 +19,36 @@ import { ParameterSource, isVoidType } from '@trapi/metadata';
 import { URL } from 'url';
 import { isObject, merge } from 'smob';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
-import { hasOwnProperty, normalizePathParameters } from '../../utils';
+import { normalizePathParameters } from '../../utils';
 import type {
     DataFormat,
     DataType, Example, Path,
 } from '../type';
 import { ParameterSourceV3 } from './constants';
-import type { SpecificationV3 } from './type';
+import type {
+    HeaderV3,
+    MediaTypeV3,
+    OperationV3,
+    ParameterV3,
+    RequestBodyV3, ResponseV3,
+    SchemaV3,
+    SecurityV3, ServerV3,
+    SpecV3,
+} from './type';
 import { removeFinalCharacter, removeRepeatingCharacter } from '../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
-export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3.SpecV3, SpecificationV3.SchemaV3> {
-    public getSwaggerSpec(): SpecificationV3.SpecV3 {
+export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
+    public getSwaggerSpec(): SpecV3 {
         return this.build();
     }
 
-    public build() : SpecificationV3.SpecV3 {
+    public build() : SpecV3 {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
 
-        let spec: SpecificationV3.SpecV3 = {
+        let spec: SpecV3 = {
             components: this.buildComponents(),
             info: this.buildInfo(),
             openapi: '3.0.0',
@@ -75,8 +84,8 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
 
     private static translateSecurityDefinitions(
         securityDefinitions: SecurityDefinitions,
-    ) : Record<string, SpecificationV3.SecurityV3> {
-        const security : Record<string, SpecificationV3.SecurityV3> = {};
+    ) : Record<string, SecurityV3> {
+        const security : Record<string, SecurityV3> = {};
 
         // tslint:disable-next-line:forin
         const keys = Object.keys(securityDefinitions);
@@ -100,7 +109,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
     }
 
     private buildPaths() {
-        const paths: { [pathName: string]: Path<SpecificationV3.OperationV3, SpecificationV3.ParameterV3> } = {};
+        const paths: { [pathName: string]: Path<OperationV3, ParameterV3> } = {};
 
         this.metadata.controllers.forEach((controller) => {
             // construct documentation using all methods except @Hidden
@@ -202,14 +211,15 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         }
     }
 
-    private buildRequestBodyWithFormData(parameters: Parameter[]): SpecificationV3.RequestBodyV3 {
+    private buildRequestBodyWithFormData(parameters: Parameter[]): RequestBodyV3 {
         const required: string[] = [];
-        const properties: { [propertyName: string]: SpecificationV3.SchemaV3 } = {};
+        const properties: Record<string, SchemaV3> = {};
 
         const keys = Object.keys(parameters);
         for (let i = 0; i < parameters.length; i++) {
-            const mediaType = this.buildMediaType(parameters[keys[i]]);
-            properties[parameters[keys[i]].name] = mediaType.schema!;
+            const { schema } = this.buildMediaType(parameters[keys[i]]);
+            properties[parameters[keys[i]].name] = schema;
+
             if (parameters[keys[i]].required) {
                 required.push(parameters[keys[i]].name);
             }
@@ -231,7 +241,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         };
     }
 
-    private buildRequestBody(parameter: Parameter): SpecificationV3.RequestBodyV3 {
+    private buildRequestBody(parameter: Parameter): RequestBodyV3 {
         const mediaType = this.buildMediaType(parameter);
 
         return {
@@ -243,8 +253,8 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         };
     }
 
-    private buildMediaType(parameter: Parameter): SpecificationV3.MediaTypeV3 {
-        const mediaType: SpecificationV3.MediaTypeV3 = {
+    private buildMediaType(parameter: Parameter): MediaTypeV3 {
+        const mediaType: MediaTypeV3 = {
             schema: this.getSwaggerType(parameter.type),
         };
 
@@ -253,8 +263,8 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         return mediaType;
     }
 
-    protected buildOperation(controllerName: string, method: Method): SpecificationV3.OperationV3 {
-        const swaggerResponses: { [name: string]: SpecificationV3.ResponseV3 } = {};
+    protected buildOperation(controllerName: string, method: Method): OperationV3 {
+        const swaggerResponses: { [name: string]: ResponseV3 } = {};
 
         method.responses.forEach((res: Response) => {
             const name : string = res.status ?? 'default';
@@ -267,8 +277,8 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
                 const contentKey = 'application/json';
                 swaggerResponses[name].content = {
                     [contentKey]: {
-                        schema: this.getSwaggerType(res.schema) as SpecificationV3.SchemaV3,
-                    } as SpecificationV3.SchemaV3,
+                        schema: this.getSwaggerType(res.schema) as SchemaV3,
+                    } as SchemaV3,
                 };
 
                 if (res.examples) {
@@ -281,16 +291,16 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
             }
 
             if (res.headers) {
-                const headers: { [name: string]: SpecificationV3.HeaderV3 } = {};
+                const headers: { [name: string]: HeaderV3 } = {};
                 if (res.headers.typeName === 'refObject') {
                     headers[res.headers.refName] = {
-                        schema: this.getSwaggerTypeForReferenceType(res.headers) as SpecificationV3.SchemaV3,
+                        schema: this.getSwaggerTypeForReferenceType(res.headers) as SchemaV3,
                         description: res.headers.description,
                     };
                 } else if (res.headers.typeName === 'nestedObjectLiteral') {
                     res.headers.properties.forEach((each: ResolverProperty) => {
                         headers[each.name] = {
-                            schema: this.getSwaggerType(each.type) as SpecificationV3.SchemaV3,
+                            schema: this.getSwaggerType(each.type) as SchemaV3,
                             description: each.description,
                             required: each.required,
                         };
@@ -329,13 +339,13 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         return undefined;
     }
 
-    protected buildParameter(input: Parameter): SpecificationV3.ParameterV3 {
+    protected buildParameter(input: Parameter): ParameterV3 {
         const sourceIn = this.transformParameterSource(input.in);
         if (!sourceIn) {
             throw new Error(`The parameter source ${input.in} is not valid for generating a document.`);
         }
 
-        const parameter : SpecificationV3.ParameterV3 = {
+        const parameter : ParameterV3 = {
             allowEmptyValue: false,
             deprecated: false,
             description: input.description,
@@ -378,7 +388,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
     }
 
     private buildFromParameterExamples(
-        parameter: SpecificationV3.ParameterV3 | SpecificationV3.MediaTypeV3,
+        parameter: ParameterV3 | MediaTypeV3,
         sourceParameter: Parameter,
     ) {
         if (
@@ -398,7 +408,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         return parameter;
     }
 
-    private buildServers() : SpecificationV3.ServerV3[] {
+    private buildServers() : ServerV3[] {
         const url = new URL(this.config.host || 'http://localhost:3000/');
         let host : string = (url.host + url.pathname).replace(/([^:]\/)\/+/g, '$1');
         host = host.substr(-1, 1) === '/' ? host.substr(0, host.length - 1) : host;
@@ -411,7 +421,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
     }
 
     private buildSchema() {
-        const schema: { [name: string]: SpecificationV3.SchemaV3 } = {};
+        const schema: { [name: string]: SchemaV3 } = {};
         Object.keys(this.metadata.referenceTypes).map((typeName) => {
             const referenceType = this.metadata.referenceTypes[typeName];
 
@@ -469,7 +479,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
                     }), {});
 
                 schema[referenceType.refName] = {
-                    ...(swaggerType as SpecificationV3.SchemaV3),
+                    ...(swaggerType as SchemaV3),
                     default: referenceType.default || swaggerType.default,
                     example: referenceType.example,
                     format: format || swaggerType.format,
@@ -488,15 +498,15 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         return schema;
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV3.SchemaV3 {
+    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {
         return { allOf: type.members.map((x: TypeVariant) => this.getSwaggerType(x)) };
     }
 
-    protected buildProperties<T>(properties: ResolverProperty[]): Record<string, SpecificationV3.SchemaV3> {
-        const result: { [propertyName: string]: SpecificationV3.SchemaV3 } = {};
+    protected buildProperties<T>(properties: ResolverProperty[]): Record<string, SchemaV3> {
+        const result: { [propertyName: string]: SchemaV3 } = {};
 
         properties.forEach((property) => {
-            const swaggerType = this.getSwaggerType(property.type) as SpecificationV3.SchemaV3;
+            const swaggerType = this.getSwaggerType(property.type) as SchemaV3;
             const format = property.format as DataFormat;
             swaggerType.description = property.description;
             swaggerType.example = property.example;
@@ -516,7 +526,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         return result;
     }
 
-    protected getSwaggerTypeForEnumType(enumType: EnumType): SpecificationV3.SchemaV3 {
+    protected getSwaggerTypeForEnumType(enumType: EnumType): SchemaV3 {
         const types = this.determineTypesUsedInEnum(enumType.members);
 
         if (types.size === 1) {
@@ -533,7 +543,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecificationV3
         throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SpecificationV3.SchemaV3 {
+    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV3 {
         return {
             $ref: `#/components/schemas/${referenceType.refName}`,
         };

@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+// eslint-disable-next-line import/no-extraneous-dependencies,max-classes-per-file
 import * as swagger from '@trapi/preset-swagger';
 import {
     Accept, DELETE, FormParam, GET, POST,
@@ -68,6 +69,7 @@ export class MyService {
     @swagger.ResponseDescription<Person>(200, 'The success test.')
     public test2(
         @QueryParam('testRequired') test: string,
+        // eslint-disable-next-line default-param-last
             @QueryParam('testDefault') test2 = 'value',
             @QueryParam('testOptional') test3?: string,
             @QueryParam('testEnum') test4?: TestEnum,

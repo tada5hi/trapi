@@ -38,16 +38,15 @@ import YAML from 'yamljs';
 import type { Options } from '../config';
 import type { DocumentFormat } from '../constants';
 import { hasOwnProperty } from '../utils';
-import type { SpecificationV2 } from './v2';
-import type { SpecificationV3 } from './v3';
 
 import type { DocumentFormatData } from '../type';
 import type {
-    BaseParameter, BaseSchema, Info,
+    BaseSchema, Info,
 } from './type';
+import type { SchemaV2, SpecV2 } from './v2';
+import type { SchemaV3, SpecV3 } from './v3';
 
-export abstract class AbstractSpecGenerator<Spec extends SpecificationV2.SpecV2 | SpecificationV3.SpecV3,
-    Schema extends SpecificationV3.SchemaV3 | SpecificationV2.SchemaV2> {
+export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema extends SchemaV3 | SchemaV2> {
     protected spec: Spec;
 
     protected readonly metadata: Metadata;

@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+// eslint-disable-next-line max-classes-per-file
 export abstract class ReferencedResource<T> {
     /**
      * the body to be sent
@@ -16,7 +17,10 @@ export abstract class ReferencedResource<T> {
      * @param location To be added to the Location header on response
      * @param statusCode the response status code to be sent
      */
-    protected constructor(public location: string, public statusCode: number) { }
+    // eslint-disable-next-line no-useless-constructor
+    protected constructor(public location: string, public statusCode: number) {
+
+    }
 }
 
 export class NewResource<T> extends ReferencedResource<T> {
@@ -84,10 +88,12 @@ export class MovedTemporarily<T> extends ReferencedResource<T> {
 }
 
 export class DownloadResource {
+    // eslint-disable-next-line no-useless-constructor
     constructor(public filePath: string, public fileName: string) { }
 }
 
 export class DownloadBinaryData {
+    // eslint-disable-next-line no-useless-constructor
     constructor(public content: Buffer, public mimeType: string, public fileName?: string) { }
 }
 

@@ -5,9 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+// eslint-disable-next-line import/no-extraneous-dependencies,max-classes-per-file
 import {
     IsDouble, IsFloat, IsInt, IsLong,
-} from '@trapi/preset-swagger/dist';
+} from '@trapi/preset-swagger';
 
 export interface ClassType extends Function {
     new(...args: any[]): any;
@@ -72,7 +73,7 @@ export type SimpleHelloType = {
         name: string
     };
 
-    comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => {}) => void;
+    comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void;
 };
 
 export class BasicModel {

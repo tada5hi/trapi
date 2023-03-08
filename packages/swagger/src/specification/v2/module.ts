@@ -30,19 +30,21 @@ import type {
     BaseSchema, DataFormat, Example, Path,
 } from '../type';
 import { ParameterSourceV2 } from './constants';
-import type { SpecificationV2 } from './type';
+import type {
+    OperationV2, ParameterV2, ResponseV2, SchemaV2, SecurityV2, SpecV2,
+} from './type';
 
-export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2.SpecV2, SpecificationV2.SchemaV2> {
-    public getSwaggerSpec(): SpecificationV2.SpecV2 {
+export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
+    public getSwaggerSpec(): SpecV2 {
         return this.build();
     }
 
-    public build() : SpecificationV2.SpecV2 {
+    public build() : SpecV2 {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
 
-        let spec: SpecificationV2.SpecV2 = {
+        let spec: SpecV2 = {
             basePath: this.config.basePath,
             definitions: this.buildDefinitions(),
             info: this.buildInfo(),
@@ -79,10 +81,9 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return spec;
     }
 
-    private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SpecificationV2.SecurityV2> {
-        const definitions : Record<string, SpecificationV2.SecurityV2> = {};
+    private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SecurityV2> {
+        const definitions : Record<string, SecurityV2> = {};
 
-        // tslint:disable-next-line:forin
         const keys = Object.keys(securityDefinitions);
         for (let i = 0; i < keys.length; i++) {
             const securityDefinition : SecurityDefinition = securityDefinitions[keys[i]];
@@ -148,7 +149,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
      */
 
     private buildDefinitions() {
-        const definitions: { [definitionsName: string]: SpecificationV2.SchemaV2 } = {};
+        const definitions: { [definitionsName: string]: SchemaV2 } = {};
         Object.keys(this.metadata.referenceTypes).map((typeName) => {
             const referenceType : ReferenceType = this.metadata.referenceTypes[typeName];
             // const key : string = referenceType.typeName.replace('_', '');
@@ -192,7 +193,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
                     }), {});
 
                 definitions[referenceType.refName] = {
-                    ...(swaggerType as SpecificationV2.SchemaV2),
+                    ...(swaggerType as SchemaV2),
                     default: referenceType.default || swaggerType.default,
                     example: referenceType.example as {[p: string]: Example},
                     format: format || swaggerType.format,
@@ -234,7 +235,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
      */
 
     private buildPaths() {
-        const paths: { [pathName: string]: Path<SpecificationV2.OperationV2, SpecificationV2.ResponseV2> } = {};
+        const paths: { [pathName: string]: Path<OperationV2, ResponseV2> } = {};
 
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
@@ -300,7 +301,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         if (bodyPropParams.length > 0) {
-            const schema : BaseSchema<SpecificationV2.SchemaV2> = {
+            const schema : BaseSchema<SchemaV2> = {
                 type: 'object',
                 title: 'Body',
                 properties: {},
@@ -341,7 +342,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
 
                 output.parameters.push(bodyParameter);
             } else {
-                const parameter : SpecificationV2.ParameterV2 = {
+                const parameter : ParameterV2 = {
                     in: 'body',
                     name: 'body',
                     schema,
@@ -392,7 +393,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return undefined;
     }
 
-    protected buildParameter(input: Parameter): SpecificationV2.ParameterV2 {
+    protected buildParameter(input: Parameter): ParameterV2 {
         const sourceIn = this.transformParameterSource(input.in);
         if (!sourceIn) {
             throw new Error(`The parameter source ${input.in} is not valid for generating a document.`);
@@ -403,7 +404,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
             in: sourceIn,
             name: input.name,
             required: input.required,
-        } as SpecificationV2.ParameterV2;
+        } as ParameterV2;
 
         if (
             input.in !== ParameterSource.BODY &&
@@ -495,7 +496,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         Swagger Type ( + utils)
      */
 
-    protected getSwaggerTypeForEnumType(enumType: EnumType) : SpecificationV2.SchemaV2 {
+    protected getSwaggerTypeForEnumType(enumType: EnumType) : SchemaV2 {
         const types = this.determineTypesUsedInEnum(enumType.members);
         const type = types.size === 1 ? (types.values().next().value) : 'string';
         const nullable = !!enumType.members.includes(null);
@@ -506,7 +507,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         };
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SpecificationV2.SchemaV2 {
+    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV2 {
         // tslint:disable-next-line:no-shadowed-variable
         const properties = type.members.reduce((acc, type) => {
             if (type.typeName === 'refObject') {
@@ -527,12 +528,12 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return { type: 'object', properties };
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SpecificationV2.SchemaV2 {
+    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV2 {
         return { $ref: `#/definitions/${referenceType.refName}` };
     }
 
-    protected buildProperties(properties: ResolverProperty[]) : Record<string, SpecificationV2.SchemaV2> {
-        const swaggerProperties: { [propertyName: string]: SpecificationV2.SchemaV2 } = {};
+    protected buildProperties(properties: ResolverProperty[]) : Record<string, SchemaV2> {
+        const swaggerProperties: { [propertyName: string]: SchemaV2 } = {};
 
         properties.forEach((property) => {
             const swaggerType = this.getSwaggerType(property.type);
@@ -546,7 +547,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
     }
 
     private buildOperation(method: Method) {
-        const operation : SpecificationV2.OperationV2 = {
+        const operation : OperationV2 = {
             operationId: this.getOperationId(method.name),
             consumes: method.consumes,
             produces: [],
@@ -589,7 +590,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecificationV2
         return operation;
     }
 
-    private getMimeType(swaggerType: SpecificationV2.SchemaV2) {
+    private getMimeType(swaggerType: SchemaV2) {
         if (
             swaggerType.$ref ||
             swaggerType.type === 'array' ||

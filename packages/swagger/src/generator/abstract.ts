@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -16,8 +16,8 @@ import type {
     ParameterSource,
     PrimitiveTypeLiteral,
     ReferenceType,
-    ResolverProperty, TypeVariant,
-
+    ResolverProperty,
+    TypeVariant,
     UnionType,
 } from '@trapi/metadata';
 import {
@@ -35,77 +35,74 @@ import {
 import path from 'node:path';
 import fs from 'node:fs';
 import YAML from 'yamljs';
-import type { Options } from '../config';
+import { buildOptions } from '../config';
+import type { Options, OptionsInput } from '../config';
 import type { DocumentFormat } from '../constants';
 import { hasOwnProperty } from '../utils';
 
 import type { DocumentFormatData } from '../type';
 import type {
-    BaseSchema, Info,
-} from './type';
-import type { SchemaV2, SpecV2 } from './v2';
-import type { SchemaV3, SpecV3 } from './v3';
+    BaseSchema,
+    Info,
+    SchemaV2,
+    SchemaV3,
+    SpecV2,
+    SpecV3,
+} from '../schema';
 
 export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema extends SchemaV3 | SchemaV2> {
-    protected spec: Spec;
+    protected spec: Spec | undefined;
 
     protected readonly metadata: Metadata;
 
     protected readonly config: Options;
 
-    constructor(metadata: Metadata, config: Options) {
+    constructor(metadata: Metadata, config: OptionsInput) {
         this.metadata = metadata;
-        this.config = config;
+        this.config = buildOptions(config);
     }
 
-    public async save(): Promise<Record<`${DocumentFormat}`, DocumentFormatData>> {
-        const spec = this.build();
-        const swaggerDir: string = path.resolve(this.config.outputDirectory);
+    async save(): Promise<Record<`${DocumentFormat}`, DocumentFormatData>> {
+        if (!this.config.output) {
+            return;
+        }
 
-        await fs.promises.mkdir(swaggerDir, { recursive: true });
+        if (typeof this.spec === 'undefined') {
+            throw new Error('The spec has not been build yet...');
+        }
 
-        const data: Record<`${DocumentFormat}`, DocumentFormatData> = {
-            json: {
-                path: path.join(swaggerDir, 'swagger.json'),
+        try {
+            await fs.promises.access(this.config.outputDirectory, fs.constants.R_OK | fs.constants.O_DIRECTORY);
+        } catch (e) {
+            await fs.promises.mkdir(this.config.outputDirectory, { recursive: true });
+        }
+
+        const data : DocumentFormatData[] = [
+            {
+                path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.json`),
                 name: 'swagger.json',
-                content: JSON.stringify(spec, null, '\t'),
+                content: JSON.stringify(this.spec, null, 4),
             },
-            yaml: undefined,
-        };
+        ];
 
         if (this.config.yaml) {
-            data.yaml = {
-                path: path.join(swaggerDir, 'swagger.yaml'),
+            data.push({
+                path: path.join(this.config.outputDirectory, `${this.config.outputDirectory}.yaml`),
                 name: 'swagger.yaml',
-                content: YAML.stringify(spec, 1000),
-            };
+                content: YAML.stringify(this.spec, 1000),
+            });
         }
 
-        const filePromises: Array<Promise<void>> = [];
+        const promises: Promise<void>[] = [];
 
-        const keys = Object.keys(data);
-        for (let i = 0; i < keys.length; i++) {
-            if (typeof data[keys[i]] === 'undefined') {
-                continue;
-            }
-
-            const output = data[keys[i]];
-
-            filePromises.push(fs.promises.writeFile(output.path, output.content));
+        for (let i = 0; i < data.length; i++) {
+            promises.push(fs.promises.writeFile(data[i].path, data[i].content, { encoding: 'utf-8' }));
         }
 
-        await Promise.all(filePromises);
-
-        return data;
+        await Promise.all(promises);
     }
 
-    public getMetaData() {
-        return this.metadata;
-    }
-
-    public abstract getSwaggerSpec(): Spec;
-
-    public abstract build(): Spec;
+    public abstract build(): Promise<Spec>;
 
     protected buildInfo() {
         const info: Info = {

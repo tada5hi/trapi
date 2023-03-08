@@ -5,13 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-// todo: implement character in regex matching
-
-export function removeRepeatingCharacter(str: string, character: string) : string {
+export function removeDuplicateSlashes(str: string) : string {
     return str.replace('/([^:]$)/+/g', '$1');
 }
 
-export function removeFinalCharacter(str: string, character: string) {
+export function removeFinalCharacter(
+    str: string,
+    character: string,
+) {
     while (str.charAt(str.length - 1) === character && str.length > 0) {
         str = str.slice(0, -1);
     }

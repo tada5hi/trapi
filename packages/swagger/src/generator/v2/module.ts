@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -27,25 +27,26 @@ import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../..
 import { AbstractSpecGenerator } from '../abstract';
 
 import type {
-    BaseSchema, DataFormat, Example, Path,
-} from '../type';
-import { ParameterSourceV2 } from './constants';
-import type {
-    OperationV2, ParameterV2, ResponseV2, SchemaV2, SecurityV2, SpecV2,
-} from './type';
+    BaseSchema,
+    DataFormat,
+    Example,
+    OperationV2,
+    ParameterV2,
+    Path,
+    ResponseV2,
+    SchemaV2,
+    SecurityV2,
+    SpecV2,
+} from '../../schema';
+import { ParameterSourceV2 } from '../../schema';
 
-export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
-    public getSwaggerSpec(): SpecV2 {
-        return this.build();
-    }
-
-    public build() : SpecV2 {
+export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
+    async build() : Promise<SpecV2> {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
 
         let spec: SpecV2 = {
-            basePath: this.config.basePath,
             definitions: this.buildDefinitions(),
             info: this.buildInfo(),
             paths: this.buildPaths(),
@@ -53,7 +54,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV
         };
 
         spec.securityDefinitions = this.config.securityDefinitions ?
-            Version2SpecGenerator.translateSecurityDefinitions(this.config.securityDefinitions) :
+            V2Generator.translateSecurityDefinitions(this.config.securityDefinitions) :
             {};
 
         if (this.config.consumes) {
@@ -64,12 +65,16 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV
             spec.produces = this.config.produces;
         }
 
-        if (this.config.host) {
-            const url = new URL(this.config.host);
-            let host : string = (url.host + url.pathname).replace(/([^:]\/)\/+/g, '$1');
-            host = host.substr(-1, 1) === '/' ? host.substr(0, host.length - 1) : host;
+        if (
+            this.config.servers &&
+            this.config.servers.length > 0
+        ) {
+            const url = new URL(this.config.servers[0].url, 'http://localhost:3000/');
 
-            spec.host = host;
+            spec.host = url.host;
+            if (url.pathname) {
+                spec.basePath = url.pathname;
+            }
         }
 
         if (this.config.specificationExtra) {
@@ -77,6 +82,8 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV
         }
 
         this.spec = spec;
+
+        await this.save();
 
         return spec;
     }
@@ -552,6 +559,7 @@ export class Version2SpecGenerator extends AbstractSpecGenerator<SpecV2, SchemaV
             consumes: method.consumes,
             produces: [],
             responses: {},
+            security: [],
         };
         const methodReturnTypes = new Set<string>();
 

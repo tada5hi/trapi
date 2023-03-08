@@ -5,35 +5,50 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat, Options as MetadataOptions } from '@trapi/metadata';
-import type { SpecificationVersion } from '../constants';
+import type { CollectionFormat, Metadata, Options as MetadataOptions } from '@trapi/metadata';
 import type { SecurityDefinitions } from '../type';
+
+export type ServerOption = {
+    url: string,
+    description?: string,
+};
 
 export interface Options {
     /**
-     * Support the output to be a yaml file
+     * Generate a yaml file
      */
     yaml?: boolean;
 
     /**
-     * Generated swagger.{json|yaml} will output here
+     * Specify if an output file should be generated.
+     *
+     * default: true
      */
-    outputDirectory?: string;
+    output: boolean,
 
     /**
-     * Generated documentation base file name. Default: swagger
+     * Generated swagger.{json|yaml} will output here.
+     *
+     * default: process.cwd()
      */
-    outputFileName?: string;
+    outputDirectory: string;
+
+    /**
+     * Generated documentation base file name.
+     *
+     * default: swagger
+     */
+    outputFileName: string;
 
     /**
      * API host, expressTemplate.g. localhost:3000 or https://myapi.com
      */
-    host?: string;
+    servers?: ServerOption[];
 
     /**
-     * Metadata options.
+     * Metadata options or metadata itself.
      */
-    metadata?: MetadataOptions,
+    metadata?: MetadataOptions | Metadata,
 
     /**
      * API version number; defaults to npm package version
@@ -54,18 +69,6 @@ export interface Options {
      * API license; defaults to npm package license
      */
     license?: string;
-
-    /**
-     * Base API path; e.g. the 'v1' in https://myapi.com/v1
-     */
-    basePath?: string;
-
-    /**
-     * Inform if the generated spec will be in swagger 2.0 format or regarding the open api 3.0 specification.
-     *
-     * Default: V2
-     */
-    specification?: `${SpecificationVersion}`;
 
     /**
      * Extend generated swagger spec with this object
@@ -97,3 +100,7 @@ export interface Options {
      */
     collectionFormat?: `${CollectionFormat}`;
 }
+
+export type OptionsInput = Omit<Partial<Options>, 'servers'> & {
+    servers?: string | string[] | ServerOption | ServerOption[]
+};

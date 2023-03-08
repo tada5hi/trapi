@@ -8,7 +8,7 @@
 import { load } from 'locter';
 import jsonata from 'jsonata';
 import type { Metadata, SpecV2, SpecV3 } from '../../../src';
-import { createSpecificationGenerator } from '../../../src';
+import { Version, generate } from '../../../src';
 
 describe('PrimitiveEndpoint', () => {
     let spec : SpecV2 | SpecV3;
@@ -16,11 +16,13 @@ describe('PrimitiveEndpoint', () => {
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');
 
-        const specGenerator = await createSpecificationGenerator(metadata, {
-            host: 'http://localhost:3000/',
+        spec = await generate({
+            version: Version.V2,
+            options: {
+                servers: 'http://localhost:3000/',
+                metadata,
+            },
         });
-
-        spec = await specGenerator.getSwaggerSpec();
     });
 
     it('should generate integer type for @IsInt decorator declared on class property', async () => {

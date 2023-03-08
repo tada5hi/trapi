@@ -8,7 +8,7 @@
 import jsonata from 'jsonata';
 import { load } from 'locter';
 import type { Metadata, SpecV2, SpecV3 } from '../../../src';
-import { createSpecificationGenerator } from '../../../src';
+import { Version, generate } from '../../../src';
 
 describe('TestUnionType', () => {
     let spec : SpecV2 | SpecV3;
@@ -16,11 +16,13 @@ describe('TestUnionType', () => {
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');
 
-        const specGenerator = await createSpecificationGenerator(metadata, {
-            host: 'http://localhost:3000/',
+        spec = await generate({
+            version: Version.V2,
+            options: {
+                servers: 'http://localhost:3000/',
+                metadata,
+            },
         });
-
-        spec = await specGenerator.getSwaggerSpec();
     });
 
     it('should support union types', async () => {

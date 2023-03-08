@@ -7,27 +7,31 @@
 
 import { load } from 'locter';
 import type {
-    AbstractSpecGenerator,
-    Metadata,
+    Metadata, SpecV3,
 } from '../../../src';
 import {
-    Version3SpecGenerator,
-    createSpecificationGenerator,
+    Version,
+    generate,
 } from '../../../src';
 
 describe('SpecGenerator', () => {
-    let specGenerator : AbstractSpecGenerator<any, any>;
+    let spec : SpecV3;
 
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');
 
-        specGenerator = await createSpecificationGenerator(metadata, {
-            host: 'http://localhost:3000/',
+        spec = await generate({
+            version: Version.V3,
+            options: {
+                servers: 'http://localhost:3000/api/',
+                metadata,
+            },
         });
     });
 
     it('should be able to generate open api 3.0 outputs', async () => {
-        const openapi = await new Version3SpecGenerator(specGenerator.getMetaData(), {}).getSwaggerSpec();
-        expect(openapi.openapi).toEqual('3.0.0');
+        expect(spec.openapi).toEqual('3.0.0');
+        expect(spec.servers).toBeDefined();
+        expect(spec.servers[0].url).toEqual('http://localhost:3000/api/');
     });
 });

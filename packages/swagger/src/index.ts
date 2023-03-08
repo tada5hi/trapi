@@ -7,7 +7,7 @@
 
 export * from './constants';
 export * from './metadata';
-export * from './module';
-export * from './specification';
+export * from './generator';
+export * from './schema';
 export * from './type';
 export * from './utils';

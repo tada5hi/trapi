@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -16,34 +16,31 @@ import type {
     TypeVariant,
 } from '@trapi/metadata';
 import { ParameterSource, isVoidType } from '@trapi/metadata';
-import { URL } from 'url';
+import { URL } from 'node:url';
 import { isObject, merge } from 'smob';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
-import { normalizePathParameters } from '../../utils';
+import { normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter } from '../../utils';
 import type {
     DataFormat,
-    DataType, Example, Path,
-} from '../type';
-import { ParameterSourceV3 } from './constants';
-import type {
+    DataType,
+    Example,
     HeaderV3,
     MediaTypeV3,
     OperationV3,
     ParameterV3,
-    RequestBodyV3, ResponseV3,
+    Path,
+    RequestBodyV3,
+    ResponseV3,
     SchemaV3,
-    SecurityV3, ServerV3,
+    SecurityV3,
+    ServerV3,
     SpecV3,
-} from './type';
-import { removeFinalCharacter, removeRepeatingCharacter } from '../utils';
+} from '../../schema';
+import { ParameterSourceV3 } from '../../schema';
 import { AbstractSpecGenerator } from '../abstract';
 
-export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
-    public getSwaggerSpec(): SpecV3 {
-        return this.build();
-    }
-
-    public build() : SpecV3 {
+export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
+    async build() : Promise<SpecV3> {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
         }
@@ -61,6 +58,10 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV
             spec = merge(spec, this.config.specificationExtra);
         }
 
+        this.spec = spec;
+
+        await this.save();
+
         return spec;
     }
 
@@ -76,7 +77,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV
         };
 
         if (this.config.securityDefinitions) {
-            components.securitySchemes = Version3SpecGenerator.translateSecurityDefinitions(this.config.securityDefinitions);
+            components.securitySchemes = V3Generator.translateSecurityDefinitions(this.config.securityDefinitions);
         }
 
         return components;
@@ -117,7 +118,7 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV
                 .filter((method) => !method.hidden)
                 .forEach((method) => {
                     let path = removeFinalCharacter(
-                        removeRepeatingCharacter(`/${controller.path}/${method.path}`, '/'),
+                        removeDuplicateSlashes(`/${controller.path}/${method.path}`),
                         '/',
                     );
                     path = normalizePathParameters(path);
@@ -409,15 +410,16 @@ export class Version3SpecGenerator extends AbstractSpecGenerator<SpecV3, SchemaV
     }
 
     private buildServers() : ServerV3[] {
-        const url = new URL(this.config.host || 'http://localhost:3000/');
-        let host : string = (url.host + url.pathname).replace(/([^:]\/)\/+/g, '$1');
-        host = host.substr(-1, 1) === '/' ? host.substr(0, host.length - 1) : host;
+        const servers = [];
+        for (let i = 0; i < this.config.servers.length; i++) {
+            const url = new URL(this.config.servers[i].url, 'http://localhost:3000/');
+            servers.push({
+                url: `${url.protocol}//${url.host}${url.pathname || ''}`,
+                ...(this.config.servers[i].description ? { description: this.config.servers[i].description } : {}),
+            });
+        }
 
-        return [
-            {
-                url: host,
-            },
-        ];
+        return servers;
     }
 
     private buildSchema() {

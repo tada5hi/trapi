@@ -5,14 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ArrayLiteralExpression, Node, TypeNode } from 'typescript';
-import { isArrayLiteralExpression } from 'typescript';
+import { isObject } from 'locter';
+import type { Node, TypeNode } from 'typescript';
 import { DecoratorID } from '../decorator';
 import { TypeNodeResolver } from '../resolver';
 
-import type { Example, Response } from './type';
+import type { Example, Response, Security } from './type';
 import {
-    JSDocTagName, getInitializerValue, getNodeDecorators, hasJSDocTag, normalizePath,
+    JSDocTagName, getInitializerValue, hasJSDocTag, normalizePath,
 } from '../utils';
 import type { MetadataGenerator } from './metadata';
 
@@ -45,51 +45,37 @@ export abstract class AbstractGenerator<T extends Node> {
         this.path = normalizePath(values.join('/'));
     }
 
-    // --------------------------------------------------------------------
-
-    protected getDecoratorValues(decoratorName: string, acceptMultiple = false) : any[] {
-        const decorators = getNodeDecorators(this.node, (decorator) => decorator.text === decoratorName);
-
-        if (!decorators || !decorators.length) { return []; }
-
-        if (!acceptMultiple && decorators.length > 1) {
-            throw new Error(`Only one ${decoratorName} decorator allowed in ${this.getCurrentLocation()}.`);
-        }
-
-        let result: any[];
-
-        if (acceptMultiple) {
-            result = decorators.map((d) => d.arguments);
-        } else {
-            const d = decorators[0];
-            result = d.arguments;
-        }
-
-        return result;
-    }
-
     // -------------------------------------------
 
-    protected getSecurity() {
-        const securities = this.getDecoratorValues('Security', true);
-        if (!securities || !securities.length) { return undefined; }
-
-        return securities.map((security) => {
-            const rolesArray : string[] = security[0] ? this.handleRolesArray(security[0]) : [];
-
-            return {
-                name: security[1] ? security[1] : 'default',
-                scopes: rolesArray,
-            };
-        });
-    }
-
-    protected handleRolesArray(argument: ArrayLiteralExpression): string[] {
-        if (isArrayLiteralExpression(argument)) {
-            return argument.elements.map((value) => value.getText())
-                .map((val) => ((val && val.startsWith('\'') && val.endsWith('\'')) ? val.slice(1, -1) : val));
+    protected getSecurity() : Security[] {
+        const representation = this.current.decoratorResolver.match(DecoratorID.SECURITY, this.node);
+        if (typeof representation === 'undefined') {
+            return [];
         }
-        return argument;
+
+        const securities : Security[] = [];
+
+        for (let i = 0; i < representation.decorators.length; i++) {
+            let name = representation.get('key');
+            // todo: check if Record<string, string[]>
+            if (isObject(name)) {
+                securities.push(name);
+            } else {
+                if (typeof name !== 'string' || !name) {
+                    name = 'default';
+                }
+
+                const scopes = representation.get('value');
+
+                if (Array.isArray(scopes)) {
+                    securities.push({
+                        [name]: scopes,
+                    });
+                }
+            }
+        }
+
+        return securities;
     }
 
     // -------------------------------------------

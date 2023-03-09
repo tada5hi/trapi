@@ -276,9 +276,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         if (method.deprecated) { output.deprecated = method.deprecated; }
         if (method.tags.length) { output.tags = method.tags; }
         if (method.security) {
-            output.security = method.security.map((s) => ({
-                [s.name]: s.scopes || [],
-            }));
+            output.security = method.security;
         }
 
         this.handleMethodConsumes(method, output);
@@ -559,7 +557,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             consumes: method.consumes,
             produces: [],
             responses: {},
-            security: [],
+            security: method.security || [],
         };
         const methodReturnTypes = new Set<string>();
 

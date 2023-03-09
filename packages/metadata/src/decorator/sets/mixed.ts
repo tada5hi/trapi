@@ -11,11 +11,20 @@ export type DecoratorExtensionProperties = {
     key: string,
     value: unknown | unknown[]
 };
+
+export type DecoratorSecurityProperties = {
+    key: string | Record<string, string[]>,
+    value?: unknown[]
+};
+
 export type DecoratorMixedSetID = `${DecoratorID.DEPRECATED}` |
     `${DecoratorID.HIDDEN}` |
-    `${DecoratorID.EXTENSION}`;
+    `${DecoratorID.EXTENSION}` |
+    `${DecoratorID.SECURITY}`;
 
 export type DecoratorMixedSetProperties<T extends DecoratorMixedSetID> =
         T extends `${DecoratorID.EXTENSION}` ?
             DecoratorExtensionProperties :
-            never;
+            T extends `${DecoratorID.SECURITY}` ?
+                DecoratorSecurityProperties :
+                never;

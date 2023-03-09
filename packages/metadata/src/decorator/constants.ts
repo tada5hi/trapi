@@ -19,6 +19,7 @@ export enum DecoratorID {
     DEPRECATED = 'deprecated',
     EXTENSION = 'extension',
     HIDDEN = 'hidden',
+    SECURITY = 'security',
 
     METHOD_PATH = 'methodPath',
 

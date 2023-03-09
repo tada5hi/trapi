@@ -1,0 +1,1289 @@
+{
+    "definitions": {
+        "MyTypeWithUnion": {
+            "properties": {
+                "property": {
+                    "type": "string",
+                    "enum": [
+                        "value1",
+                        "value2"
+                    ],
+                    "x-nullable": false
+                }
+            },
+            "required": [
+                "property"
+            ],
+            "type": "object"
+        },
+        "Address": {
+            "properties": {
+                "street": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "street"
+            ],
+            "type": "object"
+        },
+        "Person": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "$ref": "#/definitions/Address"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "type": "object"
+        },
+        "TestEnum": {
+            "enum": [
+                "option1",
+                "option2"
+            ],
+            "type": "string",
+            "x-enum-varnames": [
+                "Option1",
+                "Option2"
+            ]
+        },
+        "TestNumericEnum": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number",
+            "x-enum-varnames": [
+                "Option1",
+                "Option2"
+            ]
+        },
+        "TestMixedEnum": {
+            "enum": [
+                0,
+                "option2"
+            ],
+            "type": "string",
+            "x-enum-varnames": [
+                "Option1",
+                "Option2"
+            ]
+        },
+        "TestInterface": {
+            "properties": {
+                "a": {
+                    "type": "string"
+                },
+                "b": {
+                    "type": "number",
+                    "format": "double"
+                }
+            },
+            "required": [
+                "a",
+                "b"
+            ],
+            "type": "object"
+        },
+        "Return.NewResourcePerson": {
+            "properties": {
+                "body": {
+                    "$ref": "#/definitions/Person"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "To be added to the Location header on response"
+                },
+                "statusCode": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "the response status code to be sent"
+                }
+            },
+            "required": [
+                "body",
+                "location",
+                "statusCode"
+            ],
+            "type": "object"
+        },
+        "Return.DownloadBinaryData": {
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "format": "byte"
+                },
+                "mimeType": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "content",
+                "mimeType"
+            ],
+            "type": "object"
+        },
+        "MyDataType2": {
+            "properties": {
+                "prop": {
+                    "type": "string"
+                },
+                "property1": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "prop",
+                "property1"
+            ],
+            "type": "object"
+        },
+        "UUID": {
+            "type": "string"
+        },
+        "Something": {
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/UUID"
+                },
+                "someone": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "someone",
+                "kind"
+            ],
+            "type": "object"
+        },
+        "SimpleHelloType": {
+            "properties": {
+                "comparePassword": {
+                    "type": "object"
+                },
+                "profile": {
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Description for profile name"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "type": "object",
+                    "description": "Description for profile"
+                },
+                "arrayOfSomething": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Something"
+                    }
+                },
+                "greeting": {
+                    "type": "string",
+                    "description": "Description for greeting property"
+                }
+            },
+            "required": [
+                "comparePassword",
+                "profile",
+                "arrayOfSomething",
+                "greeting"
+            ],
+            "type": "object"
+        },
+        "PrimitiveClassModel": {
+            "properties": {
+                "int": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "An integer"
+                },
+                "long": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "float": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "double": {
+                    "type": "number",
+                    "format": "double"
+                }
+            },
+            "type": "object"
+        },
+        "PrimitiveInterfaceModel": {
+            "properties": {
+                "int": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "An integer"
+                },
+                "long": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "float": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "double": {
+                    "type": "number",
+                    "format": "double"
+                }
+            },
+            "type": "object"
+        },
+        "ResponseBodystringarray": {
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "data"
+            ],
+            "type": "object"
+        },
+        "NamedEntity": {
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "A numeric identifier"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "type": "object"
+        }
+    },
+    "info": {
+        "title": "",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/unionTypes": {
+            "post": {
+                "operationId": "Post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MyTypeWithUnion"
+                        }
+                    }
+                ]
+            }
+        },
+        "/mypath": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "The request format was incorrect.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "There was an unexpected error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": []
+            },
+            "post": {
+                "operationId": "TestPostString",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Person"
+                            }
+                        },
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "name": "Joe"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/mypath/secondpath": {
+            "get": {
+                "operationId": "Test2",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The success test.",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "name": "Joe"
+                            }
+                        }
+                    }
+                },
+                "security": [],
+                "description": "This is the method description",
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "This is the test param description",
+                        "in": "query",
+                        "name": "testRequired",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testDefault",
+                        "required": false,
+                        "type": "string",
+                        "default": "value"
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testOptional",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testEnum",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "option1",
+                            "option2"
+                        ]
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testNumericEnum",
+                        "required": false,
+                        "type": "number",
+                        "enum": [
+                            0,
+                            1
+                        ]
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testMixedEnum",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "0",
+                            "option2"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/mypath/obj": {
+            "post": {
+                "operationId": "TestPostObject",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "data",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ]
+            }
+        },
+        "/mypath/multi-query": {
+            "get": {
+                "operationId": "TestMultiQuery",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "properties": {
+                                "names": {
+                                    "type": "string"
+                                },
+                                "ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "names",
+                                "ids"
+                            ],
+                            "type": "object"
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "id",
+                        "required": true,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "name",
+                        "required": false,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/mypath/default-query": {
+            "get": {
+                "operationId": "TestDefaultQuery",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "schema": {}
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "num",
+                        "required": false,
+                        "format": "double",
+                        "type": "number",
+                        "default": 5
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "str",
+                        "required": false,
+                        "type": "string",
+                        "default": "default value"
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "bool1",
+                        "required": false,
+                        "type": "boolean",
+                        "default": true
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "bool2",
+                        "required": false,
+                        "type": "boolean",
+                        "default": false
+                    },
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "arr",
+                        "required": false,
+                        "collectionFormat": "multi",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/mypath/test-compiler-options": {
+            "post": {
+                "operationId": "TestCompilerOptions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/TestInterface"
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "payload",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TestInterface"
+                        }
+                    }
+                ]
+            }
+        },
+        "/mypath/test-form-param": {
+            "post": {
+                "operationId": "TestFormParam",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "tags": [
+                    "My Services",
+                    "Foo"
+                ],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/promise": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "text/html",
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "description": "Esta eh a da classe",
+                "parameters": [
+                    {
+                        "description": "Esta eh a description do param teste",
+                        "in": "query",
+                        "name": "testParam",
+                        "required": false,
+                        "type": "string"
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "TestPost",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/Return.NewResourcePerson"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "name": "Example Person"
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Person Created",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "name": "Test Person"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "body",
+                        "name": "obj",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    }
+                ]
+            }
+        },
+        "/promise/{id}": {
+            "get": {
+                "operationId": "TestGetSingle",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All Good",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "name": "Test Person"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/promise/myFile": {
+            "get": {
+                "operationId": "TestFile",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/Return.DownloadBinaryData"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "query",
+                        "name": "testParam",
+                        "required": false,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/generics1/{param}": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "schema": {}
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "param",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/generics2/{param}": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/MyDataType2"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "param",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/type/{param}": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/MyDataType2"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "param",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/type/{param}/2": {
+            "get": {
+                "operationId": "Test2",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/SimpleHelloType"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "param",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/primitives/class": {
+            "get": {
+                "operationId": "GetClass",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/PrimitiveClassModel"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/primitives/interface": {
+            "get": {
+                "operationId": "TestInterface",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/PrimitiveInterfaceModel"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/primitives/{id}": {
+            "get": {
+                "operationId": "GetById",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "schema": {}
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                ]
+            }
+        },
+        "/primitives/arrayNative": {
+            "get": {
+                "operationId": "GetArrayNative",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseBodystringarray"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/primitives/array": {
+            "get": {
+                "operationId": "GetArray",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseBodystringarray"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/parameterized/{objectId}/test": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/PrimitiveClassModel"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": [
+                    {
+                        "description": "",
+                        "in": "path",
+                        "name": "objectId",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/abstract": {
+            "get": {
+                "operationId": "Get",
+                "consumes": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/NamedEntity"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/secure": {
+            "get": {
+                "operationId": "Get",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "name": "access_token",
+                        "scopes": [
+                            "ROLE_1",
+                            "ROLE_2"
+                        ]
+                    }
+                ],
+                "parameters": []
+            },
+            "post": {
+                "operationId": "Post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "name": "user_email",
+                        "scopes": []
+                    }
+                ],
+                "parameters": []
+            }
+        },
+        "/supersecure": {
+            "get": {
+                "operationId": "Get",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "name": "default",
+                        "scopes": "access_token"
+                    },
+                    {
+                        "name": "default",
+                        "scopes": "user_email"
+                    },
+                    {
+                        "name": "default",
+                        "scopes": []
+                    }
+                ],
+                "parameters": []
+            }
+        },
+        "/response": {
+            "get": {
+                "operationId": "Get",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "The request format was incorrect.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "There was an unexpected error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        },
+        "/response/test": {
+            "get": {
+                "operationId": "Test",
+                "consumes": [],
+                "produces": [
+                    "text/html"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "The request format was incorrect.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "There was an unexpected error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "502": {
+                        "description": "Internal server error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "security": [],
+                "parameters": []
+            }
+        }
+    },
+    "swagger": "2.0",
+    "securityDefinitions": {},
+    "host": "localhost:3000",
+    "basePath": "/"
+}

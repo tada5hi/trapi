@@ -312,10 +312,21 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
         });
 
-        return {
+        const operation : OperationV3 = {
             operationId: this.getOperationId(method.name),
             responses: swaggerResponses,
         };
+        if (method.description) {
+            operation.description = method.description;
+        }
+        if (method.security) {
+            operation.security = method.security;
+        }
+        if (method.deprecated) {
+            operation.deprecated = method.deprecated;
+        }
+
+        return operation;
     }
 
     protected transformParameterSource(

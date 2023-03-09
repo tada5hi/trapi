@@ -12,10 +12,8 @@ export type {
     CompilerOptions,
 };
 
-export interface Security {
-    name: string;
-    scopes?: string[];
-}
+// <label, scope[]>
+export type Security = Record<string, string[]>;
 
 export interface Example {
     value: unknown | unknown[];

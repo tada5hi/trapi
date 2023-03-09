@@ -114,11 +114,10 @@ export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3> {
 }
 
 export interface ResponseV3 extends BaseResponse {
-    content?: {
-        [name: string]: SchemaV3 & {
-            examples?: Record<string, Example>
-        }
-    };
+    content?: Record<string, {
+        schema: SchemaV3,
+        examples?: Record<string, Example>
+    }>;
     headers?: { [name: string]: HeaderV3 };
 }
 
@@ -140,8 +139,8 @@ export interface RequestBodyV3 {
 
 export interface MediaTypeV3 {
     schema?: SchemaV3;
-    example?: unknown;
-    examples?: { [name: string]: Example | string };
+    example?: Example;
+    examples?: Record<string, Example | string>;
     encoding?: { [name: string]: any };
 }
 

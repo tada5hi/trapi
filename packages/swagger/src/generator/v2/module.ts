@@ -21,7 +21,7 @@ import {
 import path from 'node:path';
 import { URL } from 'node:url';
 import { merge } from 'smob';
-import type { SecurityDefinition, SecurityDefinitions } from '../../type';
+import type { SecurityDefinitions } from '../../type';
 
 import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
@@ -93,7 +93,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const keys = Object.keys(securityDefinitions);
         for (let i = 0; i < keys.length; i++) {
-            const securityDefinition : SecurityDefinition = securityDefinitions[keys[i]];
+            const securityDefinition = securityDefinitions[keys[i]];
 
             switch (securityDefinition.type) {
                 case 'http':
@@ -155,64 +155,73 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         Definitions ( + utils)
      */
 
-    private buildDefinitions() {
-        const definitions: { [definitionsName: string]: SchemaV2 } = {};
-        Object.keys(this.metadata.referenceTypes).map((typeName) => {
-            const referenceType : ReferenceType = this.metadata.referenceTypes[typeName];
-            // const key : string = referenceType.typeName.replace('_', '');
+    private buildDefinition(referenceType: ReferenceType) : SchemaV2 {
+        let output: SchemaV2;
 
-            if (isRefObjectType(referenceType)) {
-                const required = referenceType.properties
-                    .filter((p: ResolverProperty) => p.required).map((p: ResolverProperty) => p.name);
+        if (isRefObjectType(referenceType)) {
+            const required = referenceType.properties
+                .filter((p: ResolverProperty) => p.required)
+                .map((p: ResolverProperty) => p.name);
 
-                definitions[referenceType.refName] = {
-                    description: referenceType.description,
-                    properties: this.buildProperties(referenceType.properties),
-                    required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-                    type: 'object',
-                };
+            output = {
+                description: referenceType.description,
+                properties: this.buildProperties(referenceType.properties),
+                required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
+                type: 'object',
+            };
 
-                if (referenceType.additionalProperties) {
-                    definitions[referenceType.refName].additionalProperties = true;
-                }
-
-                if (referenceType.example) {
-                    definitions[referenceType.refName].example = referenceType.example;
-                }
-            } else if (isRefEnumType(referenceType)) {
-                definitions[referenceType.refName] = {
-                    description: referenceType.description,
-                    enum: referenceType.members,
-                    type: this.decideEnumType(referenceType.members, referenceType.refName),
-                };
-
-                if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
-                    definitions[referenceType.refName]['x-enum-varnames'] = referenceType.memberNames;
-                }
-            } else if (isRefAliasType(referenceType)) {
-                const swaggerType = this.getSwaggerType(referenceType.type);
-                const format = referenceType.format as DataFormat;
-                const validators = Object.keys(referenceType.validators)
-                    .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
-                    .reduce((acc, key) => ({
-                        ...acc,
-                        [key]: referenceType.validators[key].value,
-                    }), {});
-
-                definitions[referenceType.refName] = {
-                    ...(swaggerType as SchemaV2),
-                    default: referenceType.default || swaggerType.default,
-                    example: referenceType.example as {[p: string]: Example},
-                    format: format || swaggerType.format,
-                    description: referenceType.description,
-                    ...validators,
-                };
+            if (referenceType.additionalProperties) {
+                output.additionalProperties = true;
             }
 
-            return typeName;
-        });
+            if (referenceType.example) {
+                output.example = referenceType.example;
+            }
+        } else if (isRefEnumType(referenceType)) {
+            output = {
+                description: referenceType.description,
+                enum: referenceType.members,
+                type: this.decideEnumType(referenceType.members, referenceType.refName),
+            };
 
-        return definitions;
+            if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
+                output['x-enum-varnames'] = referenceType.memberNames;
+            }
+        } else if (isRefAliasType(referenceType)) {
+            const swaggerType = this.getSwaggerType(referenceType.type);
+            const format = referenceType.format as DataFormat;
+
+            // todo: verify passed validators
+            const validators = Object.keys(referenceType.validators)
+                .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
+                .reduce((acc, key) => ({
+                    ...acc,
+                    [key]: referenceType.validators[key].value,
+                }), {});
+
+            output = {
+                ...(swaggerType as SchemaV2),
+                default: referenceType.default || swaggerType.default,
+                example: referenceType.example as {[p: string]: Example},
+                format: format || swaggerType.format,
+                description: referenceType.description,
+                ...validators,
+            };
+        }
+
+        return output;
+    }
+
+    private buildDefinitions() {
+        const output: Record<string, SchemaV2> = {};
+
+        const keys = Object.keys(this.metadata.referenceTypes);
+        for (let i = 0; i < keys.length; i++) {
+            const referenceType = this.metadata.referenceTypes[keys[i]];
+            output[referenceType.refName] = this.buildDefinition(referenceType);
+        }
+
+        return output;
     }
 
     private decideEnumType(anEnum: Array<string | number>, nameOfEnum: string): 'string' | 'number' {
@@ -242,32 +251,34 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
      */
 
     private buildPaths() {
-        const paths: { [pathName: string]: Path<OperationV2, ResponseV2> } = {};
+        const output: Record<string, Path<OperationV2, ResponseV2>> = {};
 
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
         this.metadata.controllers.forEach((controller) => {
             controller.methods.forEach((method) => {
-                let fullPath : string = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
+                let fullPath = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
                 fullPath = normalizePathParameters(fullPath);
 
-                paths[fullPath] = paths[fullPath] || {};
                 method.consumes = unique([...controller.consumes, ...method.consumes]);
                 method.produces = unique([...controller.produces, ...method.produces]);
                 method.tags = unique([...controller.tags, ...method.tags]);
                 method.security = method.security || controller.security;
                 // todo: unique for objects
                 method.responses = unique([...controller.responses, ...method.responses]);
-                const pathObject: any = paths[fullPath];
-                pathObject[method.method] = this.buildPathMethod(method);
+
+                output[fullPath] = output[fullPath] || {};
+                output[fullPath][method.method] = this.buildMethod(method);
             });
         });
 
-        return paths;
+        return output;
     }
 
-    private buildPathMethod(method: Method) {
+    private buildMethod(method: Method) : OperationV2 {
         const output = this.buildOperation(method);
+        output.consumes = this.buildMethodConsumes(method);
+
         output.description = method.description;
         if (method.summary) {
             output.summary = method.summary;
@@ -278,8 +289,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         if (method.security) {
             output.security = method.security;
         }
-
-        this.handleMethodConsumes(method, output);
 
         const parameters = this.groupParameters(method.parameters);
 
@@ -472,25 +481,35 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return parameter;
     }
 
-    private handleMethodConsumes(method: Method, pathMethod: any) {
-        if (method.consumes.length) { pathMethod.consumes = method.consumes; }
-
-        if ((!pathMethod.consumes || !pathMethod.consumes.length)) {
-            if (method.parameters.some((p) => (p.in === 'formData' && p.type.typeName === 'file'))) {
-                pathMethod.consumes = pathMethod.consumes || [];
-                pathMethod.consumes.push('multipart/form-data');
-            } else if (this.hasFormParams(method)) {
-                pathMethod.consumes = pathMethod.consumes || [];
-                pathMethod.consumes.push('application/x-www-form-urlencoded');
-            } else if (this.supportsBodyParameters(method.method)) {
-                pathMethod.consumes = pathMethod.consumes || [];
-                pathMethod.consumes.push('application/json');
-            }
+    private buildMethodConsumes(method: Method) : string[] {
+        if (
+            method.consumes &&
+            method.consumes.length > 0
+        ) {
+            return method.consumes;
         }
+
+        if (this.hasFileParams(method)) {
+            return ['multipart/form-data'];
+        }
+
+        if (this.hasFormParams(method)) {
+            return ['application/x-www-form-urlencoded'];
+        }
+
+        if (this.supportsBodyParameters(method.method)) {
+            return ['application/json'];
+        }
+
+        return [];
+    }
+
+    private hasFileParams(method: Method) {
+        return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA && p.type.typeName === 'file'));
     }
 
     private hasFormParams(method: Method) {
-        return method.parameters.find((p) => (p.in === 'formData'));
+        return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA));
     }
 
     private supportsBodyParameters(method: string) {
@@ -609,6 +628,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         ) {
             return 'application/octet-stream';
         }
+
         return 'text/html';
     }
 }

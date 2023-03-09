@@ -8,7 +8,8 @@
 import type {
     EnumType,
     IntersectionType,
-    Method, NestedObjectLiteralType,
+    Method,
+    NestedObjectLiteralType,
     Parameter,
     ReferenceType,
     ResolverProperty,
@@ -17,9 +18,7 @@ import type {
 } from '@trapi/metadata';
 import { ParameterSource, isVoidType } from '@trapi/metadata';
 import { URL } from 'node:url';
-import { isObject, merge } from 'smob';
-import type { SecurityDefinition, SecurityDefinitions } from '../../type';
-import { normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter } from '../../utils';
+import { merge } from 'smob';
 import type {
     DataFormat,
     DataType,
@@ -37,6 +36,8 @@ import type {
     SpecV3,
 } from '../../schema';
 import { ParameterSourceV3 } from '../../schema';
+import type { SecurityDefinition, SecurityDefinitions } from '../../type';
+import { normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
 export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
@@ -86,55 +87,52 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private static translateSecurityDefinitions(
         securityDefinitions: SecurityDefinitions,
     ) : Record<string, SecurityV3> {
-        const security : Record<string, SecurityV3> = {};
+        const output : Record<string, SecurityV3> = {};
 
-        // tslint:disable-next-line:forin
         const keys = Object.keys(securityDefinitions);
         for (let i = 0; i < keys.length; i++) {
             const securityDefinition : SecurityDefinition = securityDefinitions[keys[i]];
 
             switch (securityDefinition.type) {
                 case 'http':
-                    security[keys[i]] = securityDefinition;
+                    output[keys[i]] = securityDefinition;
                     break;
                 case 'oauth2':
-                    security[keys[i]] = securityDefinition;
+                    output[keys[i]] = securityDefinition;
                     break;
                 case 'apiKey':
-                    security[keys[i]] = securityDefinition;
+                    output[keys[i]] = securityDefinition;
                     break;
             }
         }
 
-        return security;
+        return output;
     }
 
     private buildPaths() {
-        const paths: { [pathName: string]: Path<OperationV3, ParameterV3> } = {};
+        const output: Record<string, Path<OperationV3, ParameterV3>> = {};
 
-        this.metadata.controllers.forEach((controller) => {
-            // construct documentation using all methods except @Hidden
-            controller.methods
-                .filter((method) => !method.hidden)
-                .forEach((method) => {
-                    let path = removeFinalCharacter(
-                        removeDuplicateSlashes(`/${controller.path}/${method.path}`),
-                        '/',
-                    );
-                    path = normalizePathParameters(path);
-                    paths[path] = paths[path] || {};
-                    this.buildMethod(controller.name, method, paths[path]);
-                });
-        });
+        for (let i = 0; i < this.metadata.controllers.length; i++) {
+            const controller = this.metadata.controllers[i];
+            for (let j = 0; j < controller.methods.length; j++) {
+                const method = controller.methods[j];
+                if (method.hidden) {
+                    continue;
+                }
 
-        return paths;
+                let path = removeFinalCharacter(removeDuplicateSlashes(`/${controller.path}/${method.path}`), '/');
+                path = normalizePathParameters(path);
+
+                output[path] = output[path] || {};
+                output[path][method.method] = this.buildMethod(controller.name, method);
+            }
+        }
+
+        return output;
     }
 
-    private buildMethod(controllerName: string, method: Method, pathObject: any) {
+    private buildMethod(controllerName: string, method: Method) : OperationV3 {
         const output = this.buildOperation(controllerName, method);
-        if (isObject(pathObject)) {
-            pathObject[method.method] = output;
-        }
 
         output.description = method.description;
         output.summary = method.summary;
@@ -210,6 +208,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (let i = 0; i < method.extensions.length; i++) {
             output[method.extensions[i].key] = method.extensions[i].value;
         }
+
+        return output;
     }
 
     private buildRequestBodyWithFormData(parameters: Parameter[]): RequestBodyV3 {
@@ -255,40 +255,43 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     private buildMediaType(parameter: Parameter): MediaTypeV3 {
-        const mediaType: MediaTypeV3 = {
+        return {
             schema: this.getSwaggerType(parameter.type),
+            examples: this.transformParameterExamples(parameter),
         };
-
-        this.buildFromParameterExamples(mediaType, parameter);
-
-        return mediaType;
     }
 
-    protected buildOperation(controllerName: string, method: Method): OperationV3 {
-        const swaggerResponses: { [name: string]: ResponseV3 } = {};
+    protected buildResponses(input: Response[]) : Record<string, ResponseV3> {
+        const output: Record<string, ResponseV3> = {};
 
-        method.responses.forEach((res: Response) => {
-            const name : string = res.status ?? 'default';
-            // no string key
-            swaggerResponses[name] = {
+        for (let i = 0; i < input.length; i++) {
+            const res = input[i];
+            const name : string = res.status || 'default';
+            output[name] = {
                 description: res.description,
             };
 
             if (res.schema && !isVoidType(res.schema)) {
                 const contentKey = 'application/json';
-                swaggerResponses[name].content = {
-                    [contentKey]: {
-                        schema: this.getSwaggerType(res.schema) as SchemaV3,
-                    } as SchemaV3,
-                };
 
-                if (res.examples) {
-                    swaggerResponses[name].content[contentKey].examples = {
-                        default: {
-                            value: res.examples,
-                        },
-                    };
+                const examples : Record<string, Example> = {};
+                if (
+                    res.examples &&
+                    res.examples.length > 0
+                ) {
+                    for (let i = 0; i < res.examples.length; i++) {
+                        const label = res.examples[i].label || `example${i + 1}`;
+                        examples[label] = {
+                            value: res.examples[i].value,
+                        };
+                    }
                 }
+
+                output[name].content = output[name].content || {};
+                output[name].content[contentKey] = {
+                    schema: this.getSwaggerType(res.schema),
+                    examples,
+                };
             }
 
             if (res.headers) {
@@ -308,13 +311,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     });
                 }
 
-                swaggerResponses[res.name].headers = headers;
+                output[res.name].headers = headers;
             }
-        });
+        }
 
+        return output;
+    }
+
+    protected buildOperation(controllerName: string, method: Method): OperationV3 {
         const operation : OperationV3 = {
             operationId: this.getOperationId(method.name),
-            responses: swaggerResponses,
+            responses: this.buildResponses(method.responses),
         };
         if (method.description) {
             operation.description = method.description;
@@ -394,30 +401,26 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             parameter.schema.enum = parameterType.enum;
         }
 
-        this.buildFromParameterExamples(parameter, input);
+        parameter.examples = this.transformParameterExamples(input);
 
         return parameter;
     }
 
-    private buildFromParameterExamples(
-        parameter: ParameterV3 | MediaTypeV3,
-        sourceParameter: Parameter,
-    ) {
+    private transformParameterExamples(parameter: Parameter) : Record<string, Example> {
+        const output : Record<string, Example> = {};
         if (
-            (Array.isArray(sourceParameter.examples) && sourceParameter.examples.length === 1) ||
-            typeof sourceParameter.examples === 'undefined'
+            parameter.examples &&
+            parameter.examples.length > 0
         ) {
-            parameter.example = Array.isArray(sourceParameter.examples) &&
-            sourceParameter.examples.length === 1 ?
-                sourceParameter.examples[0] :
-                undefined;
-        } else {
-            parameter.examples = {};
-            sourceParameter.examples.forEach((example, index) => Object.assign(parameter.examples, {
-                [`Example ${index + 1}`]: { value: example } as Example,
-            }));
+            for (let i = 0; i < parameter.examples.length; i++) {
+                const label = parameter.examples[i].label || `example${i + 1}`;
+                output[label] = {
+                    value: parameter.examples[i].value,
+                };
+            }
         }
-        return parameter;
+
+        return output;
     }
 
     private buildServers() : ServerV3[] {

@@ -7,6 +7,7 @@
 
 import type { Validator } from '../../type';
 import type { ArrayType, TypeVariant } from '../../resolver';
+import type { Example } from '../type';
 import type { CollectionFormat, ParameterSource } from './constants';
 
 export interface Parameter {
@@ -23,7 +24,7 @@ export interface Parameter {
     minItems?: number;
     deprecated?: boolean;
 
-    examples?: unknown[];
+    examples?: Example[];
     exampleLabels?: string[],
     validators?: Record<string, Validator>;
 }

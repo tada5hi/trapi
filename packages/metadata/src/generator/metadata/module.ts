@@ -26,6 +26,7 @@ import type { Options } from '../../config';
 import { DecoratorID, DecoratorResolver } from '../../decorator';
 import { TypeNodeResolver } from '../../resolver';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
+import { getNodeDecorators } from '../../utils';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
 import { CacheDriver } from '../../cache';
@@ -223,10 +224,14 @@ export class MetadataGenerator {
             .filter((node) => node.kind === SyntaxKind.ClassDeclaration)
             .filter((node) => {
                 const isHidden = this.decoratorResolver.match(DecoratorID.HIDDEN, node);
+                if (isHidden) {
+                    return false;
+                }
 
-                return typeof isHidden === 'undefined';
+                const isController = this.decoratorResolver.match(DecoratorID.CLASS_PATH, node);
+
+                return !!isController;
             })
-            .filter((node) => typeof this.decoratorResolver.match(DecoratorID.CLASS_PATH, node) !== 'undefined')
             .map((classDeclaration: ClassDeclaration) => new ControllerGenerator(classDeclaration, this))
             .filter((generator) => generator.isValid())
             .map((generator) => generator.generate());

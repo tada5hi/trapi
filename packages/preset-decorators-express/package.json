@@ -25,7 +25,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/preset-swagger": "^0.1.0-alpha.2"
+        "@trapi/decorators": "^1.0.0-alpha.2"
     },
     "devDependencies": {
         "@trapi/metadata": "^1.0.0-alpha.2"

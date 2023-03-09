@@ -3,8 +3,8 @@
     "compilerOptions": {
         "experimentalDecorators": true,
         "paths": {
-            "@trapi/preset-built-in": [
-                "./packages/preset-built-in/src"
+            "@trapi/decorators": [
+                "./packages/decorators/src"
             ]
         }
     }

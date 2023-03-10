@@ -16,7 +16,7 @@ const metadata = require('@trapi/metadata');
     const output = await metadata.generateMetadata({
         entryPoint: [{ pattern: './test/data/preset/typescript-rest/api.ts', cwd: path.join(process.cwd(), '..', 'metadata') }],
         cache: false,
-        preset: '@trapi/preset-typescript-rest',
+        preset: '@trapi/decorators',
     });
 
     await fs.promises.writeFile(

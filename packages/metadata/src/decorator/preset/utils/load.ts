@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty, load } from 'locter';
+import { getModuleExport, load } from 'locter';
 import type { DecoratorConfig } from '../../type';
 import { isPresetSchema } from './check';
 import { generatePresetLookupPaths } from './normalize';
@@ -18,10 +18,7 @@ export async function loadPreset(input: string) : Promise<DecoratorConfig[]> {
 
     for (let i = 0; i < lookupPaths.length; i++) {
         try {
-            let content = await load(lookupPaths[i]);
-            if (hasOwnProperty(content, 'default')) {
-                content = content.default;
-            }
+            const { value: content } = getModuleExport(await load(lookupPaths[i]));
 
             if (isPresetSchema(content)) {
                 items.push(...content.items);

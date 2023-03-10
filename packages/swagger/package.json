@@ -39,7 +39,7 @@
         "@types/yamljs": "^0.2.31",
         "jest": "^27.5.1",
         "jsonata": "^2.0.2",
-        "locter": "^1.0.7"
+        "locter": "^1.0.9"
     },
     "dependencies": {
         "@trapi/metadata": "^1.0.0-alpha.2",

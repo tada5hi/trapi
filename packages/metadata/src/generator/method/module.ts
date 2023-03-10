@@ -186,7 +186,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             return type;
         }
 
-        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return type;
         }
@@ -205,7 +205,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
     }
 
     private getResponseExamples() : Example[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_EXAMPLE, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.EXAMPLE, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }

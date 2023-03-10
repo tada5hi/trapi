@@ -22,14 +22,14 @@ export type DecoratorResponseExampleProperties = {
 };
 export type DecoratorResponseProducesProperties = DecoratorPropertyValueSchema<string[]>;
 
-export type DecoratorResponseSetID = `${DecoratorID.RESPONSE_DESCRIPTION}` |
-    `${DecoratorID.RESPONSE_EXAMPLE}` |
-    `${DecoratorID.RESPONSE_PRODUCES}`;
+export type DecoratorResponseSetID = `${DecoratorID.DESCRIPTION}` |
+    `${DecoratorID.EXAMPLE}` |
+    `${DecoratorID.PRODUCES}`;
 export type DecoratorResponseSetProperties<T extends DecoratorResponseSetID> =
-    T extends `${DecoratorID.RESPONSE_DESCRIPTION}` ?
+    T extends `${DecoratorID.DESCRIPTION}` ?
         DecoratorResponseDescriptionProperties :
-        T extends `${DecoratorID.RESPONSE_EXAMPLE}` ?
+        T extends `${DecoratorID.EXAMPLE}` ?
             DecoratorResponseExampleProperties :
-            T extends `${DecoratorID.RESPONSE_PRODUCES}` ?
+            T extends `${DecoratorID.PRODUCES}` ?
                 DecoratorResponseProducesProperties :
                 never;

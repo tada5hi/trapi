@@ -10,12 +10,12 @@ import type { DecoratorPropertyValueSchema } from './type';
 
 export type DecoratorRequestConsumesProperties = DecoratorPropertyValueSchema<string[]>;
 
-export type DecoratorRequestSetID = `${DecoratorID.REQUEST_ACCEPT}` |
-    `${DecoratorID.REQUEST_CONSUMES}`;
+export type DecoratorRequestSetID = `${DecoratorID.ACCEPT}` |
+    `${DecoratorID.CONSUMES}`;
 
 export type DecoratorRequestSetProperties<T extends DecoratorRequestSetID> =
-    T extends `${DecoratorID.REQUEST_ACCEPT}` ?
+    T extends `${DecoratorID.ACCEPT}` ?
         never :
-        T extends `${DecoratorID.REQUEST_CONSUMES}` ?
+        T extends `${DecoratorID.CONSUMES}` ?
             DecoratorRequestConsumesProperties :
             never;

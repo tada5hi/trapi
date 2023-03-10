@@ -19,7 +19,7 @@ export default {
             },
         },
         {
-            id: DecoratorID.RESPONSE_DESCRIPTION,
+            id: DecoratorID.DESCRIPTION,
             name: 'Description',
             properties: {
                 type: { isType: true },
@@ -29,7 +29,7 @@ export default {
             },
         },
         {
-            id: DecoratorID.RESPONSE_EXAMPLE,
+            id: DecoratorID.EXAMPLE,
             name: 'Example',
             properties: {
                 type: { isType: true },

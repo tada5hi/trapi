@@ -14,8 +14,8 @@ import {
 } from '../../../src';
 
 describe('src/decorator/property/index.ts', () => {
-    const swaggerTagsRepresentation : DecoratorConfig<`${DecoratorID.SWAGGER_TAGS}`> = {
-        id: `${DecoratorID.SWAGGER_TAGS}`,
+    const swaggerTagsRepresentation : DecoratorConfig<`${DecoratorID.TAGS}`> = {
+        id: `${DecoratorID.TAGS}`,
         name: 'SwaggerTags',
         properties: {
             value: {
@@ -36,8 +36,8 @@ describe('src/decorator/property/index.ts', () => {
 
     // ----------------------------------------------------------------------------------
 
-    const responseExampleRepresentation : DecoratorConfig<`${DecoratorID.RESPONSE_EXAMPLE}`> = {
-        id: `${DecoratorID.RESPONSE_EXAMPLE}`,
+    const responseExampleRepresentation : DecoratorConfig<`${DecoratorID.EXAMPLE}`> = {
+        id: `${DecoratorID.EXAMPLE}`,
         name: 'ResponseExample',
         properties: {
             type: {

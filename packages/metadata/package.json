@@ -13,7 +13,8 @@
         "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
         "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
         "test:coverage": "npm run test -- --coverage",
-        "preblushOnly": "npm run build"
+        "preblushOnly": "npm run build",
+        "generate": "node ./bin/generate.js"
     },
     "keywords": [
         "typescript",
@@ -45,7 +46,7 @@
         "typescript": "^4.9.5"
     },
     "dependencies": {
-        "locter": "^1.0.7",
+        "locter": "^1.0.9",
         "minimatch": "^7.4.2"
     },
     "peerDependencies": {

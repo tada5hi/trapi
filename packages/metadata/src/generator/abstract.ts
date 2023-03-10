@@ -101,7 +101,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     protected buildResponses(): Response[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_DESCRIPTION, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.DESCRIPTION, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -139,7 +139,7 @@ export abstract class AbstractGenerator<T extends Node> {
     // -------------------------------------------
 
     public getProduces() : string[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.RESPONSE_PRODUCES, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.PRODUCES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -153,7 +153,7 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getConsumes() : string[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.REQUEST_CONSUMES, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.CONSUMES, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }
@@ -169,7 +169,7 @@ export abstract class AbstractGenerator<T extends Node> {
     }
 
     public getTags() : string[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.SWAGGER_TAGS, this.node);
+        const representation = this.current.decoratorResolver.match(DecoratorID.TAGS, this.node);
         if (typeof representation === 'undefined') {
             return [];
         }

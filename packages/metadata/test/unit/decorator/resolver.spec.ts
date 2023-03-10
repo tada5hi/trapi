@@ -11,13 +11,13 @@ import { DecoratorID, DecoratorPropertyManager, DecoratorResolver } from '../../
 describe('src/decorator/mapper/index.ts', () => {
     const decorators : NodeDecorator[] = [
         { text: 'foo', arguments: [], typeArguments: [] },
-        { text: 'SwaggerTags', arguments: [], typeArguments: [] },
+        { text: 'Tags', arguments: [], typeArguments: [] },
     ];
 
     const decoratorsWithResponseExample : NodeDecorator[] = [
         ...decorators,
         {
-            text: 'ResponseExample',
+            text: 'Example',
             arguments: [],
             typeArguments: [],
         },
@@ -26,38 +26,38 @@ describe('src/decorator/mapper/index.ts', () => {
     const mapper = new DecoratorResolver();
 
     it('should not match', () => {
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, [])).toBeUndefined();
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, decorators)).toBeUndefined();
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, decoratorsWithResponseExample)).toBeUndefined();
-        expect(mapper.match(DecoratorID.SWAGGER_TAGS, decorators)).toBeUndefined();
+        expect(mapper.match(DecoratorID.EXAMPLE, [])).toBeUndefined();
+        expect(mapper.match(DecoratorID.EXAMPLE, decorators)).toBeUndefined();
+        expect(mapper.match(DecoratorID.EXAMPLE, decoratorsWithResponseExample)).toBeUndefined();
+        expect(mapper.match(DecoratorID.TAGS, decorators)).toBeUndefined();
     });
 
     it('should work with preset swagger', async () => {
-        await mapper.applyPreset('@trapi/preset-swagger');
+        await mapper.applyPreset('@trapi/decorators');
 
-        expect(mapper.match(DecoratorID.SWAGGER_TAGS, decorators)).toBeDefined();
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, decorators)).toBeUndefined();
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, decoratorsWithResponseExample)).toBeDefined();
+        expect(mapper.match(DecoratorID.TAGS, decorators)).toBeDefined();
+        expect(mapper.match(DecoratorID.EXAMPLE, decorators)).toBeUndefined();
+        expect(mapper.match(DecoratorID.EXAMPLE, decoratorsWithResponseExample)).toBeDefined();
     });
 
     it('should work with preset typescript-rest', async () => {
         const data = [...decorators, { text: 'Example', arguments: [], typeArguments: [] }];
 
-        await mapper.applyPreset('@trapi/preset-typescript-rest');
-        expect(mapper.match(DecoratorID.RESPONSE_EXAMPLE, data)).toBeDefined();
+        await mapper.applyPreset('@trapi/decorators');
+        expect(mapper.match(DecoratorID.EXAMPLE, data)).toBeDefined();
     });
 
     it('should match', () => {
         mapper.apply([{
-            id: DecoratorID.SWAGGER_TAGS,
-            name: 'SwaggerTags',
+            id: DecoratorID.TAGS,
+            name: 'Tags',
             properties: {
                 value: {},
             },
         },
         ]);
 
-        const match = mapper.match(DecoratorID.SWAGGER_TAGS, decorators);
+        const match = mapper.match(DecoratorID.TAGS, decorators);
 
         expect(match).toBeDefined();
         expect(match).toBeInstanceOf(DecoratorPropertyManager);

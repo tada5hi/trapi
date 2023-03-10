@@ -6,20 +6,20 @@
  */
 
 export enum DecoratorID {
-    SWAGGER_TAGS = 'swaggerTags',
     CLASS_PATH = 'classPath',
 
-    RESPONSE_DESCRIPTION = 'responseDescription',
-    RESPONSE_EXAMPLE = 'responseExample',
-    RESPONSE_PRODUCES = 'responseProduces',
+    DESCRIPTION = 'description',
+    EXAMPLE = 'example',
+    PRODUCES = 'produces',
 
-    REQUEST_ACCEPT = 'requestAccept',
-    REQUEST_CONSUMES = 'requestConsumes',
+    ACCEPT = 'requestAccept',
+    CONSUMES = 'requestConsumes',
 
     DEPRECATED = 'deprecated',
     EXTENSION = 'extension',
     HIDDEN = 'hidden',
     SECURITY = 'security',
+    TAGS = 'tags',
 
     METHOD_PATH = 'methodPath',
 

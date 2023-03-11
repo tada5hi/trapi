@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.4...@trapi/swagger@1.0.0-alpha.5) (2023-03-11)
+
+
+### Bug Fixes
+
+* add missing config/options export ([d0d2b46](https://github.com/Tada5hi/trapi/commit/d0d2b468c49c58c6451094e815c80db08fc1ffc3))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.3...@trapi/swagger@1.0.0-alpha.4) (2023-03-11)
 
 

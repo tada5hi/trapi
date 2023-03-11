@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-typescript-rest",
-    "version": "1.0.0-alpha.3",
+    "version": "1.0.0-alpha.4",
     "description": "Preset for typescript-rest library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/decorators": "^1.0.0-alpha.3"
+        "@trapi/decorators": "^1.0.0-alpha.4"
     },
     "devDependencies": {
-        "@trapi/metadata": "^1.0.0-alpha.3"
+        "@trapi/metadata": "^1.0.0-alpha.4"
     },
     "peerDependencies": {
         "@trapi/metadata": "1.x || >=1.0.0-alpha.0"

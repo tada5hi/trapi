@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.3...@trapi/metadata@1.0.0-alpha.4) (2023-03-11)
+
+
+### Bug Fixes
+
+* export metadata check + few ts types ([a8d2905](https://github.com/Tada5hi/trapi/commit/a8d2905dc603e135f0ccfff7864dbe168a35a123))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.2...@trapi/metadata@1.0.0-alpha.3) (2023-03-11)
 
 

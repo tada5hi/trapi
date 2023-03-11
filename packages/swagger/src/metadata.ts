@@ -6,14 +6,20 @@
  */
 
 import {
+    DecoratorConfig,
+    DecoratorID,
     Metadata,
     Options as MetadataOptions,
+    PresetSchema,
     generateMetadata,
 } from '@trapi/metadata';
 
 import type { CacheOptions } from '@trapi/metadata';
 
 export {
+    DecoratorConfig,
+    DecoratorID,
+
     // Utils
     generateMetadata,
 
@@ -22,4 +28,6 @@ export {
     // Types & Interfaces
     Metadata,
     MetadataOptions,
+
+    PresetSchema,
 };

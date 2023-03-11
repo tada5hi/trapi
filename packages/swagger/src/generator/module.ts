@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CompilerOptions } from '@trapi/metadata';
+import type { TsConfig } from '@trapi/metadata';
 import { generateMetadata, isMetadata } from '@trapi/metadata';
 import type { OptionsInput } from '../config';
 import { Version } from '../constants';
@@ -13,7 +13,7 @@ import type { SpecV2, SpecV3 } from '../schema';
 import { V2Generator } from './v2';
 import { V3Generator } from './v3';
 
-export async function buildMetadata(options: OptionsInput, tsConfig?: CompilerOptions) {
+export async function buildMetadata(options: OptionsInput, tsConfig?: TsConfig | string) {
     if (isMetadata(options.metadata)) {
         return options.metadata;
     }
@@ -24,7 +24,7 @@ export async function buildMetadata(options: OptionsInput, tsConfig?: CompilerOp
 export type DocumentationGenerationContext<V extends `${Version}`> = {
     version: V,
     options: OptionsInput,
-    tsConfig?: CompilerOptions
+    tsConfig?: TsConfig | string
 };
 
 type OutputSpec<V extends `${Version}`> = V extends `${Version.V2}` ?
@@ -34,7 +34,7 @@ type OutputSpec<V extends `${Version}`> = V extends `${Version.V2}` ?
 export async function generate<V extends `${Version}`>(
     context: DocumentationGenerationContext<V>,
 ): Promise<OutputSpec<V>> {
-    const metadata = await buildMetadata(context.options);
+    const metadata = await buildMetadata(context.options, context.tsConfig);
 
     switch (context.version) {
         case Version.V3: {

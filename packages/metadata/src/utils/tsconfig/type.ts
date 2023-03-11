@@ -12,7 +12,9 @@ export type TsconfigLoadContext = {
     name?: string
 };
 
+export type TsCompilerOptions = CompilerOptions;
+
 export type TsConfig = {
-    compilerOptions?: CompilerOptions,
+    compilerOptions?: TsCompilerOptions,
     [key: string]: any
 };

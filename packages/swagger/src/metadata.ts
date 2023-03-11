@@ -11,7 +11,10 @@ import {
     Metadata,
     Options as MetadataOptions,
     PresetSchema,
+    TsCompilerOptions,
+    TsConfig,
     generateMetadata,
+    isMetadata,
 } from '@trapi/metadata';
 
 import type { CacheOptions } from '@trapi/metadata';
@@ -22,6 +25,7 @@ export {
 
     // Utils
     generateMetadata,
+    isMetadata,
 
     CacheOptions,
 
@@ -30,4 +34,7 @@ export {
     MetadataOptions,
 
     PresetSchema,
+
+    TsCompilerOptions,
+    TsConfig,
 };

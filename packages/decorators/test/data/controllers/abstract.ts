@@ -5,12 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Controller, Get } from '../../../src';
+import { Controller, Get, Mount } from '../../../src';
 import { NamedEntity } from '../type';
 
-@Controller('abstract')
+@Controller()
+@Mount('abstract')
 export class AbstractEntityEndpoint {
-    @Get
+    @Get()
     public get(): NamedEntity {
         return new NamedEntity();
     }

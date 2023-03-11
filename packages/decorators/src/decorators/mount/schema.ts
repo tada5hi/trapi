@@ -8,10 +8,10 @@
 import { DecoratorID } from '@trapi/metadata';
 import type { DecoratorConfig } from '@trapi/metadata';
 
-export function buildMethodPathConfig() : DecoratorConfig {
+export function buildMountPathConfig() : DecoratorConfig {
     return {
-        id: DecoratorID.METHOD_PATH,
-        name: 'Method',
+        id: DecoratorID.MOUNT,
+        name: 'Mount',
         properties: {
             value: {},
         },

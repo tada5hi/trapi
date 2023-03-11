@@ -12,7 +12,7 @@ export default {
     extends: ['@trapi/preset-swagger'],
     items: [
         {
-            id: DecoratorID.CLASS_PATH,
+            id: DecoratorID.CONTROLLER,
             name: 'Controller',
             properties: {
                 value: {},
@@ -24,7 +24,7 @@ export default {
             name: 'All',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'All',
             properties: {
                 value: {},
@@ -35,7 +35,7 @@ export default {
             name: 'Delete',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Delete',
             properties: {
                 value: {},
@@ -46,7 +46,7 @@ export default {
             name: 'Get',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Get',
             properties: {
                 value: {},
@@ -57,7 +57,7 @@ export default {
             name: 'Head',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Head',
             properties: {
                 value: {},
@@ -68,7 +68,7 @@ export default {
             name: 'Options',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Options',
             properties: {
                 value: {},
@@ -79,7 +79,7 @@ export default {
             name: 'Patch',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Patch',
             properties: {
                 value: {},
@@ -90,7 +90,7 @@ export default {
             name: 'Post',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Post',
             properties: {
                 value: {},
@@ -101,7 +101,7 @@ export default {
             name: 'Put',
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Put',
             properties: {
                 value: {},

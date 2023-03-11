@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Options(target: any, propertyKey: string) {
-
+export function Options(path?: string) {
+    return (...args) => {};
 }

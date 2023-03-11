@@ -8,8 +8,8 @@
 import type { PresetSchema } from '@trapi/metadata';
 import {
     buildAcceptConfig,
-    buildClassPathConfig,
     buildConsumesConfig,
+    buildControllerConfig,
     buildCookieConfig,
     buildCookiesConfig,
     buildDeprecatedConfig,
@@ -33,9 +33,9 @@ import {
     buildMethodHeadConfig,
     buildMethodOptionsConfig,
     buildMethodPatchConfig,
-    buildMethodPathConfig,
     buildMethodPostConfig,
     buildMethodPutConfig,
+    buildMountPathConfig,
     buildParamConfig,
     buildPathParamConfig,
     buildPathParamsConfig,
@@ -50,7 +50,7 @@ export const schema = {
     extends: [],
     items: [
         buildAcceptConfig(),
-        buildClassPathConfig(),
+        buildControllerConfig(),
         buildConsumesConfig(),
         buildDeprecatedConfig(),
         buildDescriptionConfig(),
@@ -63,7 +63,7 @@ export const schema = {
         buildMethodHeadConfig(),
         buildMethodOptionsConfig(),
         buildMethodPatchConfig(),
-        buildMethodPathConfig(),
+        buildMountPathConfig(),
         buildMethodPostConfig(),
         buildMethodPutConfig(),
         buildParamConfig(),

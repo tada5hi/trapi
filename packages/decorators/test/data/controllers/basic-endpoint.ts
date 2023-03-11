@@ -6,7 +6,7 @@
  */
 
 import {
-    Delete, Get, Method, PathParam, Post, Put, QueryParam,
+    Delete, Get, Mount, PathParam, Post, Put, QueryParam,
 } from '../../../src';
 import type * as Return from '../return-types';
 import type { BasicModel } from '../type';
@@ -18,31 +18,31 @@ export class BasicEndpoint<T extends BasicModel> {
         });
     }
 
-    @Post
+    @Post()
     protected save(entity: T): Promise<Return.NewResource<number>> {
         return new Promise((resolve, reject) => {
             // todo
         });
     }
 
-    @Put
-    @Method('/:id')
+    @Put()
+    @Mount('/:id')
     protected update(@PathParam('id') id: number, entity: T): Promise<void> {
         return new Promise((resolve, reject) => {
             // todo
         });
     }
 
-    @Delete
-    @Method('/:id')
+    @Delete()
+    @Mount('/:id')
     protected remove(@PathParam('id') id: string): Promise<void> {
         return new Promise((resolve, reject) => {
             // todo
         });
     }
 
-    @Get
-    @Method('/:id')
+    @Get()
+    @Mount('/:id')
     protected get(@PathParam('id') id: string): Promise<T> {
         return new Promise((resolve, reject) => {
             // todo

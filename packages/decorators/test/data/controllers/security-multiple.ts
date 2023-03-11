@@ -6,15 +6,16 @@
  */
 
 import {
-    Controller, Get, Security,
+    Controller, Get, Mount, Security,
 } from '../../../src';
 
-@Controller('supersecure')
+@Controller()
+@Mount('supersecure')
 @Security('access_token')
 @Security('user_email')
 @Security()
 export class SuperSecureEndpoint {
-    @Get
+    @Get()
     public get(): string {
         return 'Access Granted';
     }

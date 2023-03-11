@@ -5,8 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ClassDeclaration, MethodDeclaration } from 'typescript';
-import { SyntaxKind } from 'typescript';
+import type { ClassDeclaration } from 'typescript';
+import { isMethodDeclaration } from 'typescript';
 import { DecoratorID } from '../../decorator';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
@@ -15,18 +15,18 @@ import type { MetadataGenerator } from '../metadata';
 import type { Controller } from './type';
 
 export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
-    private genMethods: Set<string> = new Set<string>();
-
-    // --------------------------------------------------------------------
-
+    // eslint-disable-next-line no-useless-constructor,@typescript-eslint/no-useless-constructor
     constructor(node: ClassDeclaration, current: MetadataGenerator) {
         super(node, current);
-
-        this.generatePath(DecoratorID.CLASS_PATH);
     }
 
-    public isValid() {
-        return !!this.path || this.path === '';
+    public isValid() : boolean {
+        const isController = this.current.decoratorResolver.match(
+            DecoratorID.CONTROLLER,
+            this.node,
+        );
+
+        return !!isController;
     }
 
     public generate(): Controller {
@@ -35,16 +35,19 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
 
         const sourceFile = this.node.parent.getSourceFile();
 
+        const path = this.buildPath();
+
         return {
             consumes: this.getConsumes(),
+            hidden: this.isHidden(this.node),
             location: sourceFile.fileName,
-            methods: this.buildMethods(),
             name: this.getCurrentLocation(),
-            path: this.path || '',
+            path,
             produces: this.getProduces(),
             responses: this.buildResponses(),
             security: this.getSecurity(),
             tags: this.getTags(),
+            methods: this.buildMethods(path),
         };
     }
 
@@ -52,18 +55,28 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
         return (this.node as ClassDeclaration).name.text;
     }
 
-    private buildMethods() : Method[] {
-        return this.node.members
-            .filter((method: { kind: unknown; }) => (method.kind === SyntaxKind.MethodDeclaration))
-            .filter((method: MethodDeclaration) => !this.isHidden(method))
-            .map((method: MethodDeclaration) => new MethodGenerator(method, this.current, this.path || ''))
-            .filter((generator: MethodGenerator) => {
-                if (generator.isValid() && !this.genMethods.has(generator.getMethodName())) {
-                    this.genMethods.add(generator.getMethodName());
-                    return true;
-                }
-                return false;
-            })
-            .map((generator: MethodGenerator) => generator.generate());
+    protected buildMethods(controllerPath: string) : Method[] {
+        const set = new Set<string>();
+        const output : Method[] = [];
+
+        for (let i = 0; i < this.node.members.length; i++) {
+            const node = this.node.members[i];
+
+            if (!isMethodDeclaration(node) || this.isHidden(node)) {
+                continue;
+            }
+
+            const generator = new MethodGenerator(node, this.current);
+            const methodName = generator.getMethodName();
+            if (set.has(methodName) || !generator.isValid()) {
+                continue;
+            }
+
+            set.add(methodName);
+
+            output.push(generator.generate(controllerPath));
+        }
+
+        return output;
     }
 }

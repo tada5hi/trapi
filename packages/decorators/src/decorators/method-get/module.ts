@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Get(target: any, propertyKey: string) {
-
+export function Get(path?: string) {
+    return (...args) => {};
 }

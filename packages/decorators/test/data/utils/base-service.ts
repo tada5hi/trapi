@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Delete, Method, PathParam } from '../../../src';
+import { Delete, Mount, PathParam } from '../../../src';
 
 export class BaseService {
-    @Delete
-    @Method(':id')
+    @Delete()
+    @Mount(':id')
     public testDelete(@PathParam('id') id: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             resolve();

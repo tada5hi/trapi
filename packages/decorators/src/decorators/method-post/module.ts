@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Post(target: any, propertyKey: string) {
-
+export function Post(path?: string) {
+    return (...args) => {};
 }

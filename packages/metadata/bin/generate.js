@@ -10,6 +10,8 @@ const fs = require('node:fs');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('node:path');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const process = require('node:process');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const metadata = require('@trapi/metadata');
 
 (async () => {
@@ -22,8 +24,16 @@ const metadata = require('@trapi/metadata');
         preset: '@trapi/decorators',
     });
 
+    const args = process.argv.splice(2);
+    if (args[0] === 'shared') {
+        await fs.promises.writeFile(
+            path.join(process.cwd(), '..', 'swagger', 'test', 'data', 'metadata.json'),
+            JSON.stringify(output, null, 2),
+        );
+    }
+
     await fs.promises.writeFile(
-        path.join(process.cwd(), '..', 'swagger', 'test', 'data', 'metadata.json'),
-        JSON.stringify(output, null, 4),
+        path.join(process.cwd(), 'writable', 'metadata.json'),
+        JSON.stringify(output, null, 2),
     );
 })();

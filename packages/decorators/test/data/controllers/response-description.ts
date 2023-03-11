@@ -9,22 +9,23 @@ import {
     Controller,
     Description,
     Get,
-    Method,
+    Mount,
 } from '../../../src';
 
-@Controller('response')
+@Controller()
+@Mount('response')
 @Description<string>(400, 'The request format was incorrect.')
 @Description<string>(500, 'There was an unexpected error.')
 export class ResponseController {
-    @Get
+    @Get()
     public get(): string {
         return '42';
     }
 
     @Description<string>(401, 'Unauthorized.')
     @Description<string>(502, 'Internal server error.')
-    @Get
-    @Method('/test')
+    @Get()
+    @Mount('/test')
     public test(): string {
         return 'OK';
     }

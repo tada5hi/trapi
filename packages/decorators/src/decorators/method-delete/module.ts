@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Delete(target: any, propertyKey: string) {
-
+export function Delete(path?: string) {
+    return (...args) => {};
 }

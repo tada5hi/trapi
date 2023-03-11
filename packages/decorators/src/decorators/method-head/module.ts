@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Head(target: any, propertyKey: string) {
-
+export function Head(path?: string) {
+    return (...args) => {};
 }

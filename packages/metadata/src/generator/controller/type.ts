@@ -9,6 +9,19 @@ import type { Method } from '../method';
 
 export interface Controller {
     /**
+     * Allowed Content-Types to pass
+     * data according the definition.
+     *
+     * i.e. ['application/json']
+     */
+    consumes: string[];
+
+    /**
+     * Is controller hidden, and should
+     * not be used/displayed in some scenarios.
+     */
+    hidden: boolean,
+    /**
      * File Location of the Controller.
      */
     location: string;
@@ -22,13 +35,7 @@ export interface Controller {
      * The relative URL Path, i.e /users
      */
     path: string;
-    /**
-     * Allowed Content-Types to pass
-     * data according the definition.
-     *
-     * i.e. ['application/json']
-     */
-    consumes: string[];
+
     /**
      * Possible Content-Types to receive
      * data according the definition.

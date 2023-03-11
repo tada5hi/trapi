@@ -6,7 +6,10 @@
  */
 
 import path from 'node:path';
-import * as ts from 'typescript';
+import { NodeBuilderFlags, isTypeNode } from 'typescript';
+import type {
+    ClassDeclaration, Identifier, MethodDeclaration, Node, TypeNode,
+} from 'typescript';
 import { DecoratorID } from '../../decorator';
 import type { BaseType } from '../../resolver';
 import { TypeNodeResolver, isVoidType } from '../../resolver';
@@ -20,44 +23,44 @@ import { ParameterGenerator, ParameterSource } from '../parameter';
 import type { Example, Response } from '../type';
 import type { Method, MethodType } from './type';
 
-export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
+export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
     private method: MethodType;
 
     // --------------------------------------------------------------------
 
     constructor(
-        node: ts.MethodDeclaration,
+        node: MethodDeclaration,
         current: MetadataGenerator,
-        private readonly controllerPath: string,
     ) {
         super(node, current);
-        this.processMethodDecorators();
+
+        this.determineVerb();
     }
 
     // --------------------------------------------------------------------
 
-    public isValid() {
-        return !!this.method;
+    public isValid() : boolean {
+        return typeof this.method !== 'undefined';
     }
 
     public getMethodName() {
-        const identifier = this.node.name as ts.Identifier;
+        const identifier = this.node.name as Identifier;
         return identifier.text;
     }
 
-    public generate(): Method {
-        if (!this.isValid()) { throw new Error('This isn\'t a valid controller method.'); }
-
+    public generate(controllerPath: string): Method {
         let nodeType = this.node.type;
         if (!nodeType) {
             const { typeChecker } = this.current;
             const signature = typeChecker.getSignatureFromDeclaration(this.node);
             const implicitType = typeChecker.getReturnTypeOfSignature(signature);
-            nodeType = typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
+            nodeType = typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
         }
 
         const type = new TypeNodeResolver(nodeType, this.current).resolve();
         const responses = this.mergeResponses(this.buildResponses(), this.buildResponse(type));
+
+        const methodPath = this.buildPath();
 
         return {
             // todo: implement extensions
@@ -67,29 +70,32 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
             extensions: [],
             hidden: this.isHidden(this.node),
             method: this.method,
-            name: (this.node.name as ts.Identifier).text,
-            parameters: this.buildParameters(),
-            path: this.path,
+            name: (this.node.name as Identifier).text,
+            path: methodPath,
             produces: this.getProduces(),
             responses,
             security: this.getSecurity(),
             summary: getJSDocTagComment(this.node, JSDocTagName.SUMMARY),
             tags: this.getTags(),
             type,
+            parameters: this.buildParameters(controllerPath, methodPath),
         };
     }
 
     protected getCurrentLocation() {
-        const methodId = this.node.name as ts.Identifier;
-        const controllerId = (this.node.parent as ts.ClassDeclaration).name as ts.Identifier;
+        const methodId = this.node.name as Identifier;
+        const controllerId = (this.node.parent as ClassDeclaration).name as Identifier;
         return `${controllerId.text}.${methodId.text}`;
     }
 
-    private buildParameters() {
-        const controllerId = (this.node.parent as ts.ClassDeclaration).name as ts.Identifier;
+    private buildParameters(
+        controllerPath: string,
+        methodPath: string,
+    ) {
+        const controllerId = (this.node.parent as ClassDeclaration).name as Identifier;
 
-        const methodId = this.node.name as ts.Identifier;
-        const methodPath = path.posix.join('/', this.controllerPath || '', this.path);
+        const methodId = this.node.name as Identifier;
+        const fullPath = path.posix.join('/', controllerPath, methodPath);
 
         const output : Parameter[] = [];
         let bodyParameterCount = 0;
@@ -100,7 +106,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
                 const generator = new ParameterGenerator(
                     this.node.parameters[i],
                     this.method,
-                    methodPath,
+                    fullPath,
                     this.current,
                 );
 
@@ -120,7 +126,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
                     }
                 }
             } catch (e) {
-                const parameterId = this.node.parameters[i].name as ts.Identifier;
+                const parameterId = this.node.parameters[i].name as Identifier;
                 throw new Error(`Parameter generation: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
             }
         }
@@ -136,7 +142,7 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         return output;
     }
 
-    private processMethodDecorators() {
+    private determineVerb() {
         const methods = [
             DecoratorID.ALL,
             DecoratorID.DELETE,
@@ -165,8 +171,6 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         }
 
         this.method = method.toLowerCase() as MethodType;
-
-        this.generatePath(DecoratorID.METHOD_PATH);
     }
 
     private buildResponse(type: BaseType): Response {
@@ -196,9 +200,9 @@ export class MethodGenerator extends AbstractGenerator<ts.MethodDeclaration> {
         if (
             typeof value !== 'undefined' &&
             hasOwnProperty(value, 'kind') &&
-            ts.isTypeNode(value as ts.Node)
+            isTypeNode(value as Node)
         ) {
-            type = new TypeNodeResolver(value as ts.TypeNode, this.current).resolve();
+            type = new TypeNodeResolver(value as TypeNode, this.current).resolve();
         }
 
         return type;

@@ -22,7 +22,7 @@ export type DecoratorMethodSetID = `${DecoratorID.ALL}` |
     `${DecoratorID.DELETE}` |
     `${DecoratorID.HEAD}` |
     `${DecoratorID.PATCH}` |
-    `${DecoratorID.METHOD_PATH}` |
+    `${DecoratorID.MOUNT}` |
     `${DecoratorID.POST}` |
     `${DecoratorID.PUT}` |
     `${DecoratorID.OPTIONS}`;
@@ -40,7 +40,7 @@ export type DecoratorMethodSetProperties<T extends DecoratorMethodSetID> =
                         DecoratorOptionsProperties :
                         T extends `${DecoratorID.PATCH}` ?
                             DecoratorPatchProperties :
-                            T extends `${DecoratorID.METHOD_PATH}` ?
+                            T extends `${DecoratorID.MOUNT}` ?
                                 DecoratorMethodPathProperties :
                                 T extends `${DecoratorID.POST}` ?
                                     DecoratorPostProperties :

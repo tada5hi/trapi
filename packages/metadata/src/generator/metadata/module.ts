@@ -7,29 +7,18 @@
 
 import minimatch from 'minimatch';
 import type {
-    ClassDeclaration,
-    InterfaceDeclaration,
-    Node,
-    Program,
-    SourceFile,
-    TypeChecker,
+    Node, Program, SourceFile, TypeChecker,
 } from 'typescript';
 import {
-    NodeFlags,
-    SyntaxKind,
-    createProgram,
-    forEachChild,
-    isModuleBlock,
-    isModuleDeclaration,
+    NodeFlags, createProgram, forEachChild, isClassDeclaration, isModuleBlock, isModuleDeclaration,
 } from 'typescript';
+import { CacheDriver } from '../../cache';
 import type { Options } from '../../config';
-import { DecoratorID, DecoratorResolver } from '../../decorator';
-import { TypeNodeResolver } from '../../resolver';
+import { DecoratorResolver } from '../../decorator';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
-import { getNodeDecorators } from '../../utils';
+import { TypeNodeResolver } from '../../resolver';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
-import { CacheDriver } from '../../cache';
 import type { Metadata, MetadataGeneratorContext } from './type';
 
 export class MetadataGenerator {
@@ -195,45 +184,21 @@ export class MetadataGenerator {
         this.circularDependencyResolvers.push(callback);
     }
 
-    public getClassDeclaration(className: string) {
-        const found = this.nodes
-            .filter((node) => {
-                const classDeclaration = (node as ClassDeclaration);
-                return (node.kind === SyntaxKind.ClassDeclaration && classDeclaration.name && classDeclaration.name.text === className);
-            });
-        if (found && found.length) {
-            return found[0];
-        }
-        return undefined;
-    }
-
-    public getInterfaceDeclaration(className: string) {
-        const found = this.nodes
-            .filter((node) => {
-                const interfaceDeclaration = (node as InterfaceDeclaration);
-                return (node.kind === SyntaxKind.InterfaceDeclaration && interfaceDeclaration.name && interfaceDeclaration.name.text === className);
-            });
-        if (found && found.length) {
-            return found[0];
-        }
-        return undefined;
-    }
-
     private buildControllers() : void {
-        this.controllers = this.nodes
-            .filter((node) => node.kind === SyntaxKind.ClassDeclaration)
-            .filter((node) => {
-                const isHidden = this.decoratorResolver.match(DecoratorID.HIDDEN, node);
-                if (isHidden) {
-                    return false;
-                }
+        this.controllers = [];
 
-                const isController = this.decoratorResolver.match(DecoratorID.CLASS_PATH, node);
+        for (let i = 0; i < this.nodes.length; i++) {
+            const node = this.nodes[i];
+            if (!isClassDeclaration(node)) {
+                continue;
+            }
 
-                return !!isController;
-            })
-            .map((classDeclaration: ClassDeclaration) => new ControllerGenerator(classDeclaration, this))
-            .filter((generator) => generator.isValid())
-            .map((generator) => generator.generate());
+            const generator = new ControllerGenerator(node, this);
+            if (!generator.isValid()) {
+                continue;
+            }
+
+            this.controllers.push(generator.generate());
+        }
     }
 }

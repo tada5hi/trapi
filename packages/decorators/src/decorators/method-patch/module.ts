@@ -5,6 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function Patch(target: any, propertyKey: string) {
-
+export function Patch(path?: string) {
+    return (...args) => {};
 }

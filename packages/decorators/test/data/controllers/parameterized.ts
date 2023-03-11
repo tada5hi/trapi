@@ -6,14 +6,15 @@
  */
 
 import {
-    Controller, Get, Method, PathParam,
+    Controller, Get, Mount, PathParam,
 } from '../../../src';
 import { PrimitiveClassModel } from '../type';
 
-@Controller('parameterized/:objectId')
+@Controller()
+@Mount('parameterized/:objectId')
 export class ParameterizedEndpoint {
-    @Method('/test')
-    @Get
+    @Mount('/test')
+    @Get()
     public test(@PathParam('objectId') objectId: string): PrimitiveClassModel {
         return new PrimitiveClassModel();
     }

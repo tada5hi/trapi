@@ -11,7 +11,7 @@ import {
     Example,
     FormParam,
     Get,
-    Method,
+    Mount,
     Post,
     QueryParam,
     Tags,
@@ -20,14 +20,15 @@ import {
     Person, TestEnum, TestInterface, TestMixedEnum, TestNumericEnum,
 } from '../type';
 
+@Controller()
 @Accept('text/plain')
-@Controller('mypath')
+@Mount('mypath')
 @Tags('My Services', 'Foo')
 export class MyService {
     @Description<string>('default', 'Error')
     @Description<string>(400, 'The request format was incorrect.')
     @Description<string>(500, 'There was an unexpected error.')
-    @Get
+    @Get()
     @Accept('text/html')
     public test(): string {
         return 'OK';
@@ -42,8 +43,8 @@ export class MyService {
      * @param test5
      * @param test6
      */
-    @Get
-    @Method('secondpath')
+    @Get()
+    @Mount('secondpath')
     @Example<Person>({
         name: 'Joe',
     })
@@ -60,7 +61,7 @@ export class MyService {
         return { name: 'OK' };
     }
 
-    @Post
+    @Post()
     @Example<Person[]>([{
         name: 'Joe',
     }])
@@ -68,14 +69,14 @@ export class MyService {
         return [];
     }
 
-    @Method('obj')
-    @Post
+    @Post()
+    @Mount('obj')
     public testPostObject(data: object) {
         return data;
     }
 
-    @Get
-    @Method('multi-query')
+    @Get()
+    @Mount('multi-query')
     public testMultiQuery(
     @QueryParam('id') ids: string[],
         @QueryParam('name', { collectionFormat: 'multi', allowEmptyValue: true }) names?: string | string[],
@@ -83,8 +84,8 @@ export class MyService {
         return { ids, names };
     }
 
-    @Get
-    @Method('default-query')
+    @Get()
+    @Mount('default-query')
     public testDefaultQuery(
         @QueryParam('num') num = 5,
         @QueryParam('str') str = 'default value',
@@ -95,14 +96,14 @@ export class MyService {
 
     }
 
-    @Post
-    @Method('test-compiler-options')
+    @Post()
+    @Mount('test-compiler-options')
     public async testCompilerOptions(payload: TestInterface): Promise<TestInterface> {
         return { a: 'string', b: 123 };
     }
 
-    @Post
-    @Method('test-form-param')
+    @Post()
+    @Mount('test-form-param')
     public testFormParam(@FormParam('id') id: string): string {
         return id;
     }

@@ -6,7 +6,7 @@
  */
 
 import {
-    Controller, Get, Method, PathParam,
+    Controller, Get, Mount, PathParam,
 } from '../../../src';
 import type { BasicModel } from '../type';
 import { BasicEndpoint } from './basic-endpoint';
@@ -15,10 +15,11 @@ export interface MyDatatype extends BasicModel {
     property1: string;
 }
 
-@Controller('generics1')
+@Controller()
+@Mount('generics1')
 export class DerivedEndpoint extends BasicEndpoint<MyDatatype> {
-    @Get
-    @Method(':param')
+    @Get()
+    @Mount(':param')
     protected test(@PathParam('param') param: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // content

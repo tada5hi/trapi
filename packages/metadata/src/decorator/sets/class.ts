@@ -11,10 +11,10 @@ import type { DecoratorPropertyValueSchema } from './type';
 export type DecoratorSwaggerTagsProperties = DecoratorPropertyValueSchema<string[]>;
 export type DecoratorClassPathProperties = DecoratorPropertyValueSchema<string>;
 
-export type DecoratorClassSetID = `${DecoratorID.TAGS}` | `${DecoratorID.CLASS_PATH}`;
+export type DecoratorClassSetID = `${DecoratorID.TAGS}` | `${DecoratorID.CONTROLLER}`;
 export type DecoratorClassSetProperties<T extends DecoratorClassSetID> =
     T extends `${DecoratorID.TAGS}` ?
         DecoratorSwaggerTagsProperties :
-        T extends `${DecoratorID.CLASS_PATH}` ?
+        T extends `${DecoratorID.CONTROLLER}` ?
             DecoratorClassPathProperties :
             never;

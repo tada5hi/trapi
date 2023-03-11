@@ -8,9 +8,9 @@
 import { DecoratorID } from '@trapi/metadata';
 import type { DecoratorConfig } from '@trapi/metadata';
 
-export function buildClassPathConfig(name?: string) : DecoratorConfig {
+export function buildControllerConfig(name?: string) : DecoratorConfig {
     return {
-        id: DecoratorID.CLASS_PATH,
+        id: DecoratorID.CONTROLLER,
         name: name || 'Controller',
         properties: {
             value: {},

@@ -6,7 +6,7 @@
  */
 
 export * from './accept';
-export * from './class-path';
+export * from './controller';
 export * from './consumes';
 export * from './deprecated';
 export * from './description';
@@ -19,7 +19,7 @@ export * from './method-get';
 export * from './method-head';
 export * from './method-options';
 export * from './method-patch';
-export * from './method-path';
+export * from './mount';
 export * from './method-post';
 export * from './method-put';
 export * from './param';

@@ -12,7 +12,7 @@ export default {
     extends: ['@trapi/preset-swagger'],
     items: [
         {
-            id: DecoratorID.CLASS_PATH,
+            id: DecoratorID.CONTROLLER,
             name: 'DController',
             properties: {
                 value: {},
@@ -24,7 +24,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DAll',
             properties: {
                 value: {},
@@ -36,7 +36,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DDelete',
             properties: {
                 value: {},
@@ -48,7 +48,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DHead',
             properties: {
                 value: {},
@@ -60,7 +60,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DOptions',
             properties: {
                 value: {},
@@ -72,7 +72,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DPatch',
             properties: {
                 value: {},
@@ -84,7 +84,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DPost',
             properties: {
                 value: {},
@@ -96,7 +96,7 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'DPut',
             properties: {
                 value: {},

@@ -6,7 +6,7 @@
  */
 
 export enum DecoratorID {
-    CLASS_PATH = 'classPath',
+    CONTROLLER = 'controller',
 
     DESCRIPTION = 'description',
     EXAMPLE = 'example',
@@ -21,7 +21,8 @@ export enum DecoratorID {
     SECURITY = 'security',
     TAGS = 'tags',
 
-    METHOD_PATH = 'methodPath',
+    // todo: rename to Mount
+    MOUNT = 'mount',
 
     ALL = 'all',
     GET = 'get',

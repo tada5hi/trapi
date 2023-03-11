@@ -12,7 +12,7 @@ export default {
     extends: ['@trapi/preset-swagger'],
     items: [
         {
-            id: DecoratorID.CLASS_PATH,
+            id: DecoratorID.CONTROLLER,
             name: 'Path',
             properties: {
                 value: {},
@@ -38,7 +38,7 @@ export default {
         },
 
         {
-            id: DecoratorID.METHOD_PATH,
+            id: DecoratorID.MOUNT,
             name: 'Path',
             properties: {
                 value: {},

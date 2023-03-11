@@ -5,12 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { Controller, Post } from '../../../src';
+import { Controller, Mount, Post } from '../../../src';
 import { MyTypeWithUnion } from '../type';
 
-@Controller('unionTypes')
+@Controller()
+@Mount('unionTypes')
 export class TestUnionType {
-    @Post
+    @Post()
     public post(body: MyTypeWithUnion): string {
         return '42';
     }

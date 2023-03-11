@@ -17,32 +17,29 @@ import {
 import type { MetadataGenerator } from './metadata';
 
 export abstract class AbstractGenerator<T extends Node> {
-    protected path: string | undefined;
-
     protected node: T;
+
+    protected current : MetadataGenerator;
 
     // -------------------------------------------
 
-    protected constructor(node: T, protected current: MetadataGenerator) {
+    protected constructor(node: T, current: MetadataGenerator) {
         this.node = node;
+        this.current = current;
     }
 
     // --------------------------------------------------------------------
 
-    protected generatePath(
-        key: `${DecoratorID.CLASS_PATH}` | `${DecoratorID.METHOD_PATH}`,
-    ) : void {
-        const values : string[] = [];
-
-        const representation = this.current.decoratorResolver.match(key, this.node);
+    protected buildPath() : string {
+        const representation = this.current.decoratorResolver.match(DecoratorID.MOUNT, this.node);
         if (typeof representation !== 'undefined') {
             const value = representation.get('value');
-            if (typeof value !== 'undefined') {
-                values.push(value);
+            if (typeof value === 'string') {
+                return normalizePath(value);
             }
         }
 
-        this.path = normalizePath(values.join('/'));
+        return '';
     }
 
     // -------------------------------------------

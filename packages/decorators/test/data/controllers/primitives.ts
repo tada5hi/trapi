@@ -7,39 +7,40 @@
 
 import {
     Controller,
-    Get, IsLong, Method, PathParam,
+    Get, IsLong, Mount, PathParam,
 } from '../../../src';
 import { PrimitiveClassModel, PrimitiveInterfaceModel, ResponseBody } from '../type';
 
-@Controller('primitives')
+@Controller()
+@Mount('primitives')
 export class PrimitiveEndpoint {
-    @Method('/class')
-    @Get
+    @Mount('/class')
+    @Get()
     public getClass(): PrimitiveClassModel {
         return new PrimitiveClassModel();
     }
 
-    @Method('/interface')
-    @Get
+    @Mount('/interface')
+    @Get()
     public testInterface(): PrimitiveInterfaceModel {
         return {};
     }
 
-    @Method(':id')
-    @Get
+    @Mount(':id')
+    @Get()
     public getById(@PathParam('id') @IsLong id: number) {
         // ...
     }
 
-    @Method('/arrayNative')
-    @Get
+    @Mount('/arrayNative')
+    @Get()
     // tslint:disable-next-line:array-type
     public getArrayNative(): ResponseBody<string[]> {
         return { data: ['hello', 'world'] };
     }
 
-    @Method('/array')
-    @Get
+    @Mount('/array')
+    @Get()
     public getArray(): ResponseBody<string[]> {
         return { data: ['hello', 'world'] };
     }

@@ -7,20 +7,21 @@
 
 import {
     Controller,
-    Get,
+    Get, Mount,
     Post,
     Security,
 } from '../../../src';
 
-@Controller('secure')
+@Controller()
+@Mount('secure')
 @Security(['ROLE_1', 'ROLE_2'], 'access_token')
 export class SecureEndpoint {
-    @Get
+    @Get()
     public get(): string {
         return 'Access Granted';
     }
 
-    @Post
+    @Post()
     @Security([], 'user_email')
     public post(): string {
         return 'Posted';

@@ -11,7 +11,7 @@ import type { DecoratorConfig } from '@trapi/metadata';
 export function buildHeaderConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.HEADER,
-        name: name || 'HeaderParam',
+        name: name || 'Header',
         properties: {
             value: {},
         },

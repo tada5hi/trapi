@@ -6,7 +6,7 @@
  */
 
 import {
-    Controller, Get, Mount, PathParam,
+    Controller, Get, Mount, Path,
 } from '../../../src';
 import type { MyDataType2, SimpleHelloType } from '../type';
 
@@ -15,7 +15,7 @@ import type { MyDataType2, SimpleHelloType } from '../type';
 export class TypeEndpoint {
     @Get()
     @Mount(':param')
-    public test(@PathParam('param') param: string): Promise<MyDataType2> {
+    public test(@Path('param') param: string): Promise<MyDataType2> {
         return new Promise<MyDataType2>((resolve, reject) => {
             // content
         });
@@ -23,7 +23,7 @@ export class TypeEndpoint {
 
     @Get()
     @Mount(':param/2')
-    public test2(@PathParam('param') param: string): Promise<SimpleHelloType> {
+    public test2(@Path('param') param: string): Promise<SimpleHelloType> {
         return new Promise<SimpleHelloType>((resolve, reject) => {
             // content
         });

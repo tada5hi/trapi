@@ -9,6 +9,6 @@ export function Query(name?: string) {
     return (...args) => {};
 }
 
-export function QueryParam(name: string, options?: Record<string, any>) {
+export function QueryProp(name: string, options?: Record<string, any>) {
     return (...args) => { };
 }

@@ -5,6 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function CookieParam(name: string) {
+export function Cookie(name: string) {
     return (...args) => { };
+}
+
+export function Cookies(name?: string) {
+
 }

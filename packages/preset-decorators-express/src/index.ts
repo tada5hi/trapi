@@ -9,7 +9,7 @@ import type { PresetSchema } from '@trapi/metadata';
 import { DecoratorID } from '@trapi/metadata';
 
 export default {
-    extends: ['@trapi/preset-swagger'],
+    extends: [],
     items: [
         {
             id: DecoratorID.CONTROLLER,
@@ -143,7 +143,7 @@ export default {
             },
         },
         {
-            id: DecoratorID.PATH_PARAMS,
+            id: DecoratorID.PATHS,
             name: 'Params',
             properties: {
                 value: {},

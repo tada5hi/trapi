@@ -45,10 +45,10 @@ export type DecoratorParameterSetID = `${DecoratorID.IS_INT}` |
     `${DecoratorID.HEADERS}` |
     `${DecoratorID.COOKIE}` |
     `${DecoratorID.COOKIES}` |
-    `${DecoratorID.PATH_PARAM}` |
-    `${DecoratorID.PATH_PARAMS}` |
-    `${DecoratorID.FILE_PARAM}` |
-    `${DecoratorID.FILES_PARAM}`;
+    `${DecoratorID.PATH}` |
+    `${DecoratorID.PATHS}` |
+    `${DecoratorID.FILE}` |
+    `${DecoratorID.FILES}`;
 
 export type DecoratorParameterSetProperties<T extends `${DecoratorID}`> =
     T extends `${DecoratorID.PARAM}` ?
@@ -69,12 +69,12 @@ export type DecoratorParameterSetProperties<T extends `${DecoratorID}`> =
                                     DecoratorCookieProperties :
                                     T extends `${DecoratorID.COOKIES}` ?
                                         DecoratorCookiesProperties :
-                                        T extends `${DecoratorID.PATH_PARAM}` ?
+                                        T extends `${DecoratorID.PATH}` ?
                                             DecoratorPathParamProperties :
-                                            T extends `${DecoratorID.PATH_PARAMS}` ?
+                                            T extends `${DecoratorID.PATHS}` ?
                                                 DecoratorPathParamsProperties :
-                                                T extends `${DecoratorID.FILE_PARAM}` ?
+                                                T extends `${DecoratorID.FILE}` ?
                                                     DecoratorFileProperties :
-                                                    T extends `${DecoratorID.FILES_PARAM}` ?
+                                                    T extends `${DecoratorID.FILES}` ?
                                                         DecoratorFilesParamProperties :
                                                         never;

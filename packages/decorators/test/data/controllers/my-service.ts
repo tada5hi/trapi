@@ -9,11 +9,11 @@ import {
     Accept, Controller,
     Description,
     Example,
-    FormParam,
+    FormProp,
     Get,
     Mount,
     Post,
-    QueryParam,
+    QueryProp,
     Tags,
 } from '../../../src';
 import {
@@ -50,13 +50,13 @@ export class MyService {
     })
     @Description<Person>(200, 'The success test.')
     public test2(
-        @QueryParam('testRequired') test: string,
+        @QueryProp('testRequired') test: string,
         // eslint-disable-next-line default-param-last
-            @QueryParam('testDefault') test2 = 'value',
-            @QueryParam('testOptional') test3?: string,
-            @QueryParam('testEnum') test4?: TestEnum,
-            @QueryParam('testNumericEnum') test5?: TestNumericEnum,
-            @QueryParam('testMixedEnum') test6?: TestMixedEnum,
+            @QueryProp('testDefault') test2 = 'value',
+            @QueryProp('testOptional') test3?: string,
+            @QueryProp('testEnum') test4?: TestEnum,
+            @QueryProp('testNumericEnum') test5?: TestNumericEnum,
+            @QueryProp('testMixedEnum') test6?: TestMixedEnum,
     ): Person {
         return { name: 'OK' };
     }
@@ -78,8 +78,8 @@ export class MyService {
     @Get()
     @Mount('multi-query')
     public testMultiQuery(
-    @QueryParam('id') ids: string[],
-        @QueryParam('name', { collectionFormat: 'multi', allowEmptyValue: true }) names?: string | string[],
+    @QueryProp('id') ids: string[],
+        @QueryProp('name', { collectionFormat: 'multi', allowEmptyValue: true }) names?: string | string[],
     ) {
         return { ids, names };
     }
@@ -87,11 +87,11 @@ export class MyService {
     @Get()
     @Mount('default-query')
     public testDefaultQuery(
-        @QueryParam('num') num = 5,
-        @QueryParam('str') str = 'default value',
-        @QueryParam('bool1') bool1 = true,
-        @QueryParam('bool2') bool2 = false,
-        @QueryParam('arr') arr: string[] = ['a', 'b', 'c'],
+        @QueryProp('num') num = 5,
+        @QueryProp('str') str = 'default value',
+        @QueryProp('bool1') bool1 = true,
+        @QueryProp('bool2') bool2 = false,
+        @QueryProp('arr') arr: string[] = ['a', 'b', 'c'],
     ) {
 
     }
@@ -104,7 +104,7 @@ export class MyService {
 
     @Post()
     @Mount('test-form-param')
-    public testFormParam(@FormParam('id') id: string): string {
+    public testFormParam(@FormProp('id') id: string): string {
         return id;
     }
 }

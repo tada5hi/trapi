@@ -6,7 +6,7 @@
  */
 
 import {
-    Controller, Get, Mount, PathParam,
+    Controller, Get, Mount, Path,
 } from '../../../src';
 import type { MyDataType2 } from '../type';
 
@@ -15,7 +15,7 @@ import type { MyDataType2 } from '../type';
 export class DerivedEndpoint2 {
     @Get()
     @Mount(':param')
-    protected test(@PathParam('param') param: string): Promise<MyDataType2> {
+    protected test(@Path('param') param: string): Promise<MyDataType2> {
         return new Promise<MyDataType2>((resolve, reject) => {
             // content
         });

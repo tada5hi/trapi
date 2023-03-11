@@ -7,7 +7,7 @@
 
 import {
     Controller,
-    Get, IsLong, Mount, PathParam,
+    Get, IsLong, Mount, Path,
 } from '../../../src';
 import { PrimitiveClassModel, PrimitiveInterfaceModel, ResponseBody } from '../type';
 
@@ -28,7 +28,7 @@ export class PrimitiveEndpoint {
 
     @Mount(':id')
     @Get()
-    public getById(@PathParam('id') @IsLong id: number) {
+    public getById(@Path('id') @IsLong id: number) {
         // ...
     }
 

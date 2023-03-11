@@ -38,10 +38,10 @@ const parameterKeys : `${DecoratorID}`[] = [
     DecoratorID.HEADERS,
     DecoratorID.COOKIE,
     DecoratorID.COOKIES,
-    DecoratorID.PATH_PARAM,
-    DecoratorID.PATH_PARAMS,
-    DecoratorID.FILE_PARAM,
-    DecoratorID.FILES_PARAM,
+    DecoratorID.PATH,
+    DecoratorID.PATHS,
+    DecoratorID.FILE,
+    DecoratorID.FILES,
 ];
 
 export class ParameterGenerator {
@@ -92,12 +92,12 @@ export class ParameterGenerator {
                 case DecoratorID.COOKIE:
                 case DecoratorID.COOKIES:
                     return this.getCookieParameter(manager as DecoratorPropertyManager<`${DecoratorID.COOKIE}`>);
-                case DecoratorID.PATH_PARAM:
-                case DecoratorID.PATH_PARAMS:
-                    return this.getPathParameter(manager as DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}`>);
-                case DecoratorID.FILE_PARAM:
-                case DecoratorID.FILES_PARAM:
-                    return this.getFileParameter(manager as DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}`>);
+                case DecoratorID.PATH:
+                case DecoratorID.PATHS:
+                    return this.getPathParameter(manager as DecoratorPropertyManager<`${DecoratorID.PATH}`>);
+                case DecoratorID.FILE:
+                case DecoratorID.FILES:
+                    return this.getFileParameter(manager as DecoratorPropertyManager<`${DecoratorID.FILE}`>);
             }
         }
 
@@ -171,7 +171,7 @@ export class ParameterGenerator {
     }
 
     private getFileParameter(
-        manager: DecoratorPropertyManager<`${DecoratorID.FILE_PARAM}` | `${DecoratorID.FILES_PARAM}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.FILE}` | `${DecoratorID.FILES}`>,
     ) : Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;
@@ -191,7 +191,7 @@ export class ParameterGenerator {
 
         const elementType: TypeVariant = { typeName: 'file' };
         let type: TypeVariant;
-        if (manager.representation.id === DecoratorID.FILES_PARAM) {
+        if (manager.representation.id === DecoratorID.FILES) {
             type = { typeName: 'array', elementType };
         } else {
             type = elementType;
@@ -501,7 +501,7 @@ export class ParameterGenerator {
     }
 
     private getPathParameter(
-        manager: DecoratorPropertyManager<`${DecoratorID.PATH_PARAM}` | `${DecoratorID.PATH_PARAMS}`>,
+        manager: DecoratorPropertyManager<`${DecoratorID.PATH}` | `${DecoratorID.PATHS}`>,
     ): Parameter[] {
         const parameterName = (this.parameter.name as ts.Identifier).text;
         let name = parameterName;

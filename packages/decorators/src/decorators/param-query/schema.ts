@@ -20,7 +20,7 @@ export function buildQueryConfig(name?: string) : DecoratorConfig {
 export function buildQueryPropConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.QUERY,
-        name: name || 'QueryParam',
+        name: name || 'QueryProp',
         properties: {
             value: {},
         },

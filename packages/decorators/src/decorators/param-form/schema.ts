@@ -11,7 +11,7 @@ import type { DecoratorConfig } from '@trapi/metadata';
 export function buildFormConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.FORM,
-        name: name || 'FormParam',
+        name: name || 'FormProp',
         properties: {
             value: {},
         },

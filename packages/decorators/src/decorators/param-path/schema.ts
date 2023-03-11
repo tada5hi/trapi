@@ -10,8 +10,8 @@ import type { DecoratorConfig } from '@trapi/metadata';
 
 export function buildPathParamConfig(name?: string) : DecoratorConfig {
     return {
-        id: DecoratorID.PATH_PARAM,
-        name: name || 'PathParam',
+        id: DecoratorID.PATH,
+        name: name || 'Path',
         properties: {
             value: {},
         },
@@ -19,8 +19,8 @@ export function buildPathParamConfig(name?: string) : DecoratorConfig {
 }
 export function buildPathParamsConfig(name?: string) : DecoratorConfig {
     return {
-        id: DecoratorID.PATH_PARAMS,
-        name: name || 'PathParams',
+        id: DecoratorID.PATHS,
+        name: name || 'Paths',
         properties: {
             value: {},
         },

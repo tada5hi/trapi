@@ -8,10 +8,10 @@
 import type { DecoratorConfig } from '@trapi/metadata';
 import { DecoratorID } from '@trapi/metadata';
 
-export function buildConsumesConfig() : DecoratorConfig {
+export function buildConsumesConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.CONSUMES,
-        name: 'Consumes',
+        name: name || 'Consumes',
         properties: {
             value: {
                 amount: -1, strategy: 'merge',

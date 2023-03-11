@@ -5,12 +5,37 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    buildConsumesConfig,
+    buildDeprecatedConfig,
+    buildDescriptionConfig,
+    buildExampleConfig,
+    buildExtensionConfig,
+    buildHiddenConfig,
+    buildIsDoubleConfig,
+    buildIsFloatConfig,
+    buildIsIntConfig,
+    buildIsLongConfig, buildSecurityConfig,
+    buildTagsConfig,
+} from '@trapi/decorators';
 import type { PresetSchema } from '@trapi/metadata';
 import { DecoratorID } from '@trapi/metadata';
 
 export default {
-    extends: ['@trapi/preset-swagger'],
+    extends: ['@trapi/decorators'],
     items: [
+        buildConsumesConfig('DConsumes'),
+        buildDescriptionConfig('DDescription'),
+        buildDeprecatedConfig('DDeprecated'),
+        buildExtensionConfig('DExtension'),
+        buildExampleConfig('DExample'),
+        buildHiddenConfig('DHidden'),
+        buildIsDoubleConfig('DIsDouble'),
+        buildIsIntConfig('DIsInt'),
+        buildIsFloatConfig('DIsFloat'),
+        buildIsLongConfig('DIsLong'),
+        buildSecurityConfig('DSecurity'),
+        buildTagsConfig('DTags'),
         {
             id: DecoratorID.CONTROLLER,
             name: 'DController',
@@ -150,13 +175,13 @@ export default {
             properties: {},
         },
         {
-            id: DecoratorID.PATH_PARAM,
-            name: 'DParam',
+            id: DecoratorID.PATH,
+            name: 'DPath',
             properties: {},
         },
         {
-            id: DecoratorID.PATH_PARAMS,
-            name: 'DParams',
+            id: DecoratorID.PATHS,
+            name: 'DPaths',
             properties: {},
         },
     ],

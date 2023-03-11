@@ -11,10 +11,10 @@ import {
     Example,
     Get,
     Mount,
-    PathParam,
+    Path,
     Post,
     Produces,
-    QueryParam,
+    QueryProp,
 } from '../../../src';
 import * as Return from '../return-types';
 import { Person } from '../type';
@@ -29,7 +29,7 @@ export class PromiseService extends BaseService {
      */
     @Description<string>(401, 'Unauthorized')
     @Get()
-    public test(@QueryParam('testParam') test?: string): Promise<Person> {
+    public test(@QueryProp('testParam') test?: string): Promise<Person> {
         return new Promise<Person>((resolve, reject) => {
             resolve({ name: 'OK' });
         });
@@ -40,7 +40,7 @@ export class PromiseService extends BaseService {
     @Example<Person>({ name: 'Test Person' })
     @Get()
     @Mount(':id')
-    public testGetSingle(@PathParam('id') id: string): Promise<Person> {
+    public testGetSingle(@Path('id') id: string): Promise<Person> {
         return new Promise<Person>((resolve, reject) => {
             resolve({ name: 'OK' });
         });
@@ -59,7 +59,7 @@ export class PromiseService extends BaseService {
     @Get()
     @Mount('myFile')
     @Produces('application/pdf')
-    public testFile(@QueryParam('testParam') test?: string): Promise<Return.DownloadBinaryData> {
+    public testFile(@QueryProp('testParam') test?: string): Promise<Return.DownloadBinaryData> {
         return new Promise<Return.DownloadBinaryData>((resolve, reject) => {
             resolve(null);
         });

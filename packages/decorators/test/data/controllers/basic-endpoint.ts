@@ -6,13 +6,13 @@
  */
 
 import {
-    Delete, Get, Mount, PathParam, Post, Put, QueryParam,
+    Delete, Get, Mount, Path, Post, Put, QueryProp,
 } from '../../../src';
 import type * as Return from '../return-types';
 import type { BasicModel } from '../type';
 
 export class BasicEndpoint<T extends BasicModel> {
-    protected list(@QueryParam('full') full?: boolean): Promise<T[]> {
+    protected list(@QueryProp('full') full?: boolean): Promise<T[]> {
         return new Promise((resolve, reject) => {
             // todo
         });
@@ -27,7 +27,7 @@ export class BasicEndpoint<T extends BasicModel> {
 
     @Put()
     @Mount('/:id')
-    protected update(@PathParam('id') id: number, entity: T): Promise<void> {
+    protected update(@Path('id') id: number, entity: T): Promise<void> {
         return new Promise((resolve, reject) => {
             // todo
         });
@@ -35,7 +35,7 @@ export class BasicEndpoint<T extends BasicModel> {
 
     @Delete()
     @Mount('/:id')
-    protected remove(@PathParam('id') id: string): Promise<void> {
+    protected remove(@Path('id') id: string): Promise<void> {
         return new Promise((resolve, reject) => {
             // todo
         });
@@ -43,7 +43,7 @@ export class BasicEndpoint<T extends BasicModel> {
 
     @Get()
     @Mount('/:id')
-    protected get(@PathParam('id') id: string): Promise<T> {
+    protected get(@Path('id') id: string): Promise<T> {
         return new Promise((resolve, reject) => {
             // todo
         });

@@ -10,8 +10,8 @@ import type { DecoratorConfig } from '@trapi/metadata';
 
 export function buildFileParamConfig(name?: string) : DecoratorConfig {
     return {
-        id: DecoratorID.FILE_PARAM,
-        name: name || 'FileParam',
+        id: DecoratorID.FILE,
+        name: name || 'File',
         properties: {
             value: {},
         },
@@ -19,8 +19,8 @@ export function buildFileParamConfig(name?: string) : DecoratorConfig {
 }
 export function buildFilesParamsConfig(name?: string) : DecoratorConfig {
     return {
-        id: DecoratorID.FILES_PARAM,
-        name: name || 'FilesParam',
+        id: DecoratorID.FILES,
+        name: name || 'Files',
         properties: {
             value: {},
         },

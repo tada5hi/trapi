@@ -12,8 +12,8 @@ export enum DecoratorID {
     EXAMPLE = 'example',
     PRODUCES = 'produces',
 
-    ACCEPT = 'requestAccept',
-    CONSUMES = 'requestConsumes',
+    ACCEPT = 'accept',
+    CONSUMES = 'consumes',
 
     DEPRECATED = 'deprecated',
     EXTENSION = 'extension',
@@ -21,7 +21,6 @@ export enum DecoratorID {
     SECURITY = 'security',
     TAGS = 'tags',
 
-    // todo: rename to Mount
     MOUNT = 'mount',
 
     ALL = 'all',
@@ -50,8 +49,8 @@ export enum DecoratorID {
     HEADERS = 'headers',
     COOKIE = 'cookie',
     COOKIES = 'cookies',
-    PATH_PARAM = 'pathParam',
-    PATH_PARAMS = 'pathParams',
-    FILE_PARAM = 'fileParam',
-    FILES_PARAM = 'filesParam',
+    PATH = 'path',
+    PATHS = 'paths',
+    FILE = 'file',
+    FILES = 'files',
 }

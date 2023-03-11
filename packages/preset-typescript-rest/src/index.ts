@@ -8,8 +8,10 @@
 import type { PresetSchema } from '@trapi/metadata';
 import { DecoratorID } from '@trapi/metadata';
 
+// todo: tags, extension, example, description, produces,
+//  consumes, hidden, deprecated, is-{int,long, ...} missing
 export default {
-    extends: ['@trapi/preset-swagger'],
+    extends: [],
     items: [
         {
             id: DecoratorID.CONTROLLER,
@@ -34,6 +36,14 @@ export default {
             properties: {
                 type: { isType: true },
                 payload: {},
+            },
+        },
+        {
+            id: DecoratorID.SECURITY,
+            name: 'Security',
+            properties: {
+                key: { index: 1 },
+                value: { index: 0 },
             },
         },
 
@@ -127,21 +137,21 @@ export default {
             },
         },
         {
-            id: DecoratorID.PATH_PARAMS,
+            id: DecoratorID.PATHS,
             name: 'PathParam',
             properties: {
                 value: {},
             },
         },
         {
-            id: DecoratorID.FILE_PARAM,
+            id: DecoratorID.FILE,
             name: 'FileParam',
             properties: {
                 value: {},
             },
         },
         {
-            id: DecoratorID.FILES_PARAM,
+            id: DecoratorID.FILES,
             name: 'FilesParam',
             properties: {
                 value: {},

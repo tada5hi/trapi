@@ -5,10 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function PathParam(name: string) {
+export function Path(name: string) {
     return (...args) => { };
 }
 
-export function PathParams(name?: string) {
+export function Paths(name?: string) {
 
 }

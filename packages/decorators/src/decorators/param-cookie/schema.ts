@@ -11,7 +11,7 @@ import type { DecoratorConfig } from '@trapi/metadata';
 export function buildCookieConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.COOKIE,
-        name: name || 'CookieParam',
+        name: name || 'Cookie',
         properties: {
             value: {},
         },

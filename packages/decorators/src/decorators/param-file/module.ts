@@ -5,10 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export function FileParam(name: string) {
+export function File(name: string) {
     return (...args) => { };
 }
 
-export function FilesParam(name?: string) {
+export function Files(name?: string) {
     return (...args) => { };
 }

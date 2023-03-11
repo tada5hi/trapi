@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.2...@trapi/swagger@1.0.0-alpha.3) (2023-03-11)
+
+
+### Bug Fixes
+
+* adjusted spec parameter generation ([b942726](https://github.com/Tada5hi/trapi/commit/b942726794287db793af6aa23fe64e25c2c5ae7e))
+* minor cleanup for metadata generators ([b323d72](https://github.com/Tada5hi/trapi/commit/b323d726c02663167c911589225682d4463338e5))
+* resolved linting issues + removed es namespace syntax ([cfa706f](https://github.com/Tada5hi/trapi/commit/cfa706fb16bd90890793a5bbcb34799026c68aca))
+* secureity and examples properties in specification output ([08f443d](https://github.com/Tada5hi/trapi/commit/08f443d791c51911f865be626fe439420ee3e3d0))
+
+
+### Features
+
+* add security decorator ([8c7e7b0](https://github.com/Tada5hi/trapi/commit/8c7e7b0f5dbc2c8b9a24cacbf2851fb778fa1a39))
+* directory for each decorator ([9fd45dc](https://github.com/Tada5hi/trapi/commit/9fd45dc1efe520f79c8c3a6d4bdd05c86af9895c))
+* initial restructure/organising of types & constants ([1b847f6](https://github.com/Tada5hi/trapi/commit/1b847f6f61f8a7231d290c6f84fd523de6c6ea42))
+* multiple metadata generation for single parameter ([b99ff32](https://github.com/Tada5hi/trapi/commit/b99ff322f156c3aa717db8b1045af5a34a587a78))
+* restructured and enhanced swagger generation ( + public api) ([32c6960](https://github.com/Tada5hi/trapi/commit/32c69603edf8d34875ef145dd07da97b912b712b))
+* restructured and simplified decorator property management ([94e2a05](https://github.com/Tada5hi/trapi/commit/94e2a05841dd826a9c48a95fdcbf670dd92cbf8a))
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.1...@trapi/swagger@1.0.0-alpha.2) (2023-03-06)
 
 

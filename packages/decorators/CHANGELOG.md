@@ -1,0 +1,24 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.0.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@0.1.1...@trapi/decorators@1.0.0-alpha.3) (2023-03-11)
+
+
+### Bug Fixes
+
+* better naming for decorator-ids & param decorator names ([6875f53](https://github.com/Tada5hi/trapi/commit/6875f53d7f5a2379ef19933626e46885ce3fcadc))
+* **deps:** updated locter to v0.5.2 ([f3536ff](https://github.com/Tada5hi/trapi/commit/f3536ff2e29a53de1aed1f2c67ee7b5a3cdea906))
+
+
+### Features
+
+* create decorators package + moved test data ([868d10a](https://github.com/Tada5hi/trapi/commit/868d10abfa7895bedba352d871254a8f98f47776))
+* directory for each decorator ([9fd45dc](https://github.com/Tada5hi/trapi/commit/9fd45dc1efe520f79c8c3a6d4bdd05c86af9895c))
+* initial merge of decorators- & metadata-package ([37b7395](https://github.com/Tada5hi/trapi/commit/37b73953be9f8accb551c8a661c507ae2974db11))
+
+
+### Performance Improvements
+
+* enhanced controller & method generation ([3c023b4](https://github.com/Tada5hi/trapi/commit/3c023b4525559a9dff34c6113ba33d6f4c9b0986))

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.3...@trapi/swagger@1.0.0-alpha.4) (2023-03-11)
+
+
+### Bug Fixes
+
+* expose more exports from metadata package ([122c61c](https://github.com/Tada5hi/trapi/commit/122c61ce4b6b492a151d1d90ceb4fe53a216d8a3))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.2...@trapi/swagger@1.0.0-alpha.3) (2023-03-11)
 
 

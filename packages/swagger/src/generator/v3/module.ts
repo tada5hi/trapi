@@ -9,7 +9,6 @@ import type {
     EnumType,
     IntersectionType,
     Method,
-    NestedObjectLiteralType,
     Parameter,
     RefAliasType, RefEnumType,
     RefObjectType,
@@ -176,28 +175,34 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         if (bodyPropParams.length > 0) {
-            const type : NestedObjectLiteralType = {
-                typeName: 'nestedObjectLiteral',
-                properties: [],
-            };
-
-            for (let i = 0; i < bodyPropParams.length; i++) {
-                type.properties.push(bodyPropParams[i] as ResolverProperty);
-            }
-
-            if (!bodyParams.length) {
+            if (bodyParams.length === 0) {
                 bodyParams.push({
                     in: 'body',
                     name: 'body',
                     description: '',
                     parameterName: bodyPropParams[0].parameterName || 'body',
                     required: true,
-                    type,
+                    type: {
+                        typeName: 'nestedObjectLiteral',
+                        properties: [],
+                    },
                     validators: {},
                     deprecated: false,
                 });
-            } else if (bodyParams[0].type.typeName === 'nestedObjectLiteral') {
-                bodyParams[0].type = type;
+            }
+
+            if (bodyParams[0].type.typeName === 'nestedObjectLiteral') {
+                for (let i = 0; i < bodyPropParams.length; i++) {
+                    bodyParams[0].type.properties.push({
+                        default: bodyPropParams[i].default,
+                        validators: bodyPropParams[i].validators,
+                        description: bodyPropParams[i].description,
+                        name: bodyPropParams[i].name,
+                        type: bodyPropParams[i].type,
+                        required: bodyPropParams[i].required,
+                        deprecated: bodyPropParams[i].deprecated,
+                    });
+                }
             }
         }
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.8...@trapi/swagger@1.0.0-alpha.9) (2023-03-12)
+
+
+### Bug Fixes
+
+* build schema for validators for non defined input ([af3b961](https://github.com/Tada5hi/trapi/commit/af3b9610213e9c3d15d278479cf4c9e51c3344f9))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.7...@trapi/swagger@1.0.0-alpha.8) (2023-03-12)
 
 

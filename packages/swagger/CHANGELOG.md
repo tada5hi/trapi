@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.7...@trapi/swagger@1.0.0-alpha.8) (2023-03-12)
+
+
+### Bug Fixes
+
+* simplified body prop assignment ([19c7bd2](https://github.com/Tada5hi/trapi/commit/19c7bd21bffe33254cdc4cf5685e432a4ca4d021))
+* split schema building for different reference types ([aa53000](https://github.com/Tada5hi/trapi/commit/aa53000e22471e3c4d175d57aa0807ea4d961fcf))
+
+
+### Features
+
+* add validator property for generated parameters ([871ebdd](https://github.com/Tada5hi/trapi/commit/871ebdd4fd8b27a2d75dead68e55a53a5cff7d20))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.6...@trapi/swagger@1.0.0-alpha.7) (2023-03-12)
 
 

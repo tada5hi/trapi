@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.5...@trapi/metadata@1.0.0-alpha.6) (2023-03-12)
+
+
+### Features
+
+* add validator property for generated parameters ([871ebdd](https://github.com/Tada5hi/trapi/commit/871ebdd4fd8b27a2d75dead68e55a53a5cff7d20))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.4...@trapi/metadata@1.0.0-alpha.5) (2023-03-12)
 
 

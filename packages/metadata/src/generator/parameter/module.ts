@@ -122,7 +122,15 @@ export class ParameterGenerator {
 
         for (let i = 0; i < type.properties.length; i++) {
             const property = type.properties[i];
-            const propertyDefaultValue = initializerValue[property.name];
+
+            let propertyDefaultValue = property.default;
+            if (
+                typeof propertyDefaultValue === 'undefined' &&
+                isObject(initializerValue)
+            ) {
+                propertyDefaultValue = initializerValue[property.name];
+            }
+
             let propertyRequired = !this.parameter.questionToken;
             if (propertyRequired) {
                 propertyRequired = property.required;
@@ -130,7 +138,7 @@ export class ParameterGenerator {
 
             output.push({
                 ...details,
-                default: property.default || propertyDefaultValue,
+                default: propertyDefaultValue,
                 description: property.description || details.description || this.getParameterDescription(),
                 name: property.name,
                 parameterName,

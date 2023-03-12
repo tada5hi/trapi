@@ -11,19 +11,21 @@ import type { Options, OptionsInput, ServerOption } from './type';
 
 export function buildOptions(input: OptionsInput) : Options {
     const servers : ServerOption[] = [];
-    if (Array.isArray(input.servers)) {
-        for (let i = 0; i < input.servers.length; i++) {
-            const server = input.servers[i];
-            if (typeof server === 'string') {
-                servers.push({ url: server });
-            } else {
-                servers.push(server);
+    if (input.servers) {
+        if (Array.isArray(input.servers)) {
+            for (let i = 0; i < input.servers.length; i++) {
+                const server = input.servers[i];
+                if (typeof server === 'string') {
+                    servers.push({ url: server });
+                } else {
+                    servers.push(server);
+                }
             }
+        } else if (typeof input.servers === 'string') {
+            servers.push({ url: input.servers });
+        } else {
+            servers.push(input.servers);
         }
-    } else if (typeof input.servers === 'string') {
-        servers.push({ url: input.servers });
-    } else {
-        servers.push(input.servers);
     }
 
     let outputDirectory : string;

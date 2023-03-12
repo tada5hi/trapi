@@ -87,7 +87,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         if (this.config.yaml) {
             data.push({
-                path: path.join(this.config.outputDirectory, `${this.config.outputDirectory}.yaml`),
+                path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.yaml`),
                 name: 'swagger.yaml',
                 content: YAML.stringify(this.spec, 1000),
             });

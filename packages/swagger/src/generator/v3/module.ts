@@ -361,7 +361,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     protected buildParameter(input: Parameter): ParameterV3 {
         const sourceIn = this.transformParameterSource(input.in);
         if (!sourceIn) {
-            throw new Error(`The parameter source ${input.in} is not valid for generating a document.`);
+            throw new Error(`The parameter source "${input.in}" is not valid for generating a document.`);
         }
 
         const parameter : ParameterV3 = {

@@ -11,10 +11,10 @@ import type {
     Method,
     NestedObjectLiteralType,
     Parameter,
+    RefAliasType, RefEnumType,
+    RefObjectType,
     ReferenceType,
-    ResolverProperty,
-    Response,
-    TypeVariant,
+    ResolverProperty, Response, TypeVariant,
 } from '@trapi/metadata';
 import { ParameterSource, isVoidType } from '@trapi/metadata';
 import { URL } from 'node:url';
@@ -437,81 +437,107 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     private buildSchema() {
-        const schema: { [name: string]: SchemaV3 } = {};
-        Object.keys(this.metadata.referenceTypes).map((typeName) => {
-            const referenceType = this.metadata.referenceTypes[typeName];
+        const output: Record<string, SchemaV3> = {};
 
-            if (referenceType.typeName === 'refObject') {
-                const required = referenceType.properties.filter((p) => p.required).map((p) => p.name);
-                schema[referenceType.refName] = {
-                    description: referenceType.description,
-                    properties: this.buildProperties(referenceType.properties),
-                    required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-                    type: 'object',
-                };
+        const keys = Object.keys(this.metadata.referenceTypes);
+        for (let i = 0; i < keys.length; i++) {
+            const referenceType = this.metadata.referenceTypes[keys[i]];
 
-                if (referenceType.additionalProperties) {
-                    schema[referenceType.refName].additionalProperties = this.getSwaggerType(referenceType.additionalProperties);
+            switch (referenceType.typeName) {
+                case 'refAlias': {
+                    output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
+                    break;
                 }
-
-                if (referenceType.example) {
-                    schema[referenceType.refName].example = referenceType.example;
+                case 'refEnum': {
+                    output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
+                    break;
                 }
-            } else if (referenceType.typeName === 'refEnum') {
-                const enumTypes = this.determineTypesUsedInEnum(referenceType.members);
-
-                if (enumTypes.size === 1) {
-                    schema[referenceType.refName] = {
-                        description: referenceType.description,
-                        enum: referenceType.members,
-                        type: enumTypes.has('string') ? 'string' : 'number',
-                    };
-                    if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
-                        schema[referenceType.refName]['x-enum-varnames'] = referenceType.memberNames;
-                    }
-                } else {
-                    schema[referenceType.refName] = {
-                        description: referenceType.description,
-                        anyOf: [
-                            {
-                                type: 'number',
-                                enum: referenceType.members.filter((e) => typeof e === 'number'),
-                            },
-                            {
-                                type: 'string',
-                                enum: referenceType.members.filter((e) => typeof e === 'string'),
-                            },
-                        ],
-                    };
+                case 'refObject': {
+                    output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
+                    break;
                 }
-            } else if (referenceType.typeName === 'refAlias') {
-                const swaggerType = this.getSwaggerType(referenceType.type);
-                const format = referenceType.format as DataFormat;
-                const validators = Object.keys(referenceType.validators)
-                    .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
-                    .reduce((acc, key) => ({
-                        ...acc,
-                        [key]: referenceType.validators[key].value,
-                    }), {});
-
-                schema[referenceType.refName] = {
-                    ...(swaggerType as SchemaV3),
-                    default: referenceType.default || swaggerType.default,
-                    example: referenceType.example,
-                    format: format || swaggerType.format,
-                    description: referenceType.description,
-                    ...validators,
-                };
             }
 
             if (referenceType.deprecated) {
-                schema[referenceType.refName].deprecated = true;
+                output[referenceType.refName].deprecated = true;
             }
+        }
 
-            return typeName;
-        });
+        return output;
+    }
+
+    protected buildSchemaForRefObject(input: RefObjectType) : SchemaV3 {
+        const required = input.properties.filter((p) => p.required).map((p) => p.name);
+        const schema : SchemaV3 = {
+            description: input.description,
+            properties: this.buildProperties(input.properties),
+            required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
+            type: 'object',
+        };
+
+        if (input.additionalProperties) {
+            schema.additionalProperties = this.getSwaggerType(input.additionalProperties);
+        }
+
+        if (input.example) {
+            schema.example = input.example;
+        }
 
         return schema;
+    }
+
+    protected buildSchemaForRefEnum(referenceType: RefEnumType) : SchemaV3 {
+        const enumTypes = this.determineTypesUsedInEnum(referenceType.members);
+
+        if (enumTypes.size === 1) {
+            const schema: SchemaV3 = {
+                description: referenceType.description,
+                enum: referenceType.members,
+                type: enumTypes.has('string') ? 'string' : 'number',
+            };
+
+            if (
+                typeof referenceType.memberNames !== undefined &&
+                referenceType.members.length === referenceType.memberNames.length
+            ) {
+                schema[referenceType.refName]['x-enum-varnames'] = referenceType.memberNames;
+            }
+
+            return schema;
+        }
+        return {
+            description: referenceType.description,
+            anyOf: [
+                {
+                    type: 'number',
+                    enum: referenceType.members.filter((e) => typeof e === 'number'),
+                },
+                {
+                    type: 'string',
+                    enum: referenceType.members.filter((e) => typeof e === 'string'),
+                },
+            ],
+        };
+    }
+
+    protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV3 {
+        const swaggerType = this.getSwaggerType(referenceType.type);
+        const format = referenceType.format as DataFormat;
+        const validators = Object.keys(referenceType.validators)
+            .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
+            .reduce((acc, key) => ({
+                ...acc,
+                [key]: referenceType.validators[key].value,
+            }), {});
+
+        return {
+            ...(swaggerType as SchemaV3),
+            default: referenceType.default || swaggerType.default,
+            example: referenceType.example,
+            format: format || swaggerType.format,
+            description: referenceType.description,
+            ...validators,
+        };
     }
 
     protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {

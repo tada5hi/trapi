@@ -10,13 +10,14 @@ import type {
     IntersectionType,
     Method,
     Parameter,
+    RefAliasType,
+    RefEnumType,
     RefObjectType,
     ReferenceType,
-    ResolverProperty,
-    Response,
+    ResolverProperty, Response,
 } from '@trapi/metadata';
 import {
-    ParameterSource, isRefAliasType, isRefEnumType, isRefObjectType,
+    ParameterSource, isRefEnumType,
 } from '@trapi/metadata';
 import path from 'node:path';
 import { URL } from 'node:url';
@@ -151,77 +152,89 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return definitions;
     }
 
-    /*
-        Definitions ( + utils)
-     */
-
-    private buildDefinition(referenceType: ReferenceType) : SchemaV2 {
-        let output: SchemaV2;
-
-        if (isRefObjectType(referenceType)) {
-            const required = referenceType.properties
-                .filter((p: ResolverProperty) => p.required)
-                .map((p: ResolverProperty) => p.name);
-
-            output = {
-                description: referenceType.description,
-                properties: this.buildProperties(referenceType.properties),
-                required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-                type: 'object',
-            };
-
-            if (referenceType.additionalProperties) {
-                output.additionalProperties = true;
-            }
-
-            if (referenceType.example) {
-                output.example = referenceType.example;
-            }
-        } else if (isRefEnumType(referenceType)) {
-            output = {
-                description: referenceType.description,
-                enum: referenceType.members,
-                type: this.decideEnumType(referenceType.members, referenceType.refName),
-            };
-
-            if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
-                output['x-enum-varnames'] = referenceType.memberNames;
-            }
-        } else if (isRefAliasType(referenceType)) {
-            const swaggerType = this.getSwaggerType(referenceType.type);
-            const format = referenceType.format as DataFormat;
-
-            // todo: verify passed validators
-            const validators = Object.keys(referenceType.validators)
-                .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
-                .reduce((acc, key) => ({
-                    ...acc,
-                    [key]: referenceType.validators[key].value,
-                }), {});
-
-            output = {
-                ...(swaggerType as SchemaV2),
-                default: referenceType.default || swaggerType.default,
-                example: referenceType.example as {[p: string]: Example},
-                format: format || swaggerType.format,
-                description: referenceType.description,
-                ...validators,
-            };
-        }
-
-        return output;
-    }
-
     private buildDefinitions() {
         const output: Record<string, SchemaV2> = {};
 
         const keys = Object.keys(this.metadata.referenceTypes);
         for (let i = 0; i < keys.length; i++) {
             const referenceType = this.metadata.referenceTypes[keys[i]];
-            output[referenceType.refName] = this.buildDefinition(referenceType);
+
+            switch (referenceType.typeName) {
+                case 'refAlias': {
+                    output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
+                    break;
+                }
+                case 'refEnum': {
+                    output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
+                    break;
+                }
+                case 'refObject': {
+                    output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
+                    break;
+                }
+            }
         }
 
         return output;
+    }
+
+    protected buildSchemaForRefObject(referenceType: RefObjectType) : SchemaV2 {
+        const required = referenceType.properties
+            .filter((p: ResolverProperty) => p.required)
+            .map((p: ResolverProperty) => p.name);
+
+        const output : SchemaV2 = {
+            description: referenceType.description,
+            properties: this.buildProperties(referenceType.properties),
+            required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
+            type: 'object',
+        };
+
+        if (referenceType.additionalProperties) {
+            output.additionalProperties = true;
+        }
+
+        if (referenceType.example) {
+            output.example = referenceType.example;
+        }
+
+        return output;
+    }
+
+    protected buildSchemaForRefEnum(referenceType: RefEnumType) : SchemaV2 {
+        const output : SchemaV2 = {
+            description: referenceType.description,
+            enum: referenceType.members,
+            type: this.decideEnumType(referenceType.members, referenceType.refName),
+        };
+
+        if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
+            output['x-enum-varnames'] = referenceType.memberNames;
+        }
+
+        return output;
+    }
+
+    protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV2 {
+        const swaggerType = this.getSwaggerType(referenceType.type);
+        const format = referenceType.format as DataFormat;
+
+        // todo: verify passed validators
+        const validators = Object.keys(referenceType.validators)
+            .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
+            .reduce((acc, key) => ({
+                ...acc,
+                [key]: referenceType.validators[key].value,
+            }), {});
+
+        return {
+            ...(swaggerType as SchemaV2),
+            default: referenceType.default || swaggerType.default,
+            example: referenceType.example as {[p: string]: Example},
+            format: format || swaggerType.format,
+            description: referenceType.description,
+            ...validators,
+        };
     }
 
     private decideEnumType(anEnum: Array<string | number>, nameOfEnum: string): 'string' | 'number' {

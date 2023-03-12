@@ -36,6 +36,7 @@ import {
 
 import path from 'node:path';
 import fs from 'node:fs';
+import { isObject } from 'smob';
 import YAML from 'yamljs';
 import { buildOptions } from '../config';
 import type { Options, OptionsInput } from '../config';
@@ -327,7 +328,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return output;
     }
 
-    protected buildSchemaForValidators(input: Validators) : Record<string, any> {
+    protected buildSchemaForValidators(input?: Validators) : Record<string, any> {
+        if (!isObject(input)) {
+            return {};
+        }
         const keys = Object.keys(input);
         const output : Record<string, any> = {};
         for (let i = 0; i < keys.length; i++) {

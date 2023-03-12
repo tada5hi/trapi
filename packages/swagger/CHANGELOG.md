@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.6...@trapi/swagger@1.0.0-alpha.7) (2023-03-12)
+
+
+### Bug Fixes
+
+* server option building + adjusted yml file path ([ecfc395](https://github.com/Tada5hi/trapi/commit/ecfc3955b929ff9c8ca736be84494de2183519f7))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.5...@trapi/swagger@1.0.0-alpha.6) (2023-03-11)
 
 

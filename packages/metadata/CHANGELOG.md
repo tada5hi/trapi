@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.4...@trapi/metadata@1.0.0-alpha.5) (2023-03-12)
+
+
+### Bug Fixes
+
+* initializer property access on parameter generation ([eea27a2](https://github.com/Tada5hi/trapi/commit/eea27a29d55faad450e7aa1867c1ff6bf81a785f))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.3...@trapi/metadata@1.0.0-alpha.4) (2023-03-11)
 
 

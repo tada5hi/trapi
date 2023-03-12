@@ -4,7 +4,5 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-export interface Validator {
-    value?: unknown,
-    message?: string
-}
+
+export type VariableType = 'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function';

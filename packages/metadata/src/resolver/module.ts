@@ -11,11 +11,11 @@ import type { MetadataGenerator } from '../generator';
 
 import {
     JSDocTagName,
+    getDeclarationValidators,
     getInitializerValue,
     getJSDocTagComment,
     getJSDocTagNames,
-    hasJSDocTag,
-    hasOwnProperty,
+    hasJSDocTag, hasOwnProperty,
 } from '../utils';
 import { ResolverError } from './error';
 import type {
@@ -52,13 +52,6 @@ ts.EnumMember;
 
 interface TypeNodeResolverContext {
     [name: string]: ts.TypeReferenceNode | ts.TypeNode;
-}
-
-function getPropertyValidators(_property: ts.PropertyDeclaration |
-ts.TypeAliasDeclaration |
-ts.PropertySignature |
-ts.ParameterDeclaration) {
-    return {};
 }
 
 type UtilityType = 'NonNullable' | 'Omit' | 'Partial' | 'Readonly' | 'Record' | 'Required' | 'Pick';
@@ -181,7 +174,7 @@ export class TypeNodeResolver {
                         name: (propertySignature.name as ts.Identifier).text,
                         required: !propertySignature.questionToken,
                         type,
-                        validators: getPropertyValidators(propertySignature) || {},
+                        validators: getDeclarationValidators(propertySignature) || {},
                     };
 
                     return [property, ...res];
@@ -888,7 +881,7 @@ export class TypeNodeResolver {
             refName,
             format: TypeNodeResolver.getNodeFormat(declaration),
             type,
-            validators: getPropertyValidators(declaration) || {},
+            validators: getDeclarationValidators(declaration) || {},
             deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
             ...(example && { example }),
         };
@@ -1193,7 +1186,7 @@ export class TypeNodeResolver {
                 this.context,
                 propertySignature.type,
             ).resolve(),
-            validators: getPropertyValidators(propertySignature) || {},
+            validators: getDeclarationValidators(propertySignature) || {},
         };
         return property;
     }
@@ -1243,7 +1236,7 @@ export class TypeNodeResolver {
             name: identifier.text,
             required,
             type,
-            validators: getPropertyValidators(propertyDeclaration) || {},
+            validators: getDeclarationValidators(propertyDeclaration) || {},
         };
         return property;
     }

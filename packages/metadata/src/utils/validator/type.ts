@@ -5,7 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './constants';
-export * from './error';
-export * from './module';
-export * from './type';
+export type Validator = {
+    value?: any,
+    message?: string
+};
+
+export type Validators = Record<string, Validator>;

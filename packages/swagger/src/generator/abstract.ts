@@ -19,17 +19,19 @@ import type {
     ResolverProperty,
     TypeVariant,
     UnionType,
+    Validators,
+    VariableType,
 } from '@trapi/metadata';
 import {
+    ValidatorName,
     isAnyType,
     isArrayType,
     isEnumType,
     isIntersectionType,
     isNestedObjectLiteralType,
     isReferenceType,
-    isUnionType,
 
-    isVoidType,
+    isUnionType, isVoidType,
 } from '@trapi/metadata';
 
 import path from 'node:path';
@@ -211,7 +213,6 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): BaseSchema<Schema> {
         const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, BaseSchema<Schema>> = {
             any: {
-                // While the any type is discouraged, it does explicitly allows anything, so it should always allow additionalProperties
                 additionalProperties: true,
             },
             binary: { type: 'string', format: 'binary' },
@@ -225,7 +226,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             float: { type: 'number', format: 'float' },
             integer: { type: 'integer', format: 'int32' },
             long: { type: 'integer', format: 'int64' },
-            object: { type: 'object' },
+            object: {
+                type: 'object',
+                additionalProperties: true,
+            },
             string: { type: 'string' },
         };
 
@@ -258,17 +262,55 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
 
-    protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) {
-        return anEnum.reduce((theSet, curr) => {
-            if (curr !== null) {
-                theSet.add(typeof curr);
+    protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) : VariableType[] {
+        const set = new Set<VariableType>();
+        for (let i = 0; i < anEnum.length; i++) {
+            if (anEnum[i] === null) {
+                continue;
             }
-            return theSet;
-        }, new Set<'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function'>());
+
+            set.add(typeof anEnum[i]);
+        }
+
+        return Array.from(set);
     }
 
-    protected getOperationId(methodName: string) {
-        return methodName.charAt(0).toUpperCase() + methodName.substring(1);
+    protected decideEnumType(
+        input: Array<string | number | boolean>,
+    ): 'string' | 'number' | 'boolean' {
+        const types = this.determineTypesUsedInEnum(input);
+
+        if (types.length === 1) {
+            const value = types[0];
+            if (
+                value === 'string' ||
+                value === 'number' ||
+                value === 'boolean'
+            ) {
+                return value;
+            }
+
+            throw new Error(`Enums can only have string or number values, but type "${types[0] || 'unknown'}" given.`);
+        }
+
+        for (let i = 0; i < types.length; i++) {
+            const type = types[i];
+
+            if (
+                type !== 'string' &&
+                type !== 'number' &&
+                type !== 'boolean'
+            ) {
+                const values = types.join(',');
+                throw new Error(`Enums can only have string or number values, but types ${values} given.`);
+            }
+        }
+
+        return 'string';
+    }
+
+    protected getOperationId(name: string) {
+        return name.charAt(0).toUpperCase() + name.substring(1);
     }
 
     protected groupParameters(items: Parameter[]) : Partial<Record<ParameterSource, Parameter[]>> {
@@ -280,6 +322,25 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             }
 
             output[items[i].in].push(items[i]);
+        }
+
+        return output;
+    }
+
+    protected buildSchemaForValidators(input: Validators) : Record<string, any> {
+        const keys = Object.keys(input);
+        const output : Record<string, any> = {};
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (
+                key.startsWith('is') ||
+                key === ValidatorName.MIN_DATE ||
+                key === ValidatorName.MAX_DATE
+            ) {
+                continue;
+            }
+
+            output[key] = input[key].value;
         }
 
         return output;

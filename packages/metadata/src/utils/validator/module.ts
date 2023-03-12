@@ -1,26 +1,29 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ParameterDeclaration } from 'typescript';
-import type { Validator } from '../../type';
-import { getJSDocTags, transformJSDocComment } from '../../utils';
+import type {
+    ParameterDeclaration, PropertyDeclaration, PropertySignature, TypeAliasDeclaration,
+} from 'typescript';
+import type { Validator } from './type';
+import { getJSDocTags, transformJSDocComment } from '../js-doc';
+import { ValidatorName } from './constants';
 
-export function getParameterValidators(
-    parameter: ParameterDeclaration,
-    name: string,
+export function getDeclarationValidators(
+    declaration: PropertyDeclaration | TypeAliasDeclaration | PropertySignature | ParameterDeclaration,
+    name?: string,
 ): Record<string, Validator> {
-    if (!parameter.parent) {
+    if (!declaration.parent) {
         return {};
     }
 
     const getCommentValue = (comment?: string) => comment && comment.split(' ')[0];
 
     const parameterTags = getSupportedParameterTags();
-    const tags = getJSDocTags(parameter.parent, (tag) => {
+    const tags = getJSDocTags(declaration.parent, (tag) => {
         const { comment } = tag;
         const text : string = transformJSDocComment(comment);
         if (!comment) {
@@ -29,7 +32,13 @@ export function getParameterValidators(
 
         const commentValue = getCommentValue(text);
 
-        return parameterTags.some((value) => value === tag.tagName.text && commentValue === name);
+        return parameterTags.some((value) => {
+            if (value !== tag.tagName.text) {
+                return false;
+            }
+
+            return !(name && name !== commentValue);
+        });
     });
 
     function getErrorMsg(comment?: string, isValue = true) : string {
@@ -64,18 +73,18 @@ export function getParameterValidators(
         const value = getCommentValue(comment);
 
         switch (name) {
-            case 'uniqueItems':
+            case ValidatorName.UNIQUE_ITEMS:
                 validators[name] = {
                     message: getErrorMsg(comment, false),
                     value: undefined,
                 };
                 break;
-            case 'minimum':
-            case 'maximum':
-            case 'minItems':
-            case 'maxItems':
-            case 'minLength':
-            case 'maxLength':
+            case ValidatorName.MINIMUM:
+            case ValidatorName.MAXIMUM:
+            case ValidatorName.MIN_ITEMS:
+            case ValidatorName.MAX_ITEMS:
+            case ValidatorName.MIN_LENGTH:
+            case ValidatorName.MAX_LENGTH:
                 if (Number.isNaN(value)) {
                     throw new Error(`${name} parameter use number.`);
                 }
@@ -84,17 +93,18 @@ export function getParameterValidators(
                     value: Number(value),
                 };
                 break;
-            case 'minDate':
-            case 'maxDate':
+            case ValidatorName.MIN_DATE:
+            case ValidatorName.MAX_DATE:
                 if (typeof value !== 'string') {
                     throw new Error(`${name} parameter use date format ISO 8601 ex. 2017-05-14, 2017-05-14T05:18Z`);
                 }
+
                 validators[name] = {
                     message: getErrorMsg(comment),
                     value,
                 };
                 break;
-            case 'pattern':
+            case ValidatorName.PATTERN:
                 if (typeof value !== 'string') {
                     throw new Error(`${name} parameter use string.`);
                 }
@@ -105,7 +115,7 @@ export function getParameterValidators(
                 };
                 break;
             default:
-                if (name.startsWith('is')) {
+                if (name.toLowerCase().startsWith('is')) {
                     const errorMsg = getErrorMsg(comment, false);
                     if (errorMsg) {
                         validators[name] = {
@@ -131,6 +141,7 @@ function getSupportedParameterTags() {
         'isDouble',
         'isDate',
         'isDateTime',
+
         'minItems',
         'maxItems',
         'uniqueItems',

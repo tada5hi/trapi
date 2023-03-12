@@ -15,7 +15,7 @@ import type {
 import type { ParameterSourceV3 } from './constants';
 
 export interface SpecV3 extends BaseSpec {
-    openapi: '3.0.0';
+    openapi: string;
     servers: ServerV3[];
     components: ComponentsV3;
     paths: PathsV3;

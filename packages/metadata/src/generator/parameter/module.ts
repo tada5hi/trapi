@@ -15,6 +15,7 @@ import type {
 import { TypeNodeResolver } from '../../resolver';
 import {
     JSDocTagName,
+    getDeclarationValidators,
     getInitializerValue,
     getJSDocTags,
     getNodeDecorators,
@@ -25,7 +26,6 @@ import type { MetadataGenerator } from '../metadata';
 import { CollectionFormat, ParameterSource } from './constants';
 import { ParameterError } from './error';
 import type { ArrayParameter, Parameter } from './type';
-import { getParameterValidators } from './validator';
 
 const parameterKeys : `${DecoratorID}`[] = [
     DecoratorID.CONTEXT,
@@ -219,7 +219,7 @@ export class ParameterGenerator {
                 required: !this.parameter.questionToken && !this.parameter.initializer,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }
@@ -258,7 +258,7 @@ export class ParameterGenerator {
                 required: !this.parameter.questionToken && !this.parameter.initializer,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }
@@ -315,7 +315,7 @@ export class ParameterGenerator {
                 required: !this.parameter.questionToken && !this.parameter.initializer,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }
@@ -360,7 +360,7 @@ export class ParameterGenerator {
                 required: !this.parameter.questionToken && !this.parameter.initializer,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }
@@ -409,7 +409,7 @@ export class ParameterGenerator {
                 required: !this.parameter.questionToken && !this.parameter.initializer,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }
@@ -469,7 +469,7 @@ export class ParameterGenerator {
             required: !this.parameter.questionToken && !this.parameter.initializer,
             type,
             deprecated: this.getParameterDeprecation(),
-            validators: getParameterValidators(this.parameter, parameterName),
+            validators: getDeclarationValidators(this.parameter, parameterName),
         };
 
         if (type.typeName === 'array') {
@@ -580,7 +580,7 @@ export class ParameterGenerator {
                 required: true,
                 type,
                 deprecated: this.getParameterDeprecation(),
-                validators: getParameterValidators(this.parameter, parameterName),
+                validators: getDeclarationValidators(this.parameter, parameterName),
             },
         ];
     }

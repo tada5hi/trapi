@@ -12,3 +12,4 @@ export * from './object';
 export * from './path-normalize';
 export * from './source-files';
 export * from './tsconfig';
+export * from './validator';

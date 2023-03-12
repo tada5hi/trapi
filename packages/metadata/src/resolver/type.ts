@@ -5,6 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type { Validator } from '../utils';
+
 export type TypeStringLiteral =
         | 'string'
         | 'boolean'
@@ -218,7 +220,7 @@ export interface ReferenceTypeBase extends BaseType {
 
 export interface RefEnumType extends ReferenceTypeBase {
     typeName: 'refEnum';
-    members: Array<string | number>;
+    members: Array<string | number | boolean>;
     memberNames?: string[];
 }
 
@@ -252,7 +254,7 @@ export interface ResolverProperty {
     default?: any;
     format?: string;
     example?: unknown;
-    validators?: Record<string, { value?: any, message?: string }>;
+    validators?: Record<string, Validator>;
     description?: string;
     name: string;
     type: TypeVariant;

@@ -37,7 +37,9 @@ import type {
 } from '../../schema';
 import { ParameterSourceV3 } from '../../schema';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
-import { normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter } from '../../utils';
+import {
+    normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter, transformValueTo,
+} from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
 export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
@@ -49,7 +51,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         let spec: SpecV3 = {
             components: this.buildComponents(),
             info: this.buildInfo(),
-            openapi: '3.0.0',
+            openapi: '3.1.0',
             paths: this.buildPaths(),
             servers: this.buildServers(),
             tags: [],
@@ -374,6 +376,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             schema: {
                 default: input.default,
                 format: undefined,
+                ...this.buildSchemaForValidators(input.validators),
             },
         };
 
@@ -487,48 +490,44 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected buildSchemaForRefEnum(referenceType: RefEnumType) : SchemaV3 {
-        const enumTypes = this.determineTypesUsedInEnum(referenceType.members);
+        const type = this.decideEnumType(referenceType.members);
+        const typesUsed = this.determineTypesUsedInEnum(referenceType.members);
 
-        if (enumTypes.size === 1) {
+        if (typesUsed.length === 1) {
             const schema: SchemaV3 = {
                 description: referenceType.description,
                 enum: referenceType.members,
-                type: enumTypes.has('string') ? 'string' : 'number',
+                type,
             };
 
             if (
                 typeof referenceType.memberNames !== undefined &&
                 referenceType.members.length === referenceType.memberNames.length
             ) {
-                schema[referenceType.refName]['x-enum-varnames'] = referenceType.memberNames;
+                schema['x-enum-varnames'] = referenceType.memberNames;
             }
 
             return schema;
         }
-        return {
+
+        const schema : SchemaV3 = {
             description: referenceType.description,
-            anyOf: [
-                {
-                    type: 'number',
-                    enum: referenceType.members.filter((e) => typeof e === 'number'),
-                },
-                {
-                    type: 'string',
-                    enum: referenceType.members.filter((e) => typeof e === 'string'),
-                },
-            ],
+            anyOf: [],
         };
+
+        for (let i = 0; i < typesUsed.length; i++) {
+            schema.anyOf.push({
+                type: typesUsed[i],
+                enum: referenceType.members.filter((e) => typeof e === typesUsed[i]),
+            });
+        }
+
+        return schema;
     }
 
     protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV3 {
         const swaggerType = this.getSwaggerType(referenceType.type);
         const format = referenceType.format as DataFormat;
-        const validators = Object.keys(referenceType.validators)
-            .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
-            .reduce((acc, key) => ({
-                ...acc,
-                [key]: referenceType.validators[key].value,
-            }), {});
 
         return {
             ...(swaggerType as SchemaV3),
@@ -536,7 +535,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             example: referenceType.example,
             format: format || swaggerType.format,
             description: referenceType.description,
-            ...validators,
+            ...this.buildSchemaForValidators(referenceType.validators),
         };
     }
 
@@ -569,20 +568,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected getSwaggerTypeForEnumType(enumType: EnumType): SchemaV3 {
-        const types = this.determineTypesUsedInEnum(enumType.members);
+        const type = this.decideEnumType(enumType.members);
+        const nullable = !!enumType.members.includes(null);
 
-        if (types.size === 1) {
-            const type = types.values().next().value;
-            const nullable = !!enumType.members.includes(null);
-
-            return {
-                type,
-                enum: enumType.members.map((member) => (member === null ? null : String(member))),
-                nullable,
-            };
-        }
-        const valuesDelimited = Array.from(types).join(',');
-        throw new Error(`Enums can only have string or number values, but enum had ${valuesDelimited}`);
+        return {
+            type,
+            enum: enumType.members.map((member) => transformValueTo(type, member)),
+            nullable,
+        };
     }
 
     protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV3 {

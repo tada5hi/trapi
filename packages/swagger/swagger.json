@@ -56,7 +56,8 @@
         "SimpleHelloType": {
             "properties": {
                 "comparePassword": {
-                    "type": "object"
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "profile": {
                     "properties": {
@@ -968,7 +969,8 @@
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 },
@@ -984,7 +986,8 @@
                         "name": "data",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 ]

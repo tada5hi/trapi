@@ -6,7 +6,7 @@
  */
 
 export function transformValueTo(
-    type: 'string' | 'number' | 'integer' | 'boolean',
+    type: 'string' | 'number' | 'integer' | 'boolean' | 'bigint',
     value: unknown,
 ): string | number | boolean | null {
     if (value === null) {

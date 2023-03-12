@@ -205,7 +205,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const output : SchemaV2 = {
             description: referenceType.description,
             enum: referenceType.members,
-            type: this.decideEnumType(referenceType.members, referenceType.refName),
+            type: this.decideEnumType(referenceType.members),
         };
 
         if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
@@ -219,44 +219,14 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const swaggerType = this.getSwaggerType(referenceType.type);
         const format = referenceType.format as DataFormat;
 
-        // todo: verify passed validators
-        const validators = Object.keys(referenceType.validators)
-            .filter((key) => !key.startsWith('is') && key !== 'minDate' && key !== 'maxDate')
-            .reduce((acc, key) => ({
-                ...acc,
-                [key]: referenceType.validators[key].value,
-            }), {});
-
         return {
             ...(swaggerType as SchemaV2),
             default: referenceType.default || swaggerType.default,
             example: referenceType.example as {[p: string]: Example},
             format: format || swaggerType.format,
             description: referenceType.description,
-            ...validators,
+            ...this.buildSchemaForValidators(referenceType.validators),
         };
-    }
-
-    private decideEnumType(anEnum: Array<string | number>, nameOfEnum: string): 'string' | 'number' {
-        const typesUsedInEnum = this.determineTypesUsedInEnum(anEnum);
-
-        const badEnumErrorMessage = () => {
-            const valuesDelimited = Array.from(typesUsedInEnum).join(',');
-            return `Enums can only have string or number values, but enum ${nameOfEnum} had ${valuesDelimited}`;
-        };
-
-        let enumTypeForSwagger: 'string' | 'number' = 'string';
-        if (typesUsedInEnum.has('string') && typesUsedInEnum.size === 1) {
-            enumTypeForSwagger = 'string';
-        } else if (typesUsedInEnum.has('number') && typesUsedInEnum.size === 1) {
-            enumTypeForSwagger = 'number';
-        } else if (typesUsedInEnum.size === 2 && typesUsedInEnum.has('number') && typesUsedInEnum.has('string')) {
-            enumTypeForSwagger = 'string';
-        } else {
-            throw new Error(badEnumErrorMessage());
-        }
-
-        return enumTypeForSwagger;
     }
 
     /*
@@ -470,8 +440,16 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 parameter.schema = parameterType;
             }
 
+            parameter.schema = {
+                ...parameter.schema,
+                ...this.buildSchemaForValidators(input.validators),
+            };
+
             return parameter;
         }
+
+        // todo: this is eventually illegal
+        merge(parameter, this.buildSchemaForValidators(input.validators));
 
         if (input.type.typeName === 'any') {
             parameter.type = 'string';
@@ -533,9 +511,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
      */
 
     protected getSwaggerTypeForEnumType(enumType: EnumType) : SchemaV2 {
-        const types = this.determineTypesUsedInEnum(enumType.members);
-        const type = types.size === 1 ? (types.values().next().value) : 'string';
+        const type = this.decideEnumType(enumType.members);
         const nullable = !!enumType.members.includes(null);
+
         return {
             type,
             enum: enumType.members.map((member) => transformValueTo(type, member)),

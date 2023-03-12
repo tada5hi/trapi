@@ -30,7 +30,7 @@ describe('SpecGenerator', () => {
     });
 
     it('should be able to generate open api 3.0 outputs', async () => {
-        expect(spec.openapi).toEqual('3.0.0');
+        expect(spec.openapi).toEqual('3.1.0');
         expect(spec.servers).toBeDefined();
         expect(spec.servers[0].url).toEqual('http://localhost:3000/api/');
     });

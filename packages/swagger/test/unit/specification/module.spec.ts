@@ -20,6 +20,7 @@ describe('generating swagger spec from metadata', () => {
         spec = await generate({
             version: Version.V2,
             options: {
+                output: false,
                 servers: 'http://localhost:3000/',
                 metadata,
             },
@@ -159,7 +160,7 @@ describe('generating swagger spec from metadata', () => {
         expression = jsonata('paths."/mypath".post.parameters[0].name');
         expect(await expression.evaluate(spec)).toEqual('body');
         expression = jsonata('paths."/mypath".post.parameters[0].schema.type');
-        expect(await expression.evaluate(spec)).toEqual('string');
+        expect(await expression.evaluate(spec)).toEqual('object');
     });
 
     it('should generate a body param with object schema type', async () => {

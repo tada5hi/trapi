@@ -7,7 +7,7 @@
 
 import type { PresetSchema } from '@trapi/metadata';
 import {
-    buildAcceptConfig,
+    buildAcceptConfig, buildBodyConfig,
     buildConsumesConfig,
     buildControllerConfig,
     buildCookieConfig,
@@ -68,6 +68,7 @@ export const schema = {
         buildMethodPutConfig(),
         buildParamConfig(),
         buildParamConfig(),
+        buildBodyConfig(),
         buildCookieConfig(),
         buildCookiesConfig(),
         buildFileParamConfig(),

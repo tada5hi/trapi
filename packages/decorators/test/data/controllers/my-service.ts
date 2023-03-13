@@ -6,7 +6,7 @@
  */
 
 import {
-    Accept, Controller,
+    Accept, Body, Controller,
     Description,
     Example,
     FormProp,
@@ -65,7 +65,7 @@ export class MyService {
     @Example<Person[]>([{
         name: 'Joe',
     }])
-    public testPostString(body: string): Person[] {
+    public testPostString(@Body('name') body: string): Person[] {
         return [];
     }
 

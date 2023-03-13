@@ -23,6 +23,7 @@ export * from './mount';
 export * from './method-post';
 export * from './method-put';
 export * from './param';
+export * from './param-body';
 export * from './param-cookie';
 export * from './param-file';
 export * from './param-form';

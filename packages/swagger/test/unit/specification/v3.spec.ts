@@ -23,6 +23,7 @@ describe('SpecGenerator', () => {
         spec = await generate({
             version: Version.V3,
             options: {
+                output: false,
                 servers: 'http://localhost:3000/api/',
                 metadata,
             },

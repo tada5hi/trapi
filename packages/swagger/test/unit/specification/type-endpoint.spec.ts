@@ -21,6 +21,7 @@ describe('TypeEndpoint', () => {
         spec = await generate({
             version: Version.V2,
             options: {
+                output: false,
                 servers: 'http://localhost:3000/',
                 metadata,
             },

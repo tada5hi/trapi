@@ -6,7 +6,13 @@
  */
 
 import { Controller, Mount, Post } from '../../../src';
+import type { TestInterface } from '../type';
 import { MyTypeWithUnion } from '../type';
+
+type MyComplexUnionType = {
+    id: string,
+    union: null | TestInterface
+};
 
 @Controller()
 @Mount('unionTypes')
@@ -14,5 +20,11 @@ export class TestUnionType {
     @Post()
     public post(body: MyTypeWithUnion): string {
         return '42';
+    }
+
+    @Post()
+    @Mount('/complex')
+    public postComplex(body: MyComplexUnionType): string {
+        return '43';
     }
 }

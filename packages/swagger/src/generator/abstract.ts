@@ -165,52 +165,6 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected abstract getSwaggerTypeForEnumType(enumType: EnumType): Schema;
 
-    protected getSwaggerTypeForUnionType(type: UnionType): Schema | BaseSchema<Schema> {
-        if (type.members.every((subType: TypeVariant) => subType.typeName === 'enum')) {
-            const mergedEnum: EnumType = { typeName: 'enum', members: [] };
-            type.members.forEach((t: TypeVariant) => {
-                mergedEnum.members = [...mergedEnum.members, ...(t as EnumType).members];
-            });
-            return this.getSwaggerTypeForEnumType(mergedEnum);
-        } if (type.members.length === 2 && type.members.find((typeInUnion: TypeVariant) => typeInUnion.typeName === 'enum' && typeInUnion.members.includes(null))) {
-            // Backwards compatible representation of dataType or null, $ref does not allow any sibling attributes, so we have to bail out
-            const nullEnumIndex = type.members.findIndex((a: TypeVariant) => isEnumType(a) && a.members.includes(null));
-            const typeIndex = nullEnumIndex === 1 ? 0 : 1;
-            const swaggerType = this.getSwaggerType(type.members[typeIndex]);
-            const isRef = hasOwnProperty(swaggerType, '$ref') && !!swaggerType.$ref;
-
-            if (isRef) {
-                return { type: 'object' } as Schema;
-            }
-
-            swaggerType['x-nullable'] = true;
-
-            return swaggerType;
-        }
-
-        if (type.members.length === 2) {
-            let index = type.members.findIndex((member: TypeVariant) => isArrayType(member));
-            if (index !== -1) {
-                const otherIndex = index === 0 ? 1 : 0;
-
-                if ((type.members[index] as ArrayType).elementType.typeName === type.members[otherIndex].typeName) {
-                    return this.getSwaggerType(type.members[otherIndex]);
-                }
-            }
-
-            index = type.members.findIndex((member: TypeVariant) => isAnyType(member));
-            if (index !== -1) {
-                const otherIndex = index === 0 ? 1 : 0;
-
-                if (isAnyType(type.members[index])) {
-                    return this.getSwaggerType(type.members[otherIndex]);
-                }
-            }
-        }
-
-        return { type: 'object' } as Schema;
-    }
-
     private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): BaseSchema<Schema> {
         const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, BaseSchema<Schema>> = {
             any: {
@@ -260,6 +214,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     }
 
     protected abstract getSwaggerTypeForReferenceType(referenceType: ReferenceType): Schema;
+
+    protected abstract getSwaggerTypeForUnionType(type: UnionType) : Schema;
 
     protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
 

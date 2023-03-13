@@ -77,6 +77,105 @@
               "validators": {}
             }
           ]
+        },
+        {
+          "consumes": [],
+          "deprecated": false,
+          "extensions": [],
+          "hidden": false,
+          "method": "post",
+          "name": "postComplex",
+          "path": "complex",
+          "produces": [],
+          "responses": [
+            {
+              "description": "Ok",
+              "examples": [],
+              "schema": {
+                "typeName": "string"
+              },
+              "status": "200",
+              "name": "200"
+            }
+          ],
+          "security": [],
+          "tags": [],
+          "type": {
+            "typeName": "string"
+          },
+          "parameters": [
+            {
+              "description": "",
+              "in": "body",
+              "name": "body",
+              "parameterName": "body",
+              "required": true,
+              "type": {
+                "typeName": "refAlias",
+                "refName": "MyComplexUnionType",
+                "type": {
+                  "typeName": "nestedObjectLiteral",
+                  "properties": [
+                    {
+                      "deprecated": false,
+                      "name": "union",
+                      "required": true,
+                      "type": {
+                        "typeName": "union",
+                        "members": [
+                          {
+                            "typeName": "enum",
+                            "members": [
+                              null
+                            ]
+                          },
+                          {
+                            "typeName": "refObject",
+                            "properties": [
+                              {
+                                "deprecated": false,
+                                "name": "a",
+                                "required": true,
+                                "type": {
+                                  "typeName": "string"
+                                },
+                                "validators": {}
+                              },
+                              {
+                                "deprecated": false,
+                                "name": "b",
+                                "required": true,
+                                "type": {
+                                  "typeName": "double"
+                                },
+                                "validators": {}
+                              }
+                            ],
+                            "refName": "TestInterface",
+                            "deprecated": false
+                          }
+                        ]
+                      },
+                      "validators": {}
+                    },
+                    {
+                      "deprecated": false,
+                      "name": "id",
+                      "required": true,
+                      "type": {
+                        "typeName": "string"
+                      },
+                      "validators": {}
+                    }
+                  ]
+                },
+                "validators": {},
+                "deprecated": false
+              },
+              "deprecated": false,
+              "validators": {}
+            }
+          ]
         }
       ]
     },
@@ -2981,6 +3080,93 @@
       "refName": "MyTypeWithUnion",
       "deprecated": false
     },
+    "TestInterface": {
+      "typeName": "refObject",
+      "properties": [
+        {
+          "deprecated": false,
+          "name": "a",
+          "required": true,
+          "type": {
+            "typeName": "string"
+          },
+          "validators": {}
+        },
+        {
+          "deprecated": false,
+          "name": "b",
+          "required": true,
+          "type": {
+            "typeName": "double"
+          },
+          "validators": {}
+        }
+      ],
+      "refName": "TestInterface",
+      "deprecated": false
+    },
+    "MyComplexUnionType": {
+      "typeName": "refAlias",
+      "refName": "MyComplexUnionType",
+      "type": {
+        "typeName": "nestedObjectLiteral",
+        "properties": [
+          {
+            "deprecated": false,
+            "name": "union",
+            "required": true,
+            "type": {
+              "typeName": "union",
+              "members": [
+                {
+                  "typeName": "enum",
+                  "members": [
+                    null
+                  ]
+                },
+                {
+                  "typeName": "refObject",
+                  "properties": [
+                    {
+                      "deprecated": false,
+                      "name": "a",
+                      "required": true,
+                      "type": {
+                        "typeName": "string"
+                      },
+                      "validators": {}
+                    },
+                    {
+                      "deprecated": false,
+                      "name": "b",
+                      "required": true,
+                      "type": {
+                        "typeName": "double"
+                      },
+                      "validators": {}
+                    }
+                  ],
+                  "refName": "TestInterface",
+                  "deprecated": false
+                }
+              ]
+            },
+            "validators": {}
+          },
+          {
+            "deprecated": false,
+            "name": "id",
+            "required": true,
+            "type": {
+              "typeName": "string"
+            },
+            "validators": {}
+          }
+        ]
+      },
+      "validators": {},
+      "deprecated": false
+    },
     "MyDataType2": {
       "typeName": "refObject",
       "properties": [
@@ -3460,31 +3646,6 @@
         "Option2"
       ],
       "refName": "TestMixedEnum",
-      "deprecated": false
-    },
-    "TestInterface": {
-      "typeName": "refObject",
-      "properties": [
-        {
-          "deprecated": false,
-          "name": "a",
-          "required": true,
-          "type": {
-            "typeName": "string"
-          },
-          "validators": {}
-        },
-        {
-          "deprecated": false,
-          "name": "b",
-          "required": true,
-          "type": {
-            "typeName": "double"
-          },
-          "validators": {}
-        }
-      ],
-      "refName": "TestInterface",
       "deprecated": false
     },
     "NamedEntity": {

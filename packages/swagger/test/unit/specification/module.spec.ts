@@ -184,10 +184,7 @@ describe('generating swagger spec from metadata', () => {
         const param = await jsonata('paths."/mypath/multi-query".get.parameters[1]').evaluate(spec);
         expect(param.name).toEqual('name');
         expect(param.required).toEqual(false);
-        expect(param.type).toEqual('string'); // its union type of Array<string> and string -> object
-        // expect(param.items).toBeDefined();
-        // expect(param.items.type).toEqual('string');
-        // expect(param.collectionFormat).toEqual('multi');
+        expect(param.type).toEqual('object');
     });
 
     it('should generate default value for a number query param', async () => {

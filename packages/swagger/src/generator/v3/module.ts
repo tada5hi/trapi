@@ -14,8 +14,11 @@ import type {
     RefObjectType,
     ReferenceType,
     ResolverProperty, Response, TypeVariant,
+    UnionType,
 } from '@trapi/metadata';
-import { ParameterSource, isVoidType } from '@trapi/metadata';
+import {
+    ParameterSource, isAnyType, isEnumType, isVoidType,
+} from '@trapi/metadata';
 import { URL } from 'node:url';
 import { merge } from 'smob';
 import type {
@@ -544,10 +547,6 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {
-        return { allOf: type.members.map((x: TypeVariant) => this.getSwaggerType(x)) };
-    }
-
     protected buildProperties<T>(properties: ResolverProperty[]): Record<string, SchemaV3> {
         const result: { [propertyName: string]: SchemaV3 } = {};
 
@@ -572,6 +571,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return result;
     }
 
+    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {
+        return { allOf: type.members.map((x: TypeVariant) => this.getSwaggerType(x)) };
+    }
+
     protected getSwaggerTypeForEnumType(enumType: EnumType): SchemaV3 {
         const type = this.decideEnumType(enumType.members);
         const nullable = !!enumType.members.includes(null);
@@ -587,5 +590,60 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return {
             $ref: `#/components/schemas/${referenceType.refName}`,
         };
+    }
+
+    protected getSwaggerTypeForUnionType(type: UnionType) : SchemaV3 {
+        const members : TypeVariant[] = [];
+
+        let nullable = false;
+        const enumMembers : Record<string, Array<string | number | boolean>> = {};
+        for (let i = 0; i < type.members.length; i++) {
+            const member = type.members[i];
+            if (isEnumType(member)) {
+                for (let j = 0; j < member.members.length; j++) {
+                    const memberChild = member.members[j];
+                    if (memberChild === null || memberChild === undefined) {
+                        nullable = true;
+                        continue;
+                    }
+
+                    const typeOf = typeof memberChild;
+                    if (typeOf === 'string' || typeOf === 'number' || typeOf === 'boolean') {
+                        enumMembers[typeOf] = enumMembers[typeOf] || [];
+                        enumMembers[typeOf].push(memberChild);
+                    }
+                }
+            }
+
+            if (!isAnyType(member) && !isEnumType(member)) {
+                members.push(member);
+            }
+        }
+
+        const schemas : SchemaV3[] = [];
+        for (let i = 0; i < members.length; i++) {
+            schemas.push(this.getSwaggerType(members[i]));
+        }
+
+        const enumMembersKeys = Object.keys(enumMembers);
+        for (let i = 0; i < enumMembersKeys.length; i++) {
+            const enumType : EnumType = {
+                typeName: 'enum',
+                members: enumMembers[enumMembersKeys[i]],
+            };
+            schemas.push(this.getSwaggerTypeForEnumType(enumType));
+        }
+
+        if (schemas.length === 1) {
+            const schema = schemas[0];
+
+            if (schema.$ref) {
+                return { allOf: [schema], nullable };
+            }
+
+            return { ...schema, nullable };
+        }
+
+        return { anyOf: schemas, ...(nullable ? { nullable } : {}) };
     }
 }

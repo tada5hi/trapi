@@ -15,9 +15,11 @@ import type {
     RefObjectType,
     ReferenceType,
     ResolverProperty, Response,
+    TypeVariant,
+    UnionType,
 } from '@trapi/metadata';
 import {
-    ParameterSource, isRefEnumType,
+    ParameterSource, isAnyType, isEnumType, isRefEnumType,
 } from '@trapi/metadata';
 import path from 'node:path';
 import { URL } from 'node:url';
@@ -544,6 +546,48 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
     protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV2 {
         return { $ref: `#/definitions/${referenceType.refName}` };
+    }
+
+    protected getSwaggerTypeForUnionType(type: UnionType) : SchemaV2 {
+        const members : TypeVariant[] = [];
+
+        const enumTypeMember : EnumType = { typeName: 'enum', members: [] };
+        for (let i = 0; i < type.members.length; i++) {
+            const member = type.members[i];
+            if (isEnumType(member)) {
+                enumTypeMember.members.push(...member.members);
+            }
+
+            if (!isAnyType(member) && !isEnumType(member)) {
+                members.push(member);
+            }
+        }
+
+        if (
+            members.length === 0 &&
+            enumTypeMember.members.length > 0
+        ) {
+            return this.getSwaggerTypeForEnumType(enumTypeMember);
+        }
+
+        const isNullEnum = enumTypeMember.members.every((member) => member === null);
+        if (members.length === 1) {
+            if (isNullEnum) {
+                const memberType = this.getSwaggerType(members[0]);
+                if (memberType.$ref) {
+                    return memberType;
+                }
+
+                memberType['x-nullable'] = true;
+                return memberType;
+            }
+
+            if (enumTypeMember.members.length === 0) {
+                return this.getSwaggerType(members[0]);
+            }
+        }
+
+        return { type: 'object', ...(isNullEnum ? { 'x-nullable': true } : {}) };
     }
 
     protected buildProperties(properties: ResolverProperty[]) : Record<string, SchemaV2> {

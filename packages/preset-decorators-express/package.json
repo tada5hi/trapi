@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-decorators-express",
-    "version": "0.1.0-alpha.6",
+    "version": "0.1.0-alpha.7",
     "description": "Preset for @decorators/express library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,7 +25,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/decorators": "^1.0.0-alpha.6"
+        "@trapi/decorators": "^1.0.0-alpha.7"
     },
     "devDependencies": {
         "@trapi/metadata": "^1.0.0-alpha.6"

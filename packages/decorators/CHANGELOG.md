@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@1.0.0-alpha.6...@trapi/decorators@1.0.0-alpha.7) (2023-03-13)
+
+
+### Bug Fixes
+
+* determine swagger type for union type ([86e74e6](https://github.com/Tada5hi/trapi/commit/86e74e69c6b5351a72a6d0603de1eeef9c88c94d))
+* swagger generation for body-prop param ([4b89f2a](https://github.com/Tada5hi/trapi/commit/4b89f2aed6f9b20b66bc495be45df159ea911a20))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@1.0.0-alpha.5...@trapi/decorators@1.0.0-alpha.6) (2023-03-12)
 
 **Note:** Version bump only for package @trapi/decorators

@@ -22,7 +22,9 @@ export function getNodeExtensions(node: Node, resolver: DecoratorResolver) : Ext
         const key = decorator.get('key', i);
         const value = decorator.get('value', i);
 
-        output.push({ key, value: value as any });
+        if (typeof key === 'string') {
+            output.push({ key, value: value as any });
+        }
     }
 
     return output;

@@ -6,6 +6,7 @@
  */
 
 import type { Validator } from '../utils';
+import type { Extension } from './extension';
 
 export type TypeStringLiteral =
         | 'string'
@@ -260,4 +261,5 @@ export interface ResolverProperty {
     type: TypeVariant;
     required: boolean;
     deprecated: boolean;
+    extensions?: Extension[]
 }

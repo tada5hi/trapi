@@ -8,7 +8,7 @@
 import type {
     ArrayType,
     BaseType,
-    EnumType,
+    EnumType, Extension,
     IntersectionType,
     Metadata,
     NestedObjectLiteralType,
@@ -284,10 +284,29 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return output;
     }
 
-    protected buildSchemaForValidators(input?: Validators) : Record<string, any> {
+    protected transformExtensions(input?: Extension[]) : Record<string, any> {
+        if (!input) {
+            return {};
+        }
+
+        const output : Record<string, any> = {};
+        for (let i = 0; i < input.length; i++) {
+            const extension = input[i];
+            if (!extension.key.startsWith('x-')) {
+                extension.key = `x-${extension.key}`;
+            }
+
+            output[extension.key] = extension.value;
+        }
+
+        return output;
+    }
+
+    protected transformValidators(input?: Validators) : Record<string, any> {
         if (!isObject(input)) {
             return {};
         }
+
         const keys = Object.keys(input);
         const output : Record<string, any> = {};
         for (let i = 0; i < keys.length; i++) {

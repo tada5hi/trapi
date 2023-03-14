@@ -9,6 +9,7 @@ import * as ts from 'typescript';
 import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
 
+import type { Extension } from './extension';
 import {
     JSDocTagName,
     getDeclarationValidators,
@@ -18,6 +19,7 @@ import {
     hasJSDocTag, hasOwnProperty,
 } from '../utils';
 import { ResolverError } from './error';
+import { getNodeExtensions } from './extension';
 import type {
     AnyType,
     ArrayType,
@@ -168,6 +170,7 @@ export class TypeNodeResolver {
                     const property: ResolverProperty = {
                         deprecated: hasJSDocTag(propertySignature, JSDocTagName.DEPRECATED),
                         example: this.getNodeExample(propertySignature),
+                        extensions: this.getNodeExtensions(propertySignature),
                         default: getJSDocTagComment(propertySignature, JSDocTagName.DEFAULT),
                         description: this.getNodeDescription(propertySignature),
                         format: TypeNodeResolver.getNodeFormat(propertySignature),
@@ -1176,6 +1179,7 @@ export class TypeNodeResolver {
             default: getJSDocTagComment(propertySignature, JSDocTagName.DEFAULT),
             description: this.getNodeDescription(propertySignature),
             example: this.getNodeExample(propertySignature),
+            extensions: this.getNodeExtensions(propertySignature),
             format: TypeNodeResolver.getNodeFormat(propertySignature),
             name: identifier.text,
             required,
@@ -1232,6 +1236,7 @@ export class TypeNodeResolver {
             default: getInitializerValue(propertyDeclaration.initializer, this.current.typeChecker),
             description: this.getNodeDescription(propertyDeclaration),
             example: this.getNodeExample(propertyDeclaration),
+            extensions: this.getNodeExtensions(propertyDeclaration),
             format: TypeNodeResolver.getNodeFormat(propertyDeclaration),
             name: identifier.text,
             required,
@@ -1446,5 +1451,9 @@ export class TypeNodeResolver {
         }
 
         return undefined;
+    }
+
+    protected getNodeExtensions(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) : Extension[] {
+        return getNodeExtensions(node, this.current.decoratorResolver);
     }
 }

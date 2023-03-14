@@ -384,7 +384,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             schema: {
                 default: input.default,
                 format: undefined,
-                ...this.buildSchemaForValidators(input.validators),
+                ...this.transformValidators(input.validators),
             },
         };
 
@@ -543,19 +543,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             example: referenceType.example,
             format: format || swaggerType.format,
             description: referenceType.description,
-            ...this.buildSchemaForValidators(referenceType.validators),
+            ...this.transformValidators(referenceType.validators),
         };
     }
 
     protected buildProperties<T>(properties: ResolverProperty[]): Record<string, SchemaV3> {
-        const result: { [propertyName: string]: SchemaV3 } = {};
+        const output: Record<string, SchemaV3> = {};
 
         properties.forEach((property) => {
             const swaggerType = this.getSwaggerType(property.type) as SchemaV3;
-            const format = property.format as DataFormat;
             swaggerType.description = property.description;
             swaggerType.example = property.example;
-            swaggerType.format = format || swaggerType.format;
+            swaggerType.format = property.format as DataFormat || swaggerType.format;
 
             if (!swaggerType.$ref) {
                 swaggerType.default = property.default;
@@ -565,10 +564,16 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 swaggerType.deprecated = true;
             }
 
-            result[property.name] = swaggerType;
+            const extensions = this.transformExtensions(property.extensions);
+            const validators = this.transformValidators(property.validators);
+            output[property.name] = {
+                ...swaggerType,
+                ...validators,
+                ...extensions,
+            };
         });
 
-        return result;
+        return output;
     }
 
     protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {

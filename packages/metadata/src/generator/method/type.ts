@@ -5,9 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Response, Security } from '../type';
-import type { BaseType } from '../../resolver';
+import type { BaseType, Extension } from '../../resolver';
 import type { Parameter } from '../parameter';
+import type { Response, Security } from '../type';
 
 export interface Method {
     operationId?: string;
@@ -29,16 +29,3 @@ export interface Method {
 }
 
 export type MethodType = 'get' | 'post' | 'put' | 'delete' | 'options' | 'head' | 'patch';
-
-export interface Extension {
-    key: string;
-    value: ExtensionType | ExtensionType[];
-}
-
-export type ExtensionType =
-    string
-    | number
-    | boolean
-    | null
-    | ExtensionType[]
-    | { [name: string]: ExtensionType | ExtensionType[] };

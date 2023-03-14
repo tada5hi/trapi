@@ -12,7 +12,7 @@ import type {
 } from 'typescript';
 import { DecoratorID } from '../../decorator';
 import type { BaseType } from '../../resolver';
-import { TypeNodeResolver, isVoidType } from '../../resolver';
+import { TypeNodeResolver, getNodeExtensions, isVoidType } from '../../resolver';
 import {
     JSDocTagName, getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
 } from '../../utils';
@@ -63,11 +63,10 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
         const methodPath = this.buildPath();
 
         return {
-            // todo: implement extensions
             consumes: this.getConsumes(),
             deprecated: this.isDeprecated(this.node),
             description: getJSDocDescription(this.node),
-            extensions: [],
+            extensions: getNodeExtensions(this.node, this.current.decoratorResolver),
             hidden: this.isHidden(this.node),
             method: this.method,
             name: (this.node.name as Identifier).text,

@@ -227,7 +227,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             example: referenceType.example as {[p: string]: Example},
             format: format || swaggerType.format,
             description: referenceType.description,
-            ...this.buildSchemaForValidators(referenceType.validators),
+            ...this.transformValidators(referenceType.validators),
         };
     }
 
@@ -444,14 +444,14 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
             parameter.schema = {
                 ...parameter.schema,
-                ...this.buildSchemaForValidators(input.validators),
+                ...this.transformValidators(input.validators),
             };
 
             return parameter;
         }
 
         // todo: this is eventually illegal
-        merge(parameter, this.buildSchemaForValidators(input.validators));
+        merge(parameter, this.transformValidators(input.validators));
 
         if (input.type.typeName === 'any') {
             parameter.type = 'string';
@@ -591,17 +591,38 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     }
 
     protected buildProperties(properties: ResolverProperty[]) : Record<string, SchemaV2> {
-        const swaggerProperties: { [propertyName: string]: SchemaV2 } = {};
+        const output: Record<string, SchemaV2> = {};
 
         properties.forEach((property) => {
             const swaggerType = this.getSwaggerType(property.type);
+            swaggerType.description = property.description;
+            swaggerType.example = property.example;
+            swaggerType.format = property.format as DataFormat || swaggerType.format;
+
             if (!hasOwnProperty(swaggerType, '$ref') || !swaggerType.$ref) {
                 swaggerType.description = property.description;
             }
-            swaggerProperties[property.name] = swaggerType;
+
+            if (property.deprecated) {
+                swaggerType['x-deprecated'] = true;
+            }
+
+            if (property.extensions) {
+                for (let i = 0; i < property.extensions.length; i++) {
+                    swaggerType[property.extensions[i].key] = property.extensions[i].value;
+                }
+            }
+
+            const extensions = this.transformExtensions(property.extensions);
+            const validators = this.transformValidators(property.validators);
+            output[property.name] = {
+                ...swaggerType,
+                ...validators,
+                ...extensions,
+            };
         });
 
-        return swaggerProperties;
+        return output;
     }
 
     private buildOperation(method: Method) {

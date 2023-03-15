@@ -27,6 +27,7 @@ export interface Response {
     examples?: Example[];
     headers?: NestedObjectLiteralType | RefObjectType;
     name: string;
+    produces?: string[],
     status: string;
     schema?: BaseType;
 }

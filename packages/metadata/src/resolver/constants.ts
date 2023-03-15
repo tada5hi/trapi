@@ -23,6 +23,7 @@ export enum TypeName {
     VOID = 'void',
     OBJECT = 'object',
     ANY = 'any',
+    UNDEFINED = 'undefined',
     REF_ENUM = 'refEnum',
     REF_OBJECT = 'refObject',
     REF_ALIAS = 'refAlias',

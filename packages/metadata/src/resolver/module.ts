@@ -21,7 +21,7 @@ import {
 } from '../utils';
 import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
-import { isRefAliasType, isRefObjectType } from './type';
+import { isRefAliasType, isRefObjectType, isStringType } from './type';
 import type {
     AnyType,
     ArrayType,
@@ -107,7 +107,13 @@ export class TypeNodeResolver {
             return {
                 typeName: TypeName.ENUM,
                 members: [null],
-            } as EnumType;
+            };
+        }
+
+        if (this.typeNode.kind === ts.SyntaxKind.UndefinedKeyword) {
+            return {
+                typeName: TypeName.UNDEFINED,
+            };
         }
 
         if (ts.isArrayTypeNode(this.typeNode)) {
@@ -123,27 +129,26 @@ export class TypeNodeResolver {
         }
 
         if (ts.isUnionTypeNode(this.typeNode)) {
-            const types = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
+            const members = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
 
             return {
                 typeName: TypeName.UNION,
-                members: types,
+                members,
             } as UnionType;
         }
 
         if (ts.isIntersectionTypeNode(this.typeNode)) {
-            const types = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
+            const members = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
 
             return {
                 typeName: TypeName.INTERSECTION,
-                members: types,
+                members,
             } as IntersectionType;
         }
 
         if (
             this.typeNode.kind === ts.SyntaxKind.AnyKeyword ||
-            this.typeNode.kind === ts.SyntaxKind.UnknownKeyword ||
-            this.typeNode.kind === ts.SyntaxKind.UndefinedKeyword
+            this.typeNode.kind === ts.SyntaxKind.UnknownKeyword
         ) {
             return {
                 typeName: TypeName.ANY,
@@ -196,7 +201,7 @@ export class TypeNodeResolver {
                     this.context,
                 ).resolve();
 
-                if (indexType.typeName !== 'string') {
+                if (!isStringType(indexType)) {
                     throw new ResolverError('Only string indexes are supported.', this.typeNode);
                 }
 
@@ -285,7 +290,11 @@ export class TypeNodeResolver {
             };
         }
 
-        if (ts.isConditionalTypeNode(this.typeNode) && this.referencer && ts.isTypeReferenceNode(this.referencer)) {
+        if (
+            ts.isConditionalTypeNode(this.typeNode) &&
+            this.referencer &&
+            ts.isTypeReferenceNode(this.referencer)
+        ) {
             const type = this.current.typeChecker.getTypeFromTypeNode(this.referencer);
 
             if (type.aliasSymbol) {

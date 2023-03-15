@@ -21,6 +21,7 @@ export type Type =
         | BufferType
         | ByteType
         | AnyType
+        | UndefinedType
         | RefEnumType
         | RefObjectType
         | RefAliasType
@@ -45,6 +46,14 @@ export interface AnyType extends BaseType {
 
 export function isAnyType(param: BaseType): param is AnyType {
     return param.typeName === TypeName.ANY;
+}
+
+export interface UndefinedType extends BaseType {
+    typeName: `${TypeName.UNDEFINED}`;
+}
+
+export function isUndefinedType(param: BaseType): param is UndefinedType {
+    return param.typeName === TypeName.UNDEFINED;
 }
 
 export interface StringType extends BaseType {

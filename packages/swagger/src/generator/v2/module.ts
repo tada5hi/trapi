@@ -14,24 +14,29 @@ import type {
     RefEnumType,
     RefObjectType,
     ReferenceType,
-    ResolverProperty, Response,
+    ResolverProperty,
+    Response,
     Type,
     UnionType,
 } from '@trapi/metadata';
 import {
-    ParameterSource, TypeName, isAnyType, isEnumType, isRefEnumType,
+    ParameterSource,
+    TypeName,
+    isAnyType,
+    isBinaryType,
+    isEnumType,
+    isRefEnumType,
     isRefObjectType,
+    isUndefinedType,
+    isVoidType,
 } from '@trapi/metadata';
 import path from 'node:path';
 import { URL } from 'node:url';
 import { merge } from 'smob';
-import type { SecurityDefinitions } from '../../type';
-
-import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
-import { AbstractSpecGenerator } from '../abstract';
 
 import type {
     BaseSchema,
+    DataFormatName,
     Example,
     OperationV2,
     ParameterV2,
@@ -41,10 +46,11 @@ import type {
     SecurityV2,
     SpecV2,
 } from '../../schema';
-import {
-    DataFormatName, DataTypeName,
-    ParameterSourceV2,
-} from '../../schema';
+import { DataTypeName, ParameterSourceV2 } from '../../schema';
+import type { SecurityDefinitions } from '../../type';
+
+import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
+import { AbstractSpecGenerator } from '../abstract';
 
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     async build() : Promise<SpecV2> {
@@ -159,7 +165,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
     protected buildSchemaForRefObject(referenceType: RefObjectType) : SchemaV2 {
         const required = referenceType.properties
-            .filter((p: ResolverProperty) => p.required)
+            .filter((p: ResolverProperty) => p.required && !this.isUndefinedProperty(p))
             .map((p: ResolverProperty) => p.name);
 
         const output : SchemaV2 = {
@@ -318,7 +324,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 output.parameters.push(bodyParameter);
             } else {
                 const parameter : ParameterV2 = {
-                    in: 'body',
+                    in: ParameterSourceV2.BODY,
                     name: 'body',
                     schema,
                 };
@@ -534,7 +540,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 enumTypeMember.members.push(...member.members);
             }
 
-            if (!isAnyType(member) && !isEnumType(member)) {
+            if (
+                !isAnyType(member) &&
+                !isUndefinedType(member) &&
+                !isEnumType(member)
+            ) {
                 members.push(member);
             }
         }
@@ -604,26 +614,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     private buildOperation(method: Method) {
         const operation : OperationV2 = {
             operationId: this.getOperationId(method.name),
-            consumes: method.consumes,
-            produces: [],
+            consumes: method.consumes || [],
+            produces: method.produces || [],
             responses: {},
             security: method.security || [],
         };
-        const methodReturnTypes = new Set<string>();
+
+        const produces : string[] = [];
 
         method.responses.forEach((res: Response) => {
             operation.responses[res.status] = {
                 description: res.description,
             };
 
-            if (res.schema) {
-                const swaggerType = this.getSchemaForType(res.schema);
-
-                // todo: is void type really returned ?
-                if (swaggerType.type !== DataTypeName.VOID) {
-                    operation.responses[res.status].schema = swaggerType;
+            if (
+                res.schema &&
+                !isVoidType(res.schema)
+            ) {
+                if (res.produces) {
+                    produces.push(...res.produces);
+                } else if (isBinaryType(res.schema)) {
+                    produces.push('application/octet-stream');
                 }
-                methodReturnTypes.add(this.getMimeType(swaggerType));
+
+                operation.responses[res.status].schema = this.getSchemaForType(res.schema);
             }
 
             if (
@@ -637,33 +651,31 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
         });
 
-        if (method.produces.length) {
-            operation.produces = method.produces;
+        if (operation.consumes.length === 0) {
+            const hasBody = method.parameters
+                .some((parameter) => parameter.in === ParameterSource.BODY || parameter.in === ParameterSource.BODY_PROP);
+            if (hasBody) {
+                operation.consumes.push('application/json');
+            }
+
+            const hasFormData = method.parameters
+                .some((parameter) => parameter.in === ParameterSource.FORM_DATA);
+            if (hasFormData) {
+                operation.consumes.push('multipart/form-data');
+            }
         }
 
-        if (methodReturnTypes && methodReturnTypes.size > 0) {
-            operation.produces = Array.from(methodReturnTypes);
+        if (
+            operation.produces.length === 0 &&
+            produces.length > 0
+        ) {
+            operation.produces = [...new Set(produces)];
+        }
+
+        if (operation.produces.length === 0) {
+            operation.produces = ['application/json'];
         }
 
         return operation;
-    }
-
-    private getMimeType(swaggerType: SchemaV2) {
-        if (
-            swaggerType.$ref ||
-            swaggerType.type === DataTypeName.ARRAY ||
-            swaggerType.type === DataTypeName.OBJECT
-        ) {
-            return 'application/json';
-        }
-
-        if (
-            swaggerType.type === DataTypeName.STRING &&
-            swaggerType.format === DataFormatName.BINARY
-        ) {
-            return 'application/octet-stream';
-        }
-
-        return 'text/html';
     }
 }

@@ -30,8 +30,8 @@ import {
     isNestedObjectLiteralType,
     isPrimitiveType,
     isReferenceType,
-    isUnionType,
-    isVoidType,
+    isUndefinedType,
+    isUnionType, isVoidType,
 } from '@trapi/metadata';
 
 import path from 'node:path';
@@ -125,7 +125,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     }
 
     protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
-        if (isVoidType(type)) {
+        if (isVoidType(type) || isUndefinedType(type)) {
             return {} as Schema;
         } if (isReferenceType(type)) {
             return this.getSchemaForReferenceType(type);
@@ -186,10 +186,12 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     public getSchemaForObjectLiteralType(objectLiteral: NestedObjectLiteralType): BaseSchema<Schema> {
         const properties = this.buildProperties(objectLiteral.properties);
 
-        const additionalProperties = objectLiteral.additionalProperties && this.getSchemaForType(objectLiteral.additionalProperties);
+        const additionalProperties = objectLiteral.additionalProperties &&
+            this.getSchemaForType(objectLiteral.additionalProperties);
 
         const required = objectLiteral.properties
-            .filter((prop: ResolverProperty) => prop.required).map((prop: ResolverProperty) => prop.name);
+            .filter((prop: ResolverProperty) => prop.required && !this.isUndefinedProperty(prop))
+            .map((prop: ResolverProperty) => prop.name);
 
         // An empty list required: [] is not valid.
         // If all properties are optional, do not specify the required keyword.
@@ -244,6 +246,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     }
 
     // ----------------------------------------------------------------
+
+    protected isUndefinedProperty(input: ResolverProperty) {
+        return isUndefinedType(input.type) ||
+            (isUnionType(input.type) && input.type.members.some((el) => isUndefinedType(el)));
+    }
 
     protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
 

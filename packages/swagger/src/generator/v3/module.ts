@@ -10,14 +10,23 @@ import type {
     IntersectionType,
     Method,
     Parameter,
-    RefAliasType, RefEnumType,
+    RefAliasType,
+    RefEnumType,
     RefObjectType,
     ReferenceType,
-    ResolverProperty, Response, Type,
+    ResolverProperty,
+    Response,
+    Type,
     UnionType,
 } from '@trapi/metadata';
 import {
-    ParameterSource, TypeName, isAnyType, isEnumType, isNestedObjectLiteralType, isRefObjectType,
+    ParameterSource,
+    TypeName,
+    isAnyType,
+    isEnumType,
+    isNestedObjectLiteralType,
+    isRefObjectType,
+    isUndefinedType,
     isVoidType,
 } from '@trapi/metadata';
 import { URL } from 'node:url';
@@ -288,9 +297,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 description: res.description,
             };
 
-            if (res.schema && !isVoidType(res.schema)) {
-                const contentKey = 'application/json';
-
+            if (
+                res.schema &&
+                !isVoidType(res.schema)
+            ) {
                 const examples : Record<string, Example> = {};
                 if (
                     res.examples &&
@@ -305,14 +315,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 }
 
                 output[name].content = output[name].content || {};
-                output[name].content[contentKey] = {
-                    schema: this.getSchemaForType(res.schema),
-                    examples,
-                };
+
+                const contentTypes = res.produces || ['application/json'];
+                for (let i = 0; i < contentTypes.length; i++) {
+                    output[name].content[contentTypes[i]] = {
+                        schema: this.getSchemaForType(res.schema),
+                        examples,
+                    };
+                }
             }
 
             if (res.headers) {
-                const headers: { [name: string]: HeaderV3 } = {};
+                const headers: Record<string, HeaderV3> = {};
                 if (isRefObjectType(res.headers)) {
                     headers[res.headers.refName] = {
                         schema: this.getSchemaForReferenceType(res.headers) as SchemaV3,
@@ -455,7 +469,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected buildSchemaForRefObject(input: RefObjectType) : SchemaV3 {
-        const required = input.properties.filter((p) => p.required).map((p) => p.name);
+        const required = input.properties
+            .filter((p) => p.required && !this.isUndefinedProperty(p))
+            .map((p) => p.name);
+
         const schema : SchemaV3 = {
             description: input.description,
             properties: this.buildProperties(input.properties),
@@ -597,7 +614,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 }
             }
 
-            if (!isAnyType(member) && !isEnumType(member)) {
+            if (
+                !isAnyType(member) &&
+                !isUndefinedType(member) &&
+                !isEnumType(member)
+            ) {
                 members.push(member);
             }
         }

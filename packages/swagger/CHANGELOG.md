@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.10...@trapi/swagger@1.0.0-alpha.11) (2023-03-15)
+
+
+### Features
+
+* add extension decorator support ([b846c01](https://github.com/Tada5hi/trapi/commit/b846c01bf77d097a54c6731ee16030337eac06ca))
+* introduce new undefined type ([e70264c](https://github.com/Tada5hi/trapi/commit/e70264c43b03d3bfc9afeb36dc33d3b61c04e530))
+* restructured & use enum for const literal ([19f2f4e](https://github.com/Tada5hi/trapi/commit/19f2f4e52b7ced88b420aa4e13557ac4c17e646e))
+
+
+
+
+
 # [1.0.0-alpha.10](https://github.com/Tada5hi/trapi/compare/@trapi/swagger@1.0.0-alpha.9...@trapi/swagger@1.0.0-alpha.10) (2023-03-13)
 
 

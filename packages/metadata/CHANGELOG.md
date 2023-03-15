@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.6...@trapi/metadata@1.0.0-alpha.7) (2023-03-15)
+
+
+### Bug Fixes
+
+* add extension key check ([bb6502d](https://github.com/Tada5hi/trapi/commit/bb6502d8b99f5d960a35dc50eeefef64b501d8cf))
+
+
+### Features
+
+* add extension decorator support ([b846c01](https://github.com/Tada5hi/trapi/commit/b846c01bf77d097a54c6731ee16030337eac06ca))
+* introduce new undefined type ([e70264c](https://github.com/Tada5hi/trapi/commit/e70264c43b03d3bfc9afeb36dc33d3b61c04e530))
+* restructured & use enum for const literal ([19f2f4e](https://github.com/Tada5hi/trapi/commit/19f2f4e52b7ced88b420aa4e13557ac4c17e646e))
+
+
+
+
+
 # [1.0.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.5...@trapi/metadata@1.0.0-alpha.6) (2023-03-12)
 
 

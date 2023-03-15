@@ -13,17 +13,17 @@ import type {
     RefAliasType, RefEnumType,
     RefObjectType,
     ReferenceType,
-    ResolverProperty, Response, TypeVariant,
+    ResolverProperty, Response, Type,
     UnionType,
 } from '@trapi/metadata';
 import {
-    ParameterSource, isAnyType, isEnumType, isVoidType,
+    ParameterSource, TypeName, isAnyType, isEnumType, isNestedObjectLiteralType, isRefObjectType,
+    isVoidType,
 } from '@trapi/metadata';
 import { URL } from 'node:url';
 import { merge } from 'smob';
 import type {
-    DataFormat,
-    DataType,
+    DataFormatName,
     Example,
     HeaderV3,
     MediaTypeV3,
@@ -37,7 +37,10 @@ import type {
     ServerV3,
     SpecV3,
 } from '../../schema';
-import { ParameterSourceV3 } from '../../schema';
+import {
+    DataTypeName,
+    ParameterSourceV3,
+} from '../../schema';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
 import {
     normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter, transformValueTo,
@@ -77,7 +80,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             parameters: {},
             requestBodies: {},
             responses: {},
-            schemas: this.buildSchema(),
+            schemas: this.buildSchemasForReferenceTypes((output, referenceType) => {
+                if (referenceType.deprecated) {
+                    output.deprecated = true;
+                }
+            }),
             securitySchemes: {},
         };
 
@@ -180,13 +187,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         if (bodyPropParams.length > 0) {
             if (bodyParams.length === 0) {
                 bodyParams.push({
-                    in: 'body',
+                    in: ParameterSource.BODY,
                     name: 'body',
                     description: '',
                     parameterName: bodyPropParams[0].parameterName || 'body',
                     required: true,
                     type: {
-                        typeName: 'nestedObjectLiteral',
+                        typeName: TypeName.NESTED_OBJECT_LITERAL,
                         properties: [],
                     },
                     validators: {},
@@ -194,7 +201,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 });
             }
 
-            if (bodyParams[0].type.typeName === 'nestedObjectLiteral') {
+            if (isNestedObjectLiteralType(bodyParams[0].type)) {
                 for (let i = 0; i < bodyPropParams.length; i++) {
                     bodyParams[0].type.properties.push({
                         default: bodyPropParams[i].default,
@@ -241,7 +248,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             content: {
                 'multipart/form-data': {
                     schema: {
-                        type: 'object',
+                        type: DataTypeName.OBJECT,
                         properties,
                         // An empty list required: [] is not valid.
                         // If all properties are optional, do not specify the required keyword.
@@ -266,7 +273,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildMediaType(parameter: Parameter): MediaTypeV3 {
         return {
-            schema: this.getSwaggerType(parameter.type),
+            schema: this.getSchemaForType(parameter.type),
             examples: this.transformParameterExamples(parameter),
         };
     }
@@ -299,22 +306,22 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                 output[name].content = output[name].content || {};
                 output[name].content[contentKey] = {
-                    schema: this.getSwaggerType(res.schema),
+                    schema: this.getSchemaForType(res.schema),
                     examples,
                 };
             }
 
             if (res.headers) {
                 const headers: { [name: string]: HeaderV3 } = {};
-                if (res.headers.typeName === 'refObject') {
+                if (isRefObjectType(res.headers)) {
                     headers[res.headers.refName] = {
-                        schema: this.getSwaggerTypeForReferenceType(res.headers) as SchemaV3,
+                        schema: this.getSchemaForReferenceType(res.headers) as SchemaV3,
                         description: res.headers.description,
                     };
-                } else if (res.headers.typeName === 'nestedObjectLiteral') {
+                } else if (isNestedObjectLiteralType(res.headers)) {
                     res.headers.properties.forEach((each: ResolverProperty) => {
                         headers[each.name] = {
-                            schema: this.getSwaggerType(each.type) as SchemaV3,
+                            schema: this.getSchemaForType(each.type) as SchemaV3,
                             description: each.description,
                             required: each.required,
                         };
@@ -392,7 +399,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             parameter.deprecated = true;
         }
 
-        const parameterType = this.getSwaggerType(input.type);
+        const parameterType = this.getSchemaForType(input.type);
         if (parameterType.format) {
             parameter.schema.format = parameterType.format;
         }
@@ -402,11 +409,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             return parameter;
         }
 
-        if (input.type.typeName === 'any') {
-            parameter.schema.type = 'string';
+        if (isAnyType(input.type)) {
+            parameter.schema.type = DataTypeName.STRING;
         } else {
             if (parameterType.type) {
-                parameter.schema.type = parameterType.type as DataType;
+                parameter.schema.type = parameterType.type as DataTypeName;
             }
             parameter.schema.items = parameterType.items;
             parameter.schema.enum = parameterType.enum;
@@ -447,36 +454,6 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return servers;
     }
 
-    private buildSchema() {
-        const output: Record<string, SchemaV3> = {};
-
-        const keys = Object.keys(this.metadata.referenceTypes);
-        for (let i = 0; i < keys.length; i++) {
-            const referenceType = this.metadata.referenceTypes[keys[i]];
-
-            switch (referenceType.typeName) {
-                case 'refAlias': {
-                    output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
-                    break;
-                }
-                case 'refEnum': {
-                    output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
-                    break;
-                }
-                case 'refObject': {
-                    output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
-                    break;
-                }
-            }
-
-            if (referenceType.deprecated) {
-                output[referenceType.refName].deprecated = true;
-            }
-        }
-
-        return output;
-    }
-
     protected buildSchemaForRefObject(input: RefObjectType) : SchemaV3 {
         const required = input.properties.filter((p) => p.required).map((p) => p.name);
         const schema : SchemaV3 = {
@@ -487,7 +464,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         if (input.additionalProperties) {
-            schema.additionalProperties = this.getSwaggerType(input.additionalProperties);
+            schema.additionalProperties = this.getSchemaForType(input.additionalProperties);
         }
 
         if (input.example) {
@@ -525,7 +502,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         for (let i = 0; i < typesUsed.length; i++) {
             schema.anyOf.push({
-                type: typesUsed[i],
+                type: typesUsed[i] as `${DataTypeName}`,
                 enum: referenceType.members.filter((e) => typeof e === typesUsed[i]),
             });
         }
@@ -534,8 +511,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV3 {
-        const swaggerType = this.getSwaggerType(referenceType.type);
-        const format = referenceType.format as DataFormat;
+        const swaggerType = this.getSchemaForType(referenceType.type);
+        const format = referenceType.format as DataFormatName;
 
         return {
             ...(swaggerType as SchemaV3),
@@ -551,10 +528,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const output: Record<string, SchemaV3> = {};
 
         properties.forEach((property) => {
-            const swaggerType = this.getSwaggerType(property.type) as SchemaV3;
+            const swaggerType = this.getSchemaForType(property.type) as SchemaV3;
             swaggerType.description = property.description;
             swaggerType.example = property.example;
-            swaggerType.format = property.format as DataFormat || swaggerType.format;
+            swaggerType.format = property.format as DataFormatName || swaggerType.format;
 
             if (!swaggerType.$ref) {
                 swaggerType.default = property.default;
@@ -576,11 +553,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return output;
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV3 {
-        return { allOf: type.members.map((x: TypeVariant) => this.getSwaggerType(x)) };
+    protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV3 {
+        return { allOf: type.members.map((x: Type) => this.getSchemaForType(x)) };
     }
 
-    protected getSwaggerTypeForEnumType(enumType: EnumType): SchemaV3 {
+    protected getSchemaForEnumType(enumType: EnumType): SchemaV3 {
         const type = this.decideEnumType(enumType.members);
         const nullable = !!enumType.members.includes(null);
 
@@ -591,14 +568,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV3 {
+    protected getSchemaForReferenceType(referenceType: ReferenceType): SchemaV3 {
         return {
             $ref: `#/components/schemas/${referenceType.refName}`,
         };
     }
 
-    protected getSwaggerTypeForUnionType(type: UnionType) : SchemaV3 {
-        const members : TypeVariant[] = [];
+    protected getSchemaForUnionType(type: UnionType) : SchemaV3 {
+        const members : Type[] = [];
 
         let nullable = false;
         const enumMembers : Record<string, Array<string | number | boolean>> = {};
@@ -627,7 +604,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const schemas : SchemaV3[] = [];
         for (let i = 0; i < members.length; i++) {
-            schemas.push(this.getSwaggerType(members[i]));
+            schemas.push(this.getSchemaForType(members[i]));
         }
 
         const enumMembersKeys = Object.keys(enumMembers);
@@ -636,7 +613,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 typeName: 'enum',
                 members: enumMembers[enumMembersKeys[i]],
             };
-            schemas.push(this.getSwaggerTypeForEnumType(enumType));
+            schemas.push(this.getSchemaForEnumType(enumType));
         }
 
         if (schemas.length === 1) {

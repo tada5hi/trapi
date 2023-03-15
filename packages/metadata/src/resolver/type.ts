@@ -6,40 +6,12 @@
  */
 
 import type { Validator } from '../utils';
+import { TypeName } from './constants';
 import type { Extension } from './extension';
 
-export type TypeStringLiteral =
-        | 'string'
-        | 'boolean'
-        | 'double'
-        | 'float'
-        | 'file'
-        | 'integer'
-        | 'long'
-        | 'enum'
-        | 'array'
-        | 'datetime'
-        | 'date'
-        | 'binary'
-        | 'buffer'
-        | 'byte'
-        | 'void'
-        | 'object'
-        | 'any'
-        | 'refEnum'
-        | 'refObject'
-        | 'refAlias'
-        | 'nestedObjectLiteral'
-        | 'union'
-        | 'intersection';
-
-export type RefTypeLiteral = 'refObject' | 'refEnum' | 'refAlias';
-
-export type PrimitiveTypeLiteral = Exclude<TypeStringLiteral, RefTypeLiteral | 'enum' | 'array' | 'void' | 'nestedObjectLiteral' | 'union' | 'intersection'>;
-
-export type TypeVariant =
+export type Type =
         | PrimitiveType
-        | ObjectsNoPropsType
+        | ObjectType
         | EnumType
         | ArrayType
         | FileType
@@ -54,59 +26,81 @@ export type TypeVariant =
         | RefAliasType
         | NestedObjectLiteralType
         | UnionType
-        | IntersectionType;
+        | IntersectionType
+        | VoidType;
 
 // -------------------------------------------
 
 export interface BaseType {
-    typeName: TypeStringLiteral;
-    typeArgument?: BaseType;
+    typeName: `${TypeName}`;
 }
 
 // -------------------------------------------
 // Primitive Type(s)
 // -------------------------------------------
 
-export type PrimitiveType = StringType | BooleanType | DoubleType | FloatType | IntegerType | LongType | VoidType;
-
 export interface AnyType extends BaseType {
-    typeName: 'any';
+    typeName: `${TypeName.ANY}`;
 }
 
-export function isAnyType(param: BaseType) : param is AnyType {
-    return param.typeName === 'any';
+export function isAnyType(param: BaseType): param is AnyType {
+    return param.typeName === TypeName.ANY;
 }
 
 export interface StringType extends BaseType {
-    typeName: 'string';
+    typeName: `${TypeName.STRING}`;
+}
+
+export function isStringType(param: BaseType): param is StringType {
+    return param.typeName === TypeName.STRING;
 }
 
 export interface BooleanType extends BaseType {
-    typeName: 'boolean';
+    typeName: `${TypeName.BOOLEAN}`;
+}
+
+export function isBooleanType(param: BaseType): param is BooleanType {
+    return param.typeName === TypeName.BOOLEAN;
 }
 
 export interface DoubleType extends BaseType {
-    typeName: 'double';
+    typeName: `${TypeName.DOUBLE}`;
+}
+
+export function isDoubleType(param: BaseType): param is DoubleType {
+    return param.typeName === TypeName.DOUBLE;
 }
 
 export interface FloatType extends BaseType {
-    typeName: 'float';
+    typeName: `${TypeName.FLOAT}`;
+}
+
+export function isFloatType(param: BaseType): param is FloatType {
+    return param.typeName === TypeName.FLOAT;
 }
 
 export interface IntegerType extends BaseType {
-    typeName: 'integer';
+    typeName: `${TypeName.INTEGER}`;
+}
+
+export function isIntegerType(param: BaseType): param is IntegerType {
+    return param.typeName === TypeName.INTEGER;
 }
 
 export interface LongType extends BaseType {
-    typeName: 'long';
+    typeName: `${TypeName.LONG}`;
+}
+
+export function isLongType(param: BaseType): param is LongType {
+    return param.typeName === TypeName.LONG;
 }
 
 export interface VoidType extends BaseType {
-    typeName: 'void';
+    typeName: `${TypeName.VOID}`;
 }
 
 export function isVoidType(param: BaseType) : param is VoidType {
-    return typeof param === 'undefined' || param.typeName === 'void';
+    return typeof param === 'undefined' || param.typeName === TypeName.VOID;
 }
 
 // -------------------------------------------
@@ -114,31 +108,58 @@ export function isVoidType(param: BaseType) : param is VoidType {
 // -------------------------------------------
 
 export interface DateType extends BaseType {
-    typeName: 'date';
+    typeName: `${TypeName.DATE}`;
+}
+
+export function isDateType(param: BaseType): param is DateType {
+    return param.typeName === TypeName.DATE;
 }
 
 export interface FileType extends BaseType {
-    typeName: 'file';
+    typeName: `${TypeName.FILE}`;
+}
+
+export function isFileType(param: BaseType): param is FileType {
+    return param.typeName === TypeName.FILE;
 }
 
 export interface DateTimeType extends BaseType {
-    typeName: 'datetime';
+    typeName: `${TypeName.DATETIME}`;
+}
+
+export function isDateTimeType(param: BaseType): param is DateTimeType {
+    return param.typeName === TypeName.DATETIME;
 }
 
 export interface BinaryType extends BaseType {
-    typeName: 'binary';
+    typeName: `${TypeName.BINARY}`;
+}
+
+export function isBinaryType(param: BaseType): param is BinaryType {
+    return param.typeName === TypeName.BINARY;
 }
 
 export interface BufferType extends BaseType {
-    typeName: 'buffer';
+    typeName: `${TypeName.BUFFER}`;
+}
+
+export function isBufferType(param: BaseType): param is BufferType {
+    return param.typeName === TypeName.BUFFER;
 }
 
 export interface ByteType extends BaseType {
-    typeName: 'byte';
+    typeName: `${TypeName.BYTE}`;
+}
+export function isByteType(param: BaseType): param is ByteType {
+    return param.typeName === TypeName.BYTE;
 }
 
-export interface ObjectsNoPropsType extends BaseType {
-    typeName: 'object';
+export interface ObjectType extends BaseType {
+    typeName: `${TypeName.OBJECT}`;
+}
+
+export function isObjectType(param: BaseType): param is ObjectType {
+    return param.typeName === TypeName.OBJECT;
 }
 
 // -------------------------------------------
@@ -147,56 +168,56 @@ export interface ObjectsNoPropsType extends BaseType {
 
 export interface EnumType extends BaseType {
     members: Array<string | number | boolean | null>;
-    typeName: 'enum';
+    typeName: `${TypeName.ENUM}`;
 }
 
 export function isEnumType(param: BaseType) : param is EnumType {
-    return param.typeName === 'enum';
+    return param.typeName === TypeName.ENUM;
 }
 
 // -------------------------------------------
 
 export interface ArrayType extends BaseType {
-    elementType: BaseType;
-    typeName: 'array';
+    elementType: Type;
+    typeName: `${TypeName.ARRAY}`;
 }
 
 export function isArrayType(param: BaseType) : param is ArrayType {
-    return param.typeName === 'array';
+    return param.typeName === TypeName.ARRAY;
 }
 
 // -------------------------------------------
 
 export interface NestedObjectLiteralType extends BaseType {
-    typeName: 'nestedObjectLiteral';
+    typeName: `${TypeName.NESTED_OBJECT_LITERAL}`;
     properties: ResolverProperty[];
-    additionalProperties?: TypeVariant;
+    additionalProperties?: Type;
 }
 
 export function isNestedObjectLiteralType(param: BaseType) : param is NestedObjectLiteralType {
-    return param.typeName === 'nestedObjectLiteral';
+    return param.typeName === TypeName.NESTED_OBJECT_LITERAL;
 }
 
 // -------------------------------------------
 
 export interface IntersectionType extends BaseType {
-    typeName: 'intersection';
-    members: TypeVariant[];
+    typeName: `${TypeName.INTERSECTION}`;
+    members: Type[];
 }
 
 export function isIntersectionType(param: BaseType) : param is IntersectionType {
-    return param.typeName === 'intersection';
+    return param.typeName === TypeName.INTERSECTION;
 }
 
 // -------------------------------------------
 
 export interface UnionType extends BaseType {
-    typeName: 'union';
-    members: TypeVariant[];
+    typeName: `${TypeName.UNION}`;
+    members: Type[];
 }
 
 export function isUnionType(param: BaseType) : param is UnionType {
-    return param.typeName === 'union';
+    return param.typeName === TypeName.UNION;
 }
 
 // -------------------------------------------
@@ -204,51 +225,81 @@ export function isUnionType(param: BaseType) : param is UnionType {
 // -------------------------------------------
 
 export type ReferenceType = RefEnumType | RefObjectType | RefAliasType;
-
-export interface ReferenceTypes {
-    [key: string]: ReferenceType;
-}
+export type ReferenceTypes = Record<string, ReferenceType>;
 
 export type DependencyResolver = (referenceTypes: ReferenceTypes) => void;
 
 export interface ReferenceTypeBase extends BaseType {
     description?: string;
-    typeName: RefTypeLiteral;
+    typeName: `${TypeName.REF_ALIAS}` | `${TypeName.REF_ENUM}` | `${TypeName.REF_OBJECT}`;
     refName: string;
     example?: unknown;
     deprecated: boolean;
 }
 
 export interface RefEnumType extends ReferenceTypeBase {
-    typeName: 'refEnum';
+    typeName: `${TypeName.REF_ENUM}`;
     members: Array<string | number | boolean>;
     memberNames?: string[];
 }
 
 export function isRefEnumType(param: BaseType) : param is RefEnumType {
-    return param.typeName === 'refEnum';
+    return param.typeName === TypeName.REF_ENUM;
 }
 
 export interface RefObjectType extends ReferenceTypeBase {
-    typeName: 'refObject';
+    typeName: `${TypeName.REF_OBJECT}`;
     properties: ResolverProperty[];
-    additionalProperties?: TypeVariant;
+    additionalProperties?: Type;
 }
 
 export function isRefObjectType(param: BaseType) : param is RefObjectType {
-    return param.typeName === 'refObject';
+    return param.typeName === TypeName.REF_OBJECT;
 }
 
 export interface RefAliasType extends Omit<ResolverProperty, 'name' | 'required'>, ReferenceTypeBase {
-    typeName: 'refAlias';
+    typeName: `${TypeName.REF_ALIAS}`;
 }
 
 export function isRefAliasType(param: BaseType) : param is RefAliasType {
-    return param.typeName === 'refAlias';
+    return param.typeName === TypeName.REF_ALIAS;
 }
 
 export function isReferenceType(param: BaseType) : param is ReferenceType {
-    return param.typeName === 'refEnum' || param.typeName === 'refAlias' || param.typeName === 'refObject';
+    return param.typeName === TypeName.REF_ALIAS ||
+        param.typeName === TypeName.REF_ENUM ||
+        param.typeName === TypeName.REF_OBJECT;
+}
+
+export type PrimitiveType = AnyType |
+BinaryType |
+BooleanType |
+BufferType |
+ByteType |
+DateType |
+DateTimeType |
+DoubleType |
+FloatType |
+FileType |
+IntegerType |
+LongType |
+ObjectType |
+StringType;
+export function isPrimitiveType(type: BaseType) : type is PrimitiveType {
+    return isAnyType(type) ||
+        isBinaryType(type) ||
+        isBooleanType(type) ||
+        isBufferType(type) ||
+        isByteType(type) ||
+        isDateType(type) ||
+        isDateTimeType(type) ||
+        isDoubleType(type) ||
+        isFloatType(type) ||
+        isFileType(type) ||
+        isIntegerType(type) ||
+        isLongType(type) ||
+        isObjectType(type) ||
+        isStringType(type);
 }
 
 export interface ResolverProperty {
@@ -258,7 +309,7 @@ export interface ResolverProperty {
     validators?: Record<string, Validator>;
     description?: string;
     name: string;
-    type: TypeVariant;
+    type: Type;
     required: boolean;
     deprecated: boolean;
     extensions?: Extension[]

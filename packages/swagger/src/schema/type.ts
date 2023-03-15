@@ -6,6 +6,7 @@
  */
 
 import type { CollectionFormat } from '@trapi/metadata';
+import type { DataFormatName, DataTypeName } from './constants';
 import type { ParameterSourceV2 } from './v2';
 
 export interface BaseSpec {
@@ -78,8 +79,8 @@ export interface Example {
 // ------------------------------------------------------
 
 export interface BaseSchema<T> {
-    type?: DataType | any;
-    format?: DataFormat;
+    type?: `${DataTypeName}`;
+    format?: `${DataFormatName}`;
     title?: string;
     description?: string;
     default?: string | boolean | number | any;
@@ -117,9 +118,6 @@ interface XML {
     attribute?: string;
     wrapped?: boolean;
 }
-
-export type DataType = 'void' | 'integer' | 'number' | 'boolean' | 'string' | 'array' | 'object' | 'file';
-export type DataFormat = 'int32' | 'int64' | 'float' | 'double' | 'byte' | 'binary' | 'date' | 'date-time' | 'password';
 
 // ------------------------------------------------------
 

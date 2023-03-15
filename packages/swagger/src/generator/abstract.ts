@@ -13,25 +13,25 @@ import type {
     Metadata,
     NestedObjectLiteralType,
     Parameter,
-    ParameterSource,
-    PrimitiveTypeLiteral,
-    ReferenceType,
+    ParameterSource, PrimitiveType,
+    RefAliasType, RefEnumType,
+    RefObjectType, ReferenceType,
     ResolverProperty,
-    TypeVariant,
     UnionType,
     Validators,
     VariableType,
 } from '@trapi/metadata';
 import {
+    TypeName,
     ValidatorName,
-    isAnyType,
     isArrayType,
     isEnumType,
     isIntersectionType,
     isNestedObjectLiteralType,
+    isPrimitiveType,
     isReferenceType,
-
-    isUnionType, isVoidType,
+    isUnionType,
+    isVoidType,
 } from '@trapi/metadata';
 
 import path from 'node:path';
@@ -41,7 +41,7 @@ import YAML from 'yamljs';
 import { buildOptions } from '../config';
 import type { Options, OptionsInput } from '../config';
 import type { DocumentFormat } from '../constants';
-import { hasOwnProperty } from '../utils';
+import { DataFormatName, DataTypeName } from '../schema';
 
 import type { DocumentFormatData } from '../type';
 import type {
@@ -83,7 +83,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         const data : DocumentFormatData[] = [
             {
                 path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.json`),
-                name: 'swagger.json',
+                name: `${this.config.outputFileName}.json`,
                 content: JSON.stringify(this.spec, null, 4),
             },
         ];
@@ -91,7 +91,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         if (this.config.yaml) {
             data.push({
                 path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.yaml`),
-                name: 'swagger.yaml',
+                name: `${this.config.outputFileName}.yaml`,
                 content: YAML.stringify(this.spec, 1000),
             });
         }
@@ -109,7 +109,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected buildInfo() {
         const info: Info = {
-            title: this.config.name || '',
+            title: this.config.name || 'Documentation',
             version: this.config.version || '1.0.0',
         };
 
@@ -124,81 +124,69 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return info;
     }
 
-    protected getSwaggerType(type: BaseType): Schema | BaseSchema<Schema> {
+    protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
         if (isVoidType(type)) {
             return {} as Schema;
         } if (isReferenceType(type)) {
-            return this.getSwaggerTypeForReferenceType(type);
-        } if (
-            type.typeName === 'any' ||
-            type.typeName === 'binary' ||
-            type.typeName === 'boolean' ||
-            type.typeName === 'buffer' ||
-            type.typeName === 'byte' ||
-            type.typeName === 'date' ||
-            type.typeName === 'datetime' ||
-            type.typeName === 'double' ||
-            type.typeName === 'float' ||
-            type.typeName === 'file' ||
-            type.typeName === 'integer' ||
-            type.typeName === 'long' ||
-            type.typeName === 'object' ||
-            type.typeName === 'string'
-        ) {
-            return this.getSwaggerTypeForPrimitiveType(type.typeName);
+            return this.getSchemaForReferenceType(type);
+        } if (isPrimitiveType(type)) {
+            return this.getSchemaForPrimitiveType(type);
         } if (isArrayType(type)) {
-            return this.getSwaggerTypeForArrayType(type);
+            return this.getSchemaForArrayType(type);
         } if (isEnumType(type)) {
-            return this.getSwaggerTypeForEnumType(type);
+            return this.getSchemaForEnumType(type);
         } if (isUnionType(type)) {
-            return this.getSwaggerTypeForUnionType(type);
+            return this.getSchemaForUnionType(type);
         } if (isIntersectionType(type)) {
-            return this.getSwaggerTypeForIntersectionType(type);
+            return this.getSchemaForIntersectionType(type);
         } if (isNestedObjectLiteralType(type)) {
-            return this.getSwaggerTypeForObjectLiteral(type);
+            return this.getSchemaForObjectLiteralType(type);
         }
 
         return {} as Schema;
     }
 
-    protected abstract getSwaggerTypeForIntersectionType(type: IntersectionType): Schema;
+    protected abstract getSchemaForIntersectionType(type: IntersectionType): Schema;
 
-    protected abstract getSwaggerTypeForEnumType(enumType: EnumType): Schema;
+    protected abstract getSchemaForEnumType(enumType: EnumType): Schema;
 
-    private getSwaggerTypeForPrimitiveType(type: PrimitiveTypeLiteral): BaseSchema<Schema> {
-        const PrimitiveSwaggerTypeMap: Record<PrimitiveTypeLiteral, BaseSchema<Schema>> = {
+    private getSchemaForPrimitiveType(type: PrimitiveType): BaseSchema<Schema> {
+        const PrimitiveSwaggerTypeMap: Partial<Record<TypeName, BaseSchema<Schema>>> = {
             any: {
                 additionalProperties: true,
             },
-            binary: { type: 'string', format: 'binary' },
-            boolean: { type: 'boolean' },
-            buffer: { type: 'string', format: 'byte' },
-            byte: { type: 'string', format: 'byte' },
-            date: { type: 'string', format: 'date' },
-            datetime: { type: 'string', format: 'date-time' },
-            double: { type: 'number', format: 'double' },
-            file: { type: 'string', format: 'binary' },
-            float: { type: 'number', format: 'float' },
-            integer: { type: 'integer', format: 'int32' },
-            long: { type: 'integer', format: 'int64' },
+            binary: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
+            boolean: { type: DataTypeName.BOOLEAN },
+            buffer: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
+            byte: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
+            date: { type: DataTypeName.STRING, format: DataFormatName.DATE },
+            datetime: { type: DataTypeName.STRING, format: DataFormatName.DATE_TIME },
+            double: { type: DataTypeName.NUMBER, format: DataFormatName.DOUBLE },
+            file: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
+            float: { type: DataTypeName.NUMBER, format: DataFormatName.FLOAT },
+            integer: { type: DataTypeName.INTEGER, format: DataFormatName.INT_32 },
+            long: { type: DataTypeName.INTEGER, format: DataFormatName.INT_64 },
             object: {
-                type: 'object',
+                type: DataTypeName.OBJECT,
                 additionalProperties: true,
             },
-            string: { type: 'string' },
+            string: { type: DataTypeName.STRING },
         };
 
-        return PrimitiveSwaggerTypeMap[type];
+        return PrimitiveSwaggerTypeMap[type.typeName] || { type: DataTypeName.OBJECT };
     }
 
-    private getSwaggerTypeForArrayType(arrayType: ArrayType): BaseSchema<Schema> {
-        return { type: 'array', items: this.getSwaggerType(arrayType.elementType) };
+    private getSchemaForArrayType(arrayType: ArrayType): BaseSchema<Schema> {
+        return {
+            type: DataTypeName.ARRAY,
+            items: this.getSchemaForType(arrayType.elementType),
+        };
     }
 
-    public getSwaggerTypeForObjectLiteral(objectLiteral: NestedObjectLiteralType): BaseSchema<Schema> {
+    public getSchemaForObjectLiteralType(objectLiteral: NestedObjectLiteralType): BaseSchema<Schema> {
         const properties = this.buildProperties(objectLiteral.properties);
 
-        const additionalProperties = objectLiteral.additionalProperties && this.getSwaggerType(objectLiteral.additionalProperties);
+        const additionalProperties = objectLiteral.additionalProperties && this.getSchemaForType(objectLiteral.additionalProperties);
 
         const required = objectLiteral.properties
             .filter((prop: ResolverProperty) => prop.required).map((prop: ResolverProperty) => prop.name);
@@ -209,13 +197,53 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             properties,
             ...(additionalProperties && { additionalProperties }),
             ...(required && required.length && { required }),
-            type: 'object',
+            type: DataTypeName.OBJECT,
         } as BaseSchema<Schema>;
     }
 
-    protected abstract getSwaggerTypeForReferenceType(referenceType: ReferenceType): Schema;
+    protected abstract getSchemaForReferenceType(referenceType: ReferenceType): Schema;
 
-    protected abstract getSwaggerTypeForUnionType(type: UnionType) : Schema;
+    protected abstract getSchemaForUnionType(type: UnionType) : Schema;
+
+    // ----------------------------------------------------------------
+
+    protected abstract buildSchemaForRefAlias(referenceType: RefAliasType) : Schema;
+
+    protected abstract buildSchemaForRefEnum(referenceType: RefEnumType) : Schema;
+
+    protected abstract buildSchemaForRefObject(referenceType: RefObjectType) : Schema;
+
+    protected buildSchemasForReferenceTypes(extendFn?: (output: Schema, input: ReferenceType) => void) : Record<string, Schema> {
+        const output: Record<string, Schema> = {};
+
+        const keys = Object.keys(this.metadata.referenceTypes);
+        for (let i = 0; i < keys.length; i++) {
+            const referenceType = this.metadata.referenceTypes[keys[i]];
+
+            switch (referenceType.typeName) {
+                case TypeName.REF_ALIAS: {
+                    output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
+                    break;
+                }
+                case TypeName.REF_ENUM: {
+                    output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
+                    break;
+                }
+                case TypeName.REF_OBJECT: {
+                    output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
+                    break;
+                }
+            }
+
+            if (typeof extendFn === 'function') {
+                extendFn(output[referenceType.refName], referenceType);
+            }
+        }
+
+        return output;
+    }
+
+    // ----------------------------------------------------------------
 
     protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
 

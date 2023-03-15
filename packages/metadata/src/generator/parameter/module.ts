@@ -10,9 +10,17 @@ import * as ts from 'typescript';
 import type { DecoratorPropertyManager } from '../../decorator';
 import { DecoratorID } from '../../decorator';
 import type {
-    BaseType, NestedObjectLiteralType, RefObjectType, TypeVariant,
+    BaseType, NestedObjectLiteralType, RefObjectType, Type,
 } from '../../resolver';
-import { TypeNodeResolver } from '../../resolver';
+import {
+    TypeName,
+    TypeNodeResolver,
+    isArrayType,
+    isNestedObjectLiteralType,
+    isRefEnumType,
+    isRefObjectType,
+    isUnionType,
+} from '../../resolver';
 import {
     JSDocTagName,
     getDeclarationValidators,
@@ -100,8 +108,6 @@ export class ParameterGenerator {
                     return this.getFileParameter(manager as DecoratorPropertyManager<`${DecoratorID.FILE}`>);
             }
         }
-
-        // todo: add BodyProp decorator, due the fact that single body parameter can contain object.
 
         return this.getBodyParameter();
     }
@@ -197,10 +203,10 @@ export class ParameterGenerator {
             });
         }
 
-        const elementType: TypeVariant = { typeName: 'file' };
-        let type: TypeVariant;
+        const elementType: Type = { typeName: TypeName.FILE };
+        let type: Type;
         if (manager.representation.id === DecoratorID.FILES) {
-            type = { typeName: 'array', elementType };
+            type = { typeName: TypeName.ARRAY, elementType };
         } else {
             type = elementType;
         }
@@ -279,8 +285,8 @@ export class ParameterGenerator {
         const { examples, exampleLabels } = this.getParameterExample(parameterName);
 
         if (
-            type.typeName === 'nestedObjectLiteral' ||
-            type.typeName === 'refObject'
+            isNestedObjectLiteralType(type) ||
+            isRefObjectType(type)
         ) {
             return this.buildParametersForObject(type, {
                 in: ParameterSource.COOKIE,
@@ -380,7 +386,10 @@ export class ParameterGenerator {
 
         const { examples, exampleLabels } = this.getParameterExample(parameterName);
 
-        if (type.typeName === 'nestedObjectLiteral' || type.typeName === 'refObject') {
+        if (
+            isNestedObjectLiteralType(type) ||
+            isRefObjectType(type)
+        ) {
             return this.buildParametersForObject(type, {
                 in: ParameterSource.HEADER,
                 examples,
@@ -441,8 +450,8 @@ export class ParameterGenerator {
         if (source === ParameterSource.QUERY) {
             // yeah! we can transform the object to individual properties.
             if (
-                type.typeName === 'nestedObjectLiteral' ||
-                type.typeName === 'refObject'
+                isNestedObjectLiteralType(type) ||
+                isRefObjectType(type)
             ) {
                 return this.buildParametersForObject(type, {
                     in: ParameterSource.QUERY_PROP,
@@ -472,7 +481,7 @@ export class ParameterGenerator {
             validators: getDeclarationValidators(this.parameter, parameterName),
         };
 
-        if (type.typeName === 'array') {
+        if (isArrayType(type)) {
             if (!this.isTypeSupported(type.elementType)) {
                 throw ParameterError.typeUnsupported({
                     decoratorName: manager.representation.name,
@@ -502,10 +511,10 @@ export class ParameterGenerator {
         return [properties];
     }
 
-    private isTypeSupportedForQueryParameter(type: TypeVariant) {
+    private isTypeSupportedForQueryParameter(type: Type) {
         return this.isTypeSupported(type) ||
-        type.typeName === 'refEnum' ||
-        type.typeName === 'union';
+            isRefEnumType(type) ||
+            isUnionType(type);
     }
 
     private getPathParameter(
@@ -523,7 +532,10 @@ export class ParameterGenerator {
 
         const { examples, exampleLabels } = this.getParameterExample(parameterName);
 
-        if (type.typeName === 'nestedObjectLiteral' || type.typeName === 'refObject') {
+        if (
+            isNestedObjectLiteralType(type) ||
+            isRefObjectType(type)
+        ) {
             const output = this.buildParametersForObject(type, {
                 in: ParameterSource.PATH,
                 examples,
@@ -650,16 +662,16 @@ export class ParameterGenerator {
 
     private isTypeSupported(parameterType: BaseType) {
         return [
-            'string',
-            'integer',
-            'long',
-            'float',
-            'double',
-            'date',
-            'datetime',
-            'buffer',
-            'boolean',
-            'enum',
+            TypeName.STRING,
+            TypeName.INTEGER,
+            TypeName.LONG,
+            TypeName.FLOAT,
+            TypeName.DOUBLE,
+            TypeName.DATE,
+            TypeName.DATETIME,
+            TypeName.BUFFER,
+            TypeName.BOOLEAN,
+            TypeName.ENUM,
         ].find((t) => t === parameterType.typeName);
     }
 

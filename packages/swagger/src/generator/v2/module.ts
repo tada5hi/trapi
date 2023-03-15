@@ -15,11 +15,12 @@ import type {
     RefObjectType,
     ReferenceType,
     ResolverProperty, Response,
-    TypeVariant,
+    Type,
     UnionType,
 } from '@trapi/metadata';
 import {
-    ParameterSource, isAnyType, isEnumType, isRefEnumType,
+    ParameterSource, TypeName, isAnyType, isEnumType, isRefEnumType,
+    isRefObjectType,
 } from '@trapi/metadata';
 import path from 'node:path';
 import { URL } from 'node:url';
@@ -31,7 +32,6 @@ import { AbstractSpecGenerator } from '../abstract';
 
 import type {
     BaseSchema,
-    DataFormat,
     Example,
     OperationV2,
     ParameterV2,
@@ -41,7 +41,10 @@ import type {
     SecurityV2,
     SpecV2,
 } from '../../schema';
-import { ParameterSourceV2 } from '../../schema';
+import {
+    DataFormatName, DataTypeName,
+    ParameterSourceV2,
+} from '../../schema';
 
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     async build() : Promise<SpecV2> {
@@ -50,7 +53,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         let spec: SpecV2 = {
-            definitions: this.buildDefinitions(),
+            definitions: this.buildSchemasForReferenceTypes(),
             info: this.buildInfo(),
             paths: this.buildPaths(),
             swagger: '2.0',
@@ -154,32 +157,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return definitions;
     }
 
-    private buildDefinitions() {
-        const output: Record<string, SchemaV2> = {};
-
-        const keys = Object.keys(this.metadata.referenceTypes);
-        for (let i = 0; i < keys.length; i++) {
-            const referenceType = this.metadata.referenceTypes[keys[i]];
-
-            switch (referenceType.typeName) {
-                case 'refAlias': {
-                    output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
-                    break;
-                }
-                case 'refEnum': {
-                    output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
-                    break;
-                }
-                case 'refObject': {
-                    output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
-                    break;
-                }
-            }
-        }
-
-        return output;
-    }
-
     protected buildSchemaForRefObject(referenceType: RefObjectType) : SchemaV2 {
         const required = referenceType.properties
             .filter((p: ResolverProperty) => p.required)
@@ -189,7 +166,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             description: referenceType.description,
             properties: this.buildProperties(referenceType.properties),
             required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-            type: 'object',
+            type: DataTypeName.OBJECT,
         };
 
         if (referenceType.additionalProperties) {
@@ -218,8 +195,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     }
 
     protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV2 {
-        const swaggerType = this.getSwaggerType(referenceType.type);
-        const format = referenceType.format as DataFormat;
+        const swaggerType = this.getSchemaForType(referenceType.type);
+        const format = referenceType.format as DataFormatName;
 
         return {
             ...(swaggerType as SchemaV2),
@@ -300,7 +277,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         if (bodyPropParams.length > 0) {
             const schema : BaseSchema<SchemaV2> = {
-                type: 'object',
+                type: DataTypeName.OBJECT,
                 title: 'Body',
                 properties: {},
             };
@@ -308,7 +285,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             const required : string[] = [];
 
             for (let i = 0; i < bodyPropParams.length; i++) {
-                const bodyProp = this.getSwaggerType(bodyPropParams[i].type);
+                const bodyProp = this.getSchemaForType(bodyPropParams[i].type);
                 bodyProp.default = bodyPropParams[i].default;
                 bodyProp.description = bodyPropParams[i].description;
                 bodyProp.example = bodyPropParams[i].examples;
@@ -324,7 +301,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 bodyParameter &&
                 bodyParameter.in === ParameterSourceV2.BODY
             ) {
-                if (bodyParameter.schema.type === 'object') {
+                if (bodyParameter.schema.type === DataTypeName.OBJECT) {
                     bodyParameter.schema.properties = {
                         ...(bodyParameter.schema.properties || {}),
                         ...schema.properties,
@@ -409,12 +386,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             isRefEnumType(input.type)
         ) {
             input.type = {
-                typeName: 'enum',
+                typeName: TypeName.ENUM,
                 members: input.type.members,
             };
         }
 
-        const parameterType = this.getSwaggerType(input.type);
+        const parameterType = this.getSchemaForType(input.type);
         if (
             parameter.in !== ParameterSourceV2.BODY &&
             parameterType.format
@@ -425,19 +402,19 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // collectionFormat, might be valid for all parameters (if value != multi)
         if (
             (parameter.in === ParameterSourceV2.FORM_DATA || parameter.in === ParameterSourceV2.QUERY) &&
-            (input.type.typeName === 'array' || parameterType.type === 'array')
+            (input.type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)
         ) {
             parameter.collectionFormat = input.collectionFormat || this.config.collectionFormat || 'multi';
         }
 
         if (parameter.in === ParameterSourceV2.BODY) {
-            if ((input.type.typeName === 'array' || parameterType.type === 'array')) {
+            if ((input.type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)) {
                 parameter.schema = {
                     items: parameterType.items,
-                    type: 'array',
+                    type: DataTypeName.ARRAY,
                 };
-            } else if (input.type.typeName === 'any') {
-                parameter.schema = { type: 'object' };
+            } else if (input.type.typeName === TypeName.ANY) {
+                parameter.schema = { type: DataTypeName.OBJECT };
             } else {
                 parameter.schema = parameterType;
             }
@@ -453,8 +430,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // todo: this is eventually illegal
         merge(parameter, this.transformValidators(input.validators));
 
-        if (input.type.typeName === 'any') {
-            parameter.type = 'string';
+        if (input.type.typeName === TypeName.ANY) {
+            parameter.type = DataTypeName.STRING;
         } else if (parameterType.type) {
             parameter.type = parameterType.type;
         }
@@ -512,7 +489,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         Swagger Type ( + utils)
      */
 
-    protected getSwaggerTypeForEnumType(enumType: EnumType) : SchemaV2 {
+    protected getSchemaForEnumType(enumType: EnumType) : SchemaV2 {
         const type = this.decideEnumType(enumType.members);
         const nullable = !!enumType.members.includes(null);
 
@@ -523,35 +500,34 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         };
     }
 
-    protected getSwaggerTypeForIntersectionType(type: IntersectionType) : SchemaV2 {
+    protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV2 {
         // tslint:disable-next-line:no-shadowed-variable
         const properties = type.members.reduce((acc, type) => {
-            if (type.typeName === 'refObject') {
-                let refType = type;
-                refType = this.metadata.referenceTypes[refType.refName] as RefObjectType;
+            if (isRefObjectType(type)) {
+                const refType = this.metadata.referenceTypes[type.refName] as RefObjectType;
 
                 const props = refType &&
                     refType.properties &&
                     refType.properties.reduce((pAcc, prop) => ({
                         ...pAcc,
-                        [prop.name]: this.getSwaggerType(prop.type),
+                        [prop.name]: this.getSchemaForType(prop.type),
                     }), {});
                 return { ...acc, ...props };
             }
             return { ...acc };
         }, {});
 
-        return { type: 'object', properties };
+        return { type: DataTypeName.OBJECT, properties };
     }
 
-    protected getSwaggerTypeForReferenceType(referenceType: ReferenceType): SchemaV2 {
+    protected getSchemaForReferenceType(referenceType: ReferenceType): SchemaV2 {
         return { $ref: `#/definitions/${referenceType.refName}` };
     }
 
-    protected getSwaggerTypeForUnionType(type: UnionType) : SchemaV2 {
-        const members : TypeVariant[] = [];
+    protected getSchemaForUnionType(type: UnionType) : SchemaV2 {
+        const members : Type[] = [];
 
-        const enumTypeMember : EnumType = { typeName: 'enum', members: [] };
+        const enumTypeMember : EnumType = { typeName: TypeName.ENUM, members: [] };
         for (let i = 0; i < type.members.length; i++) {
             const member = type.members[i];
             if (isEnumType(member)) {
@@ -567,13 +543,13 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             members.length === 0 &&
             enumTypeMember.members.length > 0
         ) {
-            return this.getSwaggerTypeForEnumType(enumTypeMember);
+            return this.getSchemaForEnumType(enumTypeMember);
         }
 
         const isNullEnum = enumTypeMember.members.every((member) => member === null);
         if (members.length === 1) {
             if (isNullEnum) {
-                const memberType = this.getSwaggerType(members[0]);
+                const memberType = this.getSchemaForType(members[0]);
                 if (memberType.$ref) {
                     return memberType;
                 }
@@ -583,21 +559,21 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
 
             if (enumTypeMember.members.length === 0) {
-                return this.getSwaggerType(members[0]);
+                return this.getSchemaForType(members[0]);
             }
         }
 
-        return { type: 'object', ...(isNullEnum ? { 'x-nullable': true } : {}) };
+        return { type: DataTypeName.OBJECT, ...(isNullEnum ? { 'x-nullable': true } : {}) };
     }
 
     protected buildProperties(properties: ResolverProperty[]) : Record<string, SchemaV2> {
         const output: Record<string, SchemaV2> = {};
 
         properties.forEach((property) => {
-            const swaggerType = this.getSwaggerType(property.type);
+            const swaggerType = this.getSchemaForType(property.type);
             swaggerType.description = property.description;
             swaggerType.example = property.example;
-            swaggerType.format = property.format as DataFormat || swaggerType.format;
+            swaggerType.format = property.format as DataFormatName || swaggerType.format;
 
             if (!hasOwnProperty(swaggerType, '$ref') || !swaggerType.$ref) {
                 swaggerType.description = property.description;
@@ -641,8 +617,10 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             };
 
             if (res.schema) {
-                const swaggerType = this.getSwaggerType(res.schema);
-                if (swaggerType.type !== 'void') {
+                const swaggerType = this.getSchemaForType(res.schema);
+
+                // todo: is void type really returned ?
+                if (swaggerType.type !== DataTypeName.VOID) {
                     operation.responses[res.status].schema = swaggerType;
                 }
                 methodReturnTypes.add(this.getMimeType(swaggerType));
@@ -673,13 +651,15 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     private getMimeType(swaggerType: SchemaV2) {
         if (
             swaggerType.$ref ||
-            swaggerType.type === 'array' ||
-            swaggerType.type === 'object'
+            swaggerType.type === DataTypeName.ARRAY ||
+            swaggerType.type === DataTypeName.OBJECT
         ) {
             return 'application/json';
-        } if (
-            swaggerType.type === 'string' &&
-            swaggerType.format === 'binary'
+        }
+
+        if (
+            swaggerType.type === DataTypeName.STRING &&
+            swaggerType.format === DataFormatName.BINARY
         ) {
             return 'application/octet-stream';
         }

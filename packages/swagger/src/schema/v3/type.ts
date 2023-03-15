@@ -7,9 +7,10 @@
 
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
+import type { DataFormatName, DataTypeName } from '../constants';
 import type {
     BaseOperation, BaseResponse,
-    BaseSchema, BaseSpec, BodyParameter, DataFormat, DataType, Example,
+    BaseSchema, BaseSpec, BodyParameter, Example,
     FormDataParameter, HeaderParameter, Path, PathParameter, QueryParameter,
 } from '../type';
 import type { ParameterSourceV3 } from './constants';
@@ -127,8 +128,8 @@ export interface HeaderV3 extends Omit<BaseSchema<SchemaV3>, 'required'> {
     example?: unknown;
     examples?: Record<string, Example | string>;
     schema: BaseSchema<SchemaV3>;
-    type?: DataType;
-    format?: DataFormat;
+    type?: `${DataTypeName}`;
+    format?: `${DataFormatName}`;
 }
 
 export interface RequestBodyV3 {

@@ -6,7 +6,7 @@
  */
 
 import type { Validator } from '../../utils';
-import type { ArrayType, TypeVariant } from '../../resolver';
+import type { ArrayType, Type } from '../../resolver';
 import type { Example } from '../type';
 import type { CollectionFormat, ParameterSource } from './constants';
 
@@ -16,7 +16,7 @@ export interface Parameter {
     in: `${ParameterSource}`;
     name: string;
     required: boolean;
-    type: TypeVariant;
+    type: Type;
     collectionFormat?: `${CollectionFormat}`;
     allowEmptyValue?: boolean;
     default?: any;

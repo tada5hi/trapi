@@ -6,13 +6,13 @@
  */
 
 import * as ts from 'typescript';
-import type { TypeVariant } from '../resolver';
+import type { Type } from '../resolver';
 import { hasOwnProperty } from './object';
 
 export function getInitializerValue(
     initializer?: ts.Expression,
     typeChecker?: ts.TypeChecker,
-    type?: TypeVariant,
+    type?: Type,
 ) : unknown {
     if (!initializer) {
         return undefined;

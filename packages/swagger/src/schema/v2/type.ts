@@ -8,15 +8,13 @@
 import type { CollectionFormat } from '@trapi/metadata';
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
-import type { TransferProtocol } from '../constants';
+import type { DataFormatName, DataTypeName, TransferProtocol } from '../constants';
 import type {
     BaseOperation,
     BaseResponse,
     BaseSchema,
     BaseSpec,
     BodyParameter,
-    DataFormat,
-    DataType,
     FormDataParameter,
     HeaderParameter,
     Path,
@@ -42,8 +40,8 @@ export interface SpecV2 extends BaseSpec {
     type PatternField = `x-${string}`;
 
 export interface BaseParameterV2 {
-    type?: DataType;
-    format?: DataFormat;
+    type?: `${DataTypeName}`;
+    format?: `${DataFormatName}`;
     allowEmptyValue?: boolean,
     items?: Record<string, any>, // items object
     collectionFormat?: `${CollectionFormat}`,

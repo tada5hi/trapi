@@ -12,7 +12,7 @@ import { TypeNodeResolver } from '../resolver';
 
 import type { Example, Response, Security } from './type';
 import {
-    JSDocTagName, getInitializerValue, hasJSDocTag, normalizePath,
+    JSDocTagName, getInitializerValue, hasJSDocTag, isStringArray, normalizePath,
 } from '../utils';
 import type { MetadataGenerator } from './metadata';
 
@@ -64,7 +64,7 @@ export abstract class AbstractGenerator<T extends Node> {
 
                 const scopes = representation.get('value');
 
-                if (Array.isArray(scopes)) {
+                if (isStringArray(scopes)) {
                     securities.push({
                         [name]: scopes,
                     });

@@ -56,6 +56,6 @@
         "lerna": "^6.5.1",
         "rimraf": "^4.4.0",
         "ts-jest": "^27.1.4",
-        "typescript": "^4.9.5"
+        "typescript": "^5.0.2"
     }
 }

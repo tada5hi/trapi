@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.7...@trapi/metadata@1.0.0-alpha.8) (2023-03-17)
+
+
+### Features
+
+* bump typescript to v5.x ([b0a9680](https://github.com/Tada5hi/trapi/commit/b0a9680b156c74790aaca9190e1bb9b69da511b9))
+
+
+
+
+
 # [1.0.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@1.0.0-alpha.6...@trapi/metadata@1.0.0-alpha.7) (2023-03-15)
 
 

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@1.0.0-alpha.8...@trapi/decorators@1.0.0-alpha.9) (2023-03-17)
+
+**Note:** Version bump only for package @trapi/decorators
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/decorators@1.0.0-alpha.7...@trapi/decorators@1.0.0-alpha.8) (2023-03-15)
 
 **Note:** Version bump only for package @trapi/decorators

@@ -43,7 +43,7 @@
     },
     "dependencies": {
         "@trapi/metadata": "^1.0.0-alpha.8",
-        "smob": "^0.1.0",
+        "smob": "^1.0.0",
         "yamljs": "^0.3.0"
     },
     "repository": {

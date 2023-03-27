@@ -45,7 +45,7 @@
         "jsonata": "^2.0.2"
     },
     "dependencies": {
-        "locter": "^1.0.10",
+        "locter": "^1.1.0",
         "minimatch": "^7.4.3"
     },
     "peerDependencies": {

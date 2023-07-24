@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import type {
     Node, Program, SourceFile, TypeChecker,
 } from 'typescript';

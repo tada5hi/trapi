@@ -1,0 +1,31 @@
+{
+    "bootstrap-sha": "9629f2cf38e8fe548b8f6ff5f1a9571cb2099af8",
+    "include-component-in-tag": true,
+    "release-type": "node",
+    "bump-minor-pre-major": true,
+    "bump-patch-for-minor-pre-major": true,
+    "packages": {
+        "packages/decorators": {"component": "decorators" },
+        "packages/docs": {"component": "docs" },
+        "packages/metadata": {"component": "metadata" },
+        "packages/preset-decorators-express": {"component": "preset-decorators-express" },
+        "packages/preset-typescript-rest": {"component": "preset-typescript-rest" },
+        "packages/swagger": {"component": "swagger" }
+    },
+    "plugins": [
+        {
+            "type": "node-workspace",
+            "updatePeerDependencies": true
+        },
+        {
+            "type": "linked-versions",
+            "groupName": "main",
+            "components": [
+                "decorators",
+                "metadata",
+                "swagger"
+            ]
+        }
+    ],
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}

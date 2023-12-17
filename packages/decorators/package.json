@@ -1,6 +1,6 @@
 {
     "name": "@trapi/decorators",
-    "version": "1.0.0-alpha.9",
+    "version": "1.0.0",
     "description": "Preset for swagger related decorators.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,10 +25,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "@trapi/metadata": "^1.0.0-alpha.8"
+        "@trapi/metadata": "^1.0.0"
     },
     "peerDependencies": {
-        "@trapi/metadata": "1.x || >=1.0.0-alpha.0"
+        "@trapi/metadata": "1.0.0"
     },
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json"

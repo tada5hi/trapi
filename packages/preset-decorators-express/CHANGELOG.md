@@ -1,9 +1,21 @@
-# Change Log
+# Changelog
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/decorators bumped from ^1.0.0-alpha.9 to ^1.0.0
+  * devDependencies
+    * @trapi/metadata bumped from ^1.0.0-alpha.8 to ^1.0.0
+  * peerDependencies
+    * @trapi/metadata bumped from 1.x || >=1.0.0-alpha.0 to 1.0.0
+
+## Change Log
 
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.1.0-alpha.9](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.8...@trapi/preset-decorators-express@0.1.0-alpha.9) (2023-03-17)
+## [0.1.0-alpha.9](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.8...@trapi/preset-decorators-express@0.1.0-alpha.9) (2023-03-17)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -11,7 +23,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.7...@trapi/preset-decorators-express@0.1.0-alpha.8) (2023-03-15)
+## [0.1.0-alpha.8](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.7...@trapi/preset-decorators-express@0.1.0-alpha.8) (2023-03-15)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -19,7 +31,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.6...@trapi/preset-decorators-express@0.1.0-alpha.7) (2023-03-13)
+## [0.1.0-alpha.7](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.6...@trapi/preset-decorators-express@0.1.0-alpha.7) (2023-03-13)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -27,7 +39,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.5...@trapi/preset-decorators-express@0.1.0-alpha.6) (2023-03-12)
+## [0.1.0-alpha.6](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.5...@trapi/preset-decorators-express@0.1.0-alpha.6) (2023-03-12)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -35,7 +47,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.5](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.4...@trapi/preset-decorators-express@0.1.0-alpha.5) (2023-03-12)
+## [0.1.0-alpha.5](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.4...@trapi/preset-decorators-express@0.1.0-alpha.5) (2023-03-12)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -43,7 +55,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.3...@trapi/preset-decorators-express@0.1.0-alpha.4) (2023-03-11)
+## [0.1.0-alpha.4](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.3...@trapi/preset-decorators-express@0.1.0-alpha.4) (2023-03-11)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -51,7 +63,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.2...@trapi/preset-decorators-express@0.1.0-alpha.3) (2023-03-11)
+## [0.1.0-alpha.3](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.2...@trapi/preset-decorators-express@0.1.0-alpha.3) (2023-03-11)
 
 
 ### Bug Fixes
@@ -72,7 +84,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.2](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.1...@trapi/preset-decorators-express@0.1.0-alpha.2) (2023-03-06)
+## [0.1.0-alpha.2](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.1...@trapi/preset-decorators-express@0.1.0-alpha.2) (2023-03-06)
 
 
 ### Features
@@ -83,7 +95,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.1](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.0...@trapi/preset-decorators-express@0.1.0-alpha.1) (2023-03-06)
+## [0.1.0-alpha.1](https://github.com/Tada5hi/trapi/compare/@trapi/preset-decorators-express@0.1.0-alpha.0...@trapi/preset-decorators-express@0.1.0-alpha.1) (2023-03-06)
 
 **Note:** Version bump only for package @trapi/preset-decorators-express
 
@@ -91,7 +103,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# 0.1.0-alpha.0 (2023-03-06)
+## 0.1.0-alpha.0 (2023-03-06)
 
 
 ### Features

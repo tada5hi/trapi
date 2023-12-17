@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## 1.0.0 (2023-12-17)
+
+
+### Bug Fixes
+
+* **deps:** bump locter to v1.2.0 & minimatch to v9.x ([92f0649](https://github.com/tada5hi/trapi/commit/92f0649ac58018a15b62994c3e14532ca8da52d3))
+
 ## [0.4.1](https://github.com/Tada5hi/trapi/compare/@trapi/metadata@0.4.0...@trapi/metadata@0.4.1) (2022-11-16)
 
 

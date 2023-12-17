@@ -8,6 +8,6 @@
     },
     "dependencies": {
         "vitepress": "^1.0.0-beta.6",
-        "vue": "^3.3.4"
+        "vue": "^3.3.12"
     }
 }

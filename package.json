@@ -54,6 +54,6 @@
         "nx": "^17.2.5",
         "rimraf": "^5.0.5",
         "typescript": "^5.3.3",
-        "workspaces-publish": "^1.0.2"
+        "workspaces-publish": "^1.1.0"
     }
 }

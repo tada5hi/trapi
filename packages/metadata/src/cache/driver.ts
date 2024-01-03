@@ -80,7 +80,7 @@ export class CacheDriver {
         });
 
         const unlinkPromises : Promise<void>[] = [];
-        for (let i = 0; files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             unlinkPromises.push(fs.promises.unlink(buildFilePath(files[i])));
         }
 

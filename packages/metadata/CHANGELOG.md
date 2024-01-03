@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.0.1](https://github.com/tada5hi/trapi/compare/metadata-v1.0.0...metadata-v1.0.1) (2024-01-03)
+
+
+### Bug Fixes
+
+* metadata cache clear loop condition ([8cc5d41](https://github.com/tada5hi/trapi/commit/8cc5d41f83878ac17e961232e4ea080fb54f3f40))
+
 ## 1.0.0 (2023-12-17)
 
 

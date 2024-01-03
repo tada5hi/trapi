@@ -15,6 +15,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/decorators bumped from ^1.0.0 to ^1.0.1
+  * devDependencies
+    * @trapi/metadata bumped from ^1.0.0 to ^1.0.1
+  * peerDependencies
+    * @trapi/metadata bumped from 1.0.0 to 1.0.1
+
 ## [1.0.0-alpha.9](https://github.com/Tada5hi/trapi/compare/@trapi/preset-typescript-rest@1.0.0-alpha.8...@trapi/preset-typescript-rest@1.0.0-alpha.9) (2023-03-17)
 
 **Note:** Version bump only for package @trapi/preset-typescript-rest

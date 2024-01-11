@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.1.0](https://github.com/tada5hi/trapi/compare/swagger-v1.0.1...swagger-v1.1.0) (2024-01-11)
+
+
+### Bug Fixes
+
+* **deps:** bump locter to 1.3.0 & adjusted test suite ([657fa69](https://github.com/tada5hi/trapi/commit/657fa696fd55040ee08eded622049c8f031275da))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^1.0.1 to ^1.1.0
+
 ## [1.0.1](https://github.com/tada5hi/trapi/compare/swagger-v1.0.0...swagger-v1.0.1) (2024-01-03)
 
 

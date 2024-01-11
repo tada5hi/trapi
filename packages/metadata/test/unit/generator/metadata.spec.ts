@@ -26,30 +26,32 @@ describe('src/generator/metadata', () => {
 
         expect(metadata.controllers.length).toBeGreaterThan(0);
 
-        expect(metadata.controllers[0]).toHaveProperty('consumes');
-        expect(metadata.controllers[0].consumes.length).toEqual(0);
+        const controllers = metadata.controllers.reverse();
 
-        expect(metadata.controllers[0]).toHaveProperty('location');
+        expect(controllers[0]).toHaveProperty('consumes');
+        expect(controllers[0].consumes.length).toEqual(0);
 
-        expect(metadata.controllers[0]).toHaveProperty('methods');
-        expect(metadata.controllers[0].methods.length).toBeGreaterThan(0);
+        expect(controllers[0]).toHaveProperty('location');
 
-        expect(metadata.controllers[0]).toHaveProperty('name');
-        expect(metadata.controllers[0].name).toEqual('TestUnionType');
+        expect(controllers[0]).toHaveProperty('methods');
+        expect(controllers[0].methods.length).toBeGreaterThan(0);
 
-        expect(metadata.controllers[0]).toHaveProperty('path');
-        expect(metadata.controllers[0].path).toEqual('unionTypes');
+        expect(controllers[0]).toHaveProperty('name');
+        expect(controllers[0].name).toEqual('TestUnionType');
 
-        expect(metadata.controllers[0]).toHaveProperty('produces');
-        expect(metadata.controllers[0].produces.length).toEqual(0);
+        expect(controllers[0]).toHaveProperty('path');
+        expect(controllers[0].path).toEqual('unionTypes');
 
-        expect(metadata.controllers[0]).toHaveProperty('responses');
-        expect(metadata.controllers[0].responses.length).toEqual(0);
+        expect(controllers[0]).toHaveProperty('produces');
+        expect(controllers[0].produces.length).toEqual(0);
 
-        expect(metadata.controllers[0]).toHaveProperty('tags');
-        expect(metadata.controllers[0].tags.length).toEqual(0);
+        expect(controllers[0]).toHaveProperty('responses');
+        expect(controllers[0].responses.length).toEqual(0);
 
-        const method = metadata.controllers[0].methods[0];
+        expect(controllers[0]).toHaveProperty('tags');
+        expect(controllers[0].tags.length).toEqual(0);
+
+        const method = controllers[0].methods[0];
 
         expect(method).toHaveProperty('consumes');
         expect(method.consumes.length).toEqual(0);

@@ -151,6 +151,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.1.0](https://github.com/tada5hi/trapi/compare/metadata-v1.0.1...metadata-v1.1.0) (2024-01-11)
+
+
+### Features
+
+* optimized preset schema check ([cb7d900](https://github.com/tada5hi/trapi/commit/cb7d900621e2bb84f9a62e49acb13a3d750a2faa))
+
+
+### Bug Fixes
+
+* **deps:** bump locter to 1.3.0 & adjusted test suite ([657fa69](https://github.com/tada5hi/trapi/commit/657fa696fd55040ee08eded622049c8f031275da))
+* loading preset module ([06b2966](https://github.com/tada5hi/trapi/commit/06b29662248a9d459cb9bbca0a2455d5af9c3966))
+
 ## [1.0.1](https://github.com/tada5hi/trapi/compare/metadata-v1.0.0...metadata-v1.0.1) (2024-01-03)
 
 

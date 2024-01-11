@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { getModuleExport, isObject, load } from 'locter';
+import { getModuleExport, load } from 'locter';
 import type { DecoratorConfig } from '../../type';
 import { isPresetSchema } from './check';
 import { generatePresetLookupPaths } from './normalize';
@@ -20,29 +20,27 @@ export async function loadPreset(input: string) : Promise<DecoratorConfig[]> {
         try {
             let { value: content } = getModuleExport(await load(lookupPaths[i]));
 
-            if (!isObject(content)) {
-                continue;
+            if (!isPresetSchema(content)) {
+                if (isPresetSchema(content.default)) {
+                    content = content.default;
+                } else {
+                    continue;
+                }
             }
 
-            if (isPresetSchema(content.default)) {
-                content = content.default;
+            items.push(...content.items);
+
+            const extendsPromises : Promise<DecoratorConfig[]>[] = [];
+
+            if (content.extends) {
+                for (let j = 0; j < content.extends.length; j++) {
+                    extendsPromises.push(loadPreset(content.extends[j]));
+                }
             }
 
-            if (isPresetSchema(content)) {
-                items.push(...content.items);
-
-                const extendsPromises : Promise<DecoratorConfig[]>[] = [];
-
-                if (content.extends) {
-                    for (let j = 0; j < content.extends.length; j++) {
-                        extendsPromises.push(loadPreset(content.extends[j]));
-                    }
-                }
-
-                const output = await Promise.all(extendsPromises);
-                for (let j = 0; j < output.length; j++) {
-                    items.push(...output[j]);
-                }
+            const output = await Promise.all(extendsPromises);
+            for (let j = 0; j < output.length; j++) {
+                items.push(...output[j]);
             }
 
             allFailed = false;

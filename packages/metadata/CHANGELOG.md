@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.0](https://github.com/tada5hi/trapi/compare/metadata-v1.1.0...metadata-v1.2.0) (2024-01-18)
+
+
+### Features
+
+* bump locter to v2.x ([e304284](https://github.com/tada5hi/trapi/commit/e30428452e1ae656a87300b3a5091c9e8589fb68))
+
 ## [1.1.0](https://github.com/tada5hi/trapi/compare/metadata-v1.0.1...metadata-v1.1.0) (2024-01-11)
 
 

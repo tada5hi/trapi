@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.1](https://github.com/tada5hi/trapi/compare/metadata-v1.2.0...metadata-v1.2.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* constructing reference-type in create-circular-dependency-resolver ([1de6132](https://github.com/tada5hi/trapi/commit/1de6132ca105defb09259d481d3658683d7c4258))
+
 ## [1.2.0](https://github.com/tada5hi/trapi/compare/metadata-v1.1.0...metadata-v1.2.0) (2024-01-18)
 
 

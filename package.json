@@ -42,7 +42,7 @@
     },
     "devDependencies": {
         "@swc/core": "^1.4.1",
-        "@swc/jest": "^0.2.29",
+        "@swc/jest": "^0.2.36",
         "@tada5hi/commitlint-config": "^1.1.7",
         "@tada5hi/eslint-config-typescript": "^1.1.8",
         "@types/jest": "^29.5.12",

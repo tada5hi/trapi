@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.1](https://github.com/tada5hi/trapi/compare/decorators-v1.2.0...decorators-v1.2.1) (2024-02-19)
+
+
+### Miscellaneous Chores
+
+* **decorators:** Synchronize main versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/metadata bumped from ^1.2.0 to ^1.2.1
+  * peerDependencies
+    * @trapi/metadata bumped from 1.2.0 to 1.2.1
+
 ## [1.2.0](https://github.com/tada5hi/trapi/compare/decorators-v1.1.0...decorators-v1.2.0) (2024-01-18)
 
 

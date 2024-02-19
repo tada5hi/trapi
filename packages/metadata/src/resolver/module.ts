@@ -33,11 +33,12 @@ import type {
     NestedObjectLiteralType,
     PrimitiveType,
     RefEnumType,
+    RefObjectType,
     ReferenceType,
     ResolverProperty,
     StringType,
-    Type,
-    UnionType, VoidType,
+    Type, UnionType,
+    VoidType,
 } from './type';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
@@ -1046,10 +1047,12 @@ export class TypeNodeResolver {
     }
 
     private createCircularDependencyResolver(refName: string) {
-        const referenceType = {
+        const referenceType : ReferenceType = {
+            deprecated: false,
+            properties: [],
             typeName: TypeName.REF_OBJECT,
             refName,
-        } as ReferenceType;
+        };
 
         this.current.registerDependencyResolver((referenceTypes) => {
             const realReferenceType : ReferenceType | undefined = referenceTypes[refName];
@@ -1061,7 +1064,7 @@ export class TypeNodeResolver {
             if (realReferenceType.typeName === 'refObject' && referenceType.typeName === 'refObject') {
                 referenceType.properties = realReferenceType.properties;
             }
-            referenceType.typeName = realReferenceType.typeName;
+            referenceType.typeName = realReferenceType.typeName as `${TypeName.REF_OBJECT}`;
             referenceType.refName = realReferenceType.refName;
         });
 

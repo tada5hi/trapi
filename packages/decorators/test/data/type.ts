@@ -10,6 +10,7 @@ import {
     IsDouble, IsFloat, IsInt, IsLong,
 } from '../../src';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }

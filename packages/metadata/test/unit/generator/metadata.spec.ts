@@ -7,11 +7,14 @@
 
 import path from 'node:path';
 import process from 'node:process';
+import type { Metadata, NestedObjectLiteralType, RefAliasType } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('src/generator/metadata', () => {
-    it('should generate metadata', async () => {
-        const metadata = await generateMetadata({
+    let metadata : Metadata;
+
+    beforeAll(async () => {
+        metadata = await generateMetadata({
             entryPoint: [{
                 cwd: path.join(process.cwd(), '..', 'decorators'),
                 pattern: './test/data/controllers/**/*.ts',
@@ -19,39 +22,82 @@ describe('src/generator/metadata', () => {
             cache: false,
             preset: '@trapi/decorators',
         });
+    });
 
-        expect(metadata).toBeDefined();
+    it('should have properties', () => {
         expect(metadata).toHaveProperty('controllers');
         expect(metadata).toHaveProperty('referenceTypes');
 
         expect(metadata.controllers.length).toBeGreaterThan(0);
+    });
 
-        const controllers = metadata.controllers.reverse();
+    it('should have utility-types controller', () => {
+        let index = metadata.controllers.findIndex(
+            (controller) => controller.name === 'UtilityTypes',
+        );
+        expect(index).toBeGreaterThanOrEqual(0);
 
-        expect(controllers[0]).toHaveProperty('consumes');
-        expect(controllers[0].consumes.length).toEqual(0);
+        const controller = metadata.controllers[index];
 
-        expect(controllers[0]).toHaveProperty('location');
+        index = controller.methods.findIndex(
+            (method) => method.name === 'pick',
+        );
+        expect(index).toBeGreaterThanOrEqual(0);
 
-        expect(controllers[0]).toHaveProperty('methods');
-        expect(controllers[0].methods.length).toBeGreaterThan(0);
+        let method = controller.methods[index];
+        expect(method.name).toEqual('pick');
+        let refAlias = ((method.type as RefAliasType).type as RefAliasType);
+        let nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
+        expect(nestedObjectLiteral.properties.length).toEqual(1);
+        let property = nestedObjectLiteral.properties.pop();
+        expect(property.name).toEqual('bar');
 
-        expect(controllers[0]).toHaveProperty('name');
-        expect(controllers[0].name).toEqual('TestUnionType');
+        index = controller.methods.findIndex(
+            (method) => method.name === 'omit',
+        );
+        expect(index).toBeGreaterThanOrEqual(0);
 
-        expect(controllers[0]).toHaveProperty('path');
-        expect(controllers[0].path).toEqual('unionTypes');
+        method = controller.methods[index];
+        expect(method.name).toEqual('omit');
+        refAlias = ((method.type as RefAliasType).type as RefAliasType);
+        nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
+        expect(nestedObjectLiteral.properties.length).toEqual(1);
+        property = nestedObjectLiteral.properties.pop();
+        expect(property.name).toEqual('baz');
+    });
 
-        expect(controllers[0]).toHaveProperty('produces');
-        expect(controllers[0].produces.length).toEqual(0);
+    it('should generate metadata', async () => {
+        const index = metadata.controllers.findIndex(
+            (controller) => controller.name === 'TestUnionType',
+        );
+        expect(index).toBeGreaterThanOrEqual(0);
 
-        expect(controllers[0]).toHaveProperty('responses');
-        expect(controllers[0].responses.length).toEqual(0);
+        const controller = metadata.controllers[index];
 
-        expect(controllers[0]).toHaveProperty('tags');
-        expect(controllers[0].tags.length).toEqual(0);
+        expect(controller).toHaveProperty('consumes');
+        expect(controller.consumes.length).toEqual(0);
 
-        const method = controllers[0].methods[0];
+        expect(controller).toHaveProperty('location');
+
+        expect(controller).toHaveProperty('methods');
+        expect(controller.methods.length).toBeGreaterThan(0);
+
+        expect(controller).toHaveProperty('name');
+        expect(controller.name).toEqual('TestUnionType');
+
+        expect(controller).toHaveProperty('path');
+        expect(controller.path).toEqual('unionTypes');
+
+        expect(controller).toHaveProperty('produces');
+        expect(controller.produces.length).toEqual(0);
+
+        expect(controller).toHaveProperty('responses');
+        expect(controller.responses.length).toEqual(0);
+
+        expect(controller).toHaveProperty('tags');
+        expect(controller.tags.length).toEqual(0);
+
+        const method = controller.methods[0];
 
         expect(method).toHaveProperty('consumes');
         expect(method.consumes.length).toEqual(0);

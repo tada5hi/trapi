@@ -8,7 +8,7 @@
 import * as ts from 'typescript';
 import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
-import { TypeName } from './constants';
+import { TypeName, UtilityTypeName } from './constants';
 
 import type { Extension } from './extension';
 import {
@@ -21,7 +21,9 @@ import {
 } from '../utils';
 import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
-import { isRefAliasType, isRefObjectType, isStringType } from './type';
+import {
+    isNestedObjectLiteralType, isRefAliasType, isRefObjectType, isStringType,
+} from './type';
 import type {
     AnyType,
     ArrayType,
@@ -33,11 +35,10 @@ import type {
     NestedObjectLiteralType,
     PrimitiveType,
     RefEnumType,
-    RefObjectType,
     ReferenceType,
     ResolverProperty,
-    StringType,
-    Type, UnionType,
+    Type,
+    UnionType,
     VoidType,
 } from './type';
 
@@ -58,8 +59,7 @@ interface TypeNodeResolverContext {
     [name: string]: ts.TypeReferenceNode | ts.TypeNode;
 }
 
-type UtilityType = 'NonNullable' | 'Omit' | 'Partial' | 'Readonly' | 'Record' | 'Required' | 'Pick';
-interface UtilityOptions {
+export interface UtilityTypeOptions {
     keys: Array<string | number | boolean>;
 }
 
@@ -190,7 +190,9 @@ export class TypeNodeResolver {
                     return [property, ...res];
                 }, []);
 
-            const indexMember = this.typeNode.members.find((member) => ts.isIndexSignatureDeclaration(member));
+            const indexMember = this.typeNode.members.find(
+                (member) => ts.isIndexSignatureDeclaration(member),
+            );
             let additionalType: Type | undefined;
 
             if (indexMember) {
@@ -531,13 +533,24 @@ export class TypeNodeResolver {
     // ------------------------------------------------------------------------
     // Utility Type(s)
     // ------------------------------------------------------------------------
-    private static isSupportedUtilityType(typeName: string | ts.Identifier | undefined) : typeName is UtilityType {
-        if (typeof typeName === 'undefined') { return false; }
-        return ['NonNullable', 'Pick', 'Omit', 'Partial', 'Readonly', 'Record', 'Required'].indexOf(typeof typeName !== 'string' ? typeName.text : typeName) !== -1;
+    private static toUtilityType(
+        typeName: string | ts.Identifier | undefined,
+    ) : undefined | `${UtilityTypeName}` {
+        if (typeof typeName === 'undefined') {
+            return undefined;
+        }
+
+        const values : string[] = Object.values(UtilityTypeName);
+        const index = values.indexOf(typeof typeName !== 'string' ? typeName.text : typeName);
+        if (index === -1) {
+            return undefined;
+        }
+
+        return values[index] as UtilityTypeName;
     }
 
     private static getUtilityTypeOptions(typeArguments: ts.NodeArray<ts.TypeNode>) {
-        const utilityOptions : UtilityOptions = {
+        const utilityOptions : UtilityTypeOptions = {
             keys: [],
         };
 
@@ -561,8 +574,8 @@ export class TypeNodeResolver {
 
     private filterUtilityProperties<T extends Record<'name' | string, any>>(
         properties: T[],
-        utilityType?: UtilityType,
-        utilityOptions?: UtilityOptions,
+        utilityType?: `${UtilityTypeName}`,
+        utilityOptions?: UtilityTypeOptions,
     ) : T[] {
         if (typeof utilityType === 'undefined' || typeof utilityOptions === 'undefined') {
             return properties;
@@ -573,9 +586,9 @@ export class TypeNodeResolver {
                 const name : string = typeof property.name !== 'string' ? (property.name as ts.Identifier).text : property.name;
 
                 switch (utilityType) {
-                    case 'Pick':
+                    case UtilityTypeName.PICK:
                         return utilityOptions.keys.indexOf(name) !== -1;
-                    case 'Omit':
+                    case UtilityTypeName.OMIT:
                         return utilityOptions.keys.indexOf(name) === -1;
                 }
 
@@ -584,11 +597,11 @@ export class TypeNodeResolver {
             .map((property) => {
                 if (hasOwnProperty(property, 'required')) {
                     switch (utilityType) {
-                        case 'Partial':
+                        case UtilityTypeName.PARTIAL:
                             property.required = false;
                             break;
-                        case 'Required':
-                        case 'NonNullable':
+                        case UtilityTypeName.REQUIRED:
+                        case UtilityTypeName.NON_NULLABLE:
                             property.required = true;
                             break;
                     }
@@ -807,13 +820,11 @@ export class TypeNodeResolver {
 
         // Handle Utility Types
         const identifierName = (type as ts.Identifier).text;
-        const utilityTypeSupported : boolean = TypeNodeResolver.isSupportedUtilityType(identifierName);
-        const utilityType : UtilityType | undefined = utilityTypeSupported ? identifierName as UtilityType : undefined;
-        let utilityOptions : UtilityOptions = {
-            keys: [],
-        };
 
-        if (utilityTypeSupported) {
+        const utilityType = TypeNodeResolver.toUtilityType(identifierName);
+        let utilityTypeOptions : UtilityTypeOptions | undefined;
+
+        if (utilityType) {
             const { typeArguments } = type.parent as ts.TypeReferenceNode;
             if (ts.isTypeReferenceNode(typeArguments[0])) {
                 type = (typeArguments[0] as ts.TypeReferenceNode).typeName;
@@ -823,7 +834,7 @@ export class TypeNodeResolver {
                 throw new ResolverError('Can\'t resolve Reference type.');
             }
 
-            utilityOptions = TypeNodeResolver.getUtilityTypeOptions(typeArguments);
+            utilityTypeOptions = TypeNodeResolver.getUtilityTypeOptions(typeArguments);
         } else {
             this.typeArgumentsToContext(node, type, this.context);
         }
@@ -850,8 +861,12 @@ export class TypeNodeResolver {
 
             let referenceType: ReferenceType;
             if (ts.isTypeAliasDeclaration(declaration)) {
-                referenceType = this.getTypeAliasReference(declaration, name, node);
-            } else if (ts.isEnumMember(declaration)) {
+                referenceType = this.getTypeAliasReference(declaration, name, node, utilityType, utilityTypeOptions);
+                localReferenceTypeCache[name] = referenceType;
+                return referenceType;
+            }
+
+            if (ts.isEnumMember(declaration)) {
                 referenceType = {
                     typeName: TypeName.REF_ENUM,
                     refName: TypeNodeResolver.getRefTypeName(name, utilityType),
@@ -859,13 +874,14 @@ export class TypeNodeResolver {
                     memberNames: [declaration.name.getText()],
                     deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
                 };
-            } else {
-                // todo: dont cast handle property-signature
-                referenceType = this.getModelReference(declaration as ts.InterfaceDeclaration, name, utilityType, utilityOptions);
+
+                localReferenceTypeCache[name] = referenceType;
+                return referenceType;
             }
 
+            // todo: dont cast handle property-signature
+            referenceType = this.getModelReference(declaration as ts.InterfaceDeclaration, name, utilityType, utilityTypeOptions);
             localReferenceTypeCache[name] = referenceType;
-
             return referenceType;
         } catch (err) {
             // eslint-disable-next-line no-console
@@ -878,10 +894,10 @@ export class TypeNodeResolver {
         declaration: ts.TypeAliasDeclaration,
         name: string,
         referencer: ts.TypeReferenceType,
+        utilityType?: `${UtilityTypeName}`,
+        utilityTypeOptions?: UtilityTypeOptions,
     ): ReferenceType {
-        const refName = TypeNodeResolver.getRefTypeName(name);
-
-        let type : Type | undefined;
+        const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
 
         if (declaration.type.kind === ts.SyntaxKind.TypeReference) {
             const referenceType = this.getReferenceType(declaration.type as ts.TypeReferenceNode);
@@ -890,8 +906,9 @@ export class TypeNodeResolver {
             }
         }
 
-        if (typeof type === 'undefined') {
-            type = new TypeNodeResolver(declaration.type, this.current, declaration, this.context, this.referencer || referencer).resolve();
+        const type = new TypeNodeResolver(declaration.type, this.current, declaration, this.context, this.referencer || referencer).resolve();
+        if (isNestedObjectLiteralType(type)) {
+            type.properties = this.filterUtilityProperties(type.properties, utilityType, utilityTypeOptions);
         }
 
         const example = this.getNodeExample(declaration);
@@ -912,8 +929,8 @@ export class TypeNodeResolver {
     private getModelReference(
         modelType: ts.InterfaceDeclaration | ts.ClassDeclaration,
         name: string,
-        utilityType?: UtilityType,
-        utilityOptions?: UtilityOptions,
+        utilityType?: `${UtilityTypeName}`,
+        utilityOptions?: UtilityTypeOptions,
     ) : ReferenceType {
         const example = this.getNodeExample(modelType);
         const description : string = this.getNodeDescription(modelType);
@@ -977,7 +994,7 @@ export class TypeNodeResolver {
         return referenceType;
     }
 
-    private static getRefTypeName(name: string, utilityType?: UtilityType): string {
+    private static getRefTypeName(name: string, utilityType?: `${UtilityTypeName}`): string {
         return encodeURIComponent(
             name
                 .replace(/<|>/g, '_')
@@ -1148,8 +1165,8 @@ export class TypeNodeResolver {
     private getModelProperties(
         node: ts.InterfaceDeclaration | ts.ClassDeclaration,
         overrideToken?: OverrideToken,
-        utilityType?: UtilityType,
-        utilityOptions?: UtilityOptions,
+        utilityType?: `${UtilityTypeName}`,
+        utilityOptions?: UtilityTypeOptions,
     ) : ResolverProperty[] {
         const isIgnored = (e: ts.TypeElement | ts.ClassElement) => hasJSDocTag(e, JSDocTagName.IGNORE);
 

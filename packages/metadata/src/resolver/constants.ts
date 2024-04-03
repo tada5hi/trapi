@@ -31,3 +31,13 @@ export enum TypeName {
     UNION = 'union',
     INTERSECTION = 'intersection',
 }
+
+export enum UtilityTypeName {
+    NON_NULLABLE = 'NonNullable',
+    OMIT = 'Omit',
+    PARTIAL = 'Partial',
+    READONLY = 'Readonly',
+    RECORD = 'Record',
+    REQUIRED = 'Required',
+    PICK = 'Pick',
+}

@@ -503,7 +503,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             };
 
             if (
-                typeof referenceType.memberNames !== undefined &&
+                typeof referenceType.memberNames !== 'undefined' &&
                 referenceType.members.length === referenceType.memberNames.length
             ) {
                 schema['x-enum-varnames'] = referenceType.memberNames;
@@ -520,6 +520,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (let i = 0; i < typesUsed.length; i++) {
             schema.anyOf.push({
                 type: typesUsed[i] as `${DataTypeName}`,
+                // eslint-disable-next-line valid-typeof
                 enum: referenceType.members.filter((e) => typeof e === typesUsed[i]),
             });
         }

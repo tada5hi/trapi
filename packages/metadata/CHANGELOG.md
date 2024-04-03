@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.2](https://github.com/tada5hi/trapi/compare/metadata-v1.2.1...metadata-v1.2.2) (2024-04-03)
+
+
+### Bug Fixes
+
+* properties of utility type references ([#446](https://github.com/tada5hi/trapi/issues/446)) ([b171cdc](https://github.com/tada5hi/trapi/commit/b171cdcf479addc14d3b8197b4f34325a107106c))
+
 ## [1.2.1](https://github.com/tada5hi/trapi/compare/metadata-v1.2.0...metadata-v1.2.1) (2024-02-19)
 
 

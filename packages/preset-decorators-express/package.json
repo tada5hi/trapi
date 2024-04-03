@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-decorators-express",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "Preset for @decorators/express library.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,13 +25,13 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@trapi/decorators": "^1.2.1"
+        "@trapi/decorators": "^1.2.2"
     },
     "devDependencies": {
-        "@trapi/metadata": "^1.2.1"
+        "@trapi/metadata": "^1.2.2"
     },
     "peerDependencies": {
-        "@trapi/metadata": "1.2.1"
+        "@trapi/metadata": "1.2.2"
     },
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig.build.json"

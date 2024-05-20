@@ -7,7 +7,7 @@
         "help": "vitepress --help"
     },
     "dependencies": {
-        "vitepress": "^1.0.2",
+        "vitepress": "^1.2.0",
         "vue": "^3.4.21"
     }
 }

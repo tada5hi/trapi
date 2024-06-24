@@ -6,11 +6,11 @@
  */
 
 import fs from 'node:fs';
-import { CacheDriver } from '../../src';
+import { CacheClient } from '../../src';
 
 describe('src/cache/index.ts', () => {
     it('should save cache', async () => {
-        const cache = new CacheDriver();
+        const cache = new CacheClient();
 
         const cachePath : string = await cache.save({
             controllers: [],
@@ -30,7 +30,7 @@ describe('src/cache/index.ts', () => {
     });
 
     it('should not save & get cache', async () => {
-        const cacheNone = new CacheDriver(false);
+        const cacheNone = new CacheClient(false);
 
         const cachePath : string = await cacheNone.save({
             controllers: [],

@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildFilePath, locateMany } from 'locter';
+import { buildFilePath, isObject, locateMany } from 'locter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildCacheOptions, generateFileHash } from './utils';
 import type { CacheData, CacheOptions, CacheOptionsInput } from './type';
 
-export class CacheDriver {
+export class CacheClient {
     private readonly options: CacheOptions;
 
     constructor(input?: string | boolean | CacheOptionsInput) {
@@ -27,7 +27,7 @@ export class CacheDriver {
 
         const filePath = this.buildFilePath(undefined, data.sourceFilesSize);
 
-        await fs.promises.writeFile(filePath, JSON.stringify(data));
+        await fs.promises.writeFile(filePath, this.serialize(data));
 
         return filePath;
     }
@@ -98,5 +98,23 @@ export class CacheDriver {
             return this.options.fileName;
         }
         return `.swagger-${hash ?? generateFileHash(sourceFilesSize)}.json`;
+    }
+
+    protected serialize(input: unknown) : string {
+        let cache = [];
+        const str = JSON.stringify(input, (key, value) => {
+            if (isObject(value) || Array.isArray(value)) {
+                if (cache.indexOf(value) !== -1) {
+                    return undefined;
+                }
+
+                cache.push(value);
+            }
+
+            return value;
+        });
+
+        cache = undefined;
+        return str;
     }
 }

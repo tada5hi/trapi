@@ -12,7 +12,7 @@ import type {
 import {
     NodeFlags, createProgram, forEachChild, isClassDeclaration, isModuleBlock, isModuleDeclaration,
 } from 'typescript';
-import { CacheDriver } from '../../cache';
+import { CacheClient } from '../../cache';
 import type { Options } from '../../config';
 import { DecoratorResolver } from '../../decorator';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
@@ -32,7 +32,7 @@ export class MetadataGenerator {
 
     private readonly program: Program;
 
-    private cache : CacheDriver;
+    private cache : CacheClient;
 
     private controllers: Controller[];
 
@@ -46,7 +46,7 @@ export class MetadataGenerator {
         this.nodes = [];
         this.config = context.options;
 
-        this.cache = new CacheDriver(context.options.cache);
+        this.cache = new CacheClient(context.options.cache);
         this.decoratorResolver = new DecoratorResolver();
 
         this.program = createProgram(

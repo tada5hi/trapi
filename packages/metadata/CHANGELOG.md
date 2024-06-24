@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.3](https://github.com/tada5hi/trapi/compare/metadata-v1.2.2...metadata-v1.2.3) (2024-06-24)
+
+
+### Bug Fixes
+
+* serializing cache data ([c86d7a8](https://github.com/tada5hi/trapi/commit/c86d7a8744a87f0a1a019f46ceb0401f7d4f8685))
+
 ## [1.2.2](https://github.com/tada5hi/trapi/compare/metadata-v1.2.1...metadata-v1.2.2) (2024-04-03)
 
 

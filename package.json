@@ -41,7 +41,7 @@
         "prepare": "husky install"
     },
     "devDependencies": {
-        "@swc/core": "^1.6.3",
+        "@swc/core": "^1.7.11",
         "@swc/jest": "^0.2.36",
         "@tada5hi/commitlint-config": "^1.2.0",
         "@tada5hi/eslint-config-typescript": "^1.2.10",

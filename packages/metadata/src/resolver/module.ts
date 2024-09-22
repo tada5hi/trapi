@@ -1106,7 +1106,7 @@ export class TypeNodeResolver {
 
         const symbol = this.getSymbolAtLocation(type);
         const declarations = symbol.getDeclarations();
-        if (declarations.length === 0) {
+        if (!declarations || declarations.length === 0) {
             throw new ResolverError(
                 `No models found for referenced type ${typeName}.`,
             );

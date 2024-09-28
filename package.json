@@ -44,7 +44,7 @@
         "@swc/core": "^1.6.3",
         "@swc/jest": "^0.2.36",
         "@tada5hi/commitlint-config": "^1.2.0",
-        "@tada5hi/eslint-config-typescript": "^1.2.10",
+        "@tada5hi/eslint-config-typescript": "^1.2.12",
         "@types/jest": "^29.5.12",
         "@types/node": "^20.12.3",
         "cross-env": "^7.0.3",

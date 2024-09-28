@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.4](https://github.com/tada5hi/trapi/compare/metadata-v1.2.3...metadata-v1.2.4) (2024-09-28)
+
+
+### Bug Fixes
+
+* declaration acces of symbol ([0937a4c](https://github.com/tada5hi/trapi/commit/0937a4c8b9fe078ecfa99a5c1f0d144c3b13208e))
+
 ## [1.2.3](https://github.com/tada5hi/trapi/compare/metadata-v1.2.2...metadata-v1.2.3) (2024-06-24)
 
 

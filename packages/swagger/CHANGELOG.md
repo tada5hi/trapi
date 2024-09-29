@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.2.4](https://github.com/tada5hi/trapi/compare/swagger-v1.2.3...swagger-v1.2.4) (2024-09-29)
+
+
+### Miscellaneous Chores
+
+* **swagger:** Synchronize main versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^1.2.3 to ^1.2.4
+
 ## [1.2.3](https://github.com/tada5hi/trapi/compare/swagger-v1.2.2...swagger-v1.2.3) (2024-06-24)
 
 

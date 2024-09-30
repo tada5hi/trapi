@@ -46,7 +46,7 @@
     },
     "dependencies": {
         "locter": "^2.1.2",
-        "minimatch": "^9.0.4"
+        "minimatch": "^10.0.1"
     },
     "peerDependencies": {
         "typescript": "4.7.x || 4.8.x || 4.9.x || 5.x"

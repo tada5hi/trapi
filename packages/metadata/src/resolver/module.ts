@@ -41,7 +41,7 @@ import type {
     Type,
     UnionType,
 } from './type';
-import { getNodeDescription } from './utils';
+import { getNodeDescription, toTypeNodeOrFail } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
 const inProgressTypes: { [typeName: string]: boolean } = {};
@@ -266,7 +266,7 @@ export class TypeNodeResolver extends ResolverBase {
             const properties: ResolverProperty[] = type
                 .getProperties()
                 // Ignore methods, getter, setter and @ignored props
-                .filter((property) => isIgnored(property) === false)
+                .filter((property) => !isIgnored(property))
                 // Transform to property
                 .map((property) => {
                     const propertyType = typeChecker.getTypeOfSymbolAtLocation(property, this.typeNode);
@@ -284,7 +284,9 @@ export class TypeNodeResolver extends ResolverBase {
 
                     // Resolve default value, required and typeNode
                     let required = false;
-                    const typeNode = this.current.typeChecker.typeToTypeNode(
+
+                    const typeNode = toTypeNodeOrFail(
+                        this.current.typeChecker,
                         propertyType,
                         undefined,
                         ts.NodeBuilderFlags.NoTruncation,
@@ -319,8 +321,11 @@ export class TypeNodeResolver extends ResolverBase {
             const type = this.current.typeChecker.getTypeFromTypeNode(this.referencer);
 
             if (type.aliasSymbol) {
-                let declaration = type.aliasSymbol.declarations[0] as ts.TypeAliasDeclaration | ts.EnumDeclaration | ts.DeclarationStatement;
-                if (declaration.name) {
+                let [declaration] = type.aliasSymbol.declarations as (
+                    ts.TypeAliasDeclaration | ts.EnumDeclaration | ts.DeclarationStatement
+                )[];
+
+                if (declaration && declaration.name) {
                     declaration = this.getModelTypeDeclaration(
                         declaration.name as ts.EntityName,
                     ) as ts.TypeAliasDeclaration |
@@ -330,18 +335,20 @@ export class TypeNodeResolver extends ResolverBase {
 
                 const name = TypeNodeResolver.getRefTypeName(this.referencer.getText());
                 return this.handleCachingAndCircularReferences(name, () => {
-                    if (ts.isTypeAliasDeclaration(declaration)) {
-                        // Note: I don't understand why typescript lose type for `this.referencer`
-                        // (from above with isTypeReferenceNode())
-                        return this.getTypeAliasReference(
-                            declaration,
-                            this.current.typeChecker.typeToString(type),
-                            this.referencer as ts.TypeReferenceNode,
-                        );
-                    }
+                    if (declaration) {
+                        if (ts.isTypeAliasDeclaration(declaration)) {
+                            // Note: I don't understand why typescript lose type for `this.referencer`
+                            // (from above with isTypeReferenceNode())
+                            return this.getTypeAliasReference(
+                                declaration,
+                                this.current.typeChecker.typeToString(type),
+                                this.referencer as ts.TypeReferenceNode,
+                            );
+                        }
 
-                    if (ts.isEnumDeclaration(declaration)) {
-                        return this.getEnumerateType(declaration.name) as RefEnumType;
+                        if (ts.isEnumDeclaration(declaration)) {
+                            return this.getEnumerateType(declaration.name) as RefEnumType;
+                        }
                     }
 
                     throw new ResolverError(
@@ -350,10 +357,17 @@ export class TypeNodeResolver extends ResolverBase {
                     );
                 });
             } if (type.isClassOrInterface()) {
-                let declaration = type.symbol.declarations[0] as ts.InterfaceDeclaration | ts.ClassDeclaration;
-                if (declaration.name) {
+                let [declaration] = type.symbol.declarations as (
+                    ts.InterfaceDeclaration | ts.ClassDeclaration
+                )[];
+                if (declaration && declaration.name) {
                     declaration = this.getModelTypeDeclaration(declaration.name) as ts.InterfaceDeclaration | ts.ClassDeclaration;
                 }
+
+                if (!declaration) {
+                    throw new ResolverError('Couldn\'t get declaration for type symbol', this.typeNode);
+                }
+
                 const name = TypeNodeResolver.getRefTypeName(this.referencer.getText());
                 return this.handleCachingAndCircularReferences(name, () => this.getModelReference(
                     declaration,
@@ -362,7 +376,8 @@ export class TypeNodeResolver extends ResolverBase {
             }
             try {
                 return new TypeNodeResolver(
-                    this.current.typeChecker.typeToTypeNode(
+                    toTypeNodeOrFail(
+                        this.current.typeChecker,
                         type,
                         undefined,
                         ts.NodeBuilderFlags.NoTruncation,
@@ -385,7 +400,8 @@ export class TypeNodeResolver extends ResolverBase {
                 const type = this.current.typeChecker.getTypeFromTypeNode(this.typeNode);
                 try {
                     return new TypeNodeResolver(
-                        this.current.typeChecker.typeToTypeNode(
+                        toTypeNodeOrFail(
+                            this.current.typeChecker,
                             type,
                             undefined,
                             ts.NodeBuilderFlags.NoTruncation,
@@ -420,7 +436,12 @@ export class TypeNodeResolver extends ResolverBase {
                 throw new ResolverError(`Could not determine ${numberIndexType ? 'number' : 'string'} index on ${this.current.typeChecker.typeToString(objectType)}`, this.typeNode);
             }
             return new TypeNodeResolver(
-                this.current.typeChecker.typeToTypeNode(type, undefined, undefined),
+                toTypeNodeOrFail(
+                    this.current.typeChecker,
+                    type,
+                    undefined,
+                    undefined,
+                ),
                 this.current,
                 this.typeNode,
                 this.context,
@@ -458,7 +479,12 @@ export class TypeNodeResolver extends ResolverBase {
             const declaration = this.current.typeChecker.getTypeOfSymbolAtLocation(symbol, this.typeNode.objectType);
             try {
                 return new TypeNodeResolver(
-                    this.current.typeChecker.typeToTypeNode(declaration, undefined, undefined),
+                    toTypeNodeOrFail(
+                        this.current.typeChecker,
+                        declaration,
+                        undefined,
+                        undefined,
+                    ),
                     this.current,
                     this.typeNode,
                     this.context,
@@ -467,13 +493,12 @@ export class TypeNodeResolver extends ResolverBase {
             } catch {
                 throw new ResolverError(
                     `Could not determine the keys on ${this.current.typeChecker.typeToString(
-                        this.current.typeChecker.getTypeFromTypeNode(
-                            this.current.typeChecker.typeToTypeNode(
-                                declaration,
-                                undefined,
-                                undefined,
-                            ),
-                        ),
+                        this.current.typeChecker.getTypeFromTypeNode(toTypeNodeOrFail(
+                            this.current.typeChecker,
+                            declaration,
+                            undefined,
+                            undefined,
+                        )),
                     )}`,
                     this.typeNode,
                 );
@@ -515,7 +540,10 @@ export class TypeNodeResolver extends ResolverBase {
 
         if (typeReference.typeName.kind === ts.SyntaxKind.Identifier) {
             // Special Utility Type
-            if (typeReference.typeName.text === 'Record') {
+            if (
+                typeReference.typeName.text === 'Record' &&
+                typeReference.typeArguments
+            ) {
                 return {
                     additionalProperties: new TypeNodeResolver(
                         typeReference.typeArguments[1],
@@ -956,8 +984,12 @@ export class TypeNodeResolver extends ResolverBase {
             let nodeType = toJSON.valueDeclaration.type;
             if (!nodeType) {
                 const signature = this.current.typeChecker.getSignatureFromDeclaration(toJSON.valueDeclaration);
-                const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature);
-                nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
+                if (signature) {
+                    const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature);
+                    nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
+                } else {
+                    throw new ResolverError('Can\'t get signature from toJson value declaration', modelType);
+                }
             }
 
             return {
@@ -1214,7 +1246,7 @@ export class TypeNodeResolver extends ResolverBase {
                     (member) => !isIgnored(member) &&
                     ts.isPropertySignature(member),
                 ).map(
-                    (member: ts.PropertySignature) => this.propertyFromSignature(member, overrideToken),
+                    (member) => this.propertyFromSignature(member as ts.PropertySignature, overrideToken),
                 );
         }
 

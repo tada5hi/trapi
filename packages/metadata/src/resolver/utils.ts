@@ -4,9 +4,12 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { Node, TypeChecker } from 'typescript';
+import type {
+    Node, NodeBuilderFlags, Type, TypeChecker, TypeNode,
+} from 'typescript';
 import { SyntaxKind, displayPartsToString } from 'typescript';
 import { hasOwnProperty } from '../utils';
+import { ResolverError } from './error';
 
 export function getNodeDescription(
     node: Node,
@@ -36,4 +39,16 @@ export function getNodeDescription(
     }
 
     return undefined;
+}
+
+export function toTypeNodeOrFail(
+    typeChecker: TypeChecker,
+    ...args: Parameters<TypeChecker['typeToTypeNode']>
+) : TypeNode {
+    const output = typeChecker.typeToTypeNode(...args);
+    if (typeof output === 'undefined') {
+        throw new ResolverError('Type could not be transformed to TypeNode.');
+    }
+
+    return output;
 }

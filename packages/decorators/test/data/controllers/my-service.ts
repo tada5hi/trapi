@@ -87,7 +87,7 @@ export class MyService {
     @Get()
     @Mount('default-query')
     public testDefaultQuery(
-        @QueryProp('num') num = 5,
+    @QueryProp('num') num = 5,
         @QueryProp('str') str = 'default value',
         @QueryProp('bool1') bool1 = true,
         @QueryProp('bool2') bool2 = false,

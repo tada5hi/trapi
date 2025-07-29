@@ -42,10 +42,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "jsonata": "^2.0.5"
+        "jsonata": "^2.0.6"
     },
     "dependencies": {
-        "locter": "^2.1.2",
+        "locter": "^2.1.6",
         "minimatch": "^10.0.3"
     },
     "peerDependencies": {

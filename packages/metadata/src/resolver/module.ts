@@ -21,6 +21,8 @@ import {
 } from '../utils';
 import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
+import { ResolverBase } from './sub/base';
+import { PrimitiveResolver } from './sub/primitive';
 import {
     isNestedObjectLiteralType, isRefAliasType, isRefObjectType, isStringType,
 } from './type';
@@ -33,13 +35,11 @@ import type {
     EnumType,
     IntersectionType,
     NestedObjectLiteralType,
-    PrimitiveType,
     RefEnumType,
     ReferenceType,
     ResolverProperty,
     Type,
     UnionType,
-    VoidType,
 } from './type';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
@@ -63,7 +63,7 @@ export interface UtilityTypeOptions {
     keys: Array<string | number | boolean>;
 }
 
-export class TypeNodeResolver {
+export class TypeNodeResolver extends ResolverBase {
     private readonly typeNode : ts.TypeNode;
 
     private readonly current: MetadataGenerator;
@@ -72,7 +72,9 @@ export class TypeNodeResolver {
 
     private context: TypeNodeResolverContext;
 
-    private readonly referencer : ts.TypeNode;
+    private readonly referencer : ts.TypeNode | undefined;
+
+    private readonly primitiveResolver : PrimitiveResolver;
 
     constructor(
         typeNode: ts.TypeNode,
@@ -81,11 +83,14 @@ export class TypeNodeResolver {
         context?: TypeNodeResolverContext,
         referencer?: ts.TypeNode,
     ) {
+        super();
+
         this.typeNode = typeNode;
         this.current = current;
         this.parentNode = parentNode;
         this.context = context || {};
         this.referencer = referencer;
+        this.primitiveResolver = new PrimitiveResolver(current.decoratorResolver);
     }
 
     public static clearCache() {
@@ -99,7 +104,7 @@ export class TypeNodeResolver {
     }
 
     public resolve(): Type {
-        const primitiveType = this.getPrimitiveType(this.typeNode, this.parentNode);
+        const primitiveType = this.primitiveResolver.resolve(this.typeNode, this.parentNode);
         if (primitiveType) {
             return primitiveType;
         }
@@ -108,12 +113,6 @@ export class TypeNodeResolver {
             return {
                 typeName: TypeName.ENUM,
                 members: [null],
-            };
-        }
-
-        if (this.typeNode.kind === ts.SyntaxKind.UndefinedKeyword) {
-            return {
-                typeName: TypeName.UNDEFINED,
             };
         }
 
@@ -130,7 +129,14 @@ export class TypeNodeResolver {
         }
 
         if (ts.isUnionTypeNode(this.typeNode)) {
-            const members = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
+            const members = this.typeNode.types.map(
+                (type) => new TypeNodeResolver(
+                    type,
+                    this.current,
+                    this.parentNode,
+                    this.context,
+                ).resolve(),
+            );
 
             return {
                 typeName: TypeName.UNION,
@@ -139,7 +145,14 @@ export class TypeNodeResolver {
         }
 
         if (ts.isIntersectionTypeNode(this.typeNode)) {
-            const members = this.typeNode.types.map((type) => new TypeNodeResolver(type, this.current, this.parentNode, this.context).resolve());
+            const members = this.typeNode.types.map(
+                (type) => new TypeNodeResolver(
+                    type,
+                    this.current,
+                    this.parentNode,
+                    this.context,
+                ).resolve(),
+            );
 
             return {
                 typeName: TypeName.INTERSECTION,
@@ -188,7 +201,7 @@ export class TypeNodeResolver {
                     };
 
                     return [property, ...res];
-                }, []);
+                }, [] as ResolverProperty[]);
 
             const indexMember = this.typeNode.members.find(
                 (member) => ts.isIndexSignatureDeclaration(member),
@@ -409,7 +422,10 @@ export class TypeNodeResolver {
         if (
             ts.isIndexedAccessTypeNode(this.typeNode) &&
             ts.isLiteralTypeNode(this.typeNode.indexType) &&
-            (ts.isStringLiteral(this.typeNode.indexType.literal) || ts.isNumericLiteral(this.typeNode.indexType.literal))
+            (
+                ts.isStringLiteral(this.typeNode.indexType.literal) ||
+                ts.isNumericLiteral(this.typeNode.indexType.literal)
+            )
         ) {
             const hasType = (node: ts.Node | undefined): node is ts.HasType => node !== undefined &&
                 Object.prototype.hasOwnProperty.call(node, 'type');
@@ -650,90 +666,6 @@ export class TypeNodeResolver {
         return value;
     }
 
-    private getPrimitiveType(typeNode: ts.TypeNode, parentNode?: ts.Node): PrimitiveType | VoidType | undefined {
-        if (!typeNode) {
-            return {
-                typeName: TypeName.VOID,
-            };
-        }
-
-        const resolvedType = this.attemptToResolveKindToPrimitive(typeNode.kind);
-        if (typeof resolvedType === 'undefined') {
-            return undefined;
-        }
-
-        if (resolvedType === 'number') {
-            if (!parentNode) {
-                return { typeName: TypeName.DOUBLE };
-            }
-
-            const lookupTags = [
-                'isInt',
-                'isLong',
-                'isFloat',
-                'isDouble',
-            ];
-            const tags = getJSDocTagNames(parentNode)
-                .filter((name) => lookupTags.some((m) => m.toLowerCase() === name.toLowerCase()))
-                .map((name) => name.toLowerCase());
-
-            const decoratorIds = [
-                DecoratorID.IS_INT,
-                DecoratorID.IS_LONG,
-                DecoratorID.IS_FLOAT,
-                DecoratorID.IS_DOUBLE,
-            ];
-
-            let decoratorID : DecoratorID | undefined;
-
-            for (let i = 0; i < decoratorIds.length; i++) {
-                const decorator = this.current.decoratorResolver.match(decoratorIds[i], parentNode);
-                if (decorator) {
-                    decoratorID = decoratorIds[i];
-                    break;
-                }
-            }
-
-            if (!decoratorID && tags.length === 0) {
-                return { typeName: TypeName.DOUBLE };
-            }
-
-            switch (decoratorID || tags[0]) {
-                case DecoratorID.IS_INT:
-                case 'isint':
-                    return { typeName: TypeName.INTEGER };
-                case DecoratorID.IS_LONG:
-                case 'islong':
-                    return { typeName: TypeName.LONG };
-                case DecoratorID.IS_FLOAT:
-                case 'isfloat':
-                    return { typeName: TypeName.FLOAT };
-                case DecoratorID.IS_DOUBLE:
-                case 'isdouble':
-                    return { typeName: TypeName.DOUBLE };
-                default:
-                    return { typeName: TypeName.DOUBLE };
-            }
-        } else if (resolvedType === 'string') {
-            return {
-                typeName: TypeName.STRING,
-            };
-        } else if (resolvedType === 'boolean') {
-            return {
-                typeName: TypeName.BOOLEAN,
-            };
-        } else if (resolvedType === 'void') {
-            return {
-                typeName: TypeName.VOID,
-            };
-        } else {
-            // todo: should not occur
-            return {
-                typeName: resolvedType,
-            };
-        }
-    }
-
     private getDateType(parentNode?: ts.Node): DateType | DateTimeType {
         if (!parentNode) {
             return { typeName: TypeName.DATETIME };
@@ -808,8 +740,10 @@ export class TypeNodeResolver {
                     if (ts.isLiteralTypeNode(arg)) {
                         return `'${String(TypeNodeResolver.getLiteralValue(arg))}'`;
                     }
-                    const resolvedType = this.attemptToResolveKindToPrimitive(arg.kind);
-                    if (typeof resolvedType === 'undefined') { return 'any'; }
+                    const resolvedType = this.primitiveResolver.resolveSyntaxKind(arg.kind);
+                    if (
+                        typeof resolvedType === 'undefined'
+                    ) { return 'any'; }
                     return resolvedType;
                 });
 
@@ -1014,19 +948,6 @@ export class TypeNodeResolver {
                 .replace(/-/g, ''),
         );
     }
-
-    private attemptToResolveKindToPrimitive = (syntaxKind: ts.SyntaxKind) : 'number' | 'string' | 'boolean' | 'void' | undefined => {
-        if (syntaxKind === ts.SyntaxKind.NumberKeyword) {
-            return 'number';
-        } if (syntaxKind === ts.SyntaxKind.StringKeyword) {
-            return 'string';
-        } if (syntaxKind === ts.SyntaxKind.BooleanKeyword) {
-            return 'boolean';
-        } if (syntaxKind === ts.SyntaxKind.VoidKeyword) {
-            return 'void';
-        }
-        return undefined;
-    };
 
     private contextualizedName(name: string): string {
         return Object.entries(this.context).reduce((acc, [key, entry]) => acc
@@ -1396,54 +1317,6 @@ export class TypeNodeResolver {
         });
 
         return properties;
-    }
-
-    private hasPublicModifier(node: ts.Node) {
-        if (!ts.canHaveModifiers(node)) {
-            return true;
-        }
-
-        const modifiers = ts.getModifiers(node);
-        if (!modifiers) {
-            return true;
-        }
-
-        return modifiers.every((modifier) => modifier.kind !== ts.SyntaxKind.ProtectedKeyword && modifier.kind !== ts.SyntaxKind.PrivateKeyword);
-    }
-
-    private hasStaticModifier(node: ts.Node) {
-        if (!ts.canHaveModifiers(node)) {
-            return false;
-        }
-
-        const modifiers = ts.getModifiers(node);
-
-        return modifiers && modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword);
-    }
-
-    private isAccessibleParameter(node: ts.Node) {
-        // No modifiers
-        if (!ts.canHaveModifiers(node)) {
-            return false;
-        }
-
-        const modifiers = ts.getModifiers(node);
-        if (!modifiers) {
-            return false;
-        }
-
-        // public || public readonly
-        if (modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword)) {
-            return true;
-        }
-
-        // readonly, not private readonly, not public readonly
-        const isReadonly = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword);
-        const isProtectedOrPrivate = modifiers.some(
-            (modifier) => modifier.kind === ts.SyntaxKind.ProtectedKeyword ||
-                modifier.kind === ts.SyntaxKind.PrivateKeyword,
-        );
-        return isReadonly && !isProtectedOrPrivate;
     }
 
     private getNodeDescription(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {

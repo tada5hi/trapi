@@ -152,25 +152,27 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     private getSchemaForPrimitiveType(type: PrimitiveType): BaseSchema<Schema> {
         const PrimitiveSwaggerTypeMap: Partial<Record<TypeName, BaseSchema<Schema>>> = {
-            any: {
+            [TypeName.ANY]: {
                 additionalProperties: true,
             },
-            binary: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
-            boolean: { type: DataTypeName.BOOLEAN },
-            buffer: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
-            byte: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
-            date: { type: DataTypeName.STRING, format: DataFormatName.DATE },
-            datetime: { type: DataTypeName.STRING, format: DataFormatName.DATE_TIME },
-            double: { type: DataTypeName.NUMBER, format: DataFormatName.DOUBLE },
-            file: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
-            float: { type: DataTypeName.NUMBER, format: DataFormatName.FLOAT },
-            integer: { type: DataTypeName.INTEGER, format: DataFormatName.INT_32 },
-            long: { type: DataTypeName.INTEGER, format: DataFormatName.INT_64 },
-            object: {
+            [TypeName.BINARY]: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
+            [TypeName.BOOLEAN]: { type: DataTypeName.BOOLEAN },
+            [TypeName.BUFFER]: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
+            [TypeName.BYTE]: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
+            [TypeName.DATE]: { type: DataTypeName.STRING, format: DataFormatName.DATE },
+            [TypeName.DATETIME]: { type: DataTypeName.STRING, format: DataFormatName.DATE_TIME },
+            [TypeName.DOUBLE]: { type: DataTypeName.NUMBER, format: DataFormatName.DOUBLE },
+            [TypeName.FILE]: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
+            [TypeName.FLOAT]: { type: DataTypeName.NUMBER, format: DataFormatName.FLOAT },
+            [TypeName.BIGINT]: { type: DataTypeName.INTEGER },
+            [TypeName.INTEGER]: { type: DataTypeName.INTEGER, format: DataFormatName.INT_32 },
+            [TypeName.LONG]: { type: DataTypeName.INTEGER, format: DataFormatName.INT_64 },
+            [TypeName.OBJECT]: {
                 type: DataTypeName.OBJECT,
                 additionalProperties: true,
             },
-            string: { type: DataTypeName.STRING },
+            [TypeName.STRING]: { type: DataTypeName.STRING },
+            [TypeName.UNDEFINED]: {},
         };
 
         return PrimitiveSwaggerTypeMap[type.typeName] || { type: DataTypeName.OBJECT };

@@ -39,6 +39,7 @@ describe('src/generator/metadata', () => {
 
         const controller = metadata.controllers[index];
 
+        // pick
         index = controller.methods.findIndex(
             (method) => method.name === 'pick',
         );
@@ -52,6 +53,7 @@ describe('src/generator/metadata', () => {
         let property = nestedObjectLiteral.properties.pop();
         expect(property.name).toEqual('bar');
 
+        // omit
         index = controller.methods.findIndex(
             (method) => method.name === 'omit',
         );
@@ -64,6 +66,16 @@ describe('src/generator/metadata', () => {
         expect(nestedObjectLiteral.properties.length).toEqual(1);
         property = nestedObjectLiteral.properties.pop();
         expect(property.name).toEqual('baz');
+
+        // record
+
+        index = controller.methods.findIndex(
+            (method) => method.name === 'partial',
+        );
+        expect(index).toBeGreaterThanOrEqual(0);
+
+        method = controller.methods[index];
+        expect(method.name).toEqual('partial');
     });
 
     it('should generate metadata', async () => {

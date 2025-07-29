@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0](https://github.com/tada5hi/trapi/compare/decorators-v1.2.3...decorators-v1.3.0) (2025-07-29)
+
+
+### Features
+
+* resolver refactoring & bigint support ([#712](https://github.com/tada5hi/trapi/issues/712)) ([a5b63bb](https://github.com/tada5hi/trapi/commit/a5b63bbdd0fa30d0ba24b247978fb44626daa696))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/metadata bumped from ^1.2.3 to ^1.3.0
+  * peerDependencies
+    * @trapi/metadata bumped from 1.2.3 to 1.3.0
+
 ## [1.2.3](https://github.com/tada5hi/trapi/compare/decorators-v1.2.2...decorators-v1.2.3) (2024-06-24)
 
 

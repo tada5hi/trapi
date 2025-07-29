@@ -178,6 +178,25 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.3.0](https://github.com/tada5hi/trapi/compare/swagger-v1.2.3...swagger-v1.3.0) (2025-07-29)
+
+
+### Features
+
+* resolver refactoring & bigint support ([#712](https://github.com/tada5hi/trapi/issues/712)) ([a5b63bb](https://github.com/tada5hi/trapi/commit/a5b63bbdd0fa30d0ba24b247978fb44626daa696))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group with 11 updates ([#708](https://github.com/tada5hi/trapi/issues/708)) ([b36cafc](https://github.com/tada5hi/trapi/commit/b36cafc88e8858d2441a7ac204d859419ec144ff))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^1.2.3 to ^1.3.0
+
 ## [1.2.3](https://github.com/tada5hi/trapi/compare/swagger-v1.2.2...swagger-v1.2.3) (2024-06-24)
 
 

@@ -151,6 +151,21 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [1.3.0](https://github.com/tada5hi/trapi/compare/metadata-v1.2.3...metadata-v1.3.0) (2025-07-29)
+
+
+### Features
+
+* resolver refactoring & bigint support ([#712](https://github.com/tada5hi/trapi/issues/712)) ([a5b63bb](https://github.com/tada5hi/trapi/commit/a5b63bbdd0fa30d0ba24b247978fb44626daa696))
+
+
+### Bug Fixes
+
+* declaration acces of symbol ([0937a4c](https://github.com/tada5hi/trapi/commit/0937a4c8b9fe078ecfa99a5c1f0d144c3b13208e))
+* **deps:** bump minimatch from 9.0.4 to 10.0.3 in the majorprod group ([#705](https://github.com/tada5hi/trapi/issues/705)) ([d1b598a](https://github.com/tada5hi/trapi/commit/d1b598a3a3b69aca401f8f03f9faa8272a01101d))
+* **deps:** bump the minorandpatch group with 11 updates ([#708](https://github.com/tada5hi/trapi/issues/708)) ([b36cafc](https://github.com/tada5hi/trapi/commit/b36cafc88e8858d2441a7ac204d859419ec144ff))
+* ensure type to typeNode transformation succeeds ([669c146](https://github.com/tada5hi/trapi/commit/669c146221e7d245c26670344ef02af1d4263b2d))
+
 ## [1.2.3](https://github.com/tada5hi/trapi/compare/metadata-v1.2.2...metadata-v1.2.3) (2024-06-24)
 
 

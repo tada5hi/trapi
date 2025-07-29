@@ -72,6 +72,14 @@ export function isBooleanType(param: BaseType): param is BooleanType {
     return param.typeName === TypeName.BOOLEAN;
 }
 
+export interface BigintType extends BaseType {
+    typeName: `${TypeName.BIGINT}`;
+}
+
+export function isBigintType(param: BaseType): param is BigintType {
+    return param.typeName === TypeName.DOUBLE;
+}
+
 export interface DoubleType extends BaseType {
     typeName: `${TypeName.DOUBLE}`;
 }
@@ -290,10 +298,13 @@ DateTimeType |
 DoubleType |
 FloatType |
 FileType |
+BigintType |
 IntegerType |
 LongType |
 ObjectType |
-StringType;
+StringType |
+UndefinedType;
+
 export function isPrimitiveType(type: BaseType) : type is PrimitiveType {
     return isAnyType(type) ||
         isBinaryType(type) ||
@@ -302,13 +313,15 @@ export function isPrimitiveType(type: BaseType) : type is PrimitiveType {
         isByteType(type) ||
         isDateType(type) ||
         isDateTimeType(type) ||
+        isBigintType(type) ||
         isDoubleType(type) ||
         isFloatType(type) ||
         isFileType(type) ||
         isIntegerType(type) ||
         isLongType(type) ||
         isObjectType(type) ||
-        isStringType(type);
+        isStringType(type) ||
+        isUndefinedType(type);
 }
 
 export interface ResolverProperty {

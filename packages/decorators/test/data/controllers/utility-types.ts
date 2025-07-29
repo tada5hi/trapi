@@ -16,6 +16,7 @@ type Foo = {
 
 type FooBar = Pick<Foo, 'bar'>;
 type FooBaz = Omit<Foo, 'bar'>;
+type FooPartial = Partial<Foo>;
 
 @Controller()
 @Mount('utility-types')
@@ -32,5 +33,11 @@ export class UtilityTypes {
         return {
             baz: 'boz',
         };
+    }
+
+    @Get()
+    @Mount('partial')
+    public partial(): FooPartial {
+        return {};
     }
 }

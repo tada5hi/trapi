@@ -8,6 +8,7 @@
 export enum TypeName {
     STRING = 'string',
     BOOLEAN = 'boolean',
+    BIGINT = 'bigint',
     DOUBLE = 'double',
     FLOAT = 'float',
     FILE = 'file',

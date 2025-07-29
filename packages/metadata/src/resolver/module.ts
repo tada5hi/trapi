@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { isEnumDeclaration, isEnumMember } from 'typescript';
 import * as ts from 'typescript';
 import { DecoratorID } from '../decorator';
 import type { MetadataGenerator } from '../generator';
@@ -23,6 +24,7 @@ import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
 import { ResolverBase } from './sub/base';
 import { PrimitiveResolver } from './sub/primitive';
+import { ReferenceResolver } from './sub/reference';
 import {
     isNestedObjectLiteralType, isRefAliasType, isRefObjectType, isStringType,
 } from './type';
@@ -41,6 +43,7 @@ import type {
     Type,
     UnionType,
 } from './type';
+import { getNodeDescription } from './utils';
 
 const localReferenceTypeCache: { [typeName: string]: ReferenceType } = {};
 const inProgressTypes: { [typeName: string]: boolean } = {};
@@ -76,6 +79,8 @@ export class TypeNodeResolver extends ResolverBase {
 
     private readonly primitiveResolver : PrimitiveResolver;
 
+    private readonly referenceResolver : ReferenceResolver;
+
     constructor(
         typeNode: ts.TypeNode,
         current: MetadataGenerator,
@@ -90,7 +95,9 @@ export class TypeNodeResolver extends ResolverBase {
         this.parentNode = parentNode;
         this.context = context || {};
         this.referencer = referencer;
+
         this.primitiveResolver = new PrimitiveResolver(current.decoratorResolver);
+        this.referenceResolver = new ReferenceResolver(current.typeChecker);
     }
 
     public static clearCache() {
@@ -779,42 +786,40 @@ export class TypeNodeResolver extends ResolverBase {
                 return existingType;
             }
 
-            const refEnumType = this.getEnumerateType(type);
-            if (refEnumType) {
-                localReferenceTypeCache[name] = refEnumType;
-                return refEnumType;
-            }
-
             if (inProgressTypes[name]) {
                 return this.createCircularDependencyResolver(name);
             }
 
             inProgressTypes[name] = true;
 
-            const declaration = this.getModelTypeDeclaration(type);
-
-            let referenceType: ReferenceType;
-            if (ts.isTypeAliasDeclaration(declaration)) {
-                referenceType = this.getTypeAliasReference(declaration, name, node, utilityType, utilityTypeOptions);
-                localReferenceTypeCache[name] = referenceType;
-                return referenceType;
+            const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
+            const declarations = this.getModelTypeDeclarations(type);
+            const referenceTypes: ReferenceType[] = [];
+            for (let i = 0; i < declarations.length; i++) {
+                const declaration = declarations[i];
+                if (ts.isTypeAliasDeclaration(declaration)) {
+                    referenceTypes.push(
+                        this.getTypeAliasReference(declaration, name, node, utilityType, utilityTypeOptions),
+                    );
+                } else if (isEnumDeclaration(declaration)) {
+                    referenceTypes.push(this.referenceResolver.transformEnum(declaration, refName));
+                } else if (isEnumMember(declaration)) {
+                    referenceTypes.push(this.referenceResolver.transformEnumMember(declaration, refName));
+                } else {
+                    // todo: dont cast handle property-signature
+                    referenceTypes.push(
+                        this.getModelReference(
+                            declaration as ts.InterfaceDeclaration,
+                            name,
+                            utilityType,
+                            utilityTypeOptions,
+                        ),
+                    );
+                }
             }
 
-            if (ts.isEnumMember(declaration)) {
-                referenceType = {
-                    typeName: TypeName.REF_ENUM,
-                    refName: TypeNodeResolver.getRefTypeName(name, utilityType),
-                    members: [this.current.typeChecker.getConstantValue(declaration)],
-                    memberNames: [declaration.name.getText()],
-                    deprecated: hasJSDocTag(declaration, JSDocTagName.DEPRECATED),
-                };
+            const referenceType = this.referenceResolver.merge(referenceTypes);
 
-                localReferenceTypeCache[name] = referenceType;
-                return referenceType;
-            }
-
-            // todo: dont cast handle property-signature
-            referenceType = this.getModelReference(declaration as ts.InterfaceDeclaration, name, utilityType, utilityTypeOptions);
             localReferenceTypeCache[name] = referenceType;
             return referenceType;
         } catch (err) {
@@ -950,7 +955,9 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private contextualizedName(name: string): string {
-        return Object.entries(this.context).reduce((acc, [key, entry]) => acc
+        return Object.entries(
+            this.context,
+        ).reduce((acc, [key, entry]) => acc
             .replace(new RegExp(`<\\s*([^>]*\\s)*\\s*(${key})(\\s[^>]*)*\\s*>`, 'g'), `<$1${entry.getText()}$3>`)
             .replace(new RegExp(`<\\s*([^,]*\\s)*\\s*(${key})(\\s[^,]*)*\\s*,`, 'g'), `<$1${entry.getText()}$3,`)
             .replace(new RegExp(`,\\s*([^>]*\\s)*\\s*(${key})(\\s[^>]*)*\\s*>`, 'g'), `,$1${entry.getText()}$3>`)
@@ -1020,6 +1027,58 @@ export class TypeNodeResolver extends ResolverBase {
             default:
                 return false;
         }
+    }
+
+    private getModelTypeDeclarations(type: ts.EntityName) {
+        let typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
+
+        let symbol : ts.Symbol | undefined = this.getSymbolAtLocation(type);
+        if (!symbol && type.kind === ts.SyntaxKind.QualifiedName) {
+            const fullEnumSymbol = this.getSymbolAtLocation(type.left);
+            symbol = fullEnumSymbol.exports?.get(typeName as any);
+        }
+
+        if (!symbol) {
+            throw new ResolverError(
+                `No symbol found for referenced type ${typeName}.`,
+            );
+        }
+
+        const declarations = symbol.getDeclarations();
+        if (!declarations || declarations.length === 0) {
+            throw new ResolverError(
+                `No declarations found for referenced type ${typeName}.`,
+            );
+        }
+
+        if (symbol.escapedName !== typeName && symbol.escapedName !== 'default') {
+            typeName = symbol.escapedName as string;
+        }
+
+        let modelTypes = declarations.filter((node) => {
+            if (!TypeNodeResolver.nodeIsUsable(node) || !this.current.isExportedNode(node)) {
+                return false;
+            }
+
+            const modelTypeDeclaration = node as UsableDeclaration;
+            return (modelTypeDeclaration.name as ts.Identifier)?.text === typeName;
+        });
+
+        if (!modelTypes.length) {
+            throw new ResolverError(
+                `No matching model found for referenced type ${typeName}. If ${typeName} comes from a dependency, please create an interface in your own code that has the same structure. The compiler can not utilize interfaces from external dependencies.`,
+            );
+        }
+
+        if (modelTypes.length > 1) {
+            // remove types that are from typescript e.g. 'Account'
+            modelTypes = modelTypes.filter((modelType) => modelType.getSourceFile()
+                .fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules/typescript') <= -1);
+
+            modelTypes = TypeNodeResolver.getDesignatedModels(modelTypes, typeName);
+        }
+
+        return modelTypes;
     }
 
     private getModelTypeDeclaration(type: ts.EntityName) : UsableDeclaration {
@@ -1320,26 +1379,7 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private getNodeDescription(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
-        const symbol = this.current.typeChecker.getSymbolAtLocation(node.name as ts.Node);
-        if (!symbol) {
-            return undefined;
-        }
-
-        /**
-         * TODO: Workaround for what seems like a bug in the compiler
-         * Warrants more investigation and possibly a PR against typescript
-         */
-        if (node.kind === ts.SyntaxKind.Parameter) {
-            // TypeScript won't parse jsdoc if the flag is 4, i.e. 'Property'
-            symbol.flags = 0;
-        }
-
-        const comments = symbol.getDocumentationComment(this.current.typeChecker);
-        if (comments.length) {
-            return ts.displayPartsToString(comments);
-        }
-
-        return undefined;
+        return getNodeDescription(node, this.current.typeChecker);
     }
 
     private static getNodeFormat(

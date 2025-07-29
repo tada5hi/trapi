@@ -6,7 +6,10 @@
  */
 
 import type { Node } from 'typescript';
-import { SyntaxKind, canHaveModifiers, getModifiers } from 'typescript';
+import {
+    SyntaxKind, TypeChecker, canHaveModifiers, displayPartsToString, getModifiers,
+} from 'typescript';
+import { hasOwnProperty } from '../../utils';
 
 export class ResolverBase {
     protected hasPublicModifier(node: Node) {

@@ -46,14 +46,14 @@
         "@tada5hi/commitlint-config": "^1.2.6",
         "@tada5hi/eslint-config-typescript": "^1.2.17",
         "@types/jest": "^30.0.0",
-        "@types/node": "^24.1.0",
+        "@types/node": "^24.2.0",
         "cross-env": "^10.0.0",
         "eslint": "^8.57.0",
         "husky": "^9.1.7",
         "jest": "^30.0.5",
-        "nx": "^21.3.8",
+        "nx": "^21.3.11",
         "rimraf": "^6.0.1",
-        "typescript": "^5.8.3",
+        "typescript": "^5.9.2",
         "workspaces-publish": "^1.4.5"
     }
 }

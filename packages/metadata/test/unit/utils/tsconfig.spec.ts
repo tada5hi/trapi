@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from 'path';
+import { describe, expect, it } from 'vitest';
+import path from 'node:path';
 import { loadTSConfig, softLoadTsconfig } from '../../../src';
 
 describe('src/typescript.ts', () => {

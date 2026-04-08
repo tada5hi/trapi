@@ -6,15 +6,24 @@
  */
 
 import path from 'node:path';
+import { isObject } from 'locter';
 import { NodeBuilderFlags, isTypeNode } from 'typescript';
 import type {
-    ClassDeclaration, Identifier, MethodDeclaration, Node, TypeNode,
+    ClassDeclaration, 
+    Identifier, 
+    MethodDeclaration, 
+    Node, 
+    TypeNode,
 } from 'typescript';
 import { DecoratorID } from '../../decorator';
 import type { BaseType } from '../../resolver';
 import { TypeNodeResolver, getNodeExtensions, isVoidType } from '../../resolver';
 import {
-    JSDocTagName, getJSDocDescription, getJSDocTagComment, getNodeDecorators, hasOwnProperty,
+    JSDocTagName, 
+    getJSDocDescription, 
+    getJSDocTagComment, 
+    getNodeDecorators, 
+    hasOwnProperty,
 } from '../../utils';
 import { AbstractGenerator } from '../abstract';
 import type { MetadataGenerator } from '../metadata';
@@ -111,22 +120,22 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
 
                 const parameters = generator.generate();
 
-                for (let j = 0; j < parameters.length; j++) {
-                    if (parameters[j].in === ParameterSource.BODY) {
+                for (const parameter of parameters) {
+                    if (parameter.in === ParameterSource.BODY) {
                         bodyParameterCount++;
                     }
 
-                    if (parameters[j].in === ParameterSource.FORM_DATA) {
+                    if (parameter.in === ParameterSource.FORM_DATA) {
                         formParameterCount++;
                     }
 
-                    if (parameters[j].in !== ParameterSource.CONTEXT) {
-                        output.push(parameters[j]);
+                    if (parameter.in !== ParameterSource.CONTEXT) {
+                        output.push(parameter);
                     }
                 }
             } catch (e) {
                 const parameterId = this.node.parameters[i].name as Identifier;
-                throw new Error(`Parameter generation: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`);
+                throw new Error(`Parameter generation: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`, { cause: e });
             }
         }
 
@@ -157,10 +166,10 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
 
         let method : string | undefined;
 
-        for (let i = 0; i < methods.length; i++) {
-            const representationManager = this.current.decoratorResolver.match(methods[i], decorators);
+        for (const method_ of methods) {
+            const representationManager = this.current.decoratorResolver.match(method_, decorators);
             if (representationManager) {
-                method = methods[i];
+                method = method_;
                 break;
             }
         }
@@ -197,7 +206,7 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
         const value = representation.get('type');
 
         if (
-            typeof value !== 'undefined' &&
+            isObject(value) &&
             hasOwnProperty(value, 'kind') &&
             isTypeNode(value as Node)
         ) {

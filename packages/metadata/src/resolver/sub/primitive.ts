@@ -24,27 +24,19 @@ export class PrimitiveResolver {
         const resolved = this.resolveSyntaxKind(node.kind);
         if (resolved) {
             if (resolved === 'string') {
-                return {
-                    typeName: TypeName.STRING,
-                };
+                return { typeName: TypeName.STRING };
             }
 
             if (resolved === 'void') {
-                return {
-                    typeName: TypeName.VOID,
-                };
+                return { typeName: TypeName.VOID };
             }
 
             if (resolved === 'boolean') {
-                return {
-                    typeName: TypeName.BOOLEAN,
-                };
+                return { typeName: TypeName.BOOLEAN };
             }
 
             if (resolved === 'undefined') {
-                return {
-                    typeName: TypeName.UNDEFINED,
-                };
+                return { typeName: TypeName.UNDEFINED };
             }
 
             if (resolved === 'null') {
@@ -53,16 +45,12 @@ export class PrimitiveResolver {
             }
 
             if (resolved === 'bigint') {
-                return {
-                    typeName: TypeName.BIGINT,
-                };
+                return { typeName: TypeName.BIGINT };
             }
 
             if (resolved === 'number') {
                 if (!parentNode) {
-                    return {
-                        typeName: TypeName.DOUBLE,
-                    };
+                    return { typeName: TypeName.DOUBLE };
                 }
 
                 const lookupTags = [
@@ -85,10 +73,10 @@ export class PrimitiveResolver {
 
                 let decoratorID : DecoratorID | undefined;
 
-                for (let i = 0; i < decoratorIds.length; i++) {
-                    const decorator = this.decoratorResolver.match(decoratorIds[i], parentNode);
+                for (const decoratorId of decoratorIds) {
+                    const decorator = this.decoratorResolver.match(decoratorId, parentNode);
                     if (decorator) {
-                        decoratorID = decoratorIds[i];
+                        decoratorID = decoratorId;
                         break;
                     }
                 }

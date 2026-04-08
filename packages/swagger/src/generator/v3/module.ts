@@ -52,7 +52,10 @@ import {
 } from '../../schema';
 import type { SecurityDefinition, SecurityDefinitions } from '../../type';
 import {
-    normalizePathParameters, removeDuplicateSlashes, removeFinalCharacter, transformValueTo,
+    normalizePathParameters, 
+    removeDuplicateSlashes, 
+    removeFinalCharacter, 
+    transformValueTo,
 } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
@@ -110,18 +113,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const output : Record<string, SecurityV3> = {};
 
         const keys = Object.keys(securityDefinitions);
-        for (let i = 0; i < keys.length; i++) {
-            const securityDefinition : SecurityDefinition = securityDefinitions[keys[i]];
+        for (const key of keys) {
+            const securityDefinition : SecurityDefinition = securityDefinitions[key];
 
             switch (securityDefinition.type) {
                 case 'http':
-                    output[keys[i]] = securityDefinition;
+                    output[key] = securityDefinition;
                     break;
                 case 'oauth2':
-                    output[keys[i]] = securityDefinition;
+                    output[key] = securityDefinition;
                     break;
                 case 'apiKey':
-                    output[keys[i]] = securityDefinition;
+                    output[key] = securityDefinition;
                     break;
             }
         }
@@ -211,15 +214,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             if (isNestedObjectLiteralType(bodyParams[0].type)) {
-                for (let i = 0; i < bodyPropParams.length; i++) {
+                for (const bodyPropParam of bodyPropParams) {
                     bodyParams[0].type.properties.push({
-                        default: bodyPropParams[i].default,
-                        validators: bodyPropParams[i].validators,
-                        description: bodyPropParams[i].description,
-                        name: bodyPropParams[i].name,
-                        type: bodyPropParams[i].type,
-                        required: bodyPropParams[i].required,
-                        deprecated: bodyPropParams[i].deprecated,
+                        default: bodyPropParam.default,
+                        validators: bodyPropParam.validators,
+                        description: bodyPropParam.description,
+                        name: bodyPropParam.name,
+                        type: bodyPropParam.type,
+                        required: bodyPropParam.required,
+                        deprecated: bodyPropParam.deprecated,
                     });
                 }
             }
@@ -274,9 +277,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return {
             description: parameter.description,
             required: parameter.required,
-            content: {
-                'application/json': mediaType,
-            },
+            content: { 'application/json': mediaType },
         };
     }
 
@@ -290,12 +291,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     protected buildResponses(input: Response[]) : Record<string, ResponseV3> {
         const output: Record<string, ResponseV3> = {};
 
-        for (let i = 0; i < input.length; i++) {
-            const res = input[i];
+        for (const res of input) {
             const name : string = res.status || 'default';
-            output[name] = {
-                description: res.description,
-            };
+            output[name] = { description: res.description };
 
             if (
                 res.schema &&
@@ -308,17 +306,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 ) {
                     for (let i = 0; i < res.examples.length; i++) {
                         const label = res.examples[i].label || `example${i + 1}`;
-                        examples[label] = {
-                            value: res.examples[i].value,
-                        };
+                        examples[label] = { value: res.examples[i].value };
                     }
                 }
 
                 output[name].content = output[name].content || {};
 
                 const contentTypes = res.produces || ['application/json'];
-                for (let i = 0; i < contentTypes.length; i++) {
-                    output[name].content[contentTypes[i]] = {
+                for (const contentType of contentTypes) {
+                    output[name].content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
                         examples,
                     };
@@ -446,9 +442,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         ) {
             for (let i = 0; i < parameter.examples.length; i++) {
                 const label = parameter.examples[i].label || `example${i + 1}`;
-                output[label] = {
-                    value: parameter.examples[i].value,
-                };
+                output[label] = { value: parameter.examples[i].value };
             }
         }
 
@@ -517,11 +511,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             anyOf: [],
         };
 
-        for (let i = 0; i < typesUsed.length; i++) {
+        for (const element of typesUsed) {
             schema.anyOf.push({
-                type: typesUsed[i] as `${DataTypeName}`,
-                // eslint-disable-next-line valid-typeof
-                enum: referenceType.members.filter((e) => typeof e === typesUsed[i]),
+                type: element as `${DataTypeName}`,
+                 
+                enum: referenceType.members.filter((e) => typeof e === element),
             });
         }
 
@@ -542,7 +536,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
     }
 
-    protected buildProperties<T>(properties: ResolverProperty[]): Record<string, SchemaV3> {
+    protected buildProperties(properties: ResolverProperty[]): Record<string, SchemaV3> {
         const output: Record<string, SchemaV3> = {};
 
         properties.forEach((property) => {
@@ -587,9 +581,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected getSchemaForReferenceType(referenceType: ReferenceType): SchemaV3 {
-        return {
-            $ref: `#/components/schemas/${referenceType.refName}`,
-        };
+        return { $ref: `#/components/schemas/${referenceType.refName}` };
     }
 
     protected getSchemaForUnionType(type: UnionType) : SchemaV3 {
@@ -625,15 +617,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const schemas : SchemaV3[] = [];
-        for (let i = 0; i < members.length; i++) {
-            schemas.push(this.getSchemaForType(members[i]));
+        for (const member of members) {
+            schemas.push(this.getSchemaForType(member));
         }
 
         const enumMembersKeys = Object.keys(enumMembers);
-        for (let i = 0; i < enumMembersKeys.length; i++) {
+        for (const enumMembersKey of enumMembersKeys) {
             const enumType : EnumType = {
                 typeName: 'enum',
-                members: enumMembers[enumMembersKeys[i]],
+                members: enumMembers[enumMembersKey],
             };
             schemas.push(this.getSchemaForEnumType(enumType));
         }

@@ -5,6 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { 
+    beforeAll, 
+    describe, 
+    expect, 
+    it, 
+} from 'vitest';
 import path from 'node:path';
 import process from 'node:process';
 import type { Metadata, NestedObjectLiteralType, RefAliasType } from '../../../src';
@@ -150,9 +156,7 @@ describe('src/generator/metadata', () => {
     });
 
     it('should not generate metadata', async () => {
-        const data = await generateMetadata({
-            entryPoint: './test/fake-path',
-        });
+        const data = await generateMetadata({ entryPoint: './test/fake-path' });
 
         expect(data).toBeDefined();
         expect(data).toEqual({ controllers: [], referenceTypes: {} });

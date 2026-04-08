@@ -9,9 +9,17 @@ import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../type';
 import type { DataFormatName, DataTypeName } from '../constants';
 import type {
-    BaseOperation, BaseResponse,
-    BaseSchema, BaseSpec, BodyParameter, Example,
-    FormDataParameter, HeaderParameter, Path, PathParameter, QueryParameter,
+    BaseOperation, 
+    BaseResponse,
+    BaseSchema, 
+    BaseSpec, 
+    BodyParameter, 
+    Example,
+    FormDataParameter, 
+    HeaderParameter, 
+    Path, 
+    PathParameter, 
+    QueryParameter,
 } from '../type';
 import type { ParameterSourceV3 } from './constants';
 
@@ -191,7 +199,6 @@ export interface OAuth2ClientCredentialsFlowV3 extends Oauth2BaseFlowV3 {
     tokenUrl: string;
 }
 
-export type SecurityV3 =
-        BasicSecurityV3 |
+export type SecurityV3 =        BasicSecurityV3 |
         OAuth2SecurityV3 |
         ApiKeySecurity;

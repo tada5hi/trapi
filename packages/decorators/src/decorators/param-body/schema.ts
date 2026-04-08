@@ -12,8 +12,6 @@ export function buildBodyConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.BODY,
         name: name || 'Body',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

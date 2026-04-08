@@ -104,23 +104,21 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const definitions : Record<string, SecurityV2> = {};
 
         const keys = Object.keys(securityDefinitions);
-        for (let i = 0; i < keys.length; i++) {
-            const securityDefinition = securityDefinitions[keys[i]];
+        for (const key of keys) {
+            const securityDefinition = securityDefinitions[key];
 
             switch (securityDefinition.type) {
                 case 'http':
                     if (securityDefinition.schema === 'basic') {
-                        definitions[keys[i]] = {
-                            type: 'basic',
-                        };
+                        definitions[key] = { type: 'basic' };
                     }
                     break;
                 case 'apiKey':
-                    definitions[keys[i]] = securityDefinition;
+                    definitions[key] = securityDefinition;
                     break;
                 case 'oauth2':
                     if (securityDefinition.flows.implicit) {
-                        definitions[`${keys[i]}Implicit`] = {
+                        definitions[`${key}Implicit`] = {
                             type: 'oauth2',
                             flow: 'implicit',
                             authorizationUrl: securityDefinition.flows.implicit.authorizationUrl,
@@ -129,7 +127,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     }
 
                     if (securityDefinition.flows.password) {
-                        definitions[`${keys[i]}Implicit`] = {
+                        definitions[`${key}Implicit`] = {
                             type: 'oauth2',
                             flow: 'password',
                             tokenUrl: securityDefinition.flows.password.tokenUrl,
@@ -138,7 +136,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     }
 
                     if (securityDefinition.flows.authorizationCode) {
-                        definitions[`${keys[i]}AccessCode`] = {
+                        definitions[`${key}AccessCode`] = {
                             type: 'oauth2',
                             flow: 'accessCode',
                             tokenUrl: securityDefinition.flows.authorizationCode.tokenUrl,
@@ -148,7 +146,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     }
 
                     if (securityDefinition.flows.clientCredentials) {
-                        definitions[`${keys[i]}Application`] = {
+                        definitions[`${key}Application`] = {
                             type: 'oauth2',
                             flow: 'application',
                             tokenUrl: securityDefinition.flows.clientCredentials.tokenUrl,
@@ -207,7 +205,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return {
             ...(swaggerType as SchemaV2),
             default: referenceType.default || swaggerType.default,
-            example: referenceType.example as {[p: string]: Example},
+            example: referenceType.example as { [p: string]: Example },
             format: format || swaggerType.format,
             description: referenceType.description,
             ...this.transformValidators(referenceType.validators),
@@ -290,17 +288,17 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
             const required : string[] = [];
 
-            for (let i = 0; i < bodyPropParams.length; i++) {
-                const bodyProp = this.getSchemaForType(bodyPropParams[i].type);
-                bodyProp.default = bodyPropParams[i].default;
-                bodyProp.description = bodyPropParams[i].description;
-                bodyProp.example = bodyPropParams[i].examples;
+            for (const bodyPropParam of bodyPropParams) {
+                const bodyProp = this.getSchemaForType(bodyPropParam.type);
+                bodyProp.default = bodyPropParam.default;
+                bodyProp.description = bodyPropParam.description;
+                bodyProp.example = bodyPropParam.examples;
 
                 if (bodyProp.required) {
-                    required.push(bodyPropParams[i].name);
+                    required.push(bodyPropParam.name);
                 }
 
-                schema.properties[bodyPropParams[i].name] = bodyProp;
+                schema.properties[bodyPropParam.name] = bodyProp;
             }
 
             if (
@@ -488,7 +486,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     }
 
     private supportsBodyParameters(method: string) {
-        return ['post', 'put', 'patch'].some((m) => m === method);
+        return ['post', 'put', 'patch'].includes(method);
     }
 
     /*
@@ -623,9 +621,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const produces : string[] = [];
 
         method.responses.forEach((res: Response) => {
-            operation.responses[res.status] = {
-                description: res.description,
-            };
+            operation.responses[res.status] = { description: res.description };
 
             if (
                 res.schema &&

@@ -16,9 +16,9 @@ export async function loadPreset(input: string) : Promise<DecoratorConfig[]> {
     const lookupPaths = generatePresetLookupPaths(input);
     let allFailed = true;
 
-    for (let i = 0; i < lookupPaths.length; i++) {
+    for (const lookupPath of lookupPaths) {
         try {
-            let moduleExport = await load(lookupPaths[i]);
+            let moduleExport = await load(lookupPath);
 
             if (!isPresetSchema(moduleExport)) {
                 if (isPresetSchema(moduleExport.default)) {
@@ -39,12 +39,12 @@ export async function loadPreset(input: string) : Promise<DecoratorConfig[]> {
             }
 
             const output = await Promise.all(extendsPromises);
-            for (let j = 0; j < output.length; j++) {
-                items.push(...output[j]);
+            for (const element of output) {
+                items.push(...element);
             }
 
             allFailed = false;
-        } catch (e) {
+        } catch {
             // do nothing ...
         }
     }

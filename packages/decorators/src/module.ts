@@ -7,7 +7,8 @@
 
 import type { PresetSchema } from '@trapi/metadata';
 import {
-    buildAcceptConfig, buildBodyConfig,
+    buildAcceptConfig, 
+    buildBodyConfig,
     buildConsumesConfig,
     buildControllerConfig,
     buildCookieConfig,

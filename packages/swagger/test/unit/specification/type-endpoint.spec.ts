@@ -5,11 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { 
+    beforeAll, 
+    describe, 
+    expect, 
+    it, 
+} from 'vitest';
 import jsonata from 'jsonata';
 import { load } from 'locter';
 import type { Metadata, SpecV2, SpecV3 } from '../../../src';
 import {
-    Version, generate,
+    Version, 
+    generate,
 } from '../../../src';
 
 describe('TypeEndpoint', () => {
@@ -65,7 +72,11 @@ describe('TypeEndpoint', () => {
             description: undefined,
             properties: {
                 a: { type: 'string', description: undefined },
-                b: { type: 'number', format: 'double', description: undefined },
+                b: {
+                    type: 'number', 
+                    format: 'double', 
+                    description: undefined, 
+                },
             },
             required: ['a', 'b'],
             type: 'object',

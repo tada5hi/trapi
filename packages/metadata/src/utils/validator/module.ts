@@ -6,7 +6,10 @@
  */
 
 import type {
-    ParameterDeclaration, PropertyDeclaration, PropertySignature, TypeAliasDeclaration,
+    ParameterDeclaration, 
+    PropertyDeclaration, 
+    PropertySignature, 
+    TypeAliasDeclaration,
 } from 'typescript';
 import type { Validator } from './type';
 import { getJSDocTags, transformJSDocComment } from '../js-doc';
@@ -58,9 +61,7 @@ export function getDeclarationValidators(
 
     const validators : Record<string, Validator> = {};
 
-    for (let i = 0; i < tags.length; i++) {
-        const tag = tags[i];
-
+    for (const tag of tags) {
         if (!tag.comment) {
             continue;
         }

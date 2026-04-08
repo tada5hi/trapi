@@ -7,10 +7,18 @@
 
 import { minimatch } from 'minimatch';
 import type {
-    Node, Program, SourceFile, TypeChecker,
+    Node, 
+    Program, 
+    SourceFile, 
+    TypeChecker,
 } from 'typescript';
 import {
-    NodeFlags, createProgram, forEachChild, isClassDeclaration, isModuleBlock, isModuleDeclaration,
+    NodeFlags, 
+    createProgram, 
+    forEachChild, 
+    isClassDeclaration, 
+    isModuleBlock, 
+    isModuleDeclaration,
 } from 'typescript';
 import { CacheClient } from '../../cache';
 import type { Options } from '../../config';
@@ -162,7 +170,8 @@ export class MetadataGenerator {
 
     // -------------------------------------------------------------------------
 
-    public isExportedNode(node: Node) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public isExportedNode(_node: Node) {
         return true;
     }
 

@@ -11,4 +11,4 @@ export * from './mixed';
 export * from './parameter';
 export * from './request';
 export * from './response';
-export { DecoratorPropertyValueSchema } from './type';
+export type { DecoratorPropertyValueSchema } from './type';

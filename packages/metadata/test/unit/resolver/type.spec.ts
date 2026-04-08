@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { describe, expect, it } from 'vitest';
 import type {
     AnyType,
     ArrayType,
@@ -28,9 +29,7 @@ import {
 
 describe('type.ts', () => {
     it('check void type', () => {
-        const type : BaseType = {
-            typeName: 'void',
-        };
+        const type : BaseType = { typeName: 'void' };
         expect(isVoidType(type)).toBeTruthy();
 
         type.typeName = 'any';
@@ -43,15 +42,11 @@ describe('type.ts', () => {
     it('check array type', () => {
         let type : ArrayType | AnyType = {
             typeName: 'array',
-            elementType: {
-                typeName: 'void',
-            },
+            elementType: { typeName: 'void' },
         };
         expect(isArrayType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isArrayType(type)).toBeFalsy();
     });
@@ -65,9 +60,7 @@ describe('type.ts', () => {
         };
         expect(isNestedObjectLiteralType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isNestedObjectLiteralType(type)).toBeFalsy();
     });
@@ -81,9 +74,7 @@ describe('type.ts', () => {
         };
         expect(isUnionType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isUnionType(type)).toBeFalsy();
     });
@@ -101,9 +92,7 @@ describe('type.ts', () => {
         expect(isRefEnumType(type)).toBeTruthy();
         expect(isReferenceType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isRefEnumType(type)).toBeFalsy();
         expect(isReferenceType(type)).toBeFalsy();
@@ -122,9 +111,7 @@ describe('type.ts', () => {
         expect(isRefObjectType(type)).toBeTruthy();
         expect(isReferenceType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isRefObjectType(type)).toBeFalsy();
         expect(isReferenceType(type)).toBeFalsy();
@@ -143,9 +130,7 @@ describe('type.ts', () => {
         expect(isRefAliasType(type)).toBeTruthy();
         expect(isReferenceType(type)).toBeTruthy();
 
-        type = {
-            typeName: 'any',
-        };
+        type = { typeName: 'any' };
 
         expect(isRefAliasType(type)).toBeFalsy();
         expect(isReferenceType(type)).toBeFalsy();

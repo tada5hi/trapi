@@ -25,11 +25,10 @@ export type DecoratorResponseProducesProperties = DecoratorPropertyValueSchema<s
 export type DecoratorResponseSetID = `${DecoratorID.DESCRIPTION}` |
     `${DecoratorID.EXAMPLE}` |
     `${DecoratorID.PRODUCES}`;
-export type DecoratorResponseSetProperties<T extends DecoratorResponseSetID> =
-    T extends `${DecoratorID.DESCRIPTION}` ?
-        DecoratorResponseDescriptionProperties :
-        T extends `${DecoratorID.EXAMPLE}` ?
-            DecoratorResponseExampleProperties :
-            T extends `${DecoratorID.PRODUCES}` ?
-                DecoratorResponseProducesProperties :
-                never;
+export type DecoratorResponseSetProperties<T extends DecoratorResponseSetID> =    T extends `${DecoratorID.DESCRIPTION}` ?
+    DecoratorResponseDescriptionProperties :
+    T extends `${DecoratorID.EXAMPLE}` ?
+        DecoratorResponseExampleProperties :
+        T extends `${DecoratorID.PRODUCES}` ?
+            DecoratorResponseProducesProperties :
+            never;

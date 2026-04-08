@@ -6,7 +6,10 @@
  */
 
 import type {
-    Identifier, JSDoc, JSDocTag, Node,
+    Identifier, 
+    JSDoc, 
+    JSDocTag, 
+    Node,
 } from 'typescript';
 import { SyntaxKind, isJSDocParameterTag } from 'typescript';
 import { hasOwnProperty } from '../object';
@@ -69,7 +72,7 @@ export function getJSDocTags(
 
     const tagNames : string[] = Array.isArray(isMatching) ? isMatching : [isMatching];
 
-    return jsDocTags.filter((tag) => tagNames.indexOf(tag.tagName.text) !== -1);
+    return jsDocTags.filter((tag) => tagNames.includes(tag.tagName.text));
 }
 
 export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : boolean {

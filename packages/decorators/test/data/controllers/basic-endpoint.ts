@@ -6,7 +6,13 @@
  */
 
 import {
-    Delete, Get, Mount, Path, Post, Put, QueryProp,
+    Delete, 
+    Get, 
+    Mount, 
+    Path, 
+    Post, 
+    Put, 
+    QueryProp,
 } from '../../../src';
 import type * as Return from '../return-types';
 import type { BasicModel } from '../type';

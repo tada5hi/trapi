@@ -7,9 +7,11 @@
 
 import type { Node } from 'typescript';
 import {
-    SyntaxKind, TypeChecker, canHaveModifiers, displayPartsToString, getModifiers,
+    SyntaxKind,
+    canHaveModifiers,
+    getModifiers,
 } from 'typescript';
-import { hasOwnProperty } from '../../utils';
+
 
 export class ResolverBase {
     protected hasPublicModifier(node: Node) {

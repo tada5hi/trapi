@@ -6,8 +6,7 @@
  */
 
 import { Controller, Mount, Post } from '../../../src';
-import type { TestInterface } from '../type';
-import { MyTypeWithUnion } from '../type';
+import type { MyTypeWithUnion, TestInterface  } from '../type';
 
 type MyComplexUnionType = {
     id: string,

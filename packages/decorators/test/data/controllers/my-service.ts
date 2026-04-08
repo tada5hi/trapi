@@ -6,7 +6,9 @@
  */
 
 import {
-    Accept, Body, Controller,
+    Accept, 
+    Body, 
+    Controller,
     Description,
     Example,
     FormProp,
@@ -16,8 +18,12 @@ import {
     QueryProp,
     Tags,
 } from '../../../src';
-import {
-    Person, TestEnum, TestInterface, TestMixedEnum, TestNumericEnum,
+import type {
+    Person, 
+    TestEnum, 
+    TestInterface, 
+    TestMixedEnum, 
+    TestNumericEnum,
 } from '../type';
 
 @Controller()
@@ -45,26 +51,22 @@ export class MyService {
      */
     @Get()
     @Mount('secondpath')
-    @Example<Person>({
-        name: 'Joe',
-    })
+    @Example<Person>({ name: 'Joe' })
     @Description<Person>(200, 'The success test.')
     public test2(
         @QueryProp('testRequired') test: string,
-        // eslint-disable-next-line default-param-last
-            @QueryProp('testDefault') test2 = 'value',
-            @QueryProp('testOptional') test3?: string,
-            @QueryProp('testEnum') test4?: TestEnum,
-            @QueryProp('testNumericEnum') test5?: TestNumericEnum,
-            @QueryProp('testMixedEnum') test6?: TestMixedEnum,
+         
+        @QueryProp('testDefault') test2 = 'value',
+        @QueryProp('testOptional') test3?: string,
+        @QueryProp('testEnum') test4?: TestEnum,
+        @QueryProp('testNumericEnum') test5?: TestNumericEnum,
+        @QueryProp('testMixedEnum') test6?: TestMixedEnum,
     ): Person {
         return { name: 'OK' };
     }
 
     @Post()
-    @Example<Person[]>([{
-        name: 'Joe',
-    }])
+    @Example<Person[]>([{ name: 'Joe' }])
     public testPostString(@Body('name') body: string): Person[] {
         return [];
     }
@@ -78,7 +80,7 @@ export class MyService {
     @Get()
     @Mount('multi-query')
     public testMultiQuery(
-    @QueryProp('id') ids: string[],
+        @QueryProp('id') ids: string[],
         @QueryProp('name', { collectionFormat: 'multi', allowEmptyValue: true }) names?: string | string[],
     ) {
         return { ids, names };
@@ -87,7 +89,7 @@ export class MyService {
     @Get()
     @Mount('default-query')
     public testDefaultQuery(
-    @QueryProp('num') num = 5,
+        @QueryProp('num') num = 5,
         @QueryProp('str') str = 'default value',
         @QueryProp('bool1') bool1 = true,
         @QueryProp('bool2') bool2 = false,

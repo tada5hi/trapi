@@ -6,7 +6,10 @@
  */
 
 import {
-    Controller, Get, Mount, Path,
+    Controller, 
+    Get, 
+    Mount, 
+    Path,
 } from '../../../src';
 import type { MyDataType2, SimpleHelloType } from '../type';
 

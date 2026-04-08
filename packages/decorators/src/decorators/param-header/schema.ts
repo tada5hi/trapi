@@ -12,17 +12,13 @@ export function buildHeaderConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.HEADER,
         name: name || 'Header',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildHeadersConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.HEADERS,
         name: name || 'Headers',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

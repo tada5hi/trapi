@@ -54,7 +54,7 @@ export async function softLoadTsconfig(
 ) : Promise<TsConfig> {
     try {
         return await loadTSConfig(context);
-    } catch (e) {
+    } catch {
         return {};
     }
 }

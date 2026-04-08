@@ -5,12 +5,19 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { 
+    beforeAll, 
+    describe, 
+    expect, 
+    it, 
+} from 'vitest';
 import jsonata from 'jsonata';
 import path from 'node:path';
 import process from 'node:process';
 import { generateMetadata } from '../../../src';
 import type {
-    ArrayType, Metadata,
+    ArrayType, 
+    Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefEnumType,

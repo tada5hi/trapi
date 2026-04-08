@@ -12,17 +12,13 @@ export function buildParamConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.PARAM,
         name: name || 'Param',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildParamsSchema(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.PARAMS,
         name: name || 'Params',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

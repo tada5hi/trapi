@@ -20,24 +20,29 @@
         "generation",
         "utility-types"
     ],
-    "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts",
+    "type": "module",
+    "main": "dist/index.mjs",
+    "types": "dist/index.d.mts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        }
+    },
     "files": [
-        "dist/"
+        "dist"
     ],
     "scripts": {
-        "refresh": "node bin/metadata.js",
-        "start": "tsc -p tsconfig.build.json -w",
-        "build": "npm run clean && tsc -p tsconfig.build.json",
-        "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
-        "test": "cross-env NODE_ENV=test jest --config ./test/jest.config.js",
-        "test:coverage": "cross-env NODE_ENV=test jest --config ./test/jest.config.js --coverage",
-        "tsc": "tsc",
+        "build": "npm run build:js && npm run build:types",
+        "build:js": "tsdown",
+        "build:types": "tsc -p tsconfig.build.json",
+        "test": "vitest --config ./test/vitest.config.ts --run",
+        "test:coverage": "vitest --config ./test/vitest.config.ts --run --coverage",
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
         "@types/yamljs": "^0.2.34",
-        "jest": "^30.0.5",
         "jsonata": "^2.0.6",
         "locter": "^2.1.6"
     },
@@ -56,7 +61,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "engines": {
-        "node": ">=16.0.0"
+        "node": ">=22.0.0"
     },
     "publishConfig": {
         "access": "public"

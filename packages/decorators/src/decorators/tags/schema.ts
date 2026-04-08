@@ -12,8 +12,6 @@ export function buildTagsConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.TAGS,
         name: name || 'Tags',
-        properties: {
-            value: { amount: -1, strategy: 'merge' },
-        },
+        properties: { value: { amount: -1, strategy: 'merge' } },
     };
 }

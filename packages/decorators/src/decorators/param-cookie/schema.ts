@@ -12,17 +12,13 @@ export function buildCookieConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.COOKIE,
         name: name || 'Cookie',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildCookiesConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.COOKIES,
         name: name || 'Cookies',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

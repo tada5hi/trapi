@@ -18,13 +18,17 @@ import {
     getInitializerValue,
     getJSDocTagComment,
     getJSDocTagNames,
-    hasJSDocTag, hasOwnProperty,
+    hasJSDocTag, 
+    hasOwnProperty,
 } from '../utils';
 import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
 import { PrimitiveResolver, ReferenceResolver, ResolverBase } from './sub';
 import {
-    isNestedObjectLiteralType, isRefAliasType, isRefObjectType, isStringType,
+    isNestedObjectLiteralType, 
+    isRefAliasType, 
+    isRefObjectType, 
+    isStringType,
 } from './type';
 import type {
     AnyType,
@@ -169,9 +173,7 @@ export class TypeNodeResolver extends ResolverBase {
             this.typeNode.kind === ts.SyntaxKind.AnyKeyword ||
             this.typeNode.kind === ts.SyntaxKind.UnknownKeyword
         ) {
-            return {
-                typeName: TypeName.ANY,
-            } as AnyType;
+            return { typeName: TypeName.ANY } as AnyType;
         }
 
         if (ts.isLiteralTypeNode(this.typeNode)) {
@@ -411,7 +413,7 @@ export class TypeNodeResolver extends ResolverBase {
                         this.context,
                         this.referencer,
                     ).resolve();
-                } catch (err) {
+                } catch {
                     const indexedTypeName = this.current.typeChecker.typeToString(this.current.typeChecker.getTypeFromTypeNode(this.typeNode.type));
                     throw new ResolverError(`Could not determine the keys on ${indexedTypeName}`, this.typeNode);
                 }
@@ -641,16 +643,14 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private static getUtilityTypeOptions(typeArguments: ts.NodeArray<ts.TypeNode>) {
-        const utilityOptions : UtilityTypeOptions = {
-            keys: [],
-        };
+        const utilityOptions : UtilityTypeOptions = { keys: [] };
 
         if (typeArguments.length >= 2) {
             if (ts.isUnionTypeNode(typeArguments[1])) {
                 const args : ts.NodeArray<ts.TypeNode> = (typeArguments[1] as ts.UnionTypeNode).types;
-                for (let i = 0; i < args.length; i++) {
-                    if (ts.isLiteralTypeNode(args[i])) {
-                        utilityOptions.keys.push(TypeNodeResolver.getLiteralValue(args[i] as ts.LiteralTypeNode));
+                for (const arg of args) {
+                    if (ts.isLiteralTypeNode(arg)) {
+                        utilityOptions.keys.push(TypeNodeResolver.getLiteralValue(arg as ts.LiteralTypeNode));
                     }
                 }
             }
@@ -678,22 +678,23 @@ export class TypeNodeResolver extends ResolverBase {
 
                 switch (utilityType) {
                     case UtilityTypeName.PICK:
-                        return utilityOptions.keys.indexOf(name) !== -1;
+                        return utilityOptions.keys.includes(name);
                     case UtilityTypeName.OMIT:
-                        return utilityOptions.keys.indexOf(name) === -1;
+                        return !utilityOptions.keys.includes(name);
                 }
 
                 return true;
             })
             .map((property) => {
                 if (hasOwnProperty(property, 'required')) {
+                    const prop = property as T & { required: boolean };
                     switch (utilityType) {
                         case UtilityTypeName.PARTIAL:
-                            property.required = false;
+                            prop.required = false;
                             break;
                         case UtilityTypeName.REQUIRED:
                         case UtilityTypeName.NON_NULLABLE:
-                            property.required = true;
+                            prop.required = true;
                             break;
                     }
                 }
@@ -726,7 +727,7 @@ export class TypeNodeResolver extends ResolverBase {
                 value = typeNode.literal.text;
                 break;
             case ts.SyntaxKind.NumericLiteral:
-                value = parseFloat(typeNode.literal.text);
+                value = Number.parseFloat(typeNode.literal.text);
                 break;
             case ts.SyntaxKind.NullKeyword:
                 value = null;
@@ -745,7 +746,7 @@ export class TypeNodeResolver extends ResolverBase {
         if (!parentNode) {
             return { typeName: TypeName.DATETIME };
         }
-        const tags = getJSDocTagNames(parentNode).filter((name) => ['isDate', 'isDateTime'].some((m) => m === name));
+        const tags = getJSDocTagNames(parentNode).filter((name) => ['isDate', 'isDateTime'].includes(name));
 
         if (tags.length === 0) {
             return { typeName: TypeName.DATETIME };
@@ -759,7 +760,8 @@ export class TypeNodeResolver extends ResolverBase {
         }
     }
 
-    private static getDesignatedModels<T extends ts.Node>(nodes: T[], typeName: string): T[] {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private static getDesignatedModels<T extends ts.Node>(nodes: T[], _typeName: string): T[] {
         return nodes;
     }
 
@@ -867,8 +869,7 @@ export class TypeNodeResolver extends ResolverBase {
             const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
             const declarations = this.getModelTypeDeclarations(type);
             const referenceTypes: ReferenceType[] = [];
-            for (let i = 0; i < declarations.length; i++) {
-                const declaration = declarations[i];
+            for (const declaration of declarations) {
                 if (ts.isTypeAliasDeclaration(declaration)) {
                     referenceTypes.push(
                         this.getTypeAliasReference(
@@ -1398,8 +1399,7 @@ export class TypeNodeResolver extends ResolverBase {
         const { typeParameters } = declaration;
 
         if (typeParameters) {
-            for (let index = 0; index < typeParameters.length; index++) {
-                const typeParameter = typeParameters[index];
+            for (const [index, typeParameter] of typeParameters.entries()) {
                 const typeArg = type.typeArguments && type.typeArguments[index];
                 let resolvedType: ts.TypeNode;
 

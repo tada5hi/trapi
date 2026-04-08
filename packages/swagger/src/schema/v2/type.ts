@@ -37,7 +37,7 @@ export interface SpecV2 extends BaseSpec {
     securityDefinitions?: { [name: string]: SecurityV2 };
 }
 
-    type PatternField = `x-${string}`;
+type PatternField = `x-${string}`;
 
 export interface BaseParameterV2 {
     type?: `${DataTypeName}`;
@@ -148,7 +148,6 @@ OAuth2ApplicationSecurityV2 |
 OAuth2ImplicitSecurityV2 |
 OAuth2PasswordSecurityV2;
 
-export type SecurityV2 =
-        BasicSecurityV2 |
+export type SecurityV2 =        BasicSecurityV2 |
         OAuth2SecurityV2 |
         ApiKeySecurity;

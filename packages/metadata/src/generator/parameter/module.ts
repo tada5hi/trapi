@@ -10,7 +10,10 @@ import * as ts from 'typescript';
 import type { DecoratorPropertyManager } from '../../decorator';
 import { DecoratorID } from '../../decorator';
 import type {
-    BaseType, NestedObjectLiteralType, RefObjectType, Type,
+    BaseType, 
+    NestedObjectLiteralType, 
+    RefObjectType, 
+    Type,
 } from '../../resolver';
 import {
     TypeName,
@@ -76,8 +79,8 @@ export class ParameterGenerator {
     public generate(): Parameter[] {
         const decorators = getNodeDecorators(this.parameter);
 
-        for (let i = 0; i < parameterKeys.length; i++) {
-            const manager = this.current.decoratorResolver.match(parameterKeys[i], decorators);
+        for (const parameterKey of parameterKeys) {
+            const manager = this.current.decoratorResolver.match(parameterKey, decorators);
             if (typeof manager === 'undefined') {
                 continue;
             }
@@ -542,10 +545,10 @@ export class ParameterGenerator {
                 exampleLabels,
             });
 
-            for (let i = 0; i < output.length; i++) {
+            for (const element of output) {
                 if (
-                    (!this.path.includes(`{${output[i].name}}`)) &&
-                    (!this.path.includes(`:${output[i].name}`))
+                    (!this.path.includes(`{${element.name}}`)) &&
+                    (!this.path.includes(`:${element.name}`))
                 ) {
                     throw ParameterError.invalidPathMatch({
                         decoratorName: manager.representation.name,
@@ -651,13 +654,13 @@ export class ParameterGenerator {
                 examples: examples.map((example) => JSON.parse(example)),
                 exampleLabels,
             };
-        } catch (e) {
+        } catch {
             throw ParameterError.invalidExampleSchema();
         }
     }
 
     private isBodySupportedForMethod(method: string) {
-        return ['delete', 'post', 'put', 'patch', 'get'].some((m) => m === method);
+        return ['delete', 'post', 'put', 'patch', 'get'].includes(method);
     }
 
     private isTypeSupported(parameterType: BaseType) {

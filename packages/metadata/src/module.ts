@@ -29,9 +29,7 @@ export async function generateMetadata(
 
     let options : Options;
     if (typeof input === 'string' || Array.isArray(input)) {
-        options = {
-            entryPoint: input,
-        };
+        options = { entryPoint: input };
     } else {
         options = input;
     }

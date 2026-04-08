@@ -16,9 +16,10 @@ npx nx run-many -t test
 npm run lint
 ```
 
-- **Node.js**: >=18.0.0
+- **Node.js**: >=22.0.0
 - **Package manager**: npm (workspaces)
-- **Build orchestrator**: NX
+- **Module format**: ESM (`"type": "module"`)
+- **Build orchestrator**: NX + tsdown
 
 Packages are libraries published to npm. The `docs` package is a private VitePress documentation site.
 
@@ -41,5 +42,6 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 
 - **[Project Structure](.agents/structure.md)** — Source layout, packages, and dependency layers
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
-- **[Testing](.agents/testing.md)** — Jest setup, coverage thresholds, and test patterns
+- **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns
 - **[Conventions](.agents/conventions.md)** — Commit conventions, linting, CI/CD, and release process
+- **[Plans](.agents/plans/)** — Future improvement plans (strict TypeScript, etc.)

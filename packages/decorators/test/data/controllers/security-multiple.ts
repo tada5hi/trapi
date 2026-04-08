@@ -6,7 +6,10 @@
  */
 
 import {
-    Controller, Get, Mount, Security,
+    Controller, 
+    Get, 
+    Mount, 
+    Security,
 } from '../../../src';
 
 @Controller()

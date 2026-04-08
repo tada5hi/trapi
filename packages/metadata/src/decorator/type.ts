@@ -23,20 +23,19 @@ import type {
     DecoratorResponseSetProperties,
 } from './sets';
 
-export type DecoratorProperties<T extends `${DecoratorID}`> =
-    T extends DecoratorClassSetID ?
-        DecoratorClassSetProperties<T> :
-        T extends DecoratorMethodSetID ?
-            DecoratorMethodSetProperties<T> :
-            T extends DecoratorMixedSetID ?
-                DecoratorMixedSetProperties<T> :
-                T extends DecoratorParameterSetID ?
-                    DecoratorParameterSetProperties<T> :
-                    T extends DecoratorRequestSetID ?
-                        DecoratorRequestSetProperties<T> :
-                        T extends DecoratorResponseSetID ?
-                            DecoratorResponseSetProperties<T> :
-                            never;
+export type DecoratorProperties<T extends `${DecoratorID}`> =    T extends DecoratorClassSetID ?
+    DecoratorClassSetProperties<T> :
+    T extends DecoratorMethodSetID ?
+        DecoratorMethodSetProperties<T> :
+        T extends DecoratorMixedSetID ?
+            DecoratorMixedSetProperties<T> :
+            T extends DecoratorParameterSetID ?
+                DecoratorParameterSetProperties<T> :
+                T extends DecoratorRequestSetID ?
+                    DecoratorRequestSetProperties<T> :
+                    T extends DecoratorResponseSetID ?
+                        DecoratorResponseSetProperties<T> :
+                        never;
 
 export type DecoratorPropertyStrategy = 'merge' | ((...items: any[]) => any);
 

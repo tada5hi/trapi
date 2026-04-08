@@ -5,13 +5,22 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { describe, expect, it } from 'vitest';
 import type { NodeDecorator } from '../../../src';
 import { DecoratorID, DecoratorPropertyManager, DecoratorResolver } from '../../../src';
 
 describe('src/decorator/mapper/index.ts', () => {
     const decorators : NodeDecorator[] = [
-        { text: 'foo', arguments: [], typeArguments: [] },
-        { text: 'Tags', arguments: [], typeArguments: [] },
+        {
+            text: 'foo', 
+            arguments: [], 
+            typeArguments: [], 
+        },
+        {
+            text: 'Tags', 
+            arguments: [], 
+            typeArguments: [], 
+        },
     ];
 
     const decoratorsWithResponseExample : NodeDecorator[] = [
@@ -41,7 +50,11 @@ describe('src/decorator/mapper/index.ts', () => {
     });
 
     it('should work with preset typescript-rest', async () => {
-        const data = [...decorators, { text: 'Example', arguments: [], typeArguments: [] }];
+        const data = [...decorators, {
+            text: 'Example', 
+            arguments: [], 
+            typeArguments: [], 
+        }];
 
         await mapper.applyPreset('@trapi/decorators');
         expect(mapper.match(DecoratorID.EXAMPLE, data)).toBeDefined();
@@ -51,11 +64,8 @@ describe('src/decorator/mapper/index.ts', () => {
         mapper.apply([{
             id: DecoratorID.TAGS,
             name: 'Tags',
-            properties: {
-                value: {},
-            },
-        },
-        ]);
+            properties: { value: {} },
+        }]);
 
         const match = mapper.match(DecoratorID.TAGS, decorators);
 

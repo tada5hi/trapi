@@ -6,35 +6,33 @@
  */
 
 import {
-    DecoratorConfig,
     DecoratorID,
+    generateMetadata,
+    isMetadata,
+} from '@trapi/metadata';
+
+import type {
+    CacheOptions,
+    DecoratorConfig,
     Metadata,
     Options as MetadataOptions,
     PresetSchema,
     TsCompilerOptions,
     TsConfig,
-    generateMetadata,
-    isMetadata,
 } from '@trapi/metadata';
 
-import type { CacheOptions } from '@trapi/metadata';
-
 export {
-    DecoratorConfig,
     DecoratorID,
-
-    // Utils
     generateMetadata,
     isMetadata,
+};
 
+export type {
     CacheOptions,
-
-    // Types & Interfaces
+    DecoratorConfig,
     Metadata,
     MetadataOptions,
-
     PresetSchema,
-
     TsCompilerOptions,
     TsConfig,
 };

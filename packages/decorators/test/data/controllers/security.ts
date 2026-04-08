@@ -7,7 +7,8 @@
 
 import {
     Controller,
-    Get, Mount,
+    Get, 
+    Mount,
     Post,
     Security,
 } from '../../../src';

@@ -6,7 +6,9 @@
  */
 
 import {
-    Controller, Get, Mount,
+    Controller, 
+    Get, 
+    Mount,
 } from '../../../src';
 
 type Foo = {
@@ -30,9 +32,7 @@ export class UtilityTypes {
     @Get()
     @Mount('omit')
     public omit(): FooBaz {
-        return {
-            baz: 'boz',
-        };
+        return { baz: 'boz' };
     }
 
     @Get()

@@ -17,7 +17,7 @@ import {
     QueryProp,
 } from '../../../src';
 import * as Return from '../return-types';
-import { Person } from '../type';
+import type { Person } from '../type';
 import { BaseService } from '../utils';
 
 @Controller()

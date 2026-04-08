@@ -12,17 +12,13 @@ export function buildFormConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.FORM,
         name: name || 'FormProp',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildFormsConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.FORM,
         name: name || 'Form',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

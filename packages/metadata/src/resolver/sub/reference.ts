@@ -10,7 +10,10 @@ import { JSDocTagName, hasJSDocTag } from '../../utils';
 import { TypeName } from '../constants';
 import { ResolverError } from '../error';
 import type {
-    RefEnumType, RefObjectType, ReferenceType, Type,
+    RefEnumType, 
+    RefObjectType, 
+    ReferenceType, 
+    Type,
 } from '../type';
 import { getNodeDescription } from '../utils';
 import { ResolverBase } from './base';

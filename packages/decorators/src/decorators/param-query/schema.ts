@@ -12,17 +12,13 @@ export function buildQueryConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.QUERY,
         name: name || 'Query',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildQueryPropConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.QUERY,
         name: name || 'QueryProp',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

@@ -12,8 +12,6 @@ export function buildControllerConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.CONTROLLER,
         name: name || 'Controller',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

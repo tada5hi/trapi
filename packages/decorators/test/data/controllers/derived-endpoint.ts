@@ -6,7 +6,10 @@
  */
 
 import {
-    Controller, Get, Mount, Path,
+    Controller, 
+    Get, 
+    Mount, 
+    Path,
 } from '../../../src';
 import type { BasicModel } from '../type';
 import { BasicEndpoint } from './basic-endpoint';

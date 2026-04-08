@@ -12,10 +12,6 @@ export function buildConsumesConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.CONSUMES,
         name: name || 'Consumes',
-        properties: {
-            value: {
-                amount: -1, strategy: 'merge',
-            },
-        },
+        properties: { value: { amount: -1, strategy: 'merge' } },
     };
 }

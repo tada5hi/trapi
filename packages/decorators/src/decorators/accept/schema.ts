@@ -12,10 +12,6 @@ export function buildAcceptConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.ACCEPT,
         name: name || 'Accept',
-        properties: {
-            value: {
-                amount: -1, strategy: 'merge',
-            },
-        },
+        properties: { value: { amount: -1, strategy: 'merge' } },
     };
 }

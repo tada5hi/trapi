@@ -5,12 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies,max-classes-per-file
 import {
-    IsDouble, IsFloat, IsInt, IsLong,
+    IsDouble,
+    IsFloat,
+    IsInt,
+    IsLong,
 } from '../../src';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }

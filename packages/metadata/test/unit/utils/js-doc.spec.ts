@@ -5,8 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { describe, expect, it } from 'vitest';
 import type {
-    JSDoc, JSDocTag, Node, NodeArray,
+    JSDoc, 
+    JSDocTag, 
+    Node, 
+    NodeArray,
 } from 'typescript';
 import {
     JSDocTagName,
@@ -14,20 +18,15 @@ import {
     getJSDocDescription,
     getJSDocTagComment,
     getJSDocTagNames,
-    getJSDocTags, hasJSDocTag,
+    getJSDocTags, 
+    hasJSDocTag,
 } from '../../../src';
 
 describe('src/utils/js-doc.ts', () => {
     const tags : NodeArray<JSDocTag> = [
+        { tagName: { text: 'ignore' } },
         {
-            tagName: {
-                text: 'ignore',
-            },
-        },
-        {
-            tagName: {
-                text: 'description',
-            },
+            tagName: { text: 'description' },
             comment: 'comment',
         },
     ] as unknown as NodeArray<JSDocTag>;

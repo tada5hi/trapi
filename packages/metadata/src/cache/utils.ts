@@ -20,9 +20,7 @@ export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) 
     }
 
     if (typeof input === 'boolean') {
-        input = {
-            enabled: input,
-        };
+        input = { enabled: input };
     }
 
     input = input || {};

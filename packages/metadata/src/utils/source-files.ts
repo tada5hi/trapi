@@ -15,9 +15,7 @@ export async function scanSourceFiles(input: EntryPoint) : Promise<string[]> {
 
     const promises : Promise<LocatorInfo[]>[] = [];
 
-    for (let i = 0; i < sources.length; i++) {
-        const source = sources[i];
-
+    for (const source of sources) {
         if (typeof source === 'string') {
             promises.push(locateMany(source));
         } else {
@@ -28,8 +26,8 @@ export async function scanSourceFiles(input: EntryPoint) : Promise<string[]> {
     const groupMatches = await Promise.all(promises);
     const matches = groupMatches.flat();
 
-    for (let j = 0; j < matches.length; j++) {
-        result.add(buildFilePath(matches[j]));
+    for (const match of matches) {
+        result.add(buildFilePath(match));
     }
 
     return Array.from(result);

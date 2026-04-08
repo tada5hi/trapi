@@ -8,14 +8,18 @@
 import type {
     ArrayType,
     BaseType,
-    EnumType, Extension,
+    EnumType, 
+    Extension,
     IntersectionType,
     Metadata,
     NestedObjectLiteralType,
     Parameter,
-    ParameterSource, PrimitiveType,
-    RefAliasType, RefEnumType,
-    RefObjectType, ReferenceType,
+    ParameterSource, 
+    PrimitiveType,
+    RefAliasType, 
+    RefEnumType,
+    RefObjectType, 
+    ReferenceType,
     ResolverProperty,
     UnionType,
     Validators,
@@ -31,7 +35,8 @@ import {
     isPrimitiveType,
     isReferenceType,
     isUndefinedType,
-    isUnionType, isVoidType,
+    isUnionType, 
+    isVoidType,
 } from '@trapi/metadata';
 
 import path from 'node:path';
@@ -67,7 +72,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     async save(): Promise<Record<`${DocumentFormat}`, DocumentFormatData>> {
         if (!this.config.output) {
-            return;
+            return {} as Record<`${DocumentFormat}`, DocumentFormatData>;
         }
 
         if (typeof this.spec === 'undefined') {
@@ -76,7 +81,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         try {
             await fs.promises.access(this.config.outputDirectory, fs.constants.R_OK | fs.constants.O_DIRECTORY);
-        } catch (e) {
+        } catch {
             await fs.promises.mkdir(this.config.outputDirectory, { recursive: true });
         }
 
@@ -98,11 +103,18 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         const promises: Promise<void>[] = [];
 
-        for (let i = 0; i < data.length; i++) {
-            promises.push(fs.promises.writeFile(data[i].path, data[i].content, { encoding: 'utf-8' }));
+        for (const datum of data) {
+            promises.push(fs.promises.writeFile(datum.path, datum.content, { encoding: 'utf-8' }));
         }
 
         await Promise.all(promises);
+
+        const output = {} as Record<`${DocumentFormat}`, DocumentFormatData>;
+        for (const datum of data) {
+            output[datum.name as `${DocumentFormat}`] = datum;
+        }
+
+        return output;
     }
 
     public abstract build(): Promise<Spec>;
@@ -152,9 +164,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     private getSchemaForPrimitiveType(type: PrimitiveType): BaseSchema<Schema> {
         const PrimitiveSwaggerTypeMap: Partial<Record<TypeName, BaseSchema<Schema>>> = {
-            [TypeName.ANY]: {
-                additionalProperties: true,
-            },
+            [TypeName.ANY]: { additionalProperties: true },
             [TypeName.BINARY]: { type: DataTypeName.STRING, format: DataFormatName.BINARY },
             [TypeName.BOOLEAN]: { type: DataTypeName.BOOLEAN },
             [TypeName.BUFFER]: { type: DataTypeName.STRING, format: DataFormatName.BYTE },
@@ -221,8 +231,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         const output: Record<string, Schema> = {};
 
         const keys = Object.keys(this.metadata.referenceTypes);
-        for (let i = 0; i < keys.length; i++) {
-            const referenceType = this.metadata.referenceTypes[keys[i]];
+        for (const key of keys) {
+            const referenceType = this.metadata.referenceTypes[key];
 
             switch (referenceType.typeName) {
                 case TypeName.REF_ALIAS: {
@@ -258,12 +268,12 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) : VariableType[] {
         const set = new Set<VariableType>();
-        for (let i = 0; i < anEnum.length; i++) {
-            if (anEnum[i] === null) {
+        for (const element of anEnum) {
+            if (element === null) {
                 continue;
             }
 
-            set.add(typeof anEnum[i]);
+            set.add(typeof element);
         }
 
         return Array.from(set);
@@ -310,12 +320,12 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected groupParameters(items: Parameter[]) : Partial<Record<ParameterSource, Parameter[]>> {
         const output : Partial<Record<ParameterSource, Parameter[]>> = {};
 
-        for (let i = 0; i < items.length; i++) {
-            if (typeof output[items[i].in] === 'undefined') {
-                output[items[i].in] = [];
+        for (const item of items) {
+            if (typeof output[item.in] === 'undefined') {
+                output[item.in] = [];
             }
 
-            output[items[i].in].push(items[i]);
+            output[item.in].push(item);
         }
 
         return output;
@@ -327,8 +337,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         }
 
         const output : Record<string, any> = {};
-        for (let i = 0; i < input.length; i++) {
-            const extension = input[i];
+        for (const extension of input) {
             if (!extension.key.startsWith('x-')) {
                 extension.key = `x-${extension.key}`;
             }
@@ -346,8 +355,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         const keys = Object.keys(input);
         const output : Record<string, any> = {};
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+        for (const key of keys) {
             if (
                 key.startsWith('is') ||
                 key === ValidatorName.MIN_DATE ||

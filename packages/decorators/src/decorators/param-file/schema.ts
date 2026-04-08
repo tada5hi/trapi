@@ -12,17 +12,13 @@ export function buildFileParamConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.FILE,
         name: name || 'File',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildFilesParamsConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.FILES,
         name: name || 'Files',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

@@ -27,23 +27,22 @@ export type DecoratorMethodSetID = `${DecoratorID.ALL}` |
     `${DecoratorID.PUT}` |
     `${DecoratorID.OPTIONS}`;
 
-export type DecoratorMethodSetProperties<T extends DecoratorMethodSetID> =
-    T extends `${DecoratorID.ALL}` ?
-        DecoratorAllProperties :
-        T extends `${DecoratorID.DELETE}` ?
-            DecoratorDeleteProperties :
-            T extends `${DecoratorID.GET}` ?
-                DecoratorGetProperties :
-                T extends `${DecoratorID.HEAD}` ?
-                    DecoratorHeadProperties :
-                    T extends `${DecoratorID.OPTIONS}` ?
-                        DecoratorOptionsProperties :
-                        T extends `${DecoratorID.PATCH}` ?
-                            DecoratorPatchProperties :
-                            T extends `${DecoratorID.MOUNT}` ?
-                                DecoratorMethodPathProperties :
-                                T extends `${DecoratorID.POST}` ?
-                                    DecoratorPostProperties :
-                                    T extends `${DecoratorID.PUT}` ?
-                                        DecoratorPutProperties :
-                                        never;
+export type DecoratorMethodSetProperties<T extends DecoratorMethodSetID> =    T extends `${DecoratorID.ALL}` ?
+    DecoratorAllProperties :
+    T extends `${DecoratorID.DELETE}` ?
+        DecoratorDeleteProperties :
+        T extends `${DecoratorID.GET}` ?
+            DecoratorGetProperties :
+            T extends `${DecoratorID.HEAD}` ?
+                DecoratorHeadProperties :
+                T extends `${DecoratorID.OPTIONS}` ?
+                    DecoratorOptionsProperties :
+                    T extends `${DecoratorID.PATCH}` ?
+                        DecoratorPatchProperties :
+                        T extends `${DecoratorID.MOUNT}` ?
+                            DecoratorMethodPathProperties :
+                            T extends `${DecoratorID.POST}` ?
+                                DecoratorPostProperties :
+                                T extends `${DecoratorID.PUT}` ?
+                                    DecoratorPutProperties :
+                                    never;

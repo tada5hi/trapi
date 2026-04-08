@@ -10,8 +10,8 @@ export function isStringArray(input: unknown) : input is string[] {
         return false;
     }
 
-    for (let i = 0; i < input.length; i++) {
-        if (typeof input[i] !== 'string') {
+    for (const element of input) {
+        if (typeof element !== 'string') {
             return false;
         }
     }

@@ -6,7 +6,10 @@
  */
 
 import {
-    Controller, Get, Mount, Path,
+    Controller, 
+    Get, 
+    Mount, 
+    Path,
 } from '../../../src';
 import { PrimitiveClassModel } from '../type';
 

@@ -5,7 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 import type {
-    Node, NodeBuilderFlags, Type, TypeChecker, TypeNode,
+    Node,
+    TypeChecker,
+    TypeNode,
 } from 'typescript';
 import { SyntaxKind, displayPartsToString } from 'typescript';
 import { hasOwnProperty } from '../utils';

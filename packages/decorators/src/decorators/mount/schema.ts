@@ -12,8 +12,6 @@ export function buildMountPathConfig() : DecoratorConfig {
     return {
         id: DecoratorID.MOUNT,
         name: 'Mount',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

@@ -15,7 +15,6 @@ import type { MetadataGenerator } from '../metadata';
 import type { Controller } from './type';
 
 export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
-    // eslint-disable-next-line no-useless-constructor,@typescript-eslint/no-useless-constructor
     constructor(node: ClassDeclaration, current: MetadataGenerator) {
         super(node, current);
     }

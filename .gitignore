@@ -14,3 +14,4 @@ coveralls.yml
 tsconfig.tsbuildinfo
 .nx
 .claude/settings.local.json
+.agents/plans

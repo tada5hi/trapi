@@ -14,9 +14,7 @@ export default {
         {
             id: DecoratorID.CONTROLLER,
             name: 'Controller',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
 
         {
@@ -26,9 +24,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'All',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.DELETE,
@@ -37,9 +33,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Delete',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.GET,
@@ -48,9 +42,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Get',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEAD,
@@ -59,9 +51,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Head',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.OPTIONS,
@@ -70,9 +60,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Options',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATCH,
@@ -81,9 +69,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Patch',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.POST,
@@ -92,9 +78,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Post',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PUT,
@@ -103,9 +87,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Put',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
 
         {
@@ -124,30 +106,22 @@ export default {
         {
             id: DecoratorID.QUERY,
             name: 'Query',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEADERS,
             name: 'Headers',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.COOKIES,
             name: 'Cookies',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATHS,
             name: 'Params',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
     ],
 } satisfies PresetSchema;

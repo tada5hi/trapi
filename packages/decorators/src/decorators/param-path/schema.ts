@@ -12,17 +12,13 @@ export function buildPathParamConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.PATH,
         name: name || 'Path',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }
 export function buildPathParamsConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.PATHS,
         name: name || 'Paths',
-        properties: {
-            value: {},
-        },
+        properties: { value: {} },
     };
 }

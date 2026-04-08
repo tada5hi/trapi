@@ -79,8 +79,8 @@ export class DecoratorPropertyManager<T extends `${DecoratorID}`> {
 
         const keys = Object.keys(this.representation.properties);
         const output : Record<string, DecoratorPropertyConfig> = {};
-        for (let i = 0; i < keys.length; i++) {
-            output[keys[i]] = buildDecoratorPropertyConfig(this.representation.properties[keys[i]]);
+        for (const key of keys) {
+            output[key] = buildDecoratorPropertyConfig(this.representation.properties[key]);
         }
 
         this.properties = output;

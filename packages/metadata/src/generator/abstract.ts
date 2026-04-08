@@ -12,7 +12,11 @@ import { TypeNodeResolver } from '../resolver';
 
 import type { Example, Response, Security } from './type';
 import {
-    JSDocTagName, getInitializerValue, hasJSDocTag, isStringArray, normalizePath,
+    JSDocTagName, 
+    getInitializerValue, 
+    hasJSDocTag, 
+    isStringArray, 
+    normalizePath,
 } from '../utils';
 import type { MetadataGenerator } from './metadata';
 
@@ -65,9 +69,7 @@ export abstract class AbstractGenerator<T extends Node> {
                 const scopes = representation.get('value');
 
                 if (isStringArray(scopes)) {
-                    securities.push({
-                        [name]: scopes,
-                    });
+                    securities.push({ [name]: scopes });
                 }
             }
         }
@@ -112,9 +114,7 @@ export abstract class AbstractGenerator<T extends Node> {
 
             const examples : Example[] = [];
             if (typeof payload !== 'undefined') {
-                examples.push({
-                    value: payload,
-                });
+                examples.push({ value: payload });
             }
 
             const type = representation.get('type');

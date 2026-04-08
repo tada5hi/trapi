@@ -13,9 +13,8 @@ export type DecoratorRequestConsumesProperties = DecoratorPropertyValueSchema<st
 export type DecoratorRequestSetID = `${DecoratorID.ACCEPT}` |
     `${DecoratorID.CONSUMES}`;
 
-export type DecoratorRequestSetProperties<T extends DecoratorRequestSetID> =
-    T extends `${DecoratorID.ACCEPT}` ?
-        never :
-        T extends `${DecoratorID.CONSUMES}` ?
-            DecoratorRequestConsumesProperties :
-            never;
+export type DecoratorRequestSetProperties<T extends DecoratorRequestSetID> =    T extends `${DecoratorID.ACCEPT}` ?
+    never :
+    T extends `${DecoratorID.CONSUMES}` ?
+        DecoratorRequestConsumesProperties :
+        never;

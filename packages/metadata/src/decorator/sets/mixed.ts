@@ -22,9 +22,8 @@ export type DecoratorMixedSetID = `${DecoratorID.DEPRECATED}` |
     `${DecoratorID.EXTENSION}` |
     `${DecoratorID.SECURITY}`;
 
-export type DecoratorMixedSetProperties<T extends DecoratorMixedSetID> =
-        T extends `${DecoratorID.EXTENSION}` ?
-            DecoratorExtensionProperties :
-            T extends `${DecoratorID.SECURITY}` ?
-                DecoratorSecurityProperties :
-                never;
+export type DecoratorMixedSetProperties<T extends DecoratorMixedSetID> =        T extends `${DecoratorID.EXTENSION}` ?
+    DecoratorExtensionProperties :
+    T extends `${DecoratorID.SECURITY}` ?
+        DecoratorSecurityProperties :
+        never;

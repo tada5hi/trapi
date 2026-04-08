@@ -7,9 +7,13 @@
 
 import {
     Controller,
-    Get, IsLong, Mount, Path,
+    Get, 
+    IsLong, 
+    Mount, 
+    Path,
 } from '../../../src';
-import { PrimitiveClassModel, PrimitiveInterfaceModel, ResponseBody } from '../type';
+import type { PrimitiveInterfaceModel, ResponseBody } from '../type';
+import { PrimitiveClassModel } from '../type';
 
 @Controller()
 @Mount('primitives')

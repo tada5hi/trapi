@@ -16,9 +16,7 @@ export default {
         {
             id: DecoratorID.CONTROLLER,
             name: 'Path',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.DESCRIPTION,
@@ -50,9 +48,7 @@ export default {
         {
             id: DecoratorID.MOUNT,
             name: 'Path',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.ALL,
@@ -111,51 +107,37 @@ export default {
         {
             id: DecoratorID.QUERY,
             name: 'QueryParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.HEADERS,
             name: 'HeaderParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.COOKIES,
             name: 'CookieParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PARAMS,
             name: 'Param',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.PATHS,
             name: 'PathParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.FILE,
             name: 'FileParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
         {
             id: DecoratorID.FILES,
             name: 'FilesParam',
-            properties: {
-                value: {},
-            },
+            properties: { value: {} },
         },
     ],
 } satisfies PresetSchema;

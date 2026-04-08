@@ -12,9 +12,8 @@ export type DecoratorSwaggerTagsProperties = DecoratorPropertyValueSchema<string
 export type DecoratorClassPathProperties = DecoratorPropertyValueSchema<string>;
 
 export type DecoratorClassSetID = `${DecoratorID.TAGS}` | `${DecoratorID.CONTROLLER}`;
-export type DecoratorClassSetProperties<T extends DecoratorClassSetID> =
-    T extends `${DecoratorID.TAGS}` ?
-        DecoratorSwaggerTagsProperties :
-        T extends `${DecoratorID.CONTROLLER}` ?
-            DecoratorClassPathProperties :
-            never;
+export type DecoratorClassSetProperties<T extends DecoratorClassSetID> =    T extends `${DecoratorID.TAGS}` ?
+    DecoratorSwaggerTagsProperties :
+    T extends `${DecoratorID.CONTROLLER}` ?
+        DecoratorClassPathProperties :
+        never;

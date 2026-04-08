@@ -9,26 +9,25 @@ import type { Validator } from '../utils';
 import { TypeName } from './constants';
 import type { Extension } from './extension';
 
-export type Type =
-        | PrimitiveType
-        | ObjectType
-        | EnumType
-        | ArrayType
-        | FileType
-        | DateTimeType
-        | DateType
-        | BinaryType
-        | BufferType
-        | ByteType
-        | AnyType
-        | UndefinedType
-        | RefEnumType
-        | RefObjectType
-        | RefAliasType
-        | NestedObjectLiteralType
-        | UnionType
-        | IntersectionType
-        | VoidType;
+export type Type =        | PrimitiveType |
+        ObjectType |
+        EnumType |
+        ArrayType |
+        FileType |
+        DateTimeType |
+        DateType |
+        BinaryType |
+        BufferType |
+        ByteType |
+        AnyType |
+        UndefinedType |
+        RefEnumType |
+        RefObjectType |
+        RefAliasType |
+        NestedObjectLiteralType |
+        UnionType |
+        IntersectionType |
+        VoidType;
 
 // -------------------------------------------
 

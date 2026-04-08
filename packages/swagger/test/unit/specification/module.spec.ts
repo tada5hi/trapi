@@ -5,7 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { CollectionFormat } from '@trapi/metadata/src';
+import { 
+    beforeAll, 
+    describe, 
+    expect, 
+    it, 
+} from 'vitest';
+import { CollectionFormat } from '@trapi/metadata';
 import jsonata from 'jsonata';
 import { load } from 'locter';
 import type { Metadata, SpecV2, SpecV3 } from '../../../src';

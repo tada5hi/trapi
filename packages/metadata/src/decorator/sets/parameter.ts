@@ -50,31 +50,30 @@ export type DecoratorParameterSetID = `${DecoratorID.IS_INT}` |
     `${DecoratorID.FILE}` |
     `${DecoratorID.FILES}`;
 
-export type DecoratorParameterSetProperties<T extends `${DecoratorID}`> =
-    T extends `${DecoratorID.PARAM}` ?
-        DecoratorParamProperties :
-        T extends `${DecoratorID.PARAMS}` ?
-            DecoratorParamsProperties :
-            T extends `${DecoratorID.QUERY}` ?
-                DecoratorQueryProperties :
-                T extends `${DecoratorID.FORM}` ?
-                    DecoratorFormProperties :
-                    T extends `${DecoratorID.BODY}` ?
-                        DecoratorBodyProperties :
-                        T extends `${DecoratorID.HEADER}` ?
-                            DecoratorHeaderProperties :
-                            T extends `${DecoratorID.HEADERS}` ?
-                                DecoratorHeadersProperties :
-                                T extends `${DecoratorID.COOKIE}` ?
-                                    DecoratorCookieProperties :
-                                    T extends `${DecoratorID.COOKIES}` ?
-                                        DecoratorCookiesProperties :
-                                        T extends `${DecoratorID.PATH}` ?
-                                            DecoratorPathParamProperties :
-                                            T extends `${DecoratorID.PATHS}` ?
-                                                DecoratorPathParamsProperties :
-                                                T extends `${DecoratorID.FILE}` ?
-                                                    DecoratorFileProperties :
-                                                    T extends `${DecoratorID.FILES}` ?
-                                                        DecoratorFilesParamProperties :
-                                                        never;
+export type DecoratorParameterSetProperties<T extends `${DecoratorID}`> =    T extends `${DecoratorID.PARAM}` ?
+    DecoratorParamProperties :
+    T extends `${DecoratorID.PARAMS}` ?
+        DecoratorParamsProperties :
+        T extends `${DecoratorID.QUERY}` ?
+            DecoratorQueryProperties :
+            T extends `${DecoratorID.FORM}` ?
+                DecoratorFormProperties :
+                T extends `${DecoratorID.BODY}` ?
+                    DecoratorBodyProperties :
+                    T extends `${DecoratorID.HEADER}` ?
+                        DecoratorHeaderProperties :
+                        T extends `${DecoratorID.HEADERS}` ?
+                            DecoratorHeadersProperties :
+                            T extends `${DecoratorID.COOKIE}` ?
+                                DecoratorCookieProperties :
+                                T extends `${DecoratorID.COOKIES}` ?
+                                    DecoratorCookiesProperties :
+                                    T extends `${DecoratorID.PATH}` ?
+                                        DecoratorPathParamProperties :
+                                        T extends `${DecoratorID.PATHS}` ?
+                                            DecoratorPathParamsProperties :
+                                            T extends `${DecoratorID.FILE}` ?
+                                                DecoratorFileProperties :
+                                                T extends `${DecoratorID.FILES}` ?
+                                                    DecoratorFilesParamProperties :
+                                                    never;

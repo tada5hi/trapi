@@ -101,13 +101,13 @@ export function mergeArguments(data: unknown[]) {
 function extractValueFromArgumentType(argument: unknown[]) {
     const values : unknown[] = [];
 
-    for (let i = 0; i < argument.length; i++) {
-        if (!hasOwnProperty(argument[i], 'kind')) {
-            values.push(argument[i]);
+    for (const element of argument) {
+        if (!isObject(element) || !hasOwnProperty(element, 'kind')) {
+            values.push(element);
             continue;
         }
 
-        values.push(getInitializerValue(argument[i] as Expression));
+        values.push(getInitializerValue(element as Expression));
     }
 
     return values;

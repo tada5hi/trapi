@@ -12,10 +12,6 @@ export function buildProducesConfig() : DecoratorConfig {
     return {
         id: DecoratorID.PRODUCES,
         name: 'Produces',
-        properties: {
-            value: {
-                amount: -1, strategy: 'merge',
-            },
-        },
+        properties: { value: { amount: -1, strategy: 'merge' } },
     };
 }

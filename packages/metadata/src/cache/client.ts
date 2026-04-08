@@ -52,7 +52,7 @@ export class CacheClient {
             }
 
             return cache;
-        } catch (e) {
+        } catch {
             /* istanbul ignore next */
             return undefined;
         }
@@ -75,13 +75,11 @@ export class CacheClient {
             return;
         }
 
-        const files = await locateMany(this.buildFileName('**'), {
-            path: this.options.directoryPath,
-        });
+        const files = await locateMany(this.buildFileName('**'), { path: this.options.directoryPath });
 
         const unlinkPromises : Promise<void>[] = [];
-        for (let i = 0; i < files.length; i++) {
-            unlinkPromises.push(fs.promises.unlink(buildFilePath(files[i])));
+        for (const file of files) {
+            unlinkPromises.push(fs.promises.unlink(buildFilePath(file)));
         }
 
         await Promise.all(unlinkPromises);
@@ -104,7 +102,7 @@ export class CacheClient {
         let cache = [];
         const str = JSON.stringify(input, (key, value) => {
             if (isObject(value) || Array.isArray(value)) {
-                if (cache.indexOf(value) !== -1) {
+                if (cache.includes(value)) {
                     return undefined;
                 }
 

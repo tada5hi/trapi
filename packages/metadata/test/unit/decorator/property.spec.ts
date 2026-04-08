@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { describe, expect, it } from 'vitest';
 import type { ArrayLiteralExpression, Expression, NodeArray } from 'typescript';
 import { NodeFlags, SyntaxKind } from 'typescript';
 import type { DecoratorConfig, NodeDecorator } from '../../../src';
@@ -26,10 +27,26 @@ describe('src/decorator/property/index.ts', () => {
     };
 
     const swaggerTagsDecorators : NodeDecorator[] = [
-        { text: 'SwaggerTags', arguments: [['auth', 'admin']], typeArguments: [] },
-        { text: 'SwaggerTags', arguments: [['auth'], ['admin']], typeArguments: [] },
-        { text: 'SwaggerTags', arguments: ['auth'], typeArguments: [] },
-        { text: 'SwaggerTags', arguments: [], typeArguments: [] },
+        {
+            text: 'SwaggerTags', 
+            arguments: [['auth', 'admin']], 
+            typeArguments: [], 
+        },
+        {
+            text: 'SwaggerTags', 
+            arguments: [['auth'], ['admin']], 
+            typeArguments: [], 
+        },
+        {
+            text: 'SwaggerTags', 
+            arguments: ['auth'], 
+            typeArguments: [], 
+        },
+        {
+            text: 'SwaggerTags', 
+            arguments: [], 
+            typeArguments: [], 
+        },
     ];
 
     const swaggerTagsRepresentationManager = new DecoratorPropertyManager(swaggerTagsRepresentation, swaggerTagsDecorators);
@@ -40,9 +57,7 @@ describe('src/decorator/property/index.ts', () => {
         id: `${DecoratorID.EXAMPLE}`,
         name: 'ResponseExample',
         properties: {
-            type: {
-                isType: true,
-            },
+            type: { isType: true },
             payload: {
                 amount: -1,
                 strategy: 'merge',
@@ -51,8 +66,16 @@ describe('src/decorator/property/index.ts', () => {
     };
 
     const responseExampleDecorators : NodeDecorator[] = [
-        { text: 'ResponseExample', arguments: [{ foo: 'bar' }], typeArguments: [{ foo: 'bar' }] },
-        { text: 'ResponseExample', arguments: [{ foo: 'bar' }, { bar: 'baz' }], typeArguments: [] },
+        {
+            text: 'ResponseExample', 
+            arguments: [{ foo: 'bar' }], 
+            typeArguments: [{ foo: 'bar' }], 
+        },
+        {
+            text: 'ResponseExample', 
+            arguments: [{ foo: 'bar' }, { bar: 'baz' }], 
+            typeArguments: [], 
+        },
     ];
 
     const responseExampleRepresentationManager = new DecoratorPropertyManager(responseExampleRepresentation, responseExampleDecorators);
@@ -83,13 +106,25 @@ describe('src/decorator/property/index.ts', () => {
         const arrayLiteralExpression : ArrayLiteralExpression = {
             kind: SyntaxKind.ArrayLiteralExpression,
             elements: [
-                { text: 'auth', flags: NodeFlags.None, parent: undefined } as unknown as Expression,
-                { text: 'admin', flags: NodeFlags.None, parent: undefined } as unknown as Expression,
+                {
+                    text: 'auth', 
+                    flags: NodeFlags.None, 
+                    parent: undefined, 
+                } as unknown as Expression,
+                {
+                    text: 'admin', 
+                    flags: NodeFlags.None, 
+                    parent: undefined, 
+                } as unknown as Expression,
             ] as unknown as NodeArray<Expression>,
         } as ArrayLiteralExpression;
 
         const manager = new DecoratorPropertyManager(swaggerTagsRepresentation, [
-            { text: 'SwaggerTags', arguments: [arrayLiteralExpression], typeArguments: [] },
+            {
+                text: 'SwaggerTags', 
+                arguments: [arrayLiteralExpression], 
+                typeArguments: [], 
+            },
         ]);
 
         const value = manager.get('value');

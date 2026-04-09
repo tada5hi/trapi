@@ -39,7 +39,8 @@ NX caches build, lint, and test targets. Build dependencies (`^build`) ensure pa
 - **Module format**: ESM (`.mjs` output via tsdown)
 - **Decorators**: `experimentalDecorators: true` enabled
 - **Strict mode**: Currently disabled (`strict: false`); see `.agents/plans/enable-strict-typescript.md` for the incremental re-enablement plan
-- Peer dependency on TypeScript >=5.0.0
+- Peer dependency on TypeScript >=5.0.0 (root devDependency: ^6.0.2)
+- See `.agents/plans/typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
 - The metadata package uses the TypeScript compiler API directly (`ts.createProgram`, type checker, AST traversal)
 
 ## CI/CD
@@ -61,3 +62,12 @@ Automated via Release Please (`google-github-actions/release-please-action@v4`):
 - On merge, publishes to npm via `tada5hi/monoship@v2`
 - `metadata`, `swagger`, and `decorators` use linked versioning
 - Preset packages version independently
+
+## Plans
+
+Plans live in `.agents/plans/` and document future improvements or migration strategies.
+
+- **Numbering**: Every plan gets a sequential number: `# Plan #001: Title`. Use zero-padded 3-digit format.
+- **GitHub issues**: If a plan has an associated issue, append it: `# Plan #002: Title (#755)`.
+- **Numbering without issues**: Plans without a GitHub issue still get a number for easy reference.
+- **New plans**: Check the highest existing plan number and increment.

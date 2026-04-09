@@ -221,8 +221,9 @@ export class TypeNodeResolver extends ResolverBase {
                     }
                 }
 
+                const declarationKind = declaration ? ts.SyntaxKind[declaration.kind] : 'unknown';
                 throw new ResolverError(
-                    `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. We found an aliasSymbol and it's declaration was of kind ${declaration.kind}`,
+                    `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. We found an aliasSymbol and its declaration was of kind ${declarationKind}`,
                     this.typeNode,
                 );
             });
@@ -735,7 +736,7 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private static getRefTypeName(name: string, utilityType?: `${UtilityTypeName}`): string {
-        const separator = typeof utilityType !== 'undefined' ? '--' : undefined;
+        const isUtility = typeof utilityType !== 'undefined';
 
         const sanitized = name
             // Structural characters → temporary placeholders
@@ -746,8 +747,8 @@ export class TypeNodeResolver extends ResolverBase {
             .replace(/,/g, '.')
             .replace(/'([^']*)'/g, '$1')
             .replace(/"([^"]*)"/g, '$1')
-            .replace(/&/g, separator ?? '-and-')
-            .replace(/\|/g, separator ?? '-or-')
+            .replace(/&/g, isUtility ? '--and--' : '-and-')
+            .replace(/\|/g, isUtility ? '--or--' : '-or-')
             .replace(/\[\]/g, '-array')
             .replace(/([a-z]+):([a-z]+)/gi, '$1-$2')
             .replace(/;/g, '--')

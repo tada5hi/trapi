@@ -50,11 +50,16 @@ export function resolveMappedType(
                 ts.ParameterDeclaration |
                 undefined;
 
+            // Normalize +? (PlusToken) to ? (QuestionToken) so property helpers treat it as optional
+            const overrideToken = mappedTypeNode.questionToken?.kind === ts.SyntaxKind.PlusToken ?
+                ts.factory.createToken(ts.SyntaxKind.QuestionToken) :
+                mappedTypeNode.questionToken;
+
             if (declaration && ts.isPropertySignature(declaration)) {
-                return { ...ctx.propertyFromSignature(declaration, mappedTypeNode.questionToken), name: property.getName() };
+                return { ...ctx.propertyFromSignature(declaration, overrideToken), name: property.getName() };
             }
             if (declaration && (ts.isPropertyDeclaration(declaration) || ts.isParameter(declaration))) {
-                return { ...ctx.propertyFromDeclaration(declaration, mappedTypeNode.questionToken), name: property.getName() };
+                return { ...ctx.propertyFromDeclaration(declaration, overrideToken), name: property.getName() };
             }
 
             let required = (property.flags & ts.SymbolFlags.Optional) === 0;

@@ -6,6 +6,7 @@
  */
 
 import * as ts from 'typescript';
+import { MetadataError } from '../error';
 import type { Type } from '../resolver';
 import { hasOwnProperty } from './object';
 
@@ -38,7 +39,7 @@ export function getInitializerValue(
                 case ts.SyntaxKind.MinusToken:
                     return Number(`-${(prefixUnary.operand as ts.NumericLiteral).text}`);
                 default:
-                    throw new Error(`Unsupported prefix operator token: ${prefixUnary.operator}`);
+                    throw new MetadataError(`Unsupported prefix operator token: ${prefixUnary.operator}`);
             }
         }
         case ts.SyntaxKind.NumberKeyword:

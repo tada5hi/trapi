@@ -7,7 +7,7 @@
 
 import path from 'node:path';
 import { isObject } from 'locter';
-import { NodeBuilderFlags, isTypeNode } from 'typescript';
+import { NodeBuilderFlags, isIdentifier, isTypeNode } from 'typescript';
 import type {
     ClassDeclaration, 
     Identifier, 
@@ -16,6 +16,8 @@ import type {
     TypeNode,
 } from 'typescript';
 import { DecoratorID } from '../../decorator';
+import { GeneratorErrorCode } from '../constants';
+import { GeneratorError } from '../error';
 import type { BaseType } from '../../resolver';
 import { TypeNodeResolver, getNodeExtensions, isVoidType } from '../../resolver';
 import {
@@ -134,17 +136,28 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
                     }
                 }
             } catch (e) {
-                const parameterId = this.node.parameters[i].name as Identifier;
-                throw new Error(`Parameter generation: '${controllerId.text}.${methodId.text}' argument: ${parameterId.text} ${e}`, { cause: e });
+                const parameterNameNode = this.node.parameters[i].name;
+                const parameterName = isIdentifier(parameterNameNode) ? parameterNameNode.text : parameterNameNode.getText();
+                throw new GeneratorError({
+                    message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument: ${parameterName}`,
+                    code: GeneratorErrorCode.PARAMETER_GENERATION_FAILED,
+                    cause: e,
+                });
             }
         }
 
         if (bodyParameterCount > 1) {
-            throw new Error(`Only one body parameter allowed in '${this.getCurrentLocation()}' method.`);
+            throw new GeneratorError({
+                message: `Only one body parameter allowed in '${this.getCurrentLocation()}' method.`,
+                code: GeneratorErrorCode.BODY_PARAMETER_DUPLICATE,
+            });
         }
 
         if (bodyParameterCount > 0 && formParameterCount > 0) {
-            throw new Error(`Choose either form-, file- or body-parameter in '${this.getCurrentLocation()}' method.`);
+            throw new GeneratorError({
+                message: `Cannot mix body and form parameters in '${this.getCurrentLocation()}' method.`,
+                code: GeneratorErrorCode.BODY_FORM_CONFLICT,
+            });
         }
 
         return output;

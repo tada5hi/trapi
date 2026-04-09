@@ -8,6 +8,8 @@
 import type { ClassDeclaration } from 'typescript';
 import { isMethodDeclaration } from 'typescript';
 import { DecoratorID } from '../../decorator';
+import { GeneratorErrorCode } from '../constants';
+import { GeneratorError } from '../error';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
 import { MethodGenerator } from '../method';
@@ -29,8 +31,18 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
     }
 
     public generate(): Controller {
-        if (!this.node.parent) { throw new Error('Controller node doesn\'t have a valid parent source file.'); }
-        if (!this.node.name) { throw new Error('Controller node doesn\'t have a valid name.'); }
+        if (!this.node.parent) {
+            throw new GeneratorError({
+                message: 'Controller node doesn\'t have a valid parent source file.',
+                code: GeneratorErrorCode.CONTROLLER_NO_SOURCE_FILE,
+            });
+        }
+        if (!this.node.name) {
+            throw new GeneratorError({
+                message: 'Controller node doesn\'t have a valid name.',
+                code: GeneratorErrorCode.CONTROLLER_NO_NAME,
+            });
+        }
 
         const sourceFile = this.node.parent.getSourceFile();
 

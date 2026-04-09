@@ -38,9 +38,9 @@ NX caches build, lint, and test targets. Build dependencies (`^build`) ensure pa
 - **Base config**: extends `@tada5hi/tsconfig` with overrides
 - **Module format**: ESM (`.mjs` output via tsdown)
 - **Decorators**: `experimentalDecorators: true` enabled
-- **Strict mode**: Currently disabled (`strict: false`); see `.agents/plans/enable-strict-typescript.md` for the incremental re-enablement plan
+- **Strict mode**: Currently disabled (`strict: false`); see `.agents/plans/001-enable-strict-typescript.md` for the incremental re-enablement plan
 - Peer dependency on TypeScript >=5.0.0 (root devDependency: ^6.0.2)
-- See `.agents/plans/typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
+- See `.agents/plans/002-typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
 - The metadata package uses the TypeScript compiler API directly (`ts.createProgram`, type checker, AST traversal)
 
 ## CI/CD
@@ -68,6 +68,7 @@ Automated via Release Please (`google-github-actions/release-please-action@v4`):
 Plans live in `.agents/plans/` and document future improvements or migration strategies.
 
 - **Numbering**: Every plan gets a sequential number: `# Plan #001: Title`. Use zero-padded 3-digit format.
+- **Filename**: Prefix the filename with the plan number: `001-enable-strict-typescript.md`, `002-typescript-6-migration.md`.
 - **GitHub issues**: If a plan has an associated issue, append it: `# Plan #002: Title (#755)`.
 - **Numbering without issues**: Plans without a GitHub issue still get a number for easy reference.
 - **New plans**: Check the highest existing plan number and increment.

@@ -7,6 +7,7 @@
 
 export * from './config';
 export * from './constants';
+export * from './error';
 export * from './metadata';
 export * from './generator';
 export * from './schema';

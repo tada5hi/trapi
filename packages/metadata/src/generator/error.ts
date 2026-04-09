@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2025.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { BaseError } from '@ebec/core';
+import { MetadataError } from '../error';
 
-export class MetadataError extends BaseError {
+export class GeneratorError extends MetadataError {
 
 }

@@ -6,8 +6,9 @@
  */
 import { isClassDeclaration, isMethodDeclaration } from 'typescript';
 import type { Node } from 'typescript';
-import { BaseError } from '../../error';
+import { MetadataError } from '../../error';
 import type { BaseType } from '../../resolver';
+import { ParameterErrorCode } from './constants';
 
 type UnsupportedTypeContext = {
     decoratorName: string,
@@ -35,57 +36,44 @@ type ScopeRequiredContext = {
     node?: Node
 };
 
-export class ParameterError extends BaseError {
+export class ParameterError extends MetadataError {
     static typeUnsupported(context: UnsupportedTypeContext) {
-        let text = `@${context.decoratorName}('${context.propertyName}') Does not support '${context.type.typeName}' type`;
-        if (context.node) {
-            const location = ParameterError.getCurrentLocation(context.node);
-            if (location) {
-                text += ` at location ${location}`;
-            }
-        }
-
-        return new ParameterError(`${text}.`);
+        const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+        return new ParameterError({
+            message: `@${context.decoratorName}('${context.propertyName}') does not support '${context.type.typeName}' type${location ? ` at ${location}` : ''}.`,
+            code: ParameterErrorCode.TYPE_UNSUPPORTED,
+        });
     }
 
     static methodUnsupported(context: UnsupportedMethodContext) {
-        let text = `@${context.decoratorName}('${context.propertyName}') Does not support method ${context.method}`;
-        if (context.node) {
-            const location = ParameterError.getCurrentLocation(context.node);
-            if (location) {
-                text += ` at location ${location}`;
-            }
-        }
-
-        return new ParameterError(`${text}.`);
+        const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+        return new ParameterError({
+            message: `@${context.decoratorName}('${context.propertyName}') does not support method '${context.method}'${location ? ` at ${location}` : ''}.`,
+            code: ParameterErrorCode.METHOD_UNSUPPORTED,
+        });
     }
 
     static invalidPathMatch(context: PathMatchInvalidContext) {
-        let text = `@${context.decoratorName}('${context.propertyName}') Does not exist in path ${context.path}`;
-        if (context.node) {
-            const location = ParameterError.getCurrentLocation(context.node);
-            if (location) {
-                text += ` at location ${location}`;
-            }
-        }
-
-        return new ParameterError(`${text}.`);
+        const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+        return new ParameterError({
+            message: `@${context.decoratorName}('${context.propertyName}') does not exist in path '${context.path}'${location ? ` at ${location}` : ''}.`,
+            code: ParameterErrorCode.PATH_MISMATCH,
+        });
     }
 
     static scopeRequired(context: ScopeRequiredContext) {
-        let text = `@${context.decoratorName}(xxx) a scope is required`;
-        if (context.node) {
-            const location = ParameterError.getCurrentLocation(context.node);
-            if (location) {
-                text += ` at location ${location}`;
-            }
-        }
-
-        return new ParameterError(`${text}.`);
+        const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+        return new ParameterError({
+            message: `@${context.decoratorName}() requires a scope argument${location ? ` at ${location}` : ''}.`,
+            code: ParameterErrorCode.SCOPE_REQUIRED,
+        });
     }
 
     static invalidExampleSchema() {
-        return new ParameterError('The example jsdoc schema is invalid.');
+        return new ParameterError({
+            message: 'The @example JSDoc tag contains invalid JSON.',
+            code: ParameterErrorCode.INVALID_EXAMPLE,
+        });
     }
 
     public static getCurrentLocation(node: Node) {

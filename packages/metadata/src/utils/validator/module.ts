@@ -12,8 +12,9 @@ import type {
     TypeAliasDeclaration,
 } from 'typescript';
 import type { Validator } from './type';
+import { ValidatorError } from './error';
 import { getJSDocTags, transformJSDocComment } from '../js-doc';
-import { ValidatorName } from './constants';
+import { ValidatorErrorCode, ValidatorName } from './constants';
 
 export function getDeclarationValidators(
     declaration: PropertyDeclaration | TypeAliasDeclaration | PropertySignature | ParameterDeclaration,
@@ -86,18 +87,27 @@ export function getDeclarationValidators(
             case ValidatorName.MAX_ITEMS:
             case ValidatorName.MIN_LENGTH:
             case ValidatorName.MAX_LENGTH:
-                if (Number.isNaN(value)) {
-                    throw new Error(`${name} parameter use number.`);
+                {
+                    const parsed = Number(value);
+                    if (!Number.isFinite(parsed)) {
+                        throw new ValidatorError({
+                            message: `@${name} validator expects a numeric value, got '${value}'.`,
+                            code: ValidatorErrorCode.EXPECTED_NUMBER,
+                        });
+                    }
+                    validators[name] = {
+                        message: getErrorMsg(comment),
+                        value: parsed,
+                    };
                 }
-                validators[name] = {
-                    message: getErrorMsg(comment),
-                    value: Number(value),
-                };
                 break;
             case ValidatorName.MIN_DATE:
             case ValidatorName.MAX_DATE:
                 if (typeof value !== 'string') {
-                    throw new Error(`${name} parameter use date format ISO 8601 ex. 2017-05-14, 2017-05-14T05:18Z`);
+                    throw new ValidatorError({
+                        message: `@${name} validator expects a date string, got '${typeof value}'.`,
+                        code: ValidatorErrorCode.EXPECTED_DATE,
+                    });
                 }
 
                 validators[name] = {
@@ -107,7 +117,10 @@ export function getDeclarationValidators(
                 break;
             case ValidatorName.PATTERN:
                 if (typeof value !== 'string') {
-                    throw new Error(`${name} parameter use string.`);
+                    throw new ValidatorError({
+                        message: `@${name} validator expects a string pattern, got '${value}'.`,
+                        code: ValidatorErrorCode.EXPECTED_STRING,
+                    });
                 }
 
                 validators[name] = {

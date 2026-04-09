@@ -44,6 +44,7 @@ import fs from 'node:fs';
 import { isObject } from 'smob';
 import YAML from 'yamljs';
 import { buildOptions } from '../config';
+import { SwaggerError, SwaggerErrorCode } from '../error';
 import type { Options, OptionsInput } from '../config';
 import type { DocumentFormat } from '../constants';
 import { DataFormatName, DataTypeName } from '../schema';
@@ -76,7 +77,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         }
 
         if (typeof this.spec === 'undefined') {
-            throw new Error('The spec has not been build yet...');
+            throw new SwaggerError({
+                message: 'The spec has not been built yet.',
+                code: SwaggerErrorCode.SPEC_NOT_BUILT,
+            });
         }
 
         try {
@@ -294,20 +298,20 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
                 return value;
             }
 
-            throw new Error(`Enums can only have string or number values, but type "${types[0] || 'unknown'}" given.`);
+            throw new SwaggerError({
+                message: `Enum contains unsupported type '${types[0] || 'unknown'}'. Only string, number, and boolean values are allowed.`,
+                code: SwaggerErrorCode.ENUM_UNSUPPORTED_TYPE,
+            });
         }
 
-        for (let i = 0; i < types.length; i++) {
-            const type = types[i];
-
-            if (
-                type !== 'string' &&
-                type !== 'number' &&
-                type !== 'boolean'
-            ) {
-                const values = types.join(',');
-                throw new Error(`Enums can only have string or number values, but types ${values} given.`);
-            }
+        const unsupportedTypes = types.filter(
+            (type) => type !== 'string' && type !== 'number' && type !== 'boolean',
+        );
+        if (unsupportedTypes.length > 0) {
+            throw new SwaggerError({
+                message: `Enum contains unsupported types: ${unsupportedTypes.join(', ')}. Only string, number, and boolean values are allowed.`,
+                code: SwaggerErrorCode.ENUM_UNSUPPORTED_TYPE,
+            });
         }
 
         return 'string';

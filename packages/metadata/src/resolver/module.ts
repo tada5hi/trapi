@@ -752,9 +752,8 @@ export class TypeNodeResolver extends ResolverBase {
             .replace(/([a-z]+):([a-z]+)/gi, '$1-$2')
             .replace(/;/g, '--')
             .replace(/([a-z]+)\[([a-z]+)]/gi, '$1-at-$2')
-            // Strip all temporary placeholders
-            .replace(/_/g, '')
-            .replace(/-/g, '');
+            // Strip temporary placeholders (keep hyphens for semantic separators)
+            .replace(/_/g, '');
 
         return encodeURIComponent(sanitized);
     }

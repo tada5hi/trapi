@@ -67,7 +67,13 @@ export function resolveMappedType(
             );
             if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.MinusToken) {
                 required = true;
-            } else if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.QuestionToken) {
+            } else if (
+                mappedTypeNode.questionToken &&
+                (
+                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.QuestionToken ||
+                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.PlusToken
+                )
+            ) {
                 required = false;
             }
 

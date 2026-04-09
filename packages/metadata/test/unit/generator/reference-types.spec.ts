@@ -57,7 +57,7 @@ describe('check referenceTypes', () => {
         expect(metadata.referenceTypes).toHaveProperty('SimpleHelloType');
         expect(metadata.referenceTypes).toHaveProperty('PrimitiveClassModel');
         expect(metadata.referenceTypes).toHaveProperty('PrimitiveInterfaceModel');
-        expect(metadata.referenceTypes).toHaveProperty('ResponseBodystringarray');
+        expect(metadata.referenceTypes).toHaveProperty('ResponseBodystring-array');
         expect(metadata.referenceTypes).toHaveProperty('NamedEntity');
     });
 
@@ -254,8 +254,8 @@ describe('check referenceTypes', () => {
         });
     });
 
-    it('referenceType ResponseBodystringarray', async () => {
-        const expression = jsonata('ResponseBodystringarray');
+    it('referenceType ResponseBodystring-array', async () => {
+        const expression = jsonata('`ResponseBodystring-array`');
         const value: RefObjectType = await expression.evaluate(metadata.referenceTypes);
 
         expect(value.properties).toBeDefined();

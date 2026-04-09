@@ -10,24 +10,24 @@ import type { Node, TypeNode } from 'typescript';
 import { DecoratorID } from '../decorator';
 import { TypeNodeResolver } from '../resolver';
 
-import type { Example, Response, Security } from './type';
+import type { Example, Response, Security } from './types';
 import {
-    JSDocTagName, 
-    getInitializerValue, 
-    hasJSDocTag, 
-    isStringArray, 
+    JSDocTagName,
+    getInitializerValue,
+    hasJSDocTag,
+    isStringArray,
     normalizePath,
 } from '../utils';
-import type { MetadataGenerator } from './metadata';
+import type { IGeneratorContext } from './metadata';
 
 export abstract class AbstractGenerator<T extends Node> {
     protected node: T;
 
-    protected current : MetadataGenerator;
+    protected current : IGeneratorContext;
 
     // -------------------------------------------
 
-    protected constructor(node: T, current: MetadataGenerator) {
+    protected constructor(node: T, current: IGeneratorContext) {
         this.node = node;
         this.current = current;
     }

@@ -24,17 +24,24 @@ import { CacheClient } from '../../cache';
 import type { Options } from '../../config';
 import { DecoratorResolver } from '../../decorator';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
-import { TypeNodeResolver } from '../../resolver';
+import { ResolverCache } from '../../resolver/cache';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
-import type { Metadata, MetadataGeneratorContext } from './type';
+import type { 
+    IGeneratorContext, 
+    IMetadataGenerator, 
+    Metadata, 
+    MetadataGeneratorContext, 
+} from './types';
 
-export class MetadataGenerator {
+export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator {
     public readonly nodes : Node[];
 
     public readonly typeChecker: TypeChecker;
 
     public readonly decoratorResolver: DecoratorResolver;
+
+    public readonly resolverCache: ResolverCache;
 
     public readonly config: Options;
 
@@ -56,14 +63,13 @@ export class MetadataGenerator {
 
         this.cache = new CacheClient(context.options.cache);
         this.decoratorResolver = new DecoratorResolver();
+        this.resolverCache = new ResolverCache();
 
         this.program = createProgram(
             context.sourceFiles,
             context.compilerOptions || {},
         );
         this.typeChecker = this.program.getTypeChecker();
-
-        TypeNodeResolver.clearCache();
     }
 
     // -------------------------------------------------------------------------

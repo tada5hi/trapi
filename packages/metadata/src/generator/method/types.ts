@@ -7,7 +7,7 @@
 
 import type { BaseType, Extension } from '../../resolver';
 import type { Parameter } from '../parameter';
-import type { Response, Security } from '../type';
+import type { Response, Security } from '../types';
 
 export interface Method {
     operationId?: string;

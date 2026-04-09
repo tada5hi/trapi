@@ -5,12 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CompilerOptions } from 'typescript';
 import type { BaseType, NestedObjectLiteralType, RefObjectType } from '../resolver';
-
-export type {
-    CompilerOptions,
-};
 
 // <label, scope[]>
 export type Security = Record<string, string[]>;

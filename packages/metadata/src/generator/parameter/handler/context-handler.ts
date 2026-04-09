@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2024.
+ * Author Peter Placzek (tada5hi)
+ * For the full copyright and license information,
+ * view the LICENSE file that was distributed with this source code.
+ */
+
+import type { Identifier } from 'typescript';
+import { ParameterSource } from '../constants';
+import type { Parameter } from '../types';
+import type { IParameterHandlerContext } from './types';
+
+export function handleContextParameter(
+    ctx: IParameterHandlerContext,
+): Parameter[] {
+    const parameterName = (ctx.parameter.name as Identifier).text;
+
+    return [
+        {
+            description: ctx.getParameterDescription(),
+            in: ParameterSource.CONTEXT,
+            name: parameterName,
+            parameterName,
+            required: !ctx.parameter.questionToken,
+            type: null,
+        },
+    ];
+}

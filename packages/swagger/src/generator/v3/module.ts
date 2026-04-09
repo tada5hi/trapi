@@ -50,7 +50,7 @@ import {
     DataTypeName,
     ParameterSourceV3,
 } from '../../schema';
-import type { SecurityDefinition, SecurityDefinitions } from '../../type';
+import type { SecurityDefinition, SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
 import {
     normalizePathParameters,

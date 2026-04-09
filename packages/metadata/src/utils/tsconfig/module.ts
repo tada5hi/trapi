@@ -11,7 +11,7 @@ import { ConfigError } from '../../config/error';
 import process from 'node:process';
 import path from 'node:path';
 import { convertCompilerOptionsFromJson } from 'typescript';
-import type { TsConfig, TsconfigLoadContext } from './type';
+import type { TsConfig, TsconfigLoadContext } from './types';
 
 export async function loadTSConfig(
     context: TsconfigLoadContext = {},

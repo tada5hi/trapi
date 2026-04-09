@@ -7,7 +7,7 @@
 
 import type { Validator } from '../../utils';
 import type { ArrayType, Type } from '../../resolver';
-import type { Example } from '../type';
+import type { Example } from '../types';
 import type { CollectionFormat, ParameterSource } from './constants';
 
 export interface Parameter {
@@ -31,4 +31,8 @@ export interface Parameter {
 
 export interface ArrayParameter extends Parameter {
     type: ArrayType;
+}
+
+export interface IParameterGenerator {
+    generate(): Parameter[];
 }

@@ -11,5 +11,5 @@ export * from './error';
 export * from './metadata';
 export * from './generator';
 export * from './schema';
-export * from './type';
+export * from './types';
 export * from './utils';

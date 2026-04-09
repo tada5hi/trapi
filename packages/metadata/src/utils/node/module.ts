@@ -13,7 +13,7 @@ import {
     isNumericLiteral,
     isStringLiteral,
 } from 'typescript';
-import type { NodeDecorator } from './type';
+import type { NodeDecorator } from './types';
 
 /**
  * Get Decorators for a specific node.

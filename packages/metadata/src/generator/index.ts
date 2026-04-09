@@ -12,4 +12,4 @@ export * from './error';
 export * from './method';
 export * from './metadata';
 export * from './parameter';
-export * from './type';
+export * from './types';

@@ -41,3 +41,9 @@ export type CacheOptionsInput = Partial<CacheOptions>;
 export type CacheData = {
     sourceFilesSize: number;
 } & Metadata;
+
+export interface ICacheClient {
+    save(data: CacheData): Promise<string | undefined>;
+    get(sourceFilesSize: number): Promise<CacheData | undefined>;
+    clear(): Promise<void>;
+}

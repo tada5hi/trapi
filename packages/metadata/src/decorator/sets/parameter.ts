@@ -6,7 +6,7 @@
  */
 
 import type { DecoratorID } from '../constants';
-import type { DecoratorPropertyValueSchema } from './type';
+import type { DecoratorPropertyValueSchema } from './types';
 
 export type DecoratorParamProperties = DecoratorPropertyValueSchema<string>;
 export type DecoratorParamsProperties = DecoratorPropertyValueSchema<string | undefined>;

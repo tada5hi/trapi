@@ -7,16 +7,16 @@
 
 import type { Node, TypeNode } from 'typescript';
 import { SyntaxKind } from 'typescript';
-import type { DecoratorResolver } from '../../decorator';
+import type { IDecoratorResolver } from '../../decorator';
 import { DecoratorID } from '../../decorator';
 import { getJSDocTagNames } from '../../utils';
 import { TypeName } from '../constants';
-import type { PrimitiveType, VoidType } from '../type';
+import type { PrimitiveType, VoidType } from '../types';
 
 export class PrimitiveResolver {
-    protected decoratorResolver : DecoratorResolver;
+    protected decoratorResolver : IDecoratorResolver;
 
-    constructor(decoratorResolver: DecoratorResolver) {
+    constructor(decoratorResolver: IDecoratorResolver) {
         this.decoratorResolver = decoratorResolver;
     }
 

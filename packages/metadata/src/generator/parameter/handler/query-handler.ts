@@ -6,7 +6,6 @@
  */
 
 import { isObject } from 'locter';
-import type { Identifier } from 'typescript';
 import type { DecoratorID, DecoratorPropertyManager  } from '../../../decorator';
 import {
     isArrayType,
@@ -26,7 +25,7 @@ export function handleQueryParameter(
     ctx: IParameterHandlerContext,
     manager: DecoratorPropertyManager<`${DecoratorID.QUERY}`>,
 ): Parameter[] | ArrayParameter[] {
-    const parameterName = (ctx.parameter.name as Identifier).text;
+    const parameterName = ctx.getParameterName();
     const type = ctx.getValidatedType(ctx.parameter);
 
     let name: string = parameterName;
@@ -90,7 +89,7 @@ export function handleQueryParameter(
 
         return [{
             ...properties,
-            collectionFormat: CollectionFormat.MULTI,
+            collectionFormat: properties.collectionFormat ?? CollectionFormat.MULTI,
             type,
         }];
     }

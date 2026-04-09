@@ -212,6 +212,7 @@ export interface IResolverCache {
     setCachedType(name: string, type: ReferenceType): void;
     isInProgress(name: string): boolean;
     markInProgress(name: string): void;
+    clearInProgress(name: string): void;
     clear(): void;
 }
 

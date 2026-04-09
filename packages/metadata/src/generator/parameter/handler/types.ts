@@ -29,6 +29,7 @@ export interface IParameterHandlerContext {
     readonly path: string;
     readonly current: IGeneratorContext;
 
+    getParameterName(): string;
     getParameterDescription(): string;
     getParameterDeprecation(): boolean;
     getParameterExample(parameterName: string): {

@@ -49,6 +49,14 @@ export class ParameterHandlerContext implements IParameterHandlerContext {
         this.current = current;
     }
 
+    getParameterName(): string {
+        if (!ts.isIdentifier(this.parameter.name)) {
+            throw new ParameterError({ message: 'Destructured parameters are not supported. Use a simple identifier name.' });
+        }
+
+        return this.parameter.name.text;
+    }
+
     getParameterDescription(): string {
         const symbol = this.current.typeChecker.getSymbolAtLocation(this.parameter.name);
 
@@ -112,6 +120,10 @@ export class ParameterHandlerContext implements IParameterHandlerContext {
                 undefined,
                 ts.NodeBuilderFlags.NoTruncation,
             );
+        }
+
+        if (!typeNode) {
+            throw new ParameterError({ message: `Could not resolve type for parameter '${this.getParameterName()}'.` });
         }
 
         return new TypeNodeResolver(typeNode, this.current, parameter).resolve();

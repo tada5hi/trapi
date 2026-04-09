@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Identifier } from 'typescript';
 import type { DecoratorID, DecoratorPropertyManager  } from '../../../decorator';
 import { isNestedObjectLiteralType, isRefObjectType } from '../../../resolver';
 import { getDeclarationValidators, getInitializerValue } from '../../../utils';
@@ -18,7 +17,7 @@ export function handlePathParameter(
     ctx: IParameterHandlerContext,
     manager: DecoratorPropertyManager<`${DecoratorID.PATH}` | `${DecoratorID.PATHS}`>,
 ): Parameter[] {
-    const parameterName = (ctx.parameter.name as Identifier).text;
+    const parameterName = ctx.getParameterName();
     let name = parameterName;
 
     const type = ctx.getValidatedType(ctx.parameter);

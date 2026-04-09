@@ -58,7 +58,7 @@ export function isBooleanType(param: BaseType): param is BooleanType {
 }
 
 export function isBigintType(param: BaseType): param is BigintType {
-    return param.typeName === TypeName.DOUBLE;
+    return param.typeName === TypeName.BIGINT;
 }
 
 export function isDoubleType(param: BaseType): param is DoubleType {
@@ -77,7 +77,7 @@ export function isLongType(param: BaseType): param is LongType {
     return param.typeName === TypeName.LONG;
 }
 
-export function isVoidType(param: BaseType): param is VoidType {
+export function isVoidType(param: BaseType | undefined): param is VoidType {
     return typeof param === 'undefined' || param.typeName === TypeName.VOID;
 }
 

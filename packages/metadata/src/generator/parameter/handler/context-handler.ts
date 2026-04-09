@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Identifier } from 'typescript';
 import { ParameterSource } from '../constants';
 import type { Parameter } from '../types';
 import type { IParameterHandlerContext } from './types';
@@ -13,7 +12,7 @@ import type { IParameterHandlerContext } from './types';
 export function handleContextParameter(
     ctx: IParameterHandlerContext,
 ): Parameter[] {
-    const parameterName = (ctx.parameter.name as Identifier).text;
+    const parameterName = ctx.getParameterName();
 
     return [
         {

@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Identifier } from 'typescript';
 import type { DecoratorPropertyManager } from '../../../decorator';
 import { DecoratorID } from '../../../decorator';
 import type { Type } from '../../../resolver';
@@ -20,7 +19,7 @@ export function handleFileParameter(
     ctx: IParameterHandlerContext,
     manager: DecoratorPropertyManager<`${DecoratorID.FILE}` | `${DecoratorID.FILES}`>,
 ): Parameter[] {
-    const parameterName = (ctx.parameter.name as Identifier).text;
+    const parameterName = ctx.getParameterName();
     let name = parameterName;
     const value = manager.get('value');
     if (typeof value === 'string') {

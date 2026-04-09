@@ -28,6 +28,10 @@ export class ResolverCache implements IResolverCache {
         this.inProgressTypes[name] = true;
     }
 
+    clearInProgress(name: string): void {
+        delete this.inProgressTypes[name];
+    }
+
     clear(): void {
         this.referenceTypes = {};
         this.inProgressTypes = {};

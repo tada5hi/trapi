@@ -862,41 +862,45 @@ export class TypeNodeResolver extends ResolverBase {
 
             this.current.resolverCache.markInProgress(name);
 
-            const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
-            const declarations = this.getModelTypeDeclarations(type);
-            const referenceTypes: ReferenceType[] = [];
-            for (const declaration of declarations) {
-                if (ts.isTypeAliasDeclaration(declaration)) {
-                    referenceTypes.push(
-                        this.getTypeAliasReference(
-                            declaration,
-                            name,
-                            node,
-                            utilityType,
-                            utilityTypeOptions,
-                        ),
-                    );
-                } else if (isEnumDeclaration(declaration)) {
-                    referenceTypes.push(this.referenceResolver.transformEnum(declaration, refName));
-                } else if (isEnumMember(declaration)) {
-                    referenceTypes.push(this.referenceResolver.transformEnumMember(declaration, refName));
-                } else {
-                    // todo: dont cast handle property-signature
-                    referenceTypes.push(
-                        this.getModelReference(
-                            declaration as ts.InterfaceDeclaration,
-                            name,
-                            utilityType,
-                            utilityTypeOptions,
-                        ),
-                    );
+            try {
+                const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
+                const declarations = this.getModelTypeDeclarations(type);
+                const referenceTypes: ReferenceType[] = [];
+                for (const declaration of declarations) {
+                    if (ts.isTypeAliasDeclaration(declaration)) {
+                        referenceTypes.push(
+                            this.getTypeAliasReference(
+                                declaration,
+                                name,
+                                node,
+                                utilityType,
+                                utilityTypeOptions,
+                            ),
+                        );
+                    } else if (isEnumDeclaration(declaration)) {
+                        referenceTypes.push(this.referenceResolver.transformEnum(declaration, refName));
+                    } else if (isEnumMember(declaration)) {
+                        referenceTypes.push(this.referenceResolver.transformEnumMember(declaration, refName));
+                    } else {
+                        // todo: dont cast handle property-signature
+                        referenceTypes.push(
+                            this.getModelReference(
+                                declaration as ts.InterfaceDeclaration,
+                                name,
+                                utilityType,
+                                utilityTypeOptions,
+                            ),
+                        );
+                    }
                 }
+
+                const referenceType = this.referenceResolver.merge(referenceTypes);
+
+                this.current.resolverCache.setCachedType(name, referenceType);
+                return referenceType;
+            } finally {
+                this.current.resolverCache.clearInProgress(name);
             }
-
-            const referenceType = this.referenceResolver.merge(referenceTypes);
-
-            this.current.resolverCache.setCachedType(name, referenceType);
-            return referenceType;
         } catch (err) {
             throw new ResolverError(
                 `There was a problem resolving type of '${name}'.`,
@@ -1065,13 +1069,17 @@ export class TypeNodeResolver extends ResolverBase {
 
             this.current.resolverCache.markInProgress(name);
 
-            const reference = declarationResolver();
+            try {
+                const reference = declarationResolver();
 
-            this.current.resolverCache.setCachedType(name, reference);
+                this.current.resolverCache.setCachedType(name, reference);
 
-            this.current.addReferenceType(reference);
+                this.current.addReferenceType(reference);
 
-            return reference;
+                return reference;
+            } finally {
+                this.current.resolverCache.clearInProgress(name);
+            }
         } catch (err) {
             throw new ResolverError(
                 `There was a problem resolving type of '${name}'.`,

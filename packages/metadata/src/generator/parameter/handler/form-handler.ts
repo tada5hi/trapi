@@ -5,7 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Identifier } from 'typescript';
 import type { DecoratorID, DecoratorPropertyManager  } from '../../../decorator';
 import { getDeclarationValidators, getInitializerValue } from '../../../utils';
 import { ParameterSource } from '../constants';
@@ -17,7 +16,7 @@ export function handleFormParameter(
     ctx: IParameterHandlerContext,
     manager: DecoratorPropertyManager<`${DecoratorID.FORM}`>,
 ): Parameter[] {
-    const parameterName = (ctx.parameter.name as Identifier).text;
+    const parameterName = ctx.getParameterName();
     let name = parameterName;
 
     const type = ctx.getValidatedType(ctx.parameter);

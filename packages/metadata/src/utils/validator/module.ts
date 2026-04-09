@@ -102,7 +102,7 @@ export function getDeclarationValidators(
             case ValidatorName.MAX_DATE:
                 if (typeof value !== 'string') {
                     throw new ValidatorError({
-                        message: `@${name} validator expects an ISO 8601 date string (e.g. 2017-05-14, 2017-05-14T05:18Z), got '${value}'.`,
+                        message: `@${name} validator expects a date string, got '${typeof value}'.`,
                         code: ValidatorErrorCode.EXPECTED_DATE,
                     });
                 }

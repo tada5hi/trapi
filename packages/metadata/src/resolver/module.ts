@@ -906,7 +906,7 @@ export class TypeNodeResolver extends ResolverBase {
         } catch (err) {
             throw new ResolverError(
                 `There was a problem resolving type of '${name}'.`,
-                undefined,
+                node,
                 { cause: err },
             );
         }
@@ -1081,7 +1081,7 @@ export class TypeNodeResolver extends ResolverBase {
         } catch (err) {
             throw new ResolverError(
                 `There was a problem resolving type of '${name}'.`,
-                undefined,
+                this.typeNode,
                 { cause: err },
             );
         }

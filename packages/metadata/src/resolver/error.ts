@@ -67,7 +67,7 @@ export function prettyLocationOfNode(node: Node | TypeNode): {
         return {
             text: `At: ${normalizedPath}.`,
             file: sourceFile.fileName,
-            line: start ?? 0,
+            line: start,
         };
     } catch {
         return undefined;

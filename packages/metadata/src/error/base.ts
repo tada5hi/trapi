@@ -5,6 +5,4 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export class BaseError extends Error {
-
-}
+export { BaseError } from '@ebec/core';

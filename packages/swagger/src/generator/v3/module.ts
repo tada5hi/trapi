@@ -188,11 +188,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const formParams = parameters[ParameterSource.FORM_DATA] || [];
 
         if (bodyParams.length > 1) {
-            throw new Error('Only one body parameter allowed per controller method.');
+            throw new Error(`Only one @Body() parameter allowed per method, but ${bodyParams.length} found in '${method.name}'.`);
         }
 
         if (bodyParams.length > 0 && formParams.length > 0) {
-            throw new Error('Either body parameter or form parameters allowed per controller method - not both.');
+            throw new Error(`Cannot mix @Body() and @FormData() parameters in method '${method.name}'. Use one or the other.`);
         }
 
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
@@ -388,7 +388,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     protected buildParameter(input: Parameter): ParameterV3 {
         const sourceIn = this.transformParameterSource(input.in);
         if (!sourceIn) {
-            throw new Error(`The parameter source "${input.in}" is not valid for generating a document.`);
+            throw new Error(`The parameter source '${input.in}' for parameter '${input.name}' is not supported in OpenAPI 3.x.`);
         }
 
         const parameter : ParameterV3 = {

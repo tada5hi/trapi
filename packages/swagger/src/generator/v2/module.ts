@@ -271,7 +271,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const bodyParameters = (parameters[ParameterSource.BODY] || []);
         if (bodyParameters.length > 1) {
-            throw new Error('Only one body parameter allowed per controller method.');
+            throw new Error(`Only one @Body() parameter allowed per method, but ${bodyParameters.length} found in '${method.name}'.`);
         }
 
         const bodyParameter = bodyParameters.length > 0 ?
@@ -375,7 +375,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     protected buildParameter(input: Parameter): ParameterV2 {
         const sourceIn = this.transformParameterSource(input.in);
         if (!sourceIn) {
-            throw new Error(`The parameter source "${input.in}" is not valid for generating a document.`);
+            throw new Error(`The parameter source '${input.in}' for parameter '${input.name}' is not supported in OpenAPI 2.0.`);
         }
 
         const parameter = {

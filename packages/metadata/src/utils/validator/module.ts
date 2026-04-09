@@ -87,7 +87,7 @@ export function getDeclarationValidators(
             case ValidatorName.MIN_LENGTH:
             case ValidatorName.MAX_LENGTH:
                 if (Number.isNaN(value)) {
-                    throw new Error(`${name} parameter use number.`);
+                    throw new Error(`@${name} validator expects a numeric value, got '${value}'.`);
                 }
                 validators[name] = {
                     message: getErrorMsg(comment),
@@ -97,7 +97,7 @@ export function getDeclarationValidators(
             case ValidatorName.MIN_DATE:
             case ValidatorName.MAX_DATE:
                 if (typeof value !== 'string') {
-                    throw new Error(`${name} parameter use date format ISO 8601 ex. 2017-05-14, 2017-05-14T05:18Z`);
+                    throw new Error(`@${name} validator expects an ISO 8601 date string (e.g. 2017-05-14, 2017-05-14T05:18Z), got '${value}'.`);
                 }
 
                 validators[name] = {
@@ -107,7 +107,7 @@ export function getDeclarationValidators(
                 break;
             case ValidatorName.PATTERN:
                 if (typeof value !== 'string') {
-                    throw new Error(`${name} parameter use string.`);
+                    throw new Error(`@${name} validator expects a string pattern, got '${value}'.`);
                 }
 
                 validators[name] = {

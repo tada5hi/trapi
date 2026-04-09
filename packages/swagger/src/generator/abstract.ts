@@ -294,7 +294,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
                 return value;
             }
 
-            throw new Error(`Enums can only have string or number values, but type "${types[0] || 'unknown'}" given.`);
+            throw new Error(`Enum contains unsupported type '${types[0] || 'unknown'}'. Only string, number, and boolean values are allowed.`);
         }
 
         for (let i = 0; i < types.length; i++) {
@@ -305,8 +305,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
                 type !== 'number' &&
                 type !== 'boolean'
             ) {
-                const values = types.join(',');
-                throw new Error(`Enums can only have string or number values, but types ${values} given.`);
+                const values = types.join(', ');
+                throw new Error(`Enum contains unsupported types: ${values}. Only string, number, and boolean values are allowed.`);
             }
         }
 

@@ -389,10 +389,11 @@ export class TypeNodeResolver extends ResolverBase {
                     this.context,
                     this.referencer,
                 ).resolve();
-            } catch {
+            } catch (err) {
                 throw new ResolverError(
                     `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. The flags on the result of the ConditionalType was ${type.flags}`,
                     this.typeNode,
+                    { cause: err },
                 );
             }
         }
@@ -413,9 +414,9 @@ export class TypeNodeResolver extends ResolverBase {
                         this.context,
                         this.referencer,
                     ).resolve();
-                } catch {
+                } catch (err) {
                     const indexedTypeName = this.current.typeChecker.typeToString(this.current.typeChecker.getTypeFromTypeNode(this.typeNode.type));
-                    throw new ResolverError(`Could not determine the keys on ${indexedTypeName}`, this.typeNode);
+                    throw new ResolverError(`Could not determine the keys on ${indexedTypeName}`, this.typeNode, { cause: err });
                 }
             }
 
@@ -492,7 +493,7 @@ export class TypeNodeResolver extends ResolverBase {
                     this.context,
                     this.referencer,
                 ).resolve();
-            } catch {
+            } catch (err) {
                 throw new ResolverError(
                     `Could not determine the keys on ${this.current.typeChecker.typeToString(
                         this.current.typeChecker.getTypeFromTypeNode(toTypeNodeOrFail(
@@ -503,6 +504,7 @@ export class TypeNodeResolver extends ResolverBase {
                         )),
                     )}`,
                     this.typeNode,
+                    { cause: err },
                 );
             }
         }
@@ -902,9 +904,11 @@ export class TypeNodeResolver extends ResolverBase {
             localReferenceTypeCache[name] = referenceType;
             return referenceType;
         } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error(`There was a problem resolving type of '${name}'.`);
-            throw err;
+            throw new ResolverError(
+                `There was a problem resolving type of '${name}'.`,
+                undefined,
+                { cause: err },
+            );
         }
     }
 
@@ -1075,9 +1079,11 @@ export class TypeNodeResolver extends ResolverBase {
 
             return reference;
         } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error(`There was a problem resolving type of '${name}'.`);
-            throw err;
+            throw new ResolverError(
+                `There was a problem resolving type of '${name}'.`,
+                undefined,
+                { cause: err },
+            );
         }
     }
 
@@ -1489,7 +1495,7 @@ export class TypeNodeResolver extends ResolverBase {
             try {
                 return JSON.parse(example);
             } catch {
-                // do nothing
+                return example;
             }
         }
 

@@ -156,7 +156,7 @@ export class ParameterHandlerContext implements IParameterHandlerContext {
             return [];
         }
 
-        const parameterName = (this.parameter.name as ts.Identifier).text;
+        const parameterName = this.getParameterName();
 
         const initializerValue = getInitializerValue(this.parameter.initializer, this.current.typeChecker, type);
 

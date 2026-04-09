@@ -8,32 +8,32 @@
 import type { IResolverCache, ReferenceType } from './types';
 
 export class ResolverCache implements IResolverCache {
-    private referenceTypes: Record<string, ReferenceType> = {};
+    private referenceTypes = new Map<string, ReferenceType>();
 
-    private inProgressTypes: Record<string, boolean> = {};
+    private inProgressTypes = new Set<string>();
 
     getCachedType(name: string): ReferenceType | undefined {
-        return this.referenceTypes[name];
+        return this.referenceTypes.get(name);
     }
 
     setCachedType(name: string, type: ReferenceType): void {
-        this.referenceTypes[name] = type;
+        this.referenceTypes.set(name, type);
     }
 
     isInProgress(name: string): boolean {
-        return !!this.inProgressTypes[name];
+        return this.inProgressTypes.has(name);
     }
 
     markInProgress(name: string): void {
-        this.inProgressTypes[name] = true;
+        this.inProgressTypes.add(name);
     }
 
     clearInProgress(name: string): void {
-        delete this.inProgressTypes[name];
+        this.inProgressTypes.delete(name);
     }
 
     clear(): void {
-        this.referenceTypes = {};
-        this.inProgressTypes = {};
+        this.referenceTypes.clear();
+        this.inProgressTypes.clear();
     }
 }

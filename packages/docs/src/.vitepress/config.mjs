@@ -30,6 +30,7 @@ export default defineConfig({
                     collapsible: false,
                     items: [
                         {text: 'What is it?', link: '/guide/'},
+                        {text: 'Philosophy', link: '/guide/philosophy'},
                     ]
                 },
                 {

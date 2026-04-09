@@ -7,7 +7,7 @@
 
 import path from 'node:path';
 import { isObject } from 'locter';
-import { NodeBuilderFlags, isTypeNode } from 'typescript';
+import { NodeBuilderFlags, isIdentifier, isTypeNode } from 'typescript';
 import type {
     ClassDeclaration, 
     Identifier, 
@@ -136,9 +136,10 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
                     }
                 }
             } catch (e) {
-                const parameterId = this.node.parameters[i].name as Identifier;
+                const parameterNameNode = this.node.parameters[i].name;
+                const parameterName = isIdentifier(parameterNameNode) ? parameterNameNode.text : parameterNameNode.getText();
                 throw new GeneratorError({
-                    message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument: ${parameterId.text}`,
+                    message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument: ${parameterName}`,
                     code: GeneratorErrorCode.PARAMETER_GENERATION_FAILED,
                     cause: e,
                 });

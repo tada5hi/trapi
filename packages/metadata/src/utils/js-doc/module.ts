@@ -109,7 +109,7 @@ export function getJSDocTagNames(node: Node, requireTagName = false) : string[] 
             if (isJSDocParameterTag(tag)) {
                 return false;
             } if (tag.comment === undefined) {
-                throw new MetadataError(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} should have a parameter name follows with.`);
+                throw new MetadataError(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} must be followed by a parameter name.`);
             }
             return typeof tag.comment === 'string' ? tag.comment.startsWith(parameterName) : false;
         });

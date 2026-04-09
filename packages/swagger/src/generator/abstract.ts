@@ -304,20 +304,14 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             });
         }
 
-        for (let i = 0; i < types.length; i++) {
-            const type = types[i];
-
-            if (
-                type !== 'string' &&
-                type !== 'number' &&
-                type !== 'boolean'
-            ) {
-                const values = types.join(', ');
-                throw new SwaggerError({
-                    message: `Enum contains unsupported types: ${values}. Only string, number, and boolean values are allowed.`,
-                    code: SwaggerErrorCode.ENUM_UNSUPPORTED_TYPE,
-                });
-            }
+        const unsupportedTypes = types.filter(
+            (type) => type !== 'string' && type !== 'number' && type !== 'boolean',
+        );
+        if (unsupportedTypes.length > 0) {
+            throw new SwaggerError({
+                message: `Enum contains unsupported types: ${unsupportedTypes.join(', ')}. Only string, number, and boolean values are allowed.`,
+                code: SwaggerErrorCode.ENUM_UNSUPPORTED_TYPE,
+            });
         }
 
         return 'string';

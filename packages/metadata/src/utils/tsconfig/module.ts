@@ -36,7 +36,7 @@ export async function loadTSConfig(
     const content = await load(filePath);
     if (!isObject(content)) {
         throw new ConfigError({
-            message: 'The tsconfig file is malformed.',
+            message: `The tsconfig file '${filePath}' is malformed.`,
             code: ConfigErrorCode.TSCONFIG_MALFORMED,
         });
     }

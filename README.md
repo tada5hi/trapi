@@ -54,7 +54,7 @@ await generate({
 
 TRAPI uses the TypeScript compiler API to statically analyze your source code. It reads decorator metadata from the AST — no `reflect-metadata`, no runtime type information.
 
-```
+```text
 TypeScript Source Code  -->  Metadata Extraction  -->  OpenAPI Specification
    (your decorators)        (@trapi/metadata)          (@trapi/swagger)
 ```

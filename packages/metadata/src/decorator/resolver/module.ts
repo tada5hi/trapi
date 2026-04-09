@@ -11,12 +11,12 @@ import type { DecoratorID } from '../constants';
 import { loadPreset } from '../preset';
 import type {
     DecoratorConfig,
-} from '../type';
+} from '../types';
 import type { NodeDecorator } from '../../utils';
 import { getNodeDecorators, hasOwnProperty } from '../../utils';
-import type { DecoratorResolverMap } from './type';
+import type { DecoratorResolverMap, IDecoratorResolver } from './types';
 
-export class DecoratorResolver {
+export class DecoratorResolver implements IDecoratorResolver {
     protected items : DecoratorConfig[];
 
     protected map: DecoratorResolverMap;

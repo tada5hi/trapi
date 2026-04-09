@@ -11,7 +11,7 @@ import type {
     PropertySignature, 
     TypeAliasDeclaration,
 } from 'typescript';
-import type { Validator } from './type';
+import type { Validator } from './types';
 import { ValidatorError } from './error';
 import { getJSDocTags, transformJSDocComment } from '../js-doc';
 import { ValidatorErrorCode, ValidatorName } from './constants';

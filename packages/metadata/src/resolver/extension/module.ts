@@ -6,11 +6,11 @@
  */
 
 import type { Node } from 'typescript';
-import type { DecoratorResolver } from '../../decorator';
+import type { IDecoratorResolver } from '../../decorator';
 import { DecoratorID } from '../../decorator';
-import type { Extension } from './type';
+import type { Extension } from './types';
 
-export function getNodeExtensions(node: Node, resolver: DecoratorResolver) : Extension[] {
+export function getNodeExtensions(node: Node, resolver: IDecoratorResolver) : Extension[] {
     const decorator = resolver.match(DecoratorID.EXTENSION, node);
     if (!decorator) {
         return [];

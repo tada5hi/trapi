@@ -7,7 +7,7 @@
 
 import path from 'node:path';
 import process from 'node:process';
-import type { Options, OptionsInput, ServerOption } from './type';
+import type { Options, OptionsInput, ServerOption } from './types';
 
 export function buildOptions(input: OptionsInput) : Options {
     const servers : ServerOption[] = [];

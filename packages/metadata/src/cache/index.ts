@@ -6,5 +6,5 @@
  */
 
 export * from './client';
-export * from './type';
+export * from './types';
 export * from './utils';

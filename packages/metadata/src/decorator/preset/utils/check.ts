@@ -6,7 +6,7 @@
  */
 
 import { hasOwnProperty, isObject } from 'locter';
-import type { PresetSchema } from '../type';
+import type { PresetSchema } from '../types';
 
 export function isPresetSchema(input: unknown) : input is PresetSchema {
     return isObject(input) &&

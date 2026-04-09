@@ -8,4 +8,4 @@
 export * from './v2';
 export * from './v3';
 export * from './constants';
-export * from './type';
+export * from './types';

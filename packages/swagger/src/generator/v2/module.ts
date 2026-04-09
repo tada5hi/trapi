@@ -47,7 +47,7 @@ import type {
     SpecV2,
 } from '../../schema';
 import { DataTypeName, ParameterSourceV2 } from '../../schema';
-import type { SecurityDefinitions } from '../../type';
+import type { SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
 import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';

@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import process from 'node:process';
-import type { CacheOptions, CacheOptionsInput } from './type';
+import type { CacheOptions, CacheOptionsInput } from './types';
 
 export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) : CacheOptions {
     if (typeof input === 'string') {

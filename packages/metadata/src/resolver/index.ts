@@ -5,8 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+export * from './cache';
 export * from './constants';
 export * from './error';
 export * from './extension';
 export * from './module';
-export * from './type';
+export * from './type-guards';
+export * from './types';

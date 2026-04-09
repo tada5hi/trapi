@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { DecoratorConfig } from '../type';
+import type { DecoratorConfig } from '../types';
 
 export type PresetSchema = {
     extends: string[],

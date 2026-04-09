@@ -6,7 +6,7 @@
  */
 
 import { hasOwnProperty, isObject } from 'locter';
-import type { Metadata } from './type';
+import type { Metadata } from './types';
 
 export function isMetadata(input: unknown) : input is Metadata {
     return isObject(input) &&

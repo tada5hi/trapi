@@ -6,7 +6,7 @@
  */
 
 import type { SecurityType } from '../../constants';
-import type { ApiKeySecurity, BaseSecurity } from '../../type';
+import type { ApiKeySecurity, BaseSecurity } from '../../types';
 import type { DataFormatName, DataTypeName } from '../constants';
 import type {
     BaseOperation, 
@@ -20,7 +20,7 @@ import type {
     Path, 
     PathParameter, 
     QueryParameter,
-} from '../type';
+} from '../types';
 import type { ParameterSourceV3 } from './constants';
 
 export interface SpecV3 extends BaseSpec {

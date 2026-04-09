@@ -14,7 +14,7 @@ import type {
     RefObjectType, 
     ReferenceType, 
     Type,
-} from '../type';
+} from '../types';
 import { getNodeDescription } from '../utils';
 import { ResolverBase } from './base';
 

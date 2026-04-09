@@ -8,7 +8,7 @@
 import { load } from 'locter';
 import { ConfigErrorCode } from '../../../config/constants';
 import { ConfigError } from '../../../config/error';
-import type { DecoratorConfig } from '../../type';
+import type { DecoratorConfig } from '../../types';
 import { isPresetSchema } from './check';
 import { generatePresetLookupPaths } from './normalize';
 

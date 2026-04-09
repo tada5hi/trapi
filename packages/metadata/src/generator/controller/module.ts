@@ -13,11 +13,11 @@ import { GeneratorError } from '../error';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
 import { MethodGenerator } from '../method';
-import type { MetadataGenerator } from '../metadata';
-import type { Controller } from './type';
+import type { IGeneratorContext } from '../metadata';
+import type { Controller, IControllerGenerator } from './types';
 
-export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> {
-    constructor(node: ClassDeclaration, current: MetadataGenerator) {
+export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> implements IControllerGenerator {
+    constructor(node: ClassDeclaration, current: IGeneratorContext) {
         super(node, current);
     }
 

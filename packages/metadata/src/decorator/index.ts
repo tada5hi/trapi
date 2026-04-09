@@ -10,4 +10,4 @@ export * from './property-manager';
 export * from './resolver';
 export * from './preset';
 export * from './sets';
-export * from './type';
+export * from './types';

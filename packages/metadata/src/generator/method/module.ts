@@ -28,11 +28,11 @@ import {
     hasOwnProperty,
 } from '../../utils';
 import { AbstractGenerator } from '../abstract';
-import type { MetadataGenerator } from '../metadata';
+import type { IGeneratorContext } from '../metadata';
 import type { Parameter } from '../parameter';
 import { ParameterGenerator, ParameterSource } from '../parameter';
-import type { Example, Response } from '../type';
-import type { Method, MethodType } from './type';
+import type { Example, Response } from '../types';
+import type { Method, MethodType } from './types';
 
 export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
     private method: MethodType;
@@ -41,7 +41,7 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
 
     constructor(
         node: MethodDeclaration,
-        current: MetadataGenerator,
+        current: IGeneratorContext,
     ) {
         super(node, current);
 

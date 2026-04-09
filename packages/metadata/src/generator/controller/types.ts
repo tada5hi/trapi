@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { Response, Security } from '../type';
+import type { Response, Security } from '../types';
 import type { Method } from '../method';
 
 export interface Controller {
@@ -52,4 +52,9 @@ export interface Controller {
      */
     tags: string[];
     security?: Security[];
+}
+
+export interface IControllerGenerator {
+    isValid(): boolean;
+    generate(): Controller;
 }

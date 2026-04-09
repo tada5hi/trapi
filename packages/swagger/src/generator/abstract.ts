@@ -49,7 +49,7 @@ import type { Options, OptionsInput } from '../config';
 import type { DocumentFormat } from '../constants';
 import { DataFormatName, DataTypeName } from '../schema';
 
-import type { DocumentFormatData } from '../type';
+import type { DocumentFormatData } from '../types';
 import type {
     BaseSchema,
     Info,

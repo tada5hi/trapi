@@ -6,7 +6,7 @@
  */
 
 import type { CollectionFormat, Metadata, Options as MetadataOptions } from '@trapi/metadata';
-import type { SecurityDefinitions } from '../type';
+import type { SecurityDefinitions } from '../types';
 
 export type ServerOption = {
     url: string,

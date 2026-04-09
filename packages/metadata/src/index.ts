@@ -12,5 +12,5 @@ export * from './generator';
 export * from './decorator';
 export * from './resolver';
 export * from './module';
-export * from './type';
+export * from './types';
 export * from './utils';

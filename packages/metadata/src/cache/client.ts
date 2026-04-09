@@ -9,9 +9,14 @@ import { buildFilePath, isObject, locateMany } from 'locter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildCacheOptions, generateFileHash } from './utils';
-import type { CacheData, CacheOptions, CacheOptionsInput } from './type';
+import type { 
+    CacheData, 
+    CacheOptions, 
+    CacheOptionsInput, 
+    ICacheClient, 
+} from './types';
 
-export class CacheClient {
+export class CacheClient implements ICacheClient {
     private readonly options: CacheOptions;
 
     constructor(input?: string | boolean | CacheOptionsInput) {

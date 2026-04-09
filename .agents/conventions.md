@@ -43,6 +43,28 @@ NX caches build, lint, and test targets. Build dependencies (`^build`) ensure pa
 - See `.agents/plans/002-typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
 - The metadata package uses the TypeScript compiler API directly (`ts.createProgram`, type checker, AST traversal)
 
+## Interface vs Type
+
+Use `interface` **only** when it is implemented by a class. Prefix it with `I` (e.g., `IFoo` for `class Foo implements IFoo`). For all other type definitions (data shapes, options objects, unions, mapped types), use `type`.
+
+- **`interface IFoo { ... }`** — Only when `class Foo implements IFoo { ... }` exists
+- **`type Foo = { ... }`** — For data shapes, options, DTOs, discriminated unions, and everything else
+- **Reference the interface**, not the class, in constructor parameters, fields, and function signatures
+- **Import the interface** (`import type { IFoo }`) instead of the class when only the type is needed
+
+This enables testability (mock implementations), decoupling (no circular class imports), and makes the dependency graph explicit.
+
+> **Migration note**: Many existing data shapes (e.g., `Controller`, `Method`, `Parameter`, `BaseType`) still use `interface`. These should be converted to `type` incrementally.
+
+## File Organization
+
+- **`types.ts`** — Only types and interfaces. No functions, no classes, no constants. Every directory that has types uses `types.ts` (not `type.ts`).
+- **`constants.ts`** — Enums, `as const` objects, and other constant values.
+- **`module.ts`** — Primary class or function implementations.
+- **`utils.ts`** — Helper/utility functions.
+- **Type guards** (e.g., `isFooType()`) are functions — they belong in a dedicated `type-guards.ts` or `utils.ts`, not in `types.ts`.
+- **Do not re-export types from external libraries** (e.g., `export type { CompilerOptions }` from `typescript`). Consumers should import directly from the source library. Wrapper type aliases (e.g., `TsCompilerOptions = CompilerOptions`) are acceptable when they add semantic meaning.
+
 ## CI/CD
 
 GitHub Actions workflow (`.github/workflows/main.yml`):

@@ -82,9 +82,7 @@ export function resolveIndexedAccessType(
             );
         } catch (err) {
             throw new ResolverError(
-                `Could not determine the keys on ${ctx.typeChecker.typeToString(
-                    ctx.typeChecker.getTypeFromTypeNode(toTypeNodeOrFail(ctx.typeChecker, declaration, undefined, undefined)),
-                )}`,
+                `Could not determine the keys on ${ctx.typeChecker.typeToString(declaration)}`,
                 typeNode,
                 { cause: err },
             );

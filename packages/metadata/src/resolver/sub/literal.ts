@@ -52,7 +52,7 @@ export function resolveLiteralType(
         }
 
         throw new ResolverError(
-            `Could not the type of ${ctx.typeChecker.typeToString(ctx.typeChecker.getTypeFromTypeNode(typeNode), typeNode)}`,
+            `Could not resolve type: ${ctx.typeChecker.typeToString(ctx.typeChecker.getTypeFromTypeNode(typeNode), typeNode)}`,
             typeNode,
         );
     }
@@ -98,7 +98,10 @@ export function getLiteralValue(typeNode: ts.LiteralTypeNode): string | number |
             if (Object.prototype.hasOwnProperty.call(typeNode.literal, 'text')) {
                 value = (typeNode.literal as ts.LiteralExpression).text;
             } else {
-                throw new ResolverError(`Couldn't resolve literal node: ${typeNode.literal.getText()}`);
+                throw new ResolverError(
+                    `Couldn't resolve literal node: ${typeNode.literal.getText()}`,
+                    typeNode.literal,
+                );
             }
     }
     return value;

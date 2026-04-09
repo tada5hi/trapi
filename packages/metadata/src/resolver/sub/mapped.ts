@@ -57,7 +57,7 @@ export function resolveMappedType(
                 return { ...ctx.propertyFromDeclaration(declaration, mappedTypeNode.questionToken), name: property.getName() };
             }
 
-            let required = false;
+            let required = (property.flags & ts.SymbolFlags.Optional) === 0;
 
             const typeNode2 = toTypeNodeOrFail(
                 typeChecker,

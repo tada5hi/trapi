@@ -145,7 +145,7 @@ export class TypeNodeResolver extends ResolverBase {
             context: this.context,
             referencer: this.referencer,
             resolveType: (typeNode, parentNode, context, referencer) => (
-                new TypeNodeResolver(typeNode, this.current, parentNode, context, referencer, this.depth + 1).resolve()
+                this.resolveNestedType(typeNode, parentNode, context, referencer)
             ),
             propertyFromSignature: (sig, overrideToken) => this.propertyFromSignature(sig, overrideToken),
             propertyFromDeclaration: (decl, overrideToken, utilityType) => (
@@ -155,6 +155,22 @@ export class TypeNodeResolver extends ResolverBase {
             getNodeExample: (node) => this.getNodeExample(node),
             getNodeExtensions: (node) => this.getNodeExtensions(node),
         };
+    }
+
+    private resolveNestedType(
+        typeNode: ts.TypeNode,
+        parentNode?: ts.Node,
+        context?: TypeNodeResolverContext,
+        referencer?: ts.TypeNode,
+    ): Type {
+        return new TypeNodeResolver(
+            typeNode,
+            this.current,
+            parentNode,
+            context,
+            referencer,
+            this.depth + 1,
+        ).resolve();
     }
 
     private throwUnknownType(): never {
@@ -232,18 +248,17 @@ export class TypeNodeResolver extends ResolverBase {
         }
 
         try {
-            return new TypeNodeResolver(
+            return this.resolveNestedType(
                 toTypeNodeOrFail(
                     this.current.typeChecker,
                     type,
                     undefined,
                     ts.NodeBuilderFlags.NoTruncation,
                 ),
-                this.current,
                 this.typeNode,
                 this.context,
                 this.referencer,
-            ).resolve();
+            );
         } catch (err) {
             throw new ResolverError(
                 `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. The flags on the result of the ConditionalType was ${type.flags}`,
@@ -270,12 +285,11 @@ export class TypeNodeResolver extends ResolverBase {
                 typeReference.typeArguments
             ) {
                 return {
-                    additionalProperties: new TypeNodeResolver(
+                    additionalProperties: this.resolveNestedType(
                         typeReference.typeArguments[1],
-                        this.current,
                         this.parentNode,
                         this.context,
-                    ).resolve(),
+                    ),
                     typeName: TypeName.NESTED_OBJECT_LITERAL,
                     properties: [],
                 } as NestedObjectLiteralType;
@@ -304,12 +318,11 @@ export class TypeNodeResolver extends ResolverBase {
             ) {
                 return {
                     typeName: TypeName.ARRAY,
-                    elementType: new TypeNodeResolver(
+                    elementType: this.resolveNestedType(
                         typeReference.typeArguments[0],
-                        this.current,
                         this.parentNode,
                         this.context,
-                    ).resolve(),
+                    ),
                 };
             }
 
@@ -318,12 +331,11 @@ export class TypeNodeResolver extends ResolverBase {
                 typeReference.typeArguments &&
                 typeReference.typeArguments.length === 1
             ) {
-                return new TypeNodeResolver(
+                return this.resolveNestedType(
                     typeReference.typeArguments[0],
-                    this.current,
                     this.parentNode,
                     this.context,
-                ).resolve();
+                );
             }
 
             if (typeReference.typeName.text === 'String') {
@@ -331,12 +343,11 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             if (this.context[typeReference.typeName.text]) {
-                return new TypeNodeResolver(
+                return this.resolveNestedType(
                     this.context[typeReference.typeName.text],
-                    this.current,
                     this.parentNode,
                     this.context,
-                ).resolve();
+                );
             }
         }
 
@@ -625,13 +636,12 @@ export class TypeNodeResolver extends ResolverBase {
             }
         }
 
-        const type = new TypeNodeResolver(
+        const type = this.resolveNestedType(
             declaration.type,
-            this.current,
             declaration,
             this.context,
             this.referencer || referencer,
-        ).resolve();
+        );
 
         if (isNestedObjectLiteralType(type)) {
             type.properties = this.filterUtilityProperties(type.properties, utilityType, utilityTypeOptions);
@@ -698,7 +708,7 @@ export class TypeNodeResolver extends ResolverBase {
                 refName: `${TypeNodeResolver.getRefTypeName(name, utilityType)}Alias`,
                 typeName: TypeName.REF_ALIAS,
                 description,
-                type: new TypeNodeResolver(nodeType, this.current).resolve(),
+                type: this.resolveNestedType(nodeType),
                 deprecated,
                 validators: {},
                 ...(example && { example }),
@@ -1007,13 +1017,12 @@ export class TypeNodeResolver extends ResolverBase {
             format: TypeNodeResolver.getNodeFormat(propertySignature),
             name: identifier.text,
             required,
-            type: new TypeNodeResolver(
+            type: this.resolveNestedType(
                 propertySignature.type,
-                this.current,
                 propertySignature.type.parent,
                 this.context,
                 propertySignature.type,
-            ).resolve(),
+            ),
             validators: getDeclarationValidators(propertySignature) || {},
         };
         return property;
@@ -1036,7 +1045,7 @@ export class TypeNodeResolver extends ResolverBase {
             throw new ResolverError('No valid type found for property declaration.');
         }
 
-        const type = new TypeNodeResolver(typeNode, this.current, propertyDeclaration, this.context, typeNode).resolve();
+        const type = this.resolveNestedType(typeNode, propertyDeclaration, this.context, typeNode);
 
         let required = !propertyDeclaration.questionToken && !propertyDeclaration.initializer;
         if (overrideToken && overrideToken.kind === ts.SyntaxKind.MinusToken) {
@@ -1078,18 +1087,17 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const indexSignatureDeclaration = indexMember as ts.IndexSignatureDeclaration;
-            const indexType = new TypeNodeResolver(
+            const indexType = this.resolveNestedType(
                 indexSignatureDeclaration.parameters[0].type as ts.TypeNode,
-                this.current,
                 this.parentNode,
                 this.context,
-            ).resolve();
+            );
 
             if (indexType.typeName !== 'string') {
                 throw new ResolverError('Only string indexers are supported.', this.typeNode);
             }
 
-            return new TypeNodeResolver(indexSignatureDeclaration.type, this.current, this.parentNode, this.context).resolve();
+            return this.resolveNestedType(indexSignatureDeclaration.type, this.parentNode, this.context);
         }
 
         return undefined;

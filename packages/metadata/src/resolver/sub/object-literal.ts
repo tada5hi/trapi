@@ -33,8 +33,12 @@ export function resolveObjectLiteralType(
     const properties: ResolverProperty[] = typeNode.members
         .filter((member) => ts.isPropertySignature(member))
         .reduce((res, propertySignature: ts.PropertySignature) => {
+            if (!propertySignature.type) {
+                throw new ResolverError('No valid type found for property declaration.', propertySignature);
+            }
+
             const type = ctx.resolveType(
-                propertySignature.type as ts.TypeNode,
+                propertySignature.type,
                 propertySignature,
                 ctx.context,
             );
@@ -46,7 +50,7 @@ export function resolveObjectLiteralType(
                 default: getJSDocTagComment(propertySignature, JSDocTagName.DEFAULT),
                 description: ctx.getNodeDescription(propertySignature),
                 format: getNodeFormat(propertySignature),
-                name: (propertySignature.name as ts.Identifier).text,
+                name: getPropertyName(propertySignature),
                 required: !propertySignature.questionToken,
                 type,
                 validators: getDeclarationValidators(propertySignature) || {},
@@ -90,4 +94,16 @@ function getNodeFormat(
     node: ts.PropertySignature | ts.PropertyDeclaration | ts.ParameterDeclaration,
 ) {
     return getJSDocTagComment(node, JSDocTagName.FORMAT);
+}
+
+function getPropertyName(node: ts.PropertySignature): string {
+    if (ts.isIdentifier(node.name)) {
+        return node.name.text;
+    }
+
+    if (ts.isStringLiteral(node.name) || ts.isNumericLiteral(node.name)) {
+        return node.name.text;
+    }
+
+    return node.name.getText();
 }

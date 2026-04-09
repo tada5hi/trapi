@@ -5,6 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import type * as ts from 'typescript';
+import type { IReferenceTypeRegistry, IResolverContext } from '../generator';
 import type { Validator } from '../utils';
 import type { TypeName } from './constants';
 import type { Extension } from './extension';
@@ -218,4 +220,63 @@ export interface IResolverCache {
 
 export type UtilityTypeOptions = {
     keys: Array<string | number | boolean | null>;
+};
+
+// -------------------------------------------
+// Resolver Internal Types
+// -------------------------------------------
+
+export type OverrideToken = ts.Token<ts.SyntaxKind.QuestionToken> |
+ts.Token<ts.SyntaxKind.PlusToken> |
+ts.Token<ts.SyntaxKind.MinusToken>;
+
+export type UsableDeclaration = ts.InterfaceDeclaration |
+ts.ClassDeclaration |
+ts.PropertySignature |
+ts.TypeAliasDeclaration |
+ts.EnumMember;
+
+export type TypeNodeResolverContext = {
+    [name: string]: ts.TypeReferenceNode | ts.TypeNode;
+};
+
+/**
+ * Context passed to sub-resolver functions for recursive type resolution.
+ */
+export type SubResolverContext = {
+    readonly typeChecker: ts.TypeChecker;
+    readonly current: IResolverContext & IReferenceTypeRegistry;
+    readonly parentNode?: ts.Node;
+    readonly context: TypeNodeResolverContext;
+    readonly referencer?: ts.TypeNode;
+
+    resolveType(
+        typeNode: ts.TypeNode,
+        parentNode?: ts.Node,
+        context?: TypeNodeResolverContext,
+        referencer?: ts.TypeNode,
+    ): Type;
+
+    propertyFromSignature(
+        sig: ts.PropertySignature,
+        overrideToken?: OverrideToken,
+    ): ResolverProperty;
+
+    propertyFromDeclaration(
+        decl: ts.PropertyDeclaration | ts.ParameterDeclaration,
+        overrideToken?: OverrideToken,
+        utilityType?: string,
+    ): ResolverProperty;
+
+    getNodeDescription(
+        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+    ): string;
+
+    getNodeExample(
+        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+    ): unknown;
+
+    getNodeExtensions(
+        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+    ): Extension[];
 };

@@ -85,6 +85,16 @@ Automated via Release Please (`google-github-actions/release-please-action@v4`):
 - `metadata`, `swagger`, and `decorators` use linked versioning
 - Preset packages version independently
 
+## References
+
+External project references live in `.agents/references/`. When looking up source code in a referenced project (e.g., tsoa), always update the corresponding reference file with:
+
+- The source file path / function name in the external project
+- The corresponding TRAPI file path / function name
+- Any behavioral differences between the implementations
+
+This builds a cumulative mapping over time so future work can quickly find corresponding code without re-searching.
+
 ## Plans
 
 Plans live in `.agents/plans/` and document future improvements or migration strategies.

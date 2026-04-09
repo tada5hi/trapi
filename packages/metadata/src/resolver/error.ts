@@ -50,7 +50,7 @@ export class ResolverError extends MetadataError {
 export function prettyLocationOfNode(node: Node | TypeNode): {
     text: string,
     file: string,
-    line: number,
+    line?: number,
 } | undefined {
     try {
         const sourceFile = node.getSourceFile();
@@ -60,12 +60,12 @@ export function prettyLocationOfNode(node: Node | TypeNode): {
         const start = token ? sourceFile.getLineAndCharacterOfPosition(token.getStart()).line + 1 : undefined;
         const end = token ? sourceFile.getLineAndCharacterOfPosition(token.getEnd()).line + 1 : undefined;
 
+        const normalizedFile = normalize(sourceFile.fileName);
         const startSuffix = start ? `:${start}` : '';
         const endSuffix = end ? `:${end}` : '';
-        const normalizedPath = normalize(`${sourceFile.fileName}${startSuffix}${endSuffix}`);
 
         return {
-            text: `At: ${normalizedPath}.`,
+            text: `At: ${normalizedFile}${startSuffix}${endSuffix}.`,
             file: sourceFile.fileName,
             line: start,
         };

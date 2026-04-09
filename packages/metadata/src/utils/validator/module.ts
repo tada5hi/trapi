@@ -87,16 +87,19 @@ export function getDeclarationValidators(
             case ValidatorName.MAX_ITEMS:
             case ValidatorName.MIN_LENGTH:
             case ValidatorName.MAX_LENGTH:
-                if (Number.isNaN(value)) {
-                    throw new ValidatorError({
-                        message: `@${name} validator expects a numeric value, got '${value}'.`,
-                        code: ValidatorErrorCode.EXPECTED_NUMBER,
-                    });
+                {
+                    const parsed = Number(value);
+                    if (!Number.isFinite(parsed)) {
+                        throw new ValidatorError({
+                            message: `@${name} validator expects a numeric value, got '${value}'.`,
+                            code: ValidatorErrorCode.EXPECTED_NUMBER,
+                        });
+                    }
+                    validators[name] = {
+                        message: getErrorMsg(comment),
+                        value: parsed,
+                    };
                 }
-                validators[name] = {
-                    message: getErrorMsg(comment),
-                    value: Number(value),
-                };
                 break;
             case ValidatorName.MIN_DATE:
             case ValidatorName.MAX_DATE:

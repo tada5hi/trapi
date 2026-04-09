@@ -20,3 +20,9 @@ export enum ValidatorName {
 
     PATTERN = 'pattern',
 }
+
+export const ValidatorErrorCode = {
+    EXPECTED_NUMBER: 'VALIDATOR_EXPECTED_NUMBER',
+    EXPECTED_DATE: 'VALIDATOR_EXPECTED_DATE',
+    EXPECTED_STRING: 'VALIDATOR_EXPECTED_STRING',
+} as const;

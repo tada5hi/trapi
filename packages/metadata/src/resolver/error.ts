@@ -7,9 +7,9 @@
 
 import { normalize } from 'node:path';
 import type { Node, TypeNode } from 'typescript';
-import { BaseError } from '../error';
+import { MetadataError } from '../error';
 
-export class ResolverError extends BaseError {
+export class ResolverError extends MetadataError {
     public readonly file?: string;
 
     public readonly line?: number;

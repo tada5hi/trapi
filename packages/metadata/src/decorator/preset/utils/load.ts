@@ -6,6 +6,8 @@
  */
 
 import { load } from 'locter';
+import { ConfigErrorCode } from '../../../config/constants';
+import { ConfigError } from '../../../config/error';
 import type { DecoratorConfig } from '../../type';
 import { isPresetSchema } from './check';
 import { generatePresetLookupPaths } from './normalize';
@@ -50,7 +52,10 @@ export async function loadPreset(input: string) : Promise<DecoratorConfig[]> {
     }
 
     if (allFailed) {
-        throw new Error(`The preset ${input} could not be resolved.`);
+        throw new ConfigError({
+            message: `The preset '${input}' could not be resolved.`,
+            code: ConfigErrorCode.PRESET_NOT_FOUND,
+        });
     }
 
     return items;

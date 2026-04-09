@@ -6,6 +6,8 @@
  */
 
 import { isObject, load } from 'locter';
+import { ConfigErrorCode } from '../../config/constants';
+import { ConfigError } from '../../config/error';
 import process from 'node:process';
 import path from 'node:path';
 import { convertCompilerOptionsFromJson } from 'typescript';
@@ -33,7 +35,10 @@ export async function loadTSConfig(
 
     const content = await load(filePath);
     if (!isObject(content)) {
-        throw new Error('The tsconfig file is malformed.');
+        throw new ConfigError({
+            message: 'The tsconfig file is malformed.',
+            code: ConfigErrorCode.TSCONFIG_MALFORMED,
+        });
     }
 
     if (typeof content.compilerOptions !== 'undefined') {

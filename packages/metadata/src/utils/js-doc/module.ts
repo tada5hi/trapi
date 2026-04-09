@@ -12,6 +12,7 @@ import type {
     Node,
 } from 'typescript';
 import { SyntaxKind, isJSDocParameterTag } from 'typescript';
+import { MetadataError } from '../../error';
 import { hasOwnProperty } from '../object';
 import type { JSDocTagName } from './constants';
 import { transformJSDocComment } from './utils';
@@ -108,7 +109,7 @@ export function getJSDocTagNames(node: Node, requireTagName = false) : string[] 
             if (isJSDocParameterTag(tag)) {
                 return false;
             } if (tag.comment === undefined) {
-                throw new Error(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} should have a parameter name follows with.`);
+                throw new MetadataError(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} should have a parameter name follows with.`);
             }
             return typeof tag.comment === 'string' ? tag.comment.startsWith(parameterName) : false;
         });

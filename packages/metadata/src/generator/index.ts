@@ -6,7 +6,9 @@
  */
 
 export * from './abstract';
+export * from './constants';
 export * from './controller';
+export * from './error';
 export * from './method';
 export * from './metadata';
 export * from './parameter';

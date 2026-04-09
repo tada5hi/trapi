@@ -6,8 +6,9 @@
  */
 import { isClassDeclaration, isMethodDeclaration } from 'typescript';
 import type { Node } from 'typescript';
-import { BaseError } from '../../error';
+import { MetadataError } from '../../error';
 import type { BaseType } from '../../resolver';
+import { ParameterErrorCode } from './constants';
 
 type UnsupportedTypeContext = {
     decoratorName: string,
@@ -35,12 +36,12 @@ type ScopeRequiredContext = {
     node?: Node
 };
 
-export class ParameterError extends BaseError {
+export class ParameterError extends MetadataError {
     static typeUnsupported(context: UnsupportedTypeContext) {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not support '${context.type.typeName}' type${location ? ` at ${location}` : ''}.`,
-            code: 'PARAMETER_TYPE_UNSUPPORTED',
+            code: ParameterErrorCode.TYPE_UNSUPPORTED,
         });
     }
 
@@ -48,7 +49,7 @@ export class ParameterError extends BaseError {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not support method '${context.method}'${location ? ` at ${location}` : ''}.`,
-            code: 'PARAMETER_METHOD_UNSUPPORTED',
+            code: ParameterErrorCode.METHOD_UNSUPPORTED,
         });
     }
 
@@ -56,7 +57,7 @@ export class ParameterError extends BaseError {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not exist in path '${context.path}'${location ? ` at ${location}` : ''}.`,
-            code: 'PARAMETER_PATH_MISMATCH',
+            code: ParameterErrorCode.PATH_MISMATCH,
         });
     }
 
@@ -64,14 +65,14 @@ export class ParameterError extends BaseError {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
         return new ParameterError({
             message: `@${context.decoratorName}() requires a scope argument${location ? ` at ${location}` : ''}.`,
-            code: 'PARAMETER_SCOPE_REQUIRED',
+            code: ParameterErrorCode.SCOPE_REQUIRED,
         });
     }
 
     static invalidExampleSchema() {
         return new ParameterError({
             message: 'The @example JSDoc tag contains invalid JSON.',
-            code: 'PARAMETER_INVALID_EXAMPLE',
+            code: ParameterErrorCode.INVALID_EXAMPLE,
         });
     }
 

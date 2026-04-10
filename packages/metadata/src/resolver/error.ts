@@ -6,6 +6,7 @@
  */
 
 import { normalize } from 'node:path';
+import { isBaseError } from '@ebec/core';
 import type { Node, TypeNode } from 'typescript';
 import { MetadataError } from '../error';
 
@@ -45,6 +46,14 @@ export class ResolverError extends MetadataError {
         this.file = file;
         this.line = line;
     }
+}
+
+export function isResolverError(input: unknown): input is ResolverError {
+    if (!isBaseError(input)) {
+        return false;
+    }
+
+    return 'file' in input && 'line' in input;
 }
 
 export function prettyLocationOfNode(node: Node | TypeNode): {

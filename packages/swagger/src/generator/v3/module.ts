@@ -289,9 +289,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     private buildMediaType(parameter: Parameter): MediaTypeV3 {
+        const examples = this.transformParameterExamples(parameter);
         return {
             schema: this.getSchemaForType(parameter.type),
-            examples: this.transformParameterExamples(parameter),
+            ...(Object.keys(examples).length > 0 && { examples }),
         };
     }
 
@@ -323,7 +324,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 for (const contentType of contentTypes) {
                     output[name].content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
-                        examples,
+                        ...(Object.keys(examples).length > 0 && { examples }),
                     };
                 }
             }
@@ -551,13 +552,16 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         properties.forEach((property) => {
             const swaggerType = this.getSchemaForType(property.type) as SchemaV3;
+
+            if (swaggerType.$ref) {
+                output[property.name] = { $ref: swaggerType.$ref };
+                return;
+            }
+
             swaggerType.description = property.description;
             swaggerType.example = property.example;
             swaggerType.format = property.format as DataFormatName || swaggerType.format;
-
-            if (!swaggerType.$ref) {
-                swaggerType.default = property.default;
-            }
+            swaggerType.default = property.default;
 
             if (property.deprecated) {
                 swaggerType.deprecated = true;

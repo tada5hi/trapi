@@ -5,8 +5,17 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { isBaseError } from '@ebec/core';
 import { MetadataError } from '../error';
 
 export class GeneratorError extends MetadataError {
 
+}
+
+export function isGeneratorError(input: unknown): input is GeneratorError & { code: string } {
+    if (!isBaseError(input)) {
+        return false;
+    }
+
+    return typeof input.code === 'string';
 }

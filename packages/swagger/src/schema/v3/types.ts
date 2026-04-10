@@ -164,7 +164,7 @@ export interface SchemaV3 extends BaseSchema<SchemaV3> {
 // tslint:disable-next-line:no-shadowed-variable
 export interface BasicSecurityV3 extends BaseSecurity {
     type: `${SecurityType.HTTP}`;
-    schema: 'basic';
+    scheme: 'basic';
 }
 
 export interface OAuth2SecurityV3 extends BaseSecurity {

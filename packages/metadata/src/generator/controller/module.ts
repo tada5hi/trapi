@@ -5,11 +5,17 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ClassDeclaration } from 'typescript';
-import { isMethodDeclaration } from 'typescript';
+import type { ClassDeclaration, Expression, MethodDeclaration } from 'typescript';
+import {
+    SymbolFlags,
+    SyntaxKind,
+    isClassDeclaration,
+    isMethodDeclaration,
+} from 'typescript';
 import { DecoratorID } from '../../decorator';
+import { isResolverError } from '../../resolver';
 import { GeneratorErrorCode } from '../constants';
-import { GeneratorError } from '../error';
+import { GeneratorError, isGeneratorError } from '../error';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
 import { MethodGenerator } from '../method';
@@ -70,10 +76,26 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
         const set = new Set<string>();
         const output : Method[] = [];
 
-        for (let i = 0; i < this.node.members.length; i++) {
-            const node = this.node.members[i];
+        // Process own methods first
+        for (const member of this.node.members) {
+            if (!isMethodDeclaration(member) || this.isHidden(member)) {
+                continue;
+            }
 
-            if (!isMethodDeclaration(node) || this.isHidden(node)) {
+            const generator = new MethodGenerator(member, this.current);
+            const methodName = generator.getMethodName();
+            if (set.has(methodName) || !generator.isValid()) {
+                continue;
+            }
+
+            set.add(methodName);
+            output.push(generator.generate(controllerPath));
+        }
+
+        // Then process inherited methods from base classes
+        const inheritedMethods = this.collectInheritedMethodDeclarations(this.node);
+        for (const node of inheritedMethods) {
+            if (this.isHidden(node)) {
                 continue;
             }
 
@@ -85,9 +107,81 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
 
             set.add(methodName);
 
-            output.push(generator.generate(controllerPath));
+            try {
+                output.push(generator.generate(controllerPath));
+            } catch (error: unknown) {
+                // Skip inherited methods that fail due to unresolvable generic
+                // type parameters (e.g., return type T or parameter type T from
+                // generic base classes). Rethrow everything else.
+                if (
+                    isResolverError(error) ||
+                    (isGeneratorError(error) &&
+                        error.code === GeneratorErrorCode.PARAMETER_GENERATION_FAILED)
+                ) {
+                    continue;
+                }
+
+                throw error;
+            }
         }
 
         return output;
+    }
+
+    private collectInheritedMethodDeclarations(node: ClassDeclaration): MethodDeclaration[] {
+        const methods: MethodDeclaration[] = [];
+
+        if (!node.heritageClauses) {
+            return methods;
+        }
+
+        for (const clause of node.heritageClauses) {
+            if (clause.token !== SyntaxKind.ExtendsKeyword) {
+                continue;
+            }
+
+            for (const type of clause.types) {
+                const baseDeclaration = this.resolveBaseClassDeclaration(type.expression);
+                if (!baseDeclaration) {
+                    continue;
+                }
+
+                // Collect direct methods from the base class
+                for (const member of baseDeclaration.members) {
+                    if (isMethodDeclaration(member)) {
+                        methods.push(member);
+                    }
+                }
+
+                // Recurse to pick up the full inheritance chain
+                methods.push(...this.collectInheritedMethodDeclarations(baseDeclaration));
+            }
+        }
+
+        return methods;
+    }
+
+    private resolveBaseClassDeclaration(expression: Expression): ClassDeclaration | undefined {
+        let symbol = this.current.typeChecker.getSymbolAtLocation(expression);
+        if (!symbol) {
+            return undefined;
+        }
+
+        // Follow import aliases to the original declaration
+        if (symbol.flags & SymbolFlags.Alias) {
+            symbol = this.current.typeChecker.getAliasedSymbol(symbol);
+        }
+
+        const declarations = symbol.getDeclarations();
+        if (!declarations || declarations.length === 0) {
+            return undefined;
+        }
+
+        const declaration = declarations[0];
+        if (isClassDeclaration(declaration)) {
+            return declaration;
+        }
+
+        return undefined;
     }
 }

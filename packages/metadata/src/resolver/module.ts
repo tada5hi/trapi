@@ -19,7 +19,6 @@ import {
     getJSDocTagComment,
     getJSDocTagNames,
     hasJSDocTag,
-    hasOwnProperty,
 } from '../utils';
 import { ResolverError } from './error';
 import { getNodeExtensions } from './extension';
@@ -38,7 +37,6 @@ import {
 } from './sub';
 import { getLiteralValue } from './sub/literal';
 import {
-    isNestedObjectLiteralType,
     isRefAliasType,
     isRefObjectType,
 } from './type-guards';
@@ -55,7 +53,6 @@ import type {
     Type,
     TypeNodeResolverContext,
     UsableDeclaration,
-    UtilityTypeOptions,
 } from './types';
 import { getNodeDescription, toTypeNodeOrFail } from './utils';
 
@@ -148,8 +145,8 @@ export class TypeNodeResolver extends ResolverBase {
                 this.resolveNestedType(typeNode, parentNode, context, referencer)
             ),
             propertyFromSignature: (sig, overrideToken) => this.propertyFromSignature(sig, overrideToken),
-            propertyFromDeclaration: (decl, overrideToken, utilityType) => (
-                this.propertyFromDeclaration(decl, overrideToken, utilityType)
+            propertyFromDeclaration: (decl, overrideToken) => (
+                this.propertyFromDeclaration(decl, overrideToken)
             ),
             getNodeDescription: (node) => this.getNodeDescription(node),
             getNodeExample: (node) => this.getNodeExample(node),
@@ -350,6 +347,10 @@ export class TypeNodeResolver extends ResolverBase {
                     this.context,
                 );
             }
+
+            if (TypeNodeResolver.isCheckerResolvableUtilityType(typeReference.typeName.text)) {
+                return this.resolveUtilityTypeViaChecker(typeReference);
+            }
         }
 
         const referenceType = this.getReferenceType(typeReference);
@@ -361,81 +362,44 @@ export class TypeNodeResolver extends ResolverBase {
     // ------------------------------------------------------------------------
     // Utility Type(s)
     // ------------------------------------------------------------------------
-    private static toUtilityType(
-        typeName: string | ts.Identifier | undefined,
-    ) : undefined | `${UtilityTypeName}` {
-        if (typeof typeName === 'undefined') {
-            return undefined;
-        }
 
-        const values : string[] = Object.values(UtilityTypeName);
-        const index = values.indexOf(typeof typeName !== 'string' ? typeName.text : typeName);
-        if (index === -1) {
-            return undefined;
-        }
+    private static readonly CHECKER_RESOLVABLE_UTILITY_TYPES: ReadonlySet<string> = new Set([
+        UtilityTypeName.NON_NULLABLE,
+        UtilityTypeName.OMIT,
+        UtilityTypeName.PARTIAL,
+        UtilityTypeName.READONLY,
+        UtilityTypeName.REQUIRED,
+        UtilityTypeName.PICK,
+        UtilityTypeName.EXTRACT,
+        UtilityTypeName.EXCLUDE,
+        UtilityTypeName.RETURN_TYPE,
+        UtilityTypeName.PARAMETERS,
+        UtilityTypeName.AWAITED,
+        UtilityTypeName.INSTANCE_TYPE,
+        UtilityTypeName.CONSTRUCTOR_PARAMETERS,
+    ]);
 
-        return values[index] as UtilityTypeName;
+    private static isCheckerResolvableUtilityType(name: string): boolean {
+        return TypeNodeResolver.CHECKER_RESOLVABLE_UTILITY_TYPES.has(name);
     }
 
-    private static getUtilityTypeOptions(typeArguments: ts.NodeArray<ts.TypeNode>) {
-        const utilityOptions : UtilityTypeOptions = { keys: [] };
+    private resolveUtilityTypeViaChecker(typeReference: ts.TypeReferenceNode): Type {
+        const type = this.current.typeChecker.getTypeFromTypeNode(typeReference);
+        // InTypeAlias prevents the node builder from emitting type alias
+        // references (which could cause circular resolution when the utility
+        // type is used inside a type alias declaration).
+        const resolvedTypeNode = toTypeNodeOrFail(
+            this.current.typeChecker,
+            type,
+            undefined,
+            ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+        );
 
-        if (typeArguments.length >= 2) {
-            if (ts.isUnionTypeNode(typeArguments[1])) {
-                const args : ts.NodeArray<ts.TypeNode> = (typeArguments[1] as ts.UnionTypeNode).types;
-                for (const arg of args) {
-                    if (ts.isLiteralTypeNode(arg)) {
-                        utilityOptions.keys.push(getLiteralValue(arg as ts.LiteralTypeNode));
-                    }
-                }
-            }
-
-            if (ts.isLiteralTypeNode(typeArguments[1])) {
-                utilityOptions.keys.push(getLiteralValue(typeArguments[1] as ts.LiteralTypeNode));
-            }
-        }
-
-        return utilityOptions;
-    }
-
-    private filterUtilityProperties<T extends Record<'name' | string, any>>(
-        properties: T[],
-        utilityType?: `${UtilityTypeName}`,
-        utilityOptions?: UtilityTypeOptions,
-    ) : T[] {
-        if (typeof utilityType === 'undefined' || typeof utilityOptions === 'undefined') {
-            return properties;
-        }
-
-        return properties
-            .filter((property) => {
-                const name : string = typeof property.name !== 'string' ? (property.name as ts.Identifier).text : property.name;
-
-                switch (utilityType) {
-                    case UtilityTypeName.PICK:
-                        return utilityOptions.keys.includes(name);
-                    case UtilityTypeName.OMIT:
-                        return !utilityOptions.keys.includes(name);
-                }
-
-                return true;
-            })
-            .map((property) => {
-                if (hasOwnProperty(property, 'required')) {
-                    const prop = property as T & { required: boolean };
-                    switch (utilityType) {
-                        case UtilityTypeName.PARTIAL:
-                            prop.required = false;
-                            break;
-                        case UtilityTypeName.REQUIRED:
-                        case UtilityTypeName.NON_NULLABLE:
-                            prop.required = true;
-                            break;
-                    }
-                }
-
-                return property;
-            });
+        return this.resolveNestedType(
+            resolvedTypeNode,
+            this.parentNode,
+            this.context,
+        );
     }
 
     private static resolveSpecialReference(node: ts.Identifier) : Type | undefined {
@@ -536,30 +500,7 @@ export class TypeNodeResolver extends ResolverBase {
 
         const name = this.contextualizedName(resolvableName);
 
-        // Handle Utility Types
-        const identifierName = (type as ts.Identifier).text;
-
-        const utilityType = TypeNodeResolver.toUtilityType(identifierName);
-        let utilityTypeOptions : UtilityTypeOptions | undefined;
-
-        if (utilityType) {
-            const { typeArguments } = type.parent as ts.TypeReferenceNode;
-            if (typeArguments) {
-                if (ts.isTypeReferenceNode(typeArguments[0])) {
-                    type = (typeArguments[0] as ts.TypeReferenceNode).typeName;
-                } else if (ts.isExpressionWithTypeArguments(typeArguments[0])) {
-                    type = (typeArguments[0] as ts.ExpressionWithTypeArguments).expression as ts.EntityName;
-                } else {
-                    throw new ResolverError('Can\'t resolve Reference type.');
-                }
-
-                utilityTypeOptions = TypeNodeResolver.getUtilityTypeOptions(typeArguments);
-            } else {
-                throw new ResolverError('Can\'t resolve type arguments of utility type.');
-            }
-        } else {
-            this.typeArgumentsToContext(node, type, this.context);
-        }
+        this.typeArgumentsToContext(node, type, this.context);
 
         try {
             const existingType = this.current.resolverCache.getCachedType(name);
@@ -574,7 +515,7 @@ export class TypeNodeResolver extends ResolverBase {
             this.current.resolverCache.markInProgress(name);
 
             try {
-                const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
+                const refName = TypeNodeResolver.getRefTypeName(name);
                 const declarations = this.getModelTypeDeclarations(type);
                 const referenceTypes: ReferenceType[] = [];
                 for (const declaration of declarations) {
@@ -584,8 +525,6 @@ export class TypeNodeResolver extends ResolverBase {
                                 declaration,
                                 name,
                                 node,
-                                utilityType,
-                                utilityTypeOptions,
                             ),
                         );
                     } else if (isEnumDeclaration(declaration)) {
@@ -598,8 +537,6 @@ export class TypeNodeResolver extends ResolverBase {
                             this.getModelReference(
                                 declaration as ts.InterfaceDeclaration,
                                 name,
-                                utilityType,
-                                utilityTypeOptions,
                             ),
                         );
                     }
@@ -625,20 +562,19 @@ export class TypeNodeResolver extends ResolverBase {
         declaration: ts.TypeAliasDeclaration,
         name: string,
         referencer: ts.TypeReferenceType,
-        utilityType?: `${UtilityTypeName}`,
-        utilityTypeOptions?: UtilityTypeOptions,
     ): ReferenceType {
-        const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
+        const refName = TypeNodeResolver.getRefTypeName(name);
 
         if (declaration.type.kind === ts.SyntaxKind.TypeReference) {
             const innerRef = declaration.type as ts.TypeReferenceNode;
-            // Record<K,V> should not go through getReferenceType because its
-            // first type argument is a key type (string/number), not a model reference.
-            // resolveNestedType handles it correctly via resolveTypeReference.
-            const isRecord = ts.isIdentifier(innerRef.typeName) &&
-                innerRef.typeName.text === UtilityTypeName.RECORD;
+            // Record<K,V> and checker-resolvable utility types (Pick, Omit, etc.)
+            // should not go through getReferenceType — resolveNestedType handles
+            // them correctly via resolveTypeReference.
+            const innerName = ts.isIdentifier(innerRef.typeName) ? innerRef.typeName.text : undefined;
+            const skipReferenceType = innerName === UtilityTypeName.RECORD ||
+                (innerName !== undefined && TypeNodeResolver.isCheckerResolvableUtilityType(innerName));
 
-            if (!isRecord) {
+            if (!skipReferenceType) {
                 const referenceType = this.getReferenceType(innerRef);
                 if (referenceType.refName === refName) {
                     return referenceType;
@@ -652,10 +588,6 @@ export class TypeNodeResolver extends ResolverBase {
             this.context,
             this.referencer || referencer,
         );
-
-        if (isNestedObjectLiteralType(type)) {
-            type.properties = this.filterUtilityProperties(type.properties, utilityType, utilityTypeOptions);
-        }
 
         const example = this.getNodeExample(declaration);
 
@@ -675,8 +607,6 @@ export class TypeNodeResolver extends ResolverBase {
     private getModelReference(
         modelType: ts.InterfaceDeclaration | ts.ClassDeclaration,
         name: string,
-        utilityType?: `${UtilityTypeName}`,
-        utilityOptions?: UtilityTypeOptions,
     ) : ReferenceType {
         const example = this.getNodeExample(modelType);
         const description = this.getNodeDescription(modelType);
@@ -715,7 +645,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             return {
-                refName: `${TypeNodeResolver.getRefTypeName(name, utilityType)}Alias`,
+                refName: `${TypeNodeResolver.getRefTypeName(name)}Alias`,
                 typeName: TypeName.REF_ALIAS,
                 description,
                 type: this.resolveNestedType(nodeType),
@@ -725,7 +655,7 @@ export class TypeNodeResolver extends ResolverBase {
             };
         }
 
-        const properties = this.getModelProperties(modelType, undefined, utilityType, utilityOptions);
+        const properties = this.getModelProperties(modelType);
         const additionalProperties = this.getModelAdditionalProperties(modelType);
         const inheritedProperties = this.getModelInheritedProperties(modelType) || [];
 
@@ -733,8 +663,8 @@ export class TypeNodeResolver extends ResolverBase {
             additionalProperties,
             typeName: TypeName.REF_OBJECT,
             description,
-            properties: this.filterUtilityProperties(inheritedProperties, utilityType, utilityOptions),
-            refName: TypeNodeResolver.getRefTypeName(name, utilityType),
+            properties: inheritedProperties,
+            refName: TypeNodeResolver.getRefTypeName(name),
             deprecated,
             ...(example && { example }),
         };
@@ -744,9 +674,7 @@ export class TypeNodeResolver extends ResolverBase {
         return referenceType;
     }
 
-    private static getRefTypeName(name: string, utilityType?: `${UtilityTypeName}`): string {
-        const isUtility = typeof utilityType !== 'undefined';
-
+    private static getRefTypeName(name: string): string {
         const sanitized = name
             // Structural characters → temporary placeholders
             .replace(/[<>]/g, '_')
@@ -756,8 +684,8 @@ export class TypeNodeResolver extends ResolverBase {
             .replace(/,/g, '.')
             .replace(/'([^']*)'/g, '$1')
             .replace(/"([^"]*)"/g, '$1')
-            .replace(/&/g, isUtility ? '--and--' : '-and-')
-            .replace(/\|/g, isUtility ? '--or--' : '-or-')
+            .replace(/&/g, '-and-')
+            .replace(/\|/g, '-or-')
             .replace(/\[\]/g, '-array')
             .replace(/([a-z]+):([a-z]+)/gi, '$1-$2')
             .replace(/;/g, '--')
@@ -965,8 +893,6 @@ export class TypeNodeResolver extends ResolverBase {
     private getModelProperties(
         node: ts.InterfaceDeclaration | ts.ClassDeclaration,
         overrideToken?: OverrideToken,
-        utilityType?: `${UtilityTypeName}`,
-        utilityOptions?: UtilityTypeOptions,
     ) : ResolverProperty[] {
         const isIgnored = (e: ts.TypeElement | ts.ClassElement) => hasJSDocTag(e, JSDocTagName.IGNORE);
 
@@ -982,7 +908,7 @@ export class TypeNodeResolver extends ResolverBase {
         }
 
         // Class model
-        let properties = node.members
+        const properties = node.members
             .filter((member) => !isIgnored(member) &&
                     member.kind === ts.SyntaxKind.PropertyDeclaration &&
                 !this.hasStaticModifier(member) &&
@@ -998,9 +924,7 @@ export class TypeNodeResolver extends ResolverBase {
             properties.push(...constructorProperties);
         }
 
-        properties = this.filterUtilityProperties(properties, utilityType, utilityOptions);
-
-        return properties.map((property) => this.propertyFromDeclaration(property, overrideToken, utilityType));
+        return properties.map((property) => this.propertyFromDeclaration(property, overrideToken));
     }
 
     private propertyFromSignature(propertySignature: ts.PropertySignature, overrideToken?: OverrideToken) {
@@ -1040,7 +964,6 @@ export class TypeNodeResolver extends ResolverBase {
     private propertyFromDeclaration(
         propertyDeclaration: ts.PropertyDeclaration | ts.ParameterDeclaration,
         overrideToken?: OverrideToken,
-        utilityType?: string,
     ) {
         const identifier = propertyDeclaration.name as ts.Identifier;
         let typeNode = propertyDeclaration.type;
@@ -1061,16 +984,6 @@ export class TypeNodeResolver extends ResolverBase {
             required = true;
         } else if (overrideToken && overrideToken.kind === ts.SyntaxKind.QuestionToken) {
             required = false;
-        }
-
-        if (typeof utilityType !== 'undefined') {
-            if (utilityType === 'Partial') {
-                required = false;
-            }
-
-            if (utilityType === 'Required') {
-                required = true;
-            }
         }
 
         const property: ResolverProperty = {

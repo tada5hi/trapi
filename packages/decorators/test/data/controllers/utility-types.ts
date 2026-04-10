@@ -6,8 +6,8 @@
  */
 
 import {
-    Controller, 
-    Get, 
+    Controller,
+    Get,
     Mount,
 } from '../../../src';
 
@@ -19,6 +19,27 @@ type Foo = {
 type FooBar = Pick<Foo, 'bar'>;
 type FooBaz = Omit<Foo, 'bar'>;
 type FooPartial = Partial<Foo>;
+
+// Checker-resolvable utility types
+type Status = 'active' | 'inactive' | 'deleted';
+type ActiveStatus = Extract<Status, 'active' | 'inactive'>;
+type NonDeletedStatus = Exclude<Status, 'deleted'>;
+
+function createFoo(): Foo {
+    return { bar: 'a', baz: 'b' };
+}
+type FooReturn = ReturnType<typeof createFoo>;
+
+type FooParams = Parameters<typeof createFoo>;
+
+type AwaitedFoo = Awaited<Promise<Foo>>;
+type AwaitedNested = Awaited<Promise<Promise<Foo>>>;
+
+class FooFactory {
+    constructor(public name: string, public count: number) {}
+}
+type FooInstance = InstanceType<typeof FooFactory>;
+type FooCtorParams = ConstructorParameters<typeof FooFactory>;
 
 @Controller()
 @Mount('utility-types')
@@ -39,5 +60,41 @@ export class UtilityTypes {
     @Mount('partial')
     public partial(): FooPartial {
         return {};
+    }
+
+    @Get()
+    @Mount('extract')
+    public extract(): ActiveStatus {
+        return 'active';
+    }
+
+    @Get()
+    @Mount('exclude')
+    public exclude(): NonDeletedStatus {
+        return 'active';
+    }
+
+    @Get()
+    @Mount('return-type')
+    public returnType(): FooReturn {
+        return { bar: 'a', baz: 'b' };
+    }
+
+    @Get()
+    @Mount('awaited')
+    public awaited(): AwaitedFoo {
+        return { bar: 'a', baz: 'b' };
+    }
+
+    @Get()
+    @Mount('awaited-nested')
+    public awaitedNested(): AwaitedNested {
+        return { bar: 'a', baz: 'b' };
+    }
+
+    @Get()
+    @Mount('instance-type')
+    public instanceType(): FooInstance {
+        return new FooFactory('test', 1);
     }
 }

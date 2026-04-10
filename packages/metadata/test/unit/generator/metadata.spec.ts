@@ -45,6 +45,13 @@ describe('src/generator/metadata', () => {
 
         const controller = metadata.controllers[index];
 
+        // Helper to walk through refAlias layers to find nestedObjectLiteral
+        function findObjectLiteral(type: any): NestedObjectLiteralType | undefined {
+            if (type.typeName === 'nestedObjectLiteral') return type;
+            if (type.typeName === 'refAlias') return findObjectLiteral((type as RefAliasType).type);
+            return undefined;
+        }
+
         // pick
         index = controller.methods.findIndex(
             (method) => method.name === 'pick',
@@ -53,10 +60,10 @@ describe('src/generator/metadata', () => {
 
         let method = controller.methods[index];
         expect(method.name).toEqual('pick');
-        let refAlias = ((method.type as RefAliasType).type as RefAliasType);
-        let nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
-        expect(nestedObjectLiteral.properties.length).toEqual(1);
-        let property = nestedObjectLiteral.properties.pop();
+        let nestedObjectLiteral = findObjectLiteral(method.type);
+        expect(nestedObjectLiteral).toBeDefined();
+        expect(nestedObjectLiteral!.properties.length).toEqual(1);
+        let property = nestedObjectLiteral!.properties[0];
         expect(property.name).toEqual('bar');
 
         // omit
@@ -67,14 +74,13 @@ describe('src/generator/metadata', () => {
 
         method = controller.methods[index];
         expect(method.name).toEqual('omit');
-        refAlias = ((method.type as RefAliasType).type as RefAliasType);
-        nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
-        expect(nestedObjectLiteral.properties.length).toEqual(1);
-        property = nestedObjectLiteral.properties.pop();
+        nestedObjectLiteral = findObjectLiteral(method.type);
+        expect(nestedObjectLiteral).toBeDefined();
+        expect(nestedObjectLiteral!.properties.length).toEqual(1);
+        property = nestedObjectLiteral!.properties[0];
         expect(property.name).toEqual('baz');
 
-        // record
-
+        // partial
         index = controller.methods.findIndex(
             (method) => method.name === 'partial',
         );

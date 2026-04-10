@@ -218,10 +218,6 @@ export interface IResolverCache {
     clear(): void;
 }
 
-export type UtilityTypeOptions = {
-    keys: Array<string | number | boolean | null>;
-};
-
 // -------------------------------------------
 // Resolver Internal Types
 // -------------------------------------------
@@ -265,7 +261,6 @@ export type SubResolverContext = {
     propertyFromDeclaration(
         decl: ts.PropertyDeclaration | ts.ParameterDeclaration,
         overrideToken?: OverrideToken,
-        utilityType?: string,
     ): ResolverProperty;
 
     getNodeDescription(

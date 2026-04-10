@@ -69,6 +69,23 @@ export function validateV3Spec(spec: unknown): ValidationResult {
     return { valid: !!valid, errors: formatErrors(v3Validate) };
 }
 
+// Schema Object locations where unevaluatedProperties errors are expected
+// because the OAI 3.1 schema intentionally skips JSON Schema content validation.
+const SCHEMA_OBJECT_PATTERNS = [
+    '/components/schemas/',
+    '/content/',
+    '/schema',
+    '/items',
+];
+
+function isSchemaObjectError(instancePath: string, keyword: string): boolean {
+    if (keyword !== 'unevaluatedProperties' && keyword !== 'if') {
+        return false;
+    }
+
+    return SCHEMA_OBJECT_PATTERNS.some((p) => instancePath.includes(p));
+}
+
 export function validateV31Spec(spec: unknown): ValidationResult {
     if (!v31Validate) {
         v31Validate = compileDraft2020Schema('v3.1-schema.json');
@@ -76,14 +93,37 @@ export function validateV31Spec(spec: unknown): ValidationResult {
 
     v31Validate(spec);
 
-    // The OAI 3.1 schema validates structure but intentionally skips JSON Schema
-    // content validation within schema objects (marked "without schema validation").
-    // Filter out errors caused by schema object content (unevaluated properties)
-    // and their cascading "else" schema failures.
-    const errors = formatErrors(v31Validate).filter(
-        (e) => !e.includes('unevaluated properties') &&
-            !e.includes('must match "else" schema'),
-    );
+    if (!v31Validate.errors) {
+        return { valid: true, errors: [] };
+    }
 
+    // Filter out errors from Schema Object locations where the OAI 3.1 schema
+    // intentionally skips JSON Schema content validation.
+    // Also filter cascading "else" errors caused by those suppressions.
+    const schemaErrorPaths = new Set<string>();
+    for (const err of v31Validate.errors) {
+        if (isSchemaObjectError(err.instancePath || '', err.keyword)) {
+            schemaErrorPaths.add(err.instancePath || '');
+        }
+    }
+
+    const filtered = v31Validate.errors.filter((err) => {
+        const path = err.instancePath || '';
+        // Suppress schema object errors
+        if (isSchemaObjectError(path, err.keyword)) {
+            return false;
+        }
+        // Suppress cascading "else" errors whose parent was a schema object error
+        if (err.keyword === 'if' || err.message?.includes('must match "else" schema')) {
+            for (const schemaPath of schemaErrorPaths) {
+                if (path.startsWith(schemaPath) || schemaPath.startsWith(path)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    });
+
+    const errors = filtered.map((e) => `${e.instancePath || '/'}: ${e.message}`);
     return { valid: errors.length === 0, errors };
 }

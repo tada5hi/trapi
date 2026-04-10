@@ -25,7 +25,7 @@ export interface ApiKeySecurity extends BaseSecurity {
 
 export interface BasicSecurity extends BaseSecurity {
     type: `${SecurityType.HTTP}`;
-    schema: 'basic';
+    scheme: 'basic';
 }
 
 export interface OAuth2Security extends BaseSecurity {

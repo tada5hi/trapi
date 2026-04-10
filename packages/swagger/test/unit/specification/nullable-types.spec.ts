@@ -143,9 +143,14 @@ describe('nullable types', () => {
 
         it('should handle nullable reference type with allOf wrapper', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.nullableRef;
-            if (prop.$ref) {
+            // Must be one of: bare $ref (no nullable sibling) or allOf wrapper with nullable
+            const hasBareRef = '$ref' in prop && !('allOf' in prop);
+            const hasAllOfWrapper = 'allOf' in prop;
+            expect(hasBareRef || hasAllOfWrapper, 'expected $ref or allOf wrapper').toBe(true);
+
+            if (hasBareRef) {
                 expect(prop).not.toHaveProperty('nullable');
-            } else if (prop.allOf) {
+            } else {
                 expect(prop.allOf).toHaveLength(1);
                 expect(prop.allOf[0].$ref).toBeDefined();
                 expect(prop.nullable).toBe(true);

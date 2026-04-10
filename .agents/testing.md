@@ -92,3 +92,4 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `intersection-types.spec.ts` | V2 flattened properties, V3 `allOf` |
 | `additional-properties.spec.ts` | V2 boolean vs V3 typed schema |
 | `edge-cases.spec.ts` | Empty required arrays, void responses, spec structure |
+| `error-paths.spec.ts` | Duplicate body params, body+form conflict, cookie filtering, hidden methods |

@@ -31,15 +31,11 @@ describe('metadata generation error paths', () => {
     });
 
     describe('empty entry points', () => {
-        it('should handle empty string entry point gracefully', async () => {
-            // Empty string may throw or return empty — either is acceptable
-            try {
-                const metadata = await generateMetadata({ entryPoint: '' });
-                expect(metadata).toBeDefined();
-                expect(metadata.controllers).toEqual([]);
-            } catch (e) {
-                expect(e).toBeDefined();
-            }
+        it('should throw for empty string entry point', async () => {
+            // Empty string is not a valid glob pattern
+            await expect(
+                generateMetadata({ entryPoint: '' }),
+            ).rejects.toThrow();
         });
 
         it('should handle empty array entry point', async () => {

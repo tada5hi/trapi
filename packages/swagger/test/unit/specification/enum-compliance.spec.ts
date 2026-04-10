@@ -108,6 +108,7 @@ describe('enum spec compliance', () => {
             const def = specV2.definitions!.MixedEnum;
             expect(def.type).toEqual('string');
             expect(def.enum).toBeDefined();
+            expect(def.enum!.length).toBeGreaterThan(0);
         });
 
         it('should include x-enum-varnames when memberNames are provided', () => {
@@ -136,13 +137,11 @@ describe('enum spec compliance', () => {
 
         it('should handle mixed enum with anyOf for multi-type', () => {
             const schema = specV3.components.schemas!.MixedEnum;
-            expect(schema.anyOf).toBeDefined();
-            if (schema.anyOf) {
-                for (const entry of schema.anyOf) {
-                    expect(entry.type).toBeDefined();
-                    expect(entry.enum).toBeDefined();
-                    expect(entry.enum).not.toContain(null);
-                }
+            expect(schema.anyOf, 'mixed enum should produce anyOf').toBeDefined();
+            for (const entry of schema.anyOf!) {
+                expect(entry.type).toBeDefined();
+                expect(entry.enum).toBeDefined();
+                expect(entry.enum).not.toContain(null);
             }
         });
 

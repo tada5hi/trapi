@@ -159,7 +159,10 @@ describe('controller metadata extraction', () => {
                 (c) => c.name === 'PromiseService',
             )!;
             expect(promiseService).toBeDefined();
-            expect(promiseService.methods.length).toBeGreaterThan(0);
+            // PromiseService extends BaseService — verify own methods are extracted
+            const methodNames = promiseService.methods.map((m) => m.name);
+            expect(methodNames).toContain('test');
+            expect(methodNames).toContain('testGetSingle');
         });
 
         it('should detect abstract entity endpoint', () => {

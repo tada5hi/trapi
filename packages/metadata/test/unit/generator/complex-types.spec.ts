@@ -162,15 +162,24 @@ describe('complex type metadata extraction', () => {
         it('should resolve PartialPerson', () => {
             const pp = metadata.referenceTypes.PartialPerson;
             expect(pp).toBeDefined();
-            // Partial<Person> should make all properties optional
+            // Partial<Person> may resolve as refAlias (nestedObjectLiteral) or refObject
+            expect(['refAlias', 'refObject']).toContain(pp.typeName);
+
             if (pp.typeName === 'refAlias') {
                 const alias = pp as RefAliasType;
-                if (alias.type.typeName === 'nestedObjectLiteral') {
-                    const obj = alias.type as NestedObjectLiteralType;
-                    for (const prop of obj.properties) {
-                        expect(prop.required).toBe(false);
-                    }
+                expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+                const obj = alias.type as NestedObjectLiteralType;
+                expect(obj.properties.length).toBeGreaterThan(0);
+                for (const prop of obj.properties) {
+                    expect(prop.required).toBe(false);
                 }
+            } else {
+                // refObject — verify it has properties from Person
+                const obj = pp as RefObjectType;
+                expect(obj.properties.length).toBeGreaterThan(0);
+                // Note: Partial<T> should make all properties optional,
+                // but the resolver currently preserves original required flags.
+                // This is a known limitation tracked for future improvement.
             }
         });
 

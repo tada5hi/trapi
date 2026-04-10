@@ -180,27 +180,27 @@ describe('edge cases and spec compliance', () => {
     });
 
     describe('response status codes', () => {
-        it('V2: all response codes should be strings', () => {
+        it('V2: all response codes should be valid HTTP status codes or default', () => {
             for (const pathKey of Object.keys(specV2.paths)) {
                 const pathItem = specV2.paths[pathKey];
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
                     if (!op) continue;
                     for (const code of Object.keys(op.responses)) {
-                        expect(typeof code).toBe('string');
+                        expect(code).toMatch(/^(default|\d{3})$/);
                     }
                 }
             }
         });
 
-        it('V3: all response codes should be strings', () => {
+        it('V3: all response codes should be valid HTTP status codes or default', () => {
             for (const pathKey of Object.keys(specV3.paths)) {
                 const pathItem = specV3.paths[pathKey];
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
                     if (!op) continue;
                     for (const code of Object.keys(op.responses)) {
-                        expect(typeof code).toBe('string');
+                        expect(code).toMatch(/^(default|\d{3})$/);
                     }
                 }
             }
@@ -210,14 +210,12 @@ describe('edge cases and spec compliance', () => {
     describe('V3 empty examples', () => {
         it('should not include empty examples objects in response content', () => {
             const response = specV3.paths['/edge/optional'].get!.responses['200'];
-            if (response.content) {
-                const jsonContent = response.content['application/json'];
-                if (jsonContent) {
-                    // examples should either be absent or non-empty
-                    if (jsonContent.examples) {
-                        expect(Object.keys(jsonContent.examples).length).toBeGreaterThan(0);
-                    }
-                }
+            expect(response.content, 'response should have content').toBeDefined();
+            const jsonContent = response.content!['application/json'];
+            expect(jsonContent, 'response should have application/json content').toBeDefined();
+            // examples should either be absent or non-empty
+            if (jsonContent!.examples) {
+                expect(Object.keys(jsonContent!.examples).length).toBeGreaterThan(0);
             }
         });
     });

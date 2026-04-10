@@ -151,7 +151,6 @@ export function createRefAlias(
         type,
         deprecated: false,
         validators: {},
-        required: false,
         ...overrides,
     } as RefAliasType;
 }

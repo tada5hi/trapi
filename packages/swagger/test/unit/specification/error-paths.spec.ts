@@ -149,7 +149,7 @@ describe('error paths', () => {
                         createMethod({
                             name: 'getCookie',
                             method: 'get',
-                            path: '',
+                            path: '{id}',
                             parameters: [
                                 createParameter({
                                     name: 'id',
@@ -177,7 +177,7 @@ describe('error paths', () => {
                 },
             });
 
-            const params = spec.paths['/cookie'].get!.parameters!;
+            const params = spec.paths['/cookie/{id}'].get!.parameters!;
             const paramNames = params.map((p: any) => p.name);
             expect(paramNames).toContain('id');
             expect(paramNames).not.toContain('session');

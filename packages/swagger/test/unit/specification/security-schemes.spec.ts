@@ -27,7 +27,7 @@ describe('security schemes', () => {
     const securityDefinitions: SecurityDefinitions = {
         bearerAuth: {
             type: 'http',
-            schema: 'basic',
+            scheme: 'basic',
         },
         apiKey: {
             type: 'apiKey',
@@ -204,7 +204,7 @@ describe('security schemes', () => {
             const scheme = specV3.components.securitySchemes!.bearerAuth as any;
             expect(scheme).toBeDefined();
             expect(scheme.type).toEqual('http');
-            expect(scheme.schema).toEqual('basic');
+            expect(scheme.scheme).toEqual('basic');
         });
 
         it('should pass through API key security', () => {

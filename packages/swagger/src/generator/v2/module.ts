@@ -109,7 +109,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
             switch (securityDefinition.type) {
                 case 'http':
-                    if (securityDefinition.schema === 'basic') {
+                    if (securityDefinition.scheme === 'basic') {
                         definitions[key] = { type: 'basic' };
                     }
                     break;
@@ -407,7 +407,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             input.type.typeName === TypeName.FILE
         ) {
             parameter.type = 'file' as `${DataTypeName}`;
-            merge(parameter, this.transformValidators(input.validators));
+            Object.assign(parameter, this.transformValidators(input.validators));
             return parameter;
         }
 
@@ -448,7 +448,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         // todo: this is eventually illegal
-        merge(parameter, this.transformValidators(input.validators));
+        Object.assign(parameter, this.transformValidators(input.validators));
 
         if (input.type.typeName === TypeName.ANY) {
             parameter.type = DataTypeName.STRING;

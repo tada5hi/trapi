@@ -13,7 +13,7 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import process from 'node:process';
-import type { Metadata } from '../../../src';
+import type { Controller, Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('parameter metadata extraction', () => {

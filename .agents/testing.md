@@ -52,7 +52,9 @@ packages/metadata/test/
 │   │   ├── controller.spec.ts     # Controller-level metadata (tags, paths, methods, JSDoc)
 │   │   ├── parameters.spec.ts     # Parameter extraction (query, body, form, path, defaults)
 │   │   ├── responses.spec.ts      # Response descriptions, examples, produces
-│   │   └── security.spec.ts       # Security scheme extraction and inheritance
+│   │   ├── security.spec.ts       # Security scheme extraction and inheritance
+│   │   ├── complex-types.spec.ts  # Circular refs, generics, intersections, nullable, Record
+│   │   └── error-paths.spec.ts    # Invalid inputs, empty metadata, edge cases
 │   ├── resolver/
 │   └── utils/
 └── data/         # Test fixtures (controller files with decorators)

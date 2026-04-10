@@ -255,7 +255,7 @@ describe('src/cache', () => {
             // The circular ref should be stripped during serialization
             const output = await cache.get(0);
             expect(output).toBeDefined();
-            expect(output!.self).toBeUndefined();
+            expect((output as any).self).toBeUndefined();
         });
     });
 });

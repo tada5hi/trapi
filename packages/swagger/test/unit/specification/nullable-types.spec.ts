@@ -34,7 +34,7 @@ import {
  * - V3 (3.0.x): uses nullable: true
  * - V3 (3.1.x): uses type arrays ["string", "null"]
  *
- * trapi currently targets 3.1.0 but uses the 3.0.x nullable pattern.
+ * trapi targets 3.0.0 and uses the 3.0.x nullable pattern.
  */
 describe('nullable types', () => {
     let specV2: SpecV2;

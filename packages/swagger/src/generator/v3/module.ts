@@ -65,7 +65,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         let spec: SpecV3 = {
             components: this.buildComponents(),
             info: this.buildInfo(),
-            openapi: '3.1.0',
+            openapi: '3.0.0',
             paths: this.buildPaths(),
             servers: this.buildServers(),
             tags: [],

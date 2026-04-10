@@ -631,9 +631,18 @@ export class TypeNodeResolver extends ResolverBase {
         const refName = TypeNodeResolver.getRefTypeName(name, utilityType);
 
         if (declaration.type.kind === ts.SyntaxKind.TypeReference) {
-            const referenceType = this.getReferenceType(declaration.type as ts.TypeReferenceNode);
-            if (referenceType.refName === refName) {
-                return referenceType;
+            const innerRef = declaration.type as ts.TypeReferenceNode;
+            // Record<K,V> should not go through getReferenceType because its
+            // first type argument is a key type (string/number), not a model reference.
+            // resolveNestedType handles it correctly via resolveTypeReference.
+            const isRecord = ts.isIdentifier(innerRef.typeName) &&
+                innerRef.typeName.text === UtilityTypeName.RECORD;
+
+            if (!isRecord) {
+                const referenceType = this.getReferenceType(innerRef);
+                if (referenceType.refName === refName) {
+                    return referenceType;
+                }
             }
         }
 

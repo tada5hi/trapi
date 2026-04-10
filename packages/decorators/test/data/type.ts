@@ -147,3 +147,63 @@ export class NamedEntity implements Entity {
 
     public name: string;
 }
+
+// --- Circular reference types ---
+
+export interface TreeNode {
+    value: string;
+    children: TreeNode[];
+}
+
+export interface TypeA {
+    name: string;
+    b?: TypeB;
+}
+
+export interface TypeB {
+    value: number;
+    a?: TypeA;
+}
+
+// --- Complex composition types ---
+
+export type PartialPerson = Partial<Person>;
+
+export type PickAddress = Pick<Address, 'street'>;
+
+export type RecordOfStrings = Record<string, string>;
+
+export interface GenericWrapper<T> {
+    data: T;
+    meta: {
+        count: number;
+    };
+}
+
+export type NestedGeneric = GenericWrapper<GenericWrapper<string>>;
+
+export interface Timestamped {
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type TimestampedPerson = Person & Timestamped;
+
+// --- Nullable types ---
+
+export type NullableString = string | null;
+
+export interface ModelWithNullable {
+    name: string;
+    nickname: string | null;
+    age?: number;
+}
+
+// --- Deprecated model ---
+
+/**
+ * @deprecated Use NewModel instead
+ */
+export interface DeprecatedModel {
+    oldField: string;
+}

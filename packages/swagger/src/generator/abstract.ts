@@ -250,10 +250,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         return {
             ...(swaggerType as Schema),
-            default: referenceType.default || swaggerType.default,
-            example: referenceType.example,
-            format: format || swaggerType.format,
-            description: referenceType.description,
+            default: referenceType.default ?? swaggerType.default,
+            example: referenceType.example ?? swaggerType.example,
+            format: format ?? swaggerType.format,
+            description: referenceType.description ?? swaggerType.description,
             ...this.transformValidators(referenceType.validators),
         };
     }

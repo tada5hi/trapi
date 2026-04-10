@@ -260,10 +260,12 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected buildSchemaForRefEnum(referenceType: RefEnumType): Schema {
         const output = {
+            ...this.getSchemaForEnumType({
+                typeName: TypeName.ENUM,
+                members: referenceType.members,
+            }),
             description: referenceType.description,
-            enum: referenceType.members,
-            type: this.decideEnumType(referenceType.members),
-        } as unknown as Schema;
+        } as Schema;
 
         if (
             typeof referenceType.memberNames !== 'undefined' &&

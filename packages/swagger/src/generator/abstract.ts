@@ -369,7 +369,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             (output as any).additionalProperties = this.resolveAdditionalProperties(referenceType.additionalProperties);
         }
 
-        if (referenceType.example) {
+        if (referenceType.example !== undefined) {
             output.example = referenceType.example;
         }
 

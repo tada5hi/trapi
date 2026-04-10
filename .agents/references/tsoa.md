@@ -46,6 +46,45 @@ Key difference: tsoa uses `_charCode_` encoding for remaining special chars, TRA
 
 tsoa has `CheckExpressionUnicity()` — throws if different type expressions map to the same reference name. TRAPI does not currently have this check (potential future improvement).
 
+## Test Structure
+
+tsoa has comprehensive tests in `/tests/`:
+
+| Directory | What |
+|-----------|------|
+| `tests/unit/swagger/` | ~25 spec test files (definitions, schema details v2/v3/v3.1, routes per HTTP method, security, params, config) |
+| `tests/unit/swagger/definitionsGeneration/` | Schema definition generation (largest suite, 1000+ lines) |
+| `tests/unit/metadataGeneration/` | Metadata extraction from controllers |
+| `tests/fixtures/` | 109 test files: 60+ controllers, `testModel.ts` with 100+ properties |
+| `tests/unit/utilities/` | Helper functions: `verifyPath`, `verifyParameter` |
+
+### Key test files for reference
+- `definitions.spec.ts` — Most comprehensive: all type constructs, generics, unions, intersections, utility types, discriminated unions
+- `schemaDetails.spec.ts` / `schemaDetails3.spec.ts` / `schemaDetails31.spec.ts` — Version-specific schema validation
+- `complexTypeResolution.spec.ts` — Advanced type handling (Zod, generics, mapped types)
+- `getRoutes.spec.ts` — Parameter and response testing (also postRoutes, putRoutes, etc.)
+- `securityRoutes.spec.ts` — Security scheme and scope handling
+
+### Test patterns
+- Property-by-property assertions (not snapshots)
+- Multiple config variations tested against same specs (`specDefault`, `specWithNoImplicitExtras`, etc.)
+- Metadata-first approach: generate metadata → generate spec → assert on spec
+- Error testing: try/catch with `expect(err.message).to.match(...)` 
+- Utility functions for reusable assertions (`VerifyPath`, `VerifyPathableParameter`)
+- No external OpenAPI validator — structural compliance checks only
+
+### tsoa test scenarios TRAPI doesn't cover yet
+- Discriminated unions with `oneOf` + `discriminator`
+- Zod type inference (`z.infer<Schema>`)
+- Getter properties in classes
+- Template literal types
+- `noImplicitAdditionalProperties` config variations
+- Duplicate route path detection (error case)
+- Response headers (class-based and object-based)
+- Renamed/aliased imports
+- Sub-resource routes
+- ~12 invalid controller fixtures for error path testing
+
 ## Areas to Watch
 
 When tsoa updates, review for:

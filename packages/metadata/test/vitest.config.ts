@@ -12,7 +12,7 @@ export default defineConfig({
                 'src/decorator/mapper/maps/**/*',
                 'src/decorator/utils/validator.ts',
                 'src/resolver/**/*.ts',
-                'src/utils/validator.ts',
+                'src/utils/validator/**/*',
             ],
             thresholds: {
                 branches: 58,

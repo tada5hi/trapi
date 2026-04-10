@@ -79,7 +79,7 @@ export interface Example {
 // ------------------------------------------------------
 
 export interface BaseSchema<T> {
-    type?: `${DataTypeName}`;
+    type?: `${DataTypeName}` | Array<`${DataTypeName}` | 'null'>;
     format?: `${DataFormatName}`;
     title?: string;
     description?: string;

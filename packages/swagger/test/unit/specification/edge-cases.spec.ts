@@ -225,8 +225,8 @@ describe('edge cases and spec compliance', () => {
             expect(specV2.swagger).toEqual('2.0');
         });
 
-        it('V3: should have openapi version 3.1.0', () => {
-            expect(specV3.openapi).toEqual('3.1.0');
+        it('V3: should have openapi version 3.0.0', () => {
+            expect(specV3.openapi).toEqual('3.0.0');
         });
 
         it('V2: should have info object with title and version', () => {

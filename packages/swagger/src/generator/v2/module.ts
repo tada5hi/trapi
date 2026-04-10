@@ -406,7 +406,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         if (input.type.typeName === TypeName.ANY) {
             parameter.type = DataTypeName.STRING;
-        } else if (parameterType.type) {
+        } else if (parameterType.type && !Array.isArray(parameterType.type)) {
             parameter.type = parameterType.type;
         }
 

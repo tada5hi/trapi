@@ -62,7 +62,11 @@ packages/metadata/test/
 packages/swagger/test/
 ├── vitest.config.ts
 ├── helpers/
-│   └── metadata-builder.ts  # Typed factory functions for inline metadata fixtures
+│   ├── metadata-builder.ts  # Typed factory functions for inline metadata fixtures
+│   └── schema-validator.ts  # OAI JSON Schema validation (ajv-draft-04)
+├── schemas/
+│   ├── v2.0-schema.json     # Official OAI Swagger 2.0 JSON Schema
+│   └── v3.0-schema.json     # Official OAI OpenAPI 3.0 JSON Schema
 ├── unit/
 │   ├── specification/  # Endpoint specification tests
 │   └── utils/
@@ -93,3 +97,5 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `additional-properties.spec.ts` | V2 boolean vs V3 typed schema |
 | `edge-cases.spec.ts` | Empty required arrays, void responses, spec structure |
 | `error-paths.spec.ts` | Duplicate body params, body+form conflict, cookie filtering, hidden methods |
+| `schema-validation.spec.ts` | V2/V3 output validated against official OAI JSON Schemas |
+| `config-variations.spec.ts` | specificationExtra merging, collectionFormat, info defaults |

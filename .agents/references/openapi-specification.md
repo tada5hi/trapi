@@ -53,32 +53,38 @@ Key differences from 3.0:
 - `contentMediaType` / `contentEncoding` for binary content
 - `webhooks` top-level field
 
+### V3.2
+
+- Spec document: `versions/3.2.0.md` (https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.2.0.md)
+
+Key differences from 3.1:
+- Incremental update building on 3.1 JSON Schema alignment
+- TRAPI does not target 3.2 yet
+
 ## TRAPI Mapping
 
-| OpenAPI Concept | TRAPI Abstract Base | TRAPI V2 Override | TRAPI V3 Override |
-|----------------|--------------------|--------------------|-------------------|
-| `$ref` prefix | `getRefPrefix()` | `#/definitions/` | `#/components/schemas/` |
-| `$ref` isolation | `buildProperties` early return | — | — |
-| Nullable | `applyNullable()` | `x-nullable` | `nullable` |
-| Deprecated props | `markPropertyDeprecated()` | `x-deprecated` | `deprecated` |
-| Property defaults | `assignPropertyDefaults()` | no-op | sets `default` |
-| Additional props | `resolveAdditionalProperties()` | `true` (boolean) | resolves type schema |
-| File upload | — | `in: formData, type: file` | `requestBody` + `multipart/form-data` |
-| Security | — | `securityDefinitions` | `components.securitySchemes` |
-| Composition | — | flattened (no `allOf`) | `allOf` / `oneOf` |
-| Enums (single-type) | `buildSchemaForRefEnum` | — | — |
-| Enums (multi-type) | — | falls back to `string` | `anyOf` with per-type sub-schemas |
+| OpenAPI Concept | TRAPI V2 Generator | TRAPI V3 Generator |
+|----------------|--------------------|--------------------|
+| `$ref` prefix | `#/definitions/` | `#/components/schemas/` |
+| `$ref` isolation | `buildProperties` early return | `buildProperties` early return |
+| Nullable types | `x-nullable: true` | `nullable: true` |
+| Deprecated props | `x-deprecated: true` | `deprecated: true` |
+| Additional props | `additionalProperties: true` | `additionalProperties: { type }` |
+| File upload | `in: formData, type: file` | `requestBody` + `multipart/form-data` |
+| Security | `securityDefinitions` | `components.securitySchemes` |
+| Composition | flattened (no `allOf`) | `allOf` / `oneOf` |
+| Enums (single-type) | `enum` array | `enum` array |
+| Enums (multi-type) | falls back to `string` | `anyOf` with per-type sub-schemas |
 
-## Test Validation Strategy
+## Test Validation
 
-Use the OAI JSON Schemas to validate generated specs against the official standard:
-- V2 output → validate against `_archive_/schemas/v2.0/schema.json`
-- V3 output → validate against `_archive_/schemas/v3.0/schema.json` (or `v3.1/schema.json` once 3.1 is properly targeted)
+Vendored OAI JSON Schemas in `packages/swagger/test/schemas/`:
+- `v2.0-schema.json` — validates V2 output against the official Swagger 2.0 schema
+- `v3.0-schema.json` — validates V3 output against the official OpenAPI 3.0 schema
 
-This allows us to catch spec violations that unit tests might miss (e.g., invalid property combinations, wrong types).
+The `schema-validator.ts` helper uses `ajv-draft-04` (both schemas use JSON Schema draft-04).
 
 ## Known Gaps
 
-- TRAPI outputs `openapi: '3.1.0'` but uses 3.0.x patterns (no type arrays, no `$ref` siblings) — tracked in Plan #012 gap #3
 - No `discriminator` support yet (planned in Plan #005)
-- V2 `additionalProperties: true` loses type information (design choice, documented in `resolveAdditionalProperties`)
+- V2 `additionalProperties: true` loses type information (design choice)

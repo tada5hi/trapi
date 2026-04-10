@@ -48,6 +48,7 @@ import { SwaggerError, SwaggerErrorCode } from '../error';
 import type { Options, OptionsInput } from '../config';
 import type { DocumentFormat } from '../constants';
 import { DataFormatName, DataTypeName } from '../schema';
+import { transformValueTo } from '../utils';
 
 import type { DocumentFormatData } from '../types';
 import type {
@@ -164,7 +165,21 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected abstract getSchemaForIntersectionType(type: IntersectionType): Schema;
 
-    protected abstract getSchemaForEnumType(enumType: EnumType): Schema;
+    protected getSchemaForEnumType(enumType: EnumType): Schema {
+        const type = this.decideEnumType(enumType.members);
+        const nullable = !!enumType.members.includes(null);
+
+        const schema = {
+            type,
+            enum: enumType.members.map((member) => transformValueTo(type, member)),
+        } as Schema;
+
+        this.applyNullable(schema, nullable);
+
+        return schema;
+    }
+
+    protected abstract applyNullable(schema: Schema, nullable: boolean): void;
 
     private getSchemaForPrimitiveType(type: PrimitiveType): BaseSchema<Schema> {
         const PrimitiveSwaggerTypeMap: Partial<Record<TypeName, BaseSchema<Schema>>> = {
@@ -219,17 +234,46 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         } as BaseSchema<Schema>;
     }
 
-    protected abstract getSchemaForReferenceType(referenceType: ReferenceType): Schema;
+    protected getSchemaForReferenceType(referenceType: ReferenceType): Schema {
+        return { $ref: `${this.getRefPrefix()}${referenceType.refName}` } as Schema;
+    }
+
+    protected abstract getRefPrefix(): string;
 
     protected abstract getSchemaForUnionType(type: UnionType) : Schema;
 
     // ----------------------------------------------------------------
 
-    protected abstract buildSchemaForRefAlias(referenceType: RefAliasType) : Schema;
+    protected buildSchemaForRefAlias(referenceType: RefAliasType): Schema {
+        const swaggerType = this.getSchemaForType(referenceType.type);
+        const format = referenceType.format as DataFormatName;
 
-    protected abstract buildSchemaForRefEnum(referenceType: RefEnumType) : Schema;
+        return {
+            ...(swaggerType as Schema),
+            default: referenceType.default || swaggerType.default,
+            example: referenceType.example,
+            format: format || swaggerType.format,
+            description: referenceType.description,
+            ...this.transformValidators(referenceType.validators),
+        };
+    }
 
-    protected abstract buildSchemaForRefObject(referenceType: RefObjectType) : Schema;
+    protected buildSchemaForRefEnum(referenceType: RefEnumType): Schema {
+        const output = {
+            description: referenceType.description,
+            enum: referenceType.members,
+            type: this.decideEnumType(referenceType.members),
+        } as unknown as Schema;
+
+        if (
+            typeof referenceType.memberNames !== 'undefined' &&
+            referenceType.members.length === referenceType.memberNames.length
+        ) {
+            (output as any)['x-enum-varnames'] = referenceType.memberNames;
+        }
+
+        return output;
+    }
 
     protected buildSchemasForReferenceTypes(extendFn?: (output: Schema, input: ReferenceType) => void) : Record<string, Schema> {
         const output: Record<string, Schema> = {};
@@ -268,7 +312,69 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             (isUnionType(input.type) && input.type.members.some((el) => isUndefinedType(el)));
     }
 
-    protected abstract buildProperties(properties: ResolverProperty[]): Record<string, Schema>;
+    protected buildProperties(properties: ResolverProperty[]): Record<string, Schema> {
+        const output: Record<string, Schema> = {};
+
+        properties.forEach((property) => {
+            const swaggerType = this.getSchemaForType(property.type) as Schema;
+
+            if (swaggerType.$ref) {
+                output[property.name] = { $ref: swaggerType.$ref } as Schema;
+                return;
+            }
+
+            swaggerType.description = property.description;
+            swaggerType.example = property.example;
+            swaggerType.format = property.format as DataFormatName || swaggerType.format;
+            this.assignPropertyDefaults(swaggerType, property);
+
+            if (property.deprecated) {
+                this.markPropertyDeprecated(swaggerType);
+            }
+
+            const extensions = this.transformExtensions(property.extensions);
+            const validators = this.transformValidators(property.validators);
+            output[property.name] = {
+                ...swaggerType,
+                ...validators,
+                ...extensions,
+            };
+        });
+
+        return output;
+    }
+
+    protected abstract markPropertyDeprecated(schema: Schema): void;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected assignPropertyDefaults(schema: Schema, property: ResolverProperty): void {
+        // No-op by default. V3 overrides to set schema.default = property.default.
+    }
+
+    protected buildSchemaForRefObject(referenceType: RefObjectType): Schema {
+        const required = referenceType.properties
+            .filter((p) => p.required && !this.isUndefinedProperty(p))
+            .map((p) => p.name);
+
+        const output = {
+            description: referenceType.description,
+            properties: this.buildProperties(referenceType.properties),
+            required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
+            type: DataTypeName.OBJECT,
+        } as unknown as Schema;
+
+        if (referenceType.additionalProperties) {
+            (output as any).additionalProperties = this.resolveAdditionalProperties(referenceType.additionalProperties);
+        }
+
+        if (referenceType.example) {
+            output.example = referenceType.example;
+        }
+
+        return output;
+    }
+
+    protected abstract resolveAdditionalProperties(type: BaseType): Schema | boolean;
 
     protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) : VariableType[] {
         const set = new Set<VariableType>();

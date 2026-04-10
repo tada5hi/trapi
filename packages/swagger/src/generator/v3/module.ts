@@ -6,14 +6,12 @@
  */
 
 import type {
+    BaseType,
     EnumType,
     IntersectionType,
     Method,
     Parameter,
-    RefAliasType,
     RefEnumType,
-    RefObjectType,
-    ReferenceType,
     ResolverProperty,
     Response,
     Type,
@@ -32,7 +30,6 @@ import {
 import { URL } from 'node:url';
 import { merge } from 'smob';
 import type {
-    DataFormatName,
     Example,
     HeaderV3,
     MediaTypeV3,
@@ -54,9 +51,8 @@ import type { SecurityDefinition, SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
 import {
     normalizePathParameters,
-    removeDuplicateSlashes, 
-    removeFinalCharacter, 
-    transformValueTo,
+    removeDuplicateSlashes,
+    removeFinalCharacter,
 } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
@@ -473,51 +469,28 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return servers;
     }
 
-    protected buildSchemaForRefObject(input: RefObjectType) : SchemaV3 {
-        const required = input.properties
-            .filter((p) => p.required && !this.isUndefinedProperty(p))
-            .map((p) => p.name);
-
-        const schema : SchemaV3 = {
-            description: input.description,
-            properties: this.buildProperties(input.properties),
-            required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-            type: 'object',
-        };
-
-        if (input.additionalProperties) {
-            schema.additionalProperties = this.getSchemaForType(input.additionalProperties);
-        }
-
-        if (input.example) {
-            schema.example = input.example;
-        }
-
-        return schema;
+    protected resolveAdditionalProperties(type: BaseType): SchemaV3 {
+        return this.getSchemaForType(type) as SchemaV3;
     }
 
-    protected buildSchemaForRefEnum(referenceType: RefEnumType) : SchemaV3 {
-        const type = this.decideEnumType(referenceType.members);
+    protected markPropertyDeprecated(schema: SchemaV3): void {
+        schema.deprecated = true;
+    }
+
+    protected override assignPropertyDefaults(schema: SchemaV3, property: ResolverProperty): void {
+        schema.default = property.default;
+    }
+
+    protected override buildSchemaForRefEnum(referenceType: RefEnumType): SchemaV3 {
         const typesUsed = this.determineTypesUsedInEnum(referenceType.members);
 
+        // Single-type enums use the shared base implementation
         if (typesUsed.length === 1) {
-            const schema: SchemaV3 = {
-                description: referenceType.description,
-                enum: referenceType.members,
-                type,
-            };
-
-            if (
-                typeof referenceType.memberNames !== 'undefined' &&
-                referenceType.members.length === referenceType.memberNames.length
-            ) {
-                schema['x-enum-varnames'] = referenceType.memberNames;
-            }
-
-            return schema;
+            return super.buildSchemaForRefEnum(referenceType) as SchemaV3;
         }
 
-        const schema : SchemaV3 = {
+        // Multi-type enums use anyOf with per-type sub-schemas (V3 only)
+        const schema: SchemaV3 = {
             description: referenceType.description,
             anyOf: [],
         };
@@ -525,7 +498,6 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (const element of typesUsed) {
             schema.anyOf.push({
                 type: element as `${DataTypeName}`,
-                 
                 enum: referenceType.members.filter((e) => typeof e === element),
             });
         }
@@ -533,69 +505,16 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return schema;
     }
 
-    protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV3 {
-        const swaggerType = this.getSchemaForType(referenceType.type);
-        const format = referenceType.format as DataFormatName;
-
-        return {
-            ...(swaggerType as SchemaV3),
-            default: referenceType.default || swaggerType.default,
-            example: referenceType.example,
-            format: format || swaggerType.format,
-            description: referenceType.description,
-            ...this.transformValidators(referenceType.validators),
-        };
-    }
-
-    protected buildProperties(properties: ResolverProperty[]): Record<string, SchemaV3> {
-        const output: Record<string, SchemaV3> = {};
-
-        properties.forEach((property) => {
-            const swaggerType = this.getSchemaForType(property.type) as SchemaV3;
-
-            if (swaggerType.$ref) {
-                output[property.name] = { $ref: swaggerType.$ref };
-                return;
-            }
-
-            swaggerType.description = property.description;
-            swaggerType.example = property.example;
-            swaggerType.format = property.format as DataFormatName || swaggerType.format;
-            swaggerType.default = property.default;
-
-            if (property.deprecated) {
-                swaggerType.deprecated = true;
-            }
-
-            const extensions = this.transformExtensions(property.extensions);
-            const validators = this.transformValidators(property.validators);
-            output[property.name] = {
-                ...swaggerType,
-                ...validators,
-                ...extensions,
-            };
-        });
-
-        return output;
-    }
-
     protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV3 {
         return { allOf: type.members.map((x: Type) => this.getSchemaForType(x)) };
     }
 
-    protected getSchemaForEnumType(enumType: EnumType): SchemaV3 {
-        const type = this.decideEnumType(enumType.members);
-        const nullable = !!enumType.members.includes(null);
-
-        return {
-            type,
-            enum: enumType.members.map((member) => transformValueTo(type, member)),
-            nullable,
-        };
+    protected applyNullable(schema: SchemaV3, nullable: boolean): void {
+        schema.nullable = nullable;
     }
 
-    protected getSchemaForReferenceType(referenceType: ReferenceType): SchemaV3 {
-        return { $ref: `#/components/schemas/${referenceType.refName}` };
+    protected getRefPrefix(): string {
+        return '#/components/schemas/';
     }
 
     protected getSchemaForUnionType(type: UnionType) : SchemaV3 {

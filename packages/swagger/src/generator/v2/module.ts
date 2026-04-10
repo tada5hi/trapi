@@ -6,15 +6,12 @@
  */
 
 import type {
+    BaseType,
     EnumType,
     IntersectionType,
     Method,
     Parameter,
-    RefAliasType,
-    RefEnumType,
     RefObjectType,
-    ReferenceType,
-    ResolverProperty,
     Response,
     Type,
     UnionType,
@@ -36,8 +33,6 @@ import { merge } from 'smob';
 
 import type {
     BaseSchema,
-    DataFormatName,
-    Example,
     OperationV2,
     ParameterV2,
     Path,
@@ -49,7 +44,7 @@ import type {
 import { DataTypeName, ParameterSourceV2 } from '../../schema';
 import type { SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
-import { normalizePathParameters, transformValueTo } from '../../utils';
+import { normalizePathParameters } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
@@ -161,56 +156,15 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return definitions;
     }
 
-    protected buildSchemaForRefObject(referenceType: RefObjectType) : SchemaV2 {
-        const required = referenceType.properties
-            .filter((p: ResolverProperty) => p.required && !this.isUndefinedProperty(p))
-            .map((p: ResolverProperty) => p.name);
-
-        const output : SchemaV2 = {
-            description: referenceType.description,
-            properties: this.buildProperties(referenceType.properties),
-            required: required && required.length > 0 ? Array.from(new Set(required)) : undefined,
-            type: DataTypeName.OBJECT,
-        };
-
-        if (referenceType.additionalProperties) {
-            output.additionalProperties = true;
-        }
-
-        if (referenceType.example) {
-            output.example = referenceType.example;
-        }
-
-        return output;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected resolveAdditionalProperties(type: BaseType): SchemaV2 | boolean {
+        return true;
     }
 
-    protected buildSchemaForRefEnum(referenceType: RefEnumType) : SchemaV2 {
-        const output : SchemaV2 = {
-            description: referenceType.description,
-            enum: referenceType.members,
-            type: this.decideEnumType(referenceType.members),
-        };
-
-        if (referenceType.memberNames !== undefined && referenceType.members.length === referenceType.memberNames.length) {
-            output['x-enum-varnames'] = referenceType.memberNames;
-        }
-
-        return output;
+    protected markPropertyDeprecated(schema: SchemaV2): void {
+        schema['x-deprecated'] = true;
     }
 
-    protected buildSchemaForRefAlias(referenceType: RefAliasType) : SchemaV2 {
-        const swaggerType = this.getSchemaForType(referenceType.type);
-        const format = referenceType.format as DataFormatName;
-
-        return {
-            ...(swaggerType as SchemaV2),
-            default: referenceType.default || swaggerType.default,
-            example: referenceType.example as { [p: string]: Example },
-            format: format || swaggerType.format,
-            description: referenceType.description,
-            ...this.transformValidators(referenceType.validators),
-        };
-    }
 
     /*
         Path & Parameter ( + utils)
@@ -509,15 +463,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         Swagger Type ( + utils)
      */
 
-    protected getSchemaForEnumType(enumType: EnumType) : SchemaV2 {
-        const type = this.decideEnumType(enumType.members);
-        const nullable = !!enumType.members.includes(null);
+    protected applyNullable(schema: SchemaV2, nullable: boolean): void {
+        schema['x-nullable'] = nullable;
+    }
 
-        return {
-            type,
-            enum: enumType.members.map((member) => transformValueTo(type, member)),
-            'x-nullable': nullable,
-        };
+    protected getRefPrefix(): string {
+        return '#/definitions/';
     }
 
     protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV2 {
@@ -540,9 +491,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return { type: DataTypeName.OBJECT, properties };
     }
 
-    protected getSchemaForReferenceType(referenceType: ReferenceType): SchemaV2 {
-        return { $ref: `#/definitions/${referenceType.refName}` };
-    }
 
     protected getSchemaForUnionType(type: UnionType) : SchemaV2 {
         const members : Type[] = [];
@@ -588,37 +536,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         return { type: DataTypeName.OBJECT, ...(isNullEnum ? { 'x-nullable': true } : {}) };
-    }
-
-    protected buildProperties(properties: ResolverProperty[]) : Record<string, SchemaV2> {
-        const output: Record<string, SchemaV2> = {};
-
-        properties.forEach((property) => {
-            const swaggerType = this.getSchemaForType(property.type);
-
-            if (swaggerType.$ref) {
-                output[property.name] = { $ref: swaggerType.$ref };
-                return;
-            }
-
-            swaggerType.description = property.description;
-            swaggerType.example = property.example;
-            swaggerType.format = property.format as DataFormatName || swaggerType.format;
-
-            if (property.deprecated) {
-                swaggerType['x-deprecated'] = true;
-            }
-
-            const extensions = this.transformExtensions(property.extensions);
-            const validators = this.transformValidators(property.validators);
-            output[property.name] = {
-                ...swaggerType,
-                ...validators,
-                ...extensions,
-            };
-        });
-
-        return output;
     }
 
     private buildOperation(method: Method) {

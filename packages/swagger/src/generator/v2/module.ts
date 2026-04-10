@@ -49,7 +49,7 @@ import type {
 import { DataTypeName, ParameterSourceV2 } from '../../schema';
 import type { SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
-import { hasOwnProperty, normalizePathParameters, transformValueTo } from '../../utils';
+import { normalizePathParameters, transformValueTo } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
 
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
@@ -127,7 +127,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     }
 
                     if (securityDefinition.flows.password) {
-                        definitions[`${key}Implicit`] = {
+                        definitions[`${key}Password`] = {
                             type: 'oauth2',
                             flow: 'password',
                             tokenUrl: securityDefinition.flows.password.tokenUrl,
@@ -401,6 +401,16 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             };
         }
 
+        // Swagger 2.0: formData file parameters use type: 'file' directly
+        if (
+            parameter.in === ParameterSourceV2.FORM_DATA &&
+            input.type.typeName === TypeName.FILE
+        ) {
+            parameter.type = 'file' as `${DataTypeName}`;
+            merge(parameter, this.transformValidators(input.validators));
+            return parameter;
+        }
+
         const parameterType = this.getSchemaForType(input.type);
         if (
             parameter.in !== ParameterSourceV2.BODY &&
@@ -585,22 +595,18 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         properties.forEach((property) => {
             const swaggerType = this.getSchemaForType(property.type);
+
+            if (swaggerType.$ref) {
+                output[property.name] = { $ref: swaggerType.$ref };
+                return;
+            }
+
             swaggerType.description = property.description;
             swaggerType.example = property.example;
             swaggerType.format = property.format as DataFormatName || swaggerType.format;
 
-            if (!hasOwnProperty(swaggerType, '$ref') || !swaggerType.$ref) {
-                swaggerType.description = property.description;
-            }
-
             if (property.deprecated) {
                 swaggerType['x-deprecated'] = true;
-            }
-
-            if (property.extensions) {
-                for (let i = 0; i < property.extensions.length; i++) {
-                    swaggerType[property.extensions[i].key] = property.extensions[i].value;
-                }
             }
 
             const extensions = this.transformExtensions(property.extensions);

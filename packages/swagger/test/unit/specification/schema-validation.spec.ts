@@ -28,7 +28,7 @@ import {
     stringType,
     unionType,
 } from '../../helpers/metadata-builder';
-import { validateV2Spec, validateV3Spec } from '../../helpers/schema-validator';
+import { validateV2Spec, validateV31Spec, validateV3Spec } from '../../helpers/schema-validator';
 
 const servers = 'http://localhost:3000/';
 
@@ -287,6 +287,111 @@ describe('OAI schema validation', () => {
             const result = validateV3Spec(spec);
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
+        });
+    });
+
+    describe('V3.1 schema validation', () => {
+        it('V3.1: empty metadata should produce a valid spec', async () => {
+            const metadata = createMetadata([]);
+            const spec = await generate({
+                version: Version.V3_1,
+                options: {
+                    output: false, 
+                    servers, 
+                    metadata, 
+                },
+            });
+
+            expect(spec.openapi).toEqual('3.1.0');
+            const result = validateV31Spec(spec);
+            expect(result.errors, result.errors.join('\n')).toEqual([]);
+            expect(result.valid).toBe(true);
+        });
+
+        it('V3.1: CRUD controller should produce a valid spec', async () => {
+            const crudMetadata = createMetadata(
+                [
+                    createController({
+                        name: 'ItemController',
+                        path: 'items',
+                        methods: [
+                            createMethod({
+                                name: 'getItems',
+                                method: 'get',
+                                path: '',
+                                type: arrayType(refObjectType('Item')),
+                                responses: [createResponse({ status: '200', schema: arrayType(refObjectType('Item')) })],
+                            }),
+                            createMethod({
+                                name: 'createItem',
+                                method: 'post',
+                                path: '',
+                                parameters: [
+                                    createParameter({
+                                        name: 'body', 
+                                        in: 'body', 
+                                        type: refObjectType('Item'), 
+                                    }),
+                                ],
+                                type: refObjectType('Item'),
+                                responses: [createResponse({
+                                    status: '201', 
+                                    schema: refObjectType('Item'), 
+                                    description: 'Created', 
+                                })],
+                            }),
+                        ],
+                    }),
+                ],
+                {
+                    Item: createRefObject('Item', [
+                        createProperty({
+                            name: 'id', 
+                            type: stringType(), 
+                            required: true, 
+                        }),
+                        createProperty({
+                            name: 'name', 
+                            type: stringType(), 
+                            required: true, 
+                        }),
+                    ]),
+                },
+            );
+
+            const spec = await generate({
+                version: Version.V3_1,
+                options: {
+                    output: false, 
+                    servers, 
+                    metadata: crudMetadata, 
+                },
+            });
+
+            const result = validateV31Spec(spec);
+            expect(result.errors, result.errors.join('\n')).toEqual([]);
+            expect(result.valid).toBe(true);
+        });
+
+        it('V3.2: should produce valid spec with version 3.2.0', async () => {
+            const metadata = createMetadata([]);
+            const spec = await generate({
+                version: Version.V3_2,
+                options: {
+                    output: false, 
+                    servers, 
+                    metadata, 
+                },
+            });
+
+            expect(spec.openapi).toEqual('3.2.0');
+            // V3.2 schema not yet available from OAI; validate against 3.1 schema
+            // but filter out the version pattern mismatch (3.1 schema expects 3.1.x)
+            const result = validateV31Spec(spec);
+            const nonVersionErrors = result.errors.filter(
+                (e) => !e.includes('must match pattern'),
+            );
+            expect(nonVersionErrors, nonVersionErrors.join('\n')).toEqual([]);
         });
     });
 

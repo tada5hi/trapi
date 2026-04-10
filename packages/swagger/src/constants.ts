@@ -8,6 +8,8 @@
 export enum Version {
     V2 = 'v2',
     V3 = 'v3',
+    V3_1 = 'v3.1',
+    V3_2 = 'v3.2',
 }
 
 export enum DocumentFormat {

@@ -320,7 +320,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         properties.forEach((property) => {
             const swaggerType = this.getSchemaForType(property.type) as Schema;
 
-            if (swaggerType.$ref) {
+            if (swaggerType.$ref && this.shouldStripRefSiblings()) {
                 output[property.name] = { $ref: swaggerType.$ref } as Schema;
                 return;
             }
@@ -347,6 +347,12 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     }
 
     protected abstract markPropertyDeprecated(schema: Schema): void;
+
+    protected shouldStripRefSiblings(): boolean {
+        // V2 (Swagger 2.0) and V3 (3.0): $ref must be the only key.
+        // V3 (3.1+): $ref siblings are allowed. Override to return false.
+        return true;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected assignPropertyDefaults(schema: Schema, property: ResolverProperty): void {

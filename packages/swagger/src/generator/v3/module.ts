@@ -9,6 +9,7 @@ import type {
     BaseType,
     EnumType,
     IntersectionType,
+    Metadata,
     Method,
     Parameter,
     RefEnumType,
@@ -47,6 +48,7 @@ import {
     DataTypeName,
     ParameterSourceV3,
 } from '../../schema';
+import type { OptionsInput } from '../../config';
 import type { SecurityDefinition, SecurityDefinitions } from '../../types';
 import { SwaggerError, SwaggerErrorCode } from '../../error';
 import {
@@ -55,8 +57,26 @@ import {
     removeFinalCharacter,
 } from '../../utils';
 import { AbstractSpecGenerator } from '../abstract';
+import type { Version } from '../../constants';
+
+const OPENAPI_VERSION_MAP: Partial<Record<`${Version}`, string>> = {
+    v3: '3.0.0',
+    'v3.1': '3.1.0',
+    'v3.2': '3.2.0',
+};
 
 export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
+    private readonly openApiVersion: string;
+
+    constructor(
+        metadata: Metadata,
+        config: OptionsInput,
+        version: `${Version}` = 'v3.2',
+    ) {
+        super(metadata, config);
+        this.openApiVersion = OPENAPI_VERSION_MAP[version] || '3.2.0';
+    }
+
     async build() : Promise<SpecV3> {
         if (typeof this.spec !== 'undefined') {
             return this.spec;
@@ -65,7 +85,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         let spec: SpecV3 = {
             components: this.buildComponents(),
             info: this.buildInfo(),
-            openapi: '3.0.0',
+            openapi: this.openApiVersion,
             paths: this.buildPaths(),
             servers: this.buildServers(),
             tags: [],
@@ -505,12 +525,34 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return schema;
     }
 
+    private isV31OrLater(): boolean {
+        return !this.openApiVersion.startsWith('3.0');
+    }
+
+    protected override shouldStripRefSiblings(): boolean {
+        return !this.isV31OrLater();
+    }
+
     protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV3 {
         return { allOf: type.members.map((x: Type) => this.getSchemaForType(x)) };
     }
 
     protected applyNullable(schema: SchemaV3, nullable: boolean): void {
-        schema.nullable = nullable;
+        if (!nullable) {
+            return;
+        }
+
+        if (this.isV31OrLater()) {
+            // 3.1+: use type arrays instead of nullable keyword
+            if (schema.type && !Array.isArray(schema.type)) {
+                schema.type = [schema.type, 'null'];
+            } else if (Array.isArray(schema.type) && !schema.type.includes('null')) {
+                schema.type = [...schema.type, 'null'];
+            }
+        } else {
+            // 3.0: use nullable keyword
+            schema.nullable = true;
+        }
     }
 
     protected getRefPrefix(): string {
@@ -563,6 +605,20 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             schemas.push(this.getSchemaForEnumType(enumType));
         }
 
+        if (this.isV31OrLater()) {
+            // 3.1+: add { type: 'null' } to anyOf for nullable unions
+            if (nullable) {
+                schemas.push({ type: 'null' } as unknown as SchemaV3);
+            }
+
+            if (schemas.length === 1) {
+                return schemas[0];
+            }
+
+            return { anyOf: schemas };
+        }
+
+        // 3.0: use nullable keyword
         if (schemas.length === 1) {
             const schema = schemas[0];
 

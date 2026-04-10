@@ -37,8 +37,10 @@ export async function generate<V extends `${Version}`>(
     const metadata = await buildMetadata(context.options, context.tsConfig);
 
     switch (context.version) {
-        case Version.V3: {
-            const generator = new V3Generator(metadata, context.options);
+        case Version.V3:
+        case Version.V3_1:
+        case Version.V3_2: {
+            const generator = new V3Generator(metadata, context.options, context.version);
 
             return await generator.build() as OutputSpec<V>;
         }

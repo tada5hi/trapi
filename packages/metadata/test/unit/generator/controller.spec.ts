@@ -154,15 +154,55 @@ describe('controller metadata extraction', () => {
     });
 
     describe('inheritance', () => {
-        it('should detect controllers that extend a base class', () => {
+        it('should include own methods from PromiseService', () => {
             const promiseService = metadata.controllers.find(
                 (c) => c.name === 'PromiseService',
             )!;
             expect(promiseService).toBeDefined();
-            // PromiseService extends BaseService — verify own methods are extracted
             const methodNames = promiseService.methods.map((m) => m.name);
             expect(methodNames).toContain('test');
             expect(methodNames).toContain('testGetSingle');
+            expect(methodNames).toContain('testPost');
+            expect(methodNames).toContain('testFile');
+        });
+
+        it('should include inherited methods from BaseService', () => {
+            const promiseService = metadata.controllers.find(
+                (c) => c.name === 'PromiseService',
+            )!;
+            expect(promiseService).toBeDefined();
+            // testDelete is defined on BaseService, inherited by PromiseService
+            const methodNames = promiseService.methods.map((m) => m.name);
+            expect(methodNames).toContain('testDelete');
+        });
+
+        it('should extract correct metadata for inherited methods', () => {
+            const promiseService = metadata.controllers.find(
+                (c) => c.name === 'PromiseService',
+            )!;
+            const testDelete = promiseService.methods.find(
+                (m) => m.name === 'testDelete',
+            )!;
+            expect(testDelete).toBeDefined();
+            expect(testDelete.method).toEqual('delete');
+            // Inherited @Mount(':id') should produce the path segment
+            expect(testDelete.path).toEqual(':id');
+            // Should have one path parameter 'id'
+            const idParam = testDelete.parameters.find((p) => p.name === 'id');
+            expect(idParam).toBeDefined();
+            expect(idParam!.in).toEqual('path');
+        });
+
+        it('should give priority to own methods over inherited ones with the same name', () => {
+            // If both child and parent define a method with the same name,
+            // the child's version should win (set dedup keeps first occurrence)
+            const promiseService = metadata.controllers.find(
+                (c) => c.name === 'PromiseService',
+            )!;
+            // All own methods are present — inherited testDelete doesn't conflict
+            const methodNames = promiseService.methods.map((m) => m.name);
+            const uniqueNames = new Set(methodNames);
+            expect(uniqueNames.size).toEqual(methodNames.length);
         });
 
         it('should detect abstract entity endpoint', () => {

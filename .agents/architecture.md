@@ -66,7 +66,15 @@ SwaggerGenerator (abstract.ts)
 └── V3Generator   — OpenAPI 3.0 output
 ```
 
-The abstract generator handles shared logic (schema building, reference resolution, model definitions). Version-specific generators handle format differences (e.g., `requestBody` in v3 vs. `in: body` parameters in v2).
+The abstract generator handles shared logic: schema building, reference resolution, model definitions, property building, enum schemas, and ref alias/object schemas. Version-specific differences are handled via abstract hooks:
+
+- `getRefPrefix()` — `#/definitions/` (V2) vs `#/components/schemas/` (V3)
+- `applyNullable()` — `x-nullable` (V2) vs `nullable` (V3)
+- `markPropertyDeprecated()` — `x-deprecated` (V2) vs `deprecated` (V3)
+- `assignPropertyDefaults()` — no-op (V2) vs sets `default` (V3)
+- `resolveAdditionalProperties()` — `true` (V2) vs resolved type schema (V3)
+
+Version-specific generators handle structural format differences (e.g., `requestBody` in V3 vs `in: body` parameters in V2, `allOf` composition in V3 vs flattened properties in V2).
 
 ## Caching
 

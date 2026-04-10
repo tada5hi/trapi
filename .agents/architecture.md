@@ -21,12 +21,12 @@ The metadata generator modules:
 
 - **`generator/metadata/`** — Top-level orchestration: coordinates the full metadata extraction pipeline
 - **`generator/abstract.ts`** — Base generator class with shared logic
-- **`generator/controller/`** — Extracts controller-level metadata (routes, middleware)
+- **`generator/controller/`** — Extracts controller-level metadata (routes, middleware, inherited methods from base classes)
 - **`generator/method/`** — Extracts method-level metadata (HTTP verb, path, responses)
 - **`generator/parameter/`** — Extracts parameter metadata (body, query, path, etc.)
 - **`generator/type.ts`** — Resolves TypeScript types to metadata type nodes using the compiler's type checker
 
-Each generator level reads decorators and delegates to the next level down.
+Each generator level reads decorators and delegates to the next level down. The controller generator walks `heritageClauses` to include decorated methods from base classes, using the type checker to resolve import aliases. Inherited methods from generic base classes with unresolvable type parameters are skipped gracefully.
 
 ## Type Resolution
 

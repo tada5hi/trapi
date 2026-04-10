@@ -13,8 +13,9 @@ import {
     isMethodDeclaration,
 } from 'typescript';
 import { DecoratorID } from '../../decorator';
+import { isResolverError } from '../../resolver';
 import { GeneratorErrorCode } from '../constants';
-import { GeneratorError } from '../error';
+import { GeneratorError, isGeneratorError } from '../error';
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../method';
 import { MethodGenerator } from '../method';
@@ -108,9 +109,19 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
 
             try {
                 output.push(generator.generate(controllerPath));
-            } catch {
-                // Skip inherited methods that fail to generate (e.g., unresolved
-                // generic type parameters from generic base classes)
+            } catch (error: unknown) {
+                // Skip inherited methods that fail due to unresolvable generic
+                // type parameters (e.g., return type T or parameter type T from
+                // generic base classes). Rethrow everything else.
+                if (
+                    isResolverError(error) ||
+                    (isGeneratorError(error) &&
+                        error.code === GeneratorErrorCode.PARAMETER_GENERATION_FAILED)
+                ) {
+                    continue;
+                }
+
+                throw error;
             }
         }
 

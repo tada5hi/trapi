@@ -94,13 +94,22 @@ describe('complex type metadata extraction', () => {
             expect(method).toBeDefined();
             // Return type should be a reference to a resolved generic
             expect(method.type.typeName).toEqual('refObject');
+
+            // The resolved type should have 'data' and 'meta' properties
+            const { refName } = method.type as RefObjectType;
+            const resolved = metadata.referenceTypes[refName] as RefObjectType;
+            expect(resolved).toBeDefined();
+            const propNames = resolved.properties.map((p) => p.name);
+            expect(propNames).toContain('data');
+            expect(propNames).toContain('meta');
         });
 
         it('should resolve nested generic GenericWrapper<GenericWrapper<string>>', () => {
-            // NestedGeneric should be resolved as a reference type
             expect(metadata.referenceTypes).toHaveProperty('NestedGeneric');
             const nestedGeneric = metadata.referenceTypes.NestedGeneric;
             expect(nestedGeneric).toBeDefined();
+            // Should be a refAlias or refObject with resolved inner types
+            expect(['refAlias', 'refObject']).toContain(nestedGeneric.typeName);
         });
     });
 
@@ -121,6 +130,8 @@ describe('complex type metadata extraction', () => {
                 expect(propNames).toContain('name');
                 expect(propNames).toContain('createdAt');
                 expect(propNames).toContain('updatedAt');
+            } else {
+                expect.unreachable(`Unexpected TimestampedPerson type: ${tp.typeName}`);
             }
         });
     });

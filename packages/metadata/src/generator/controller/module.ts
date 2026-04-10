@@ -7,6 +7,7 @@
 
 import type { ClassDeclaration, Expression, MethodDeclaration } from 'typescript';
 import {
+    SymbolFlags,
     SyntaxKind,
     isClassDeclaration,
     isMethodDeclaration,
@@ -156,7 +157,7 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
         }
 
         // Follow import aliases to the original declaration
-        if (symbol.flags & 0x200000 /* SymbolFlags.Alias */) {
+        if (symbol.flags & SymbolFlags.Alias) {
             symbol = this.current.typeChecker.getAliasedSymbol(symbol);
         }
 

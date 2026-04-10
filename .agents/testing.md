@@ -63,10 +63,11 @@ packages/swagger/test/
 ├── vitest.config.ts
 ├── helpers/
 │   ├── metadata-builder.ts  # Typed factory functions for inline metadata fixtures
-│   └── schema-validator.ts  # OAI JSON Schema validation (ajv-draft-04)
+│   └── schema-validator.ts  # OAI JSON Schema validation (Draft-04 + 2020-12)
 ├── schemas/
 │   ├── v2.0-schema.json     # Official OAI Swagger 2.0 JSON Schema
-│   └── v3.0-schema.json     # Official OAI OpenAPI 3.0 JSON Schema
+│   ├── v3.0-schema.json     # Official OAI OpenAPI 3.0 JSON Schema
+│   └── v3.1-schema.json     # Official OAI OpenAPI 3.1 JSON Schema
 ├── unit/
 │   ├── specification/  # Endpoint specification tests
 │   └── utils/

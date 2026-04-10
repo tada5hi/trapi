@@ -43,6 +43,10 @@ NX caches build, lint, and test targets. Build dependencies (`^build`) ensure pa
 - See `.agents/plans/002-typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
 - The metadata package uses the TypeScript compiler API directly (`ts.createProgram`, type checker, AST traversal)
 
+## Imports
+
+- **Always use top-level imports** — never use inline `import()` type annotations (e.g., `param: import('foo').Bar`). Use a top-level `import type { Bar } from 'foo'` instead. The ESLint rule `@typescript-eslint/consistent-type-imports` enforces this.
+
 ## Interface vs Type
 
 Use `interface` **only** when it is implemented by a class. Prefix it with `I` (e.g., `IFoo` for `class Foo implements IFoo`). For all other type definitions (data shapes, options objects, unions, mapped types), use `type`.

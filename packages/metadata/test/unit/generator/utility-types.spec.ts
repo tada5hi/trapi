@@ -14,12 +14,11 @@ import {
 import path from 'node:path';
 import process from 'node:process';
 import type {
-    ArrayType,
     Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefObjectType,
-    UnionType,
+    TupleType,
 } from '../../../src';
 import { generateMetadata } from '../../../src';
 
@@ -127,26 +126,26 @@ describe('utility type metadata extraction', () => {
     });
 
     describe('Parameters', () => {
-        it('should resolve Parameters<typeof createFoo> (no-arg function) to array<any>', () => {
+        it('should resolve Parameters<typeof createFoo> (no-arg function) to empty tuple', () => {
             const method = getMethod('parameters');
             const alias = expectRefAlias(method, 'FooParams');
-            expect(alias.type.typeName).toEqual('array');
-            const arr = alias.type as ArrayType;
-            expect(arr.elementType.typeName).toEqual('any');
+            expect(alias.type.typeName).toEqual('tuple');
+            const tuple = alias.type as TupleType;
+            expect(tuple.elements).toHaveLength(0);
         });
     });
 
     describe('ConstructorParameters', () => {
-        it('should resolve ConstructorParameters<typeof FooFactory> to array<string | number>', () => {
+        it('should resolve ConstructorParameters<typeof FooFactory> to named tuple [name: string, count: number]', () => {
             const method = getMethod('constructorParameters');
             const alias = expectRefAlias(method, 'FooCtorParams');
-            expect(alias.type.typeName).toEqual('array');
-            const arr = alias.type as ArrayType;
-            expect(arr.elementType.typeName).toEqual('union');
-            const union = arr.elementType as UnionType;
-            expect(union.members).toHaveLength(2);
-            const memberTypes = union.members.map((m) => m.typeName).sort();
-            expect(memberTypes).toEqual(['double', 'string']);
+            expect(alias.type.typeName).toEqual('tuple');
+            const tuple = alias.type as TupleType;
+            expect(tuple.elements).toHaveLength(2);
+            expect(tuple.elements[0].name).toEqual('name');
+            expect(tuple.elements[0].type.typeName).toEqual('string');
+            expect(tuple.elements[1].name).toEqual('count');
+            expect(tuple.elements[1].type.typeName).toEqual('double');
         });
     });
 

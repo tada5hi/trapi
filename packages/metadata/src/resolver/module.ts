@@ -398,9 +398,9 @@ export class TypeNodeResolver extends ResolverBase {
 
         // typeToTypeNode returns undefined for some edge cases (e.g. empty
         // tuples from Parameters<> of a no-arg function). Fall back to an
-        // any-element array which is the closest OpenAPI representation.
+        // empty tuple type.
         if (!resolvedTypeNode) {
-            return { typeName: TypeName.ARRAY, elementType: { typeName: TypeName.ANY } };
+            return { typeName: TypeName.TUPLE, elements: [] };
         }
 
         return this.resolveNestedType(

@@ -144,6 +144,7 @@ describe('nullable types', () => {
         it('should handle nullable reference type with allOf wrapper', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.nullableRef;
             // V3 wraps nullable refs in allOf to avoid sibling properties next to $ref
+            expect(prop).not.toHaveProperty('$ref');
             expect(prop).toHaveProperty('allOf');
             expect(prop.allOf).toHaveLength(1);
             expect(prop.allOf[0].$ref).toEqual('#/components/schemas/InnerModel');

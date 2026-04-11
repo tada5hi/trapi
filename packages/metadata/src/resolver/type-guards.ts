@@ -32,6 +32,7 @@ import type {
     RefObjectType,
     ReferenceType,
     StringType,
+    TupleType,
     UndefinedType,
     UnionType,
     VoidType,
@@ -135,6 +136,10 @@ export function isIntersectionType(param: BaseType): param is IntersectionType {
 
 export function isUnionType(param: BaseType): param is UnionType {
     return param.typeName === TypeName.UNION;
+}
+
+export function isTupleType(param: BaseType): param is TupleType {
+    return param.typeName === TypeName.TUPLE;
 }
 
 // -------------------------------------------

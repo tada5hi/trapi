@@ -29,6 +29,7 @@ export type Type = PrimitiveType |
         NestedObjectLiteralType |
         UnionType |
         IntersectionType |
+        TupleType |
         VoidType;
 
 // -------------------------------------------
@@ -141,6 +142,16 @@ export interface IntersectionType extends BaseType {
 export interface UnionType extends BaseType {
     typeName: `${TypeName.UNION}`;
     members: Type[];
+}
+
+export type TupleElement = {
+    type: Type;
+    name?: string;
+};
+
+export interface TupleType extends BaseType {
+    typeName: `${TypeName.TUPLE}`;
+    elements: TupleElement[];
 }
 
 // -------------------------------------------

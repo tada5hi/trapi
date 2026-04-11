@@ -31,6 +31,7 @@ export enum TypeName {
     NESTED_OBJECT_LITERAL = 'nestedObjectLiteral',
     UNION = 'union',
     INTERSECTION = 'intersection',
+    TUPLE = 'tuple',
 }
 
 export enum UtilityTypeName {

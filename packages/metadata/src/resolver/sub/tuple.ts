@@ -7,11 +7,10 @@
 
 import * as ts from 'typescript';
 import { TypeName } from '../constants';
-import type { 
-    ArrayType, 
-    SubResolverContext, 
-    Type, 
-    UnionType, 
+import type {
+    SubResolverContext,
+    TupleType,
+    Type,
 } from '../types';
 
 export function resolveTupleType(
@@ -23,31 +22,16 @@ export function resolveTupleType(
     }
 
     const elements = typeNode.elements.map((element) => {
-        // Named tuple members (e.g. [name: string, count: number]) wrap the actual type
-        const actualType = ts.isNamedTupleMember(element) ? element.type : element;
-        return ctx.resolveType(actualType, ctx.parentNode, ctx.context);
+        const isNamed = ts.isNamedTupleMember(element);
+        const actualType = isNamed ? element.type : element;
+        return {
+            type: ctx.resolveType(actualType, ctx.parentNode, ctx.context),
+            ...(isNamed && { name: element.name.text }),
+        };
     });
 
-    if (elements.length === 0) {
-        return {
-            typeName: TypeName.ARRAY,
-            elementType: { typeName: TypeName.ANY },
-        } as ArrayType;
-    }
-
-    if (elements.length === 1) {
-        return {
-            typeName: TypeName.ARRAY,
-            elementType: elements[0],
-        } as ArrayType;
-    }
-
-    // Multiple element types → array with union element type
     return {
-        typeName: TypeName.ARRAY,
-        elementType: {
-            typeName: TypeName.UNION,
-            members: elements,
-        } as UnionType,
-    } as ArrayType;
+        typeName: TypeName.TUPLE,
+        elements,
+    } as TupleType;
 }

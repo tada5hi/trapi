@@ -19,6 +19,7 @@ import type {
     RefAliasType,
     RefObjectType,
     TupleType,
+    UnionType,
 } from '../../../src';
 import { generateMetadata } from '../../../src';
 

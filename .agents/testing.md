@@ -82,6 +82,39 @@ packages/swagger/test/
 - **Swagger tests (spec compliance)** construct metadata inline using `test/helpers/metadata-builder.ts` factory functions, generate specs, and assert directly on the output objects. This pattern is self-contained, tests exactly one behavior per test, and doesn't depend on shared fixture files.
 - Tests that need the TypeScript compiler create a program from fixture files and pass it to the generators
 
+## Assertion Conventions
+
+### Assert the exact shape — never branch on type
+
+**Bad** — conditional assertions silently pass when no branch matches:
+```typescript
+if (type.typeName === 'refAlias') {
+    expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+} else if (type.typeName === 'refObject') {
+    expect(obj.properties).toContain('name');
+}
+// If typeName is neither → zero assertions run, test passes silently
+```
+
+**Good** — assert the concrete shape directly:
+```typescript
+expect(type.typeName).toEqual('refAlias');
+const alias = type as RefAliasType;
+expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+```
+
+### Why this matters
+
+The metadata resolver's output shape for a given input is deterministic. Tests should pin the exact shape, not hedge across possibilities. If the output shape changes, the test should fail explicitly — not silently pass through a different branch.
+
+### Rules
+
+1. **No `if/else` on `typeName`** — assert the expected `typeName` directly with `expect().toEqual()`. If the shape genuinely varies, write separate tests for each case.
+2. **No helpers that return `undefined` on mismatch** — helpers that silently return `undefined` when the type doesn't match (e.g., `findObjectLiteral`) mask failures. Assert the type before unwrapping.
+3. **Always verify leaf values** — don't stop at `expect(method).toBeDefined()`. Assert property names, property types, required flags, and ref names.
+4. **Test fixture types must be used as return types** — if a type alias is defined in a test fixture, it must appear as an actual method return type. Unused type aliases don't test resolution.
+5. **Verify `refName` on reference types** — always check `refName` to confirm the right type alias or object was resolved.
+
 ## Swagger Spec Compliance Tests
 
 The following test files use inline metadata to verify OpenAPI compliance:

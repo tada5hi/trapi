@@ -14,5 +14,6 @@ export * from './mapped';
 export * from './object-literal';
 export * from './primitive';
 export * from './reference';
+export * from './tuple';
 export * from './type-operator';
 export * from './union';

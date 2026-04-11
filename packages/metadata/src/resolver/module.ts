@@ -32,6 +32,7 @@ import {
     resolveLiteralType,
     resolveMappedType,
     resolveObjectLiteralType,
+    resolveTupleType,
     resolveTypeOperatorType,
     resolveUnionType,
 } from './sub';
@@ -121,6 +122,7 @@ export class TypeNodeResolver extends ResolverBase {
             resolveUnionType(this.typeNode, ctx) ??
             resolveIntersectionType(this.typeNode, ctx) ??
             resolveObjectLiteralType(this.typeNode, ctx) ??
+            resolveTupleType(this.typeNode, ctx) ??
             resolveMappedType(this.typeNode, ctx) ??
             this.resolveConditionalType() ??
             resolveTypeOperatorType(this.typeNode, ctx) ??
@@ -388,12 +390,18 @@ export class TypeNodeResolver extends ResolverBase {
         // InTypeAlias prevents the node builder from emitting type alias
         // references (which could cause circular resolution when the utility
         // type is used inside a type alias declaration).
-        const resolvedTypeNode = toTypeNodeOrFail(
-            this.current.typeChecker,
+        const resolvedTypeNode = this.current.typeChecker.typeToTypeNode(
             type,
             undefined,
             ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
         );
+
+        // typeToTypeNode returns undefined for some edge cases (e.g. empty
+        // tuples from Parameters<> of a no-arg function). Fall back to an
+        // any-element array which is the closest OpenAPI representation.
+        if (!resolvedTypeNode) {
+            return { typeName: TypeName.ARRAY, elementType: { typeName: TypeName.ANY } };
+        }
 
         return this.resolveNestedType(
             resolvedTypeNode,

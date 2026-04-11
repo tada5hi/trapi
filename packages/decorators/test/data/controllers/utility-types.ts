@@ -29,7 +29,6 @@ function createFoo(): Foo {
     return { bar: 'a', baz: 'b' };
 }
 type FooReturn = ReturnType<typeof createFoo>;
-
 type FooParams = Parameters<typeof createFoo>;
 
 type AwaitedFoo = Awaited<Promise<Foo>>;
@@ -96,5 +95,17 @@ export class UtilityTypes {
     @Mount('instance-type')
     public instanceType(): FooInstance {
         return new FooFactory('test', 1);
+    }
+
+    @Get()
+    @Mount('parameters')
+    public parameters(): FooParams {
+        return [] as unknown as FooParams;
+    }
+
+    @Get()
+    @Mount('constructor-parameters')
+    public constructorParameters(): FooCtorParams {
+        return ['test', 1];
     }
 }

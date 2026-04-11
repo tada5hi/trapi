@@ -14,6 +14,7 @@ import {
 import path from 'node:path';
 import process from 'node:process';
 import type {
+    ArrayType,
     Metadata,
     NestedObjectLiteralType,
     RefAliasType,
@@ -36,217 +37,132 @@ describe('utility type metadata extraction', () => {
         });
     });
 
-    function getProperties(type: any): { name: string }[] {
-        if (type.typeName === 'refObject') {
-            return (type as RefObjectType).properties;
-        }
-        if (type.typeName === 'refAlias') {
-            return getProperties((type as RefAliasType).type);
-        }
-        if (type.typeName === 'nestedObjectLiteral') {
-            return (type as NestedObjectLiteralType).properties;
-        }
-        return [];
+    function getMethod(methodName: string) {
+        const controller = metadata.controllers.find(
+            (c) => c.name === 'UtilityTypes',
+        )!;
+        const method = controller.methods.find((m) => m.name === methodName)!;
+        expect(method).toBeDefined();
+        return method;
     }
 
-    function resolveRefType(type: any): any {
-        if (type.typeName === 'refAlias' || type.typeName === 'refObject' || type.typeName === 'refEnum') {
-            const resolved = metadata.referenceTypes[type.refName];
-            return resolved || type;
-        }
-        return type;
+    function expectRefAlias(method: { type: any }, refName: string): RefAliasType {
+        expect(method.type.typeName).toEqual('refAlias');
+        const alias = method.type as RefAliasType;
+        expect(alias.refName).toEqual(refName);
+        return alias;
+    }
+
+    function expectNestedObjectProps(type: any, expectedProps: string[]) {
+        expect(type.typeName).toEqual('nestedObjectLiteral');
+        const obj = type as NestedObjectLiteralType;
+        const propNames = obj.properties.map((p) => p.name).sort();
+        expect(propNames).toEqual(expectedProps.sort());
     }
 
     describe('existing utility types', () => {
-        it('should resolve Pick<Foo, "bar">', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'pick')!;
-            expect(method).toBeDefined();
-
-            const resolved = resolveRefType(method.type);
-            const propNames = getProperties(resolved).map((p) => p.name);
-            expect(propNames).toContain('bar');
-            expect(propNames).not.toContain('baz');
+        it('should resolve Pick<Foo, "bar"> to only bar property', () => {
+            const method = getMethod('pick');
+            const alias = expectRefAlias(method, 'FooBar');
+            expectNestedObjectProps(alias.type, ['bar']);
         });
 
-        it('should resolve Omit<Foo, "bar">', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'omit')!;
-            expect(method).toBeDefined();
-
-            const resolved = resolveRefType(method.type);
-            const propNames = getProperties(resolved).map((p) => p.name);
-            expect(propNames).toContain('baz');
-            expect(propNames).not.toContain('bar');
+        it('should resolve Omit<Foo, "bar"> to only baz property', () => {
+            const method = getMethod('omit');
+            const alias = expectRefAlias(method, 'FooBaz');
+            expectNestedObjectProps(alias.type, ['baz']);
         });
 
         it('should resolve Partial<Foo> with all properties optional', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'partial')!;
-            expect(method).toBeDefined();
+            const method = getMethod('partial');
+            const alias = expectRefAlias(method, 'FooPartial');
+            expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+            const obj = alias.type as NestedObjectLiteralType;
+            const propNames = obj.properties.map((p) => p.name).sort();
+            expect(propNames).toEqual(['bar', 'baz']);
+            for (const prop of obj.properties) {
+                expect(prop.required).toEqual(false);
+            }
         });
     });
 
     describe('Extract and Exclude', () => {
-        function findUnionMembers(type: any): any[] {
-            // Walk through refAlias wrappers to find the union
-            if (type.typeName === 'refAlias') {
-                return findUnionMembers((type as RefAliasType).type);
-            }
-            if (type.typeName === 'union') {
-                return (type as UnionType).members;
-            }
-            return [];
-        }
-
-        it('should resolve Extract<Status, "active" | "inactive"> to two members', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'extract')!;
-            expect(method).toBeDefined();
-
-            // Extract<Status, 'active' | 'inactive'> = 'active' | 'inactive'
-            const resolved = resolveRefType(method.type);
-            const members = findUnionMembers(resolved);
-            expect(members.length).toEqual(2);
+        it('should resolve Extract<Status, "active" | "inactive"> to two enum members', () => {
+            const method = getMethod('extract');
+            const alias = expectRefAlias(method, 'ActiveStatus');
+            expect(alias.type.typeName).toEqual('union');
+            const union = alias.type as UnionType;
+            expect(union.members).toHaveLength(2);
         });
 
-        it('should resolve Exclude<Status, "deleted"> to two members', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'exclude')!;
-            expect(method).toBeDefined();
-
-            // Exclude<Status, 'deleted'> = 'active' | 'inactive'
-            const resolved = resolveRefType(method.type);
-            const members = findUnionMembers(resolved);
-            expect(members.length).toEqual(2);
+        it('should resolve Exclude<Status, "deleted"> to two enum members', () => {
+            const method = getMethod('exclude');
+            const alias = expectRefAlias(method, 'NonDeletedStatus');
+            expect(alias.type.typeName).toEqual('union');
+            const union = alias.type as UnionType;
+            expect(union.members).toHaveLength(2);
         });
     });
 
     describe('ReturnType', () => {
         it('should resolve ReturnType<typeof createFoo> to Foo shape', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'returnType')!;
-            expect(method).toBeDefined();
-
-            // ReturnType<typeof createFoo> = Foo = { bar: string, baz: string }
-            const { type } = method;
-            if (type.typeName === 'refAlias') {
-                const alias = type as RefAliasType;
-                if (alias.type.typeName === 'nestedObjectLiteral') {
-                    const obj = alias.type as NestedObjectLiteralType;
-                    const propNames = obj.properties.map((p) => p.name);
-                    expect(propNames).toContain('bar');
-                    expect(propNames).toContain('baz');
-                }
-            } else if (type.typeName === 'refObject') {
-                const obj = type as RefObjectType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            } else if (type.typeName === 'nestedObjectLiteral') {
-                const obj = type as NestedObjectLiteralType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            }
+            const method = getMethod('returnType');
+            const alias = expectRefAlias(method, 'FooReturn');
+            expectNestedObjectProps(alias.type, ['bar', 'baz']);
         });
     });
 
     describe('Awaited', () => {
         it('should resolve Awaited<Promise<Foo>> to Foo shape', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'awaited')!;
-            expect(method).toBeDefined();
-
-            // Awaited<Promise<Foo>> = Foo
-            const { type } = method;
-            if (type.typeName === 'refObject') {
-                const obj = type as RefObjectType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            } else if (type.typeName === 'refAlias') {
-                const alias = type as RefAliasType;
-                if (alias.type.typeName === 'nestedObjectLiteral') {
-                    const obj = alias.type as NestedObjectLiteralType;
-                    const propNames = obj.properties.map((p) => p.name);
-                    expect(propNames).toContain('bar');
-                    expect(propNames).toContain('baz');
-                }
-            } else if (type.typeName === 'nestedObjectLiteral') {
-                const obj = type as NestedObjectLiteralType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            }
+            const method = getMethod('awaited');
+            const alias = expectRefAlias(method, 'AwaitedFoo');
+            expectNestedObjectProps(alias.type, ['bar', 'baz']);
         });
 
         it('should resolve Awaited<Promise<Promise<Foo>>> to Foo shape (nested)', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'awaitedNested')!;
-            expect(method).toBeDefined();
+            const method = getMethod('awaitedNested');
+            const alias = expectRefAlias(method, 'AwaitedNested');
+            expectNestedObjectProps(alias.type, ['bar', 'baz']);
+        });
+    });
 
-            // Awaited<Promise<Promise<Foo>>> = Foo
-            const { type } = method;
-            if (type.typeName === 'refObject') {
-                const obj = type as RefObjectType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            } else if (type.typeName === 'refAlias') {
-                const alias = type as RefAliasType;
-                if (alias.type.typeName === 'nestedObjectLiteral') {
-                    const obj = alias.type as NestedObjectLiteralType;
-                    const propNames = obj.properties.map((p) => p.name);
-                    expect(propNames).toContain('bar');
-                    expect(propNames).toContain('baz');
-                }
-            } else if (type.typeName === 'nestedObjectLiteral') {
-                const obj = type as NestedObjectLiteralType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('bar');
-                expect(propNames).toContain('baz');
-            }
+    describe('Parameters', () => {
+        it('should resolve Parameters<typeof createFoo> (no-arg function) to array<any>', () => {
+            const method = getMethod('parameters');
+            const alias = expectRefAlias(method, 'FooParams');
+            expect(alias.type.typeName).toEqual('array');
+            const arr = alias.type as ArrayType;
+            expect(arr.elementType.typeName).toEqual('any');
+        });
+    });
+
+    describe('ConstructorParameters', () => {
+        it('should resolve ConstructorParameters<typeof FooFactory> to array<string | number>', () => {
+            const method = getMethod('constructorParameters');
+            const alias = expectRefAlias(method, 'FooCtorParams');
+            expect(alias.type.typeName).toEqual('array');
+            const arr = alias.type as ArrayType;
+            expect(arr.elementType.typeName).toEqual('union');
+            const union = arr.elementType as UnionType;
+            expect(union.members).toHaveLength(2);
+            const memberTypes = union.members.map((m) => m.typeName).sort();
+            expect(memberTypes).toEqual(['double', 'string']);
         });
     });
 
     describe('InstanceType', () => {
         it('should resolve InstanceType<typeof FooFactory> to FooFactory shape', () => {
-            const controller = metadata.controllers.find(
-                (c) => c.name === 'UtilityTypes',
-            )!;
-            const method = controller.methods.find((m) => m.name === 'instanceType')!;
-            expect(method).toBeDefined();
-
-            // InstanceType<typeof FooFactory> = FooFactory = { name: string, count: number }
-            const { type } = method;
-            if (type.typeName === 'refObject') {
-                const obj = type as RefObjectType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('name');
-                expect(propNames).toContain('count');
-            } else if (type.typeName === 'nestedObjectLiteral') {
-                const obj = type as NestedObjectLiteralType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('name');
-                expect(propNames).toContain('count');
-            }
+            const method = getMethod('instanceType');
+            const alias = expectRefAlias(method, 'FooInstance');
+            expect(alias.type.typeName).toEqual('refObject');
+            const obj = alias.type as RefObjectType;
+            expect(obj.refName).toEqual('FooFactory');
+            const propNames = obj.properties.map((p) => p.name).sort();
+            expect(propNames).toEqual(['count', 'name']);
+            const nameType = obj.properties.find((p) => p.name === 'name')!;
+            expect(nameType.type.typeName).toEqual('string');
+            const countType = obj.properties.find((p) => p.name === 'count')!;
+            expect(countType.type.typeName).toEqual('double');
         });
     });
 });

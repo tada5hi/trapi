@@ -143,18 +143,12 @@ describe('nullable types', () => {
 
         it('should handle nullable reference type with allOf wrapper', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.nullableRef;
-            // Must be one of: bare $ref (no nullable sibling) or allOf wrapper with nullable
-            const hasBareRef = '$ref' in prop && !('allOf' in prop);
-            const hasAllOfWrapper = 'allOf' in prop;
-            expect(hasBareRef || hasAllOfWrapper, 'expected $ref or allOf wrapper').toBe(true);
-
-            if (hasBareRef) {
-                expect(prop).not.toHaveProperty('nullable');
-            } else {
-                expect(prop.allOf).toHaveLength(1);
-                expect(prop.allOf[0].$ref).toBeDefined();
-                expect(prop.nullable).toBe(true);
-            }
+            // V3 wraps nullable refs in allOf to avoid sibling properties next to $ref
+            expect(prop).not.toHaveProperty('$ref');
+            expect(prop).toHaveProperty('allOf');
+            expect(prop.allOf).toHaveLength(1);
+            expect(prop.allOf[0].$ref).toEqual('#/components/schemas/InnerModel');
+            expect(prop.nullable).toBe(true);
         });
 
         it('should not mark non-nullable fields as nullable', () => {

@@ -8,19 +8,20 @@
 import type {
     ArrayType,
     BaseType,
-    EnumType, 
+    EnumType,
     Extension,
     IntersectionType,
     Metadata,
     NestedObjectLiteralType,
     Parameter,
-    ParameterSource, 
+    ParameterSource,
     PrimitiveType,
-    RefAliasType, 
+    RefAliasType,
     RefEnumType,
-    RefObjectType, 
+    RefObjectType,
     ReferenceType,
     ResolverProperty,
+    TupleType,
     UnionType,
     Validators,
     VariableType,
@@ -34,8 +35,9 @@ import {
     isNestedObjectLiteralType,
     isPrimitiveType,
     isReferenceType,
+    isTupleType,
     isUndefinedType,
-    isUnionType, 
+    isUnionType,
     isVoidType,
 } from '@trapi/metadata';
 
@@ -150,6 +152,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             return this.getSchemaForPrimitiveType(type);
         } if (isArrayType(type)) {
             return this.getSchemaForArrayType(type);
+        } if (isTupleType(type)) {
+            return this.getSchemaForTupleType(type);
         } if (isEnumType(type)) {
             return this.getSchemaForEnumType(type);
         } if (isUnionType(type)) {
@@ -211,6 +215,30 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return {
             type: DataTypeName.ARRAY,
             items: this.getSchemaForType(arrayType.elementType),
+        };
+    }
+
+    private getSchemaForTupleType(tupleType: TupleType): BaseSchema<Schema> {
+        if (tupleType.elements.length === 0) {
+            return {
+                type: DataTypeName.ARRAY,
+                items: {},
+            };
+        }
+
+        const elementSchemas = tupleType.elements.map((el) => this.getSchemaForType(el.type));
+
+        if (elementSchemas.length === 1) {
+            return {
+                type: DataTypeName.ARRAY,
+                items: elementSchemas[0],
+            };
+        }
+
+        // Multiple elements → array with anyOf items
+        return {
+            type: DataTypeName.ARRAY,
+            items: { anyOf: elementSchemas },
         };
     }
 

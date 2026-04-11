@@ -38,50 +38,37 @@ describe('src/generator/metadata', () => {
     });
 
     it('should have utility-types controller', () => {
-        let index = metadata.controllers.findIndex(
-            (controller) => controller.name === 'UtilityTypes',
-        );
-        expect(index).toBeGreaterThanOrEqual(0);
-
-        const controller = metadata.controllers[index];
+        const controller = metadata.controllers.find(
+            (c) => c.name === 'UtilityTypes',
+        )!;
+        expect(controller).toBeDefined();
 
         // pick
-        index = controller.methods.findIndex(
-            (method) => method.name === 'pick',
-        );
-        expect(index).toBeGreaterThanOrEqual(0);
-
-        let method = controller.methods[index];
-        expect(method.name).toEqual('pick');
-        let refAlias = ((method.type as RefAliasType).type as RefAliasType);
-        let nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
-        expect(nestedObjectLiteral.properties.length).toEqual(1);
-        let property = nestedObjectLiteral.properties.pop();
-        expect(property.name).toEqual('bar');
+        const pick = controller.methods.find((m) => m.name === 'pick')!;
+        expect(pick).toBeDefined();
+        expect(pick.type.typeName).toEqual('refAlias');
+        const pickAlias = pick.type as RefAliasType;
+        expect(pickAlias.type.typeName).toEqual('nestedObjectLiteral');
+        const pickObj = pickAlias.type as NestedObjectLiteralType;
+        expect(pickObj.properties).toHaveLength(1);
+        expect(pickObj.properties[0].name).toEqual('bar');
 
         // omit
-        index = controller.methods.findIndex(
-            (method) => method.name === 'omit',
-        );
-        expect(index).toBeGreaterThanOrEqual(0);
+        const omit = controller.methods.find((m) => m.name === 'omit')!;
+        expect(omit).toBeDefined();
+        expect(omit.type.typeName).toEqual('refAlias');
+        const omitAlias = omit.type as RefAliasType;
+        expect(omitAlias.type.typeName).toEqual('nestedObjectLiteral');
+        const omitObj = omitAlias.type as NestedObjectLiteralType;
+        expect(omitObj.properties).toHaveLength(1);
+        expect(omitObj.properties[0].name).toEqual('baz');
 
-        method = controller.methods[index];
-        expect(method.name).toEqual('omit');
-        refAlias = ((method.type as RefAliasType).type as RefAliasType);
-        nestedObjectLiteral = (refAlias.type as NestedObjectLiteralType);
-        expect(nestedObjectLiteral.properties.length).toEqual(1);
-        property = nestedObjectLiteral.properties.pop();
-        expect(property.name).toEqual('baz');
-
-        // record
-
-        index = controller.methods.findIndex(
-            (method) => method.name === 'partial',
-        );
-        expect(index).toBeGreaterThanOrEqual(0);
-
-        method = controller.methods[index];
-        expect(method.name).toEqual('partial');
+        // partial
+        const partial = controller.methods.find((m) => m.name === 'partial')!;
+        expect(partial).toBeDefined();
+        expect(partial.type.typeName).toEqual('refAlias');
+        const partialAlias = partial.type as RefAliasType;
+        expect(partialAlias.type.typeName).toEqual('nestedObjectLiteral');
     });
 
     it('should generate metadata', async () => {

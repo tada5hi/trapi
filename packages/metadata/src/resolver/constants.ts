@@ -31,6 +31,7 @@ export enum TypeName {
     NESTED_OBJECT_LITERAL = 'nestedObjectLiteral',
     UNION = 'union',
     INTERSECTION = 'intersection',
+    TUPLE = 'tuple',
 }
 
 export enum UtilityTypeName {
@@ -41,4 +42,12 @@ export enum UtilityTypeName {
     RECORD = 'Record',
     REQUIRED = 'Required',
     PICK = 'Pick',
+    // Checker-resolvable utility types — delegated to the TS type checker
+    EXTRACT = 'Extract',
+    EXCLUDE = 'Exclude',
+    RETURN_TYPE = 'ReturnType',
+    PARAMETERS = 'Parameters',
+    AWAITED = 'Awaited',
+    INSTANCE_TYPE = 'InstanceType',
+    CONSTRUCTOR_PARAMETERS = 'ConstructorParameters',
 }

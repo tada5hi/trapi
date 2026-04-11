@@ -105,11 +105,15 @@ describe('complex type metadata extraction', () => {
         });
 
         it('should resolve nested generic GenericWrapper<GenericWrapper<string>>', () => {
-            expect(metadata.referenceTypes).toHaveProperty('NestedGeneric');
             const nestedGeneric = metadata.referenceTypes.NestedGeneric;
             expect(nestedGeneric).toBeDefined();
-            // Should be a refAlias or refObject with resolved inner types
-            expect(['refAlias', 'refObject']).toContain(nestedGeneric.typeName);
+            expect(nestedGeneric.typeName).toEqual('refAlias');
+            const alias = nestedGeneric as RefAliasType;
+            expect(alias.type.typeName).toEqual('refObject');
+            const obj = alias.type as RefObjectType;
+            const propNames = obj.properties.map((p) => p.name);
+            expect(propNames).toContain('data');
+            expect(propNames).toContain('meta');
         });
     });
 
@@ -117,22 +121,16 @@ describe('complex type metadata extraction', () => {
         it('should resolve TimestampedPerson as intersection', () => {
             const tp = metadata.referenceTypes.TimestampedPerson;
             expect(tp).toBeDefined();
-            // Could be refAlias wrapping an intersection, or a resolved refObject
-            if (tp.typeName === 'refAlias') {
-                const alias = tp as RefAliasType;
-                expect(alias.type.typeName).toEqual('intersection');
-                const intersection = alias.type as IntersectionType;
-                expect(intersection.members.length).toEqual(2);
-            } else if (tp.typeName === 'refObject') {
-                // Flattened — should have properties from both Person and Timestamped
-                const obj = tp as RefObjectType;
-                const propNames = obj.properties.map((p) => p.name);
-                expect(propNames).toContain('name');
-                expect(propNames).toContain('createdAt');
-                expect(propNames).toContain('updatedAt');
-            } else {
-                expect.unreachable(`Unexpected TimestampedPerson type: ${tp.typeName}`);
-            }
+            expect(tp.typeName).toEqual('refAlias');
+            const alias = tp as RefAliasType;
+            expect(alias.type.typeName).toEqual('intersection');
+            const intersection = alias.type as IntersectionType;
+            expect(intersection.members).toHaveLength(2);
+            // First member: Person, second: Timestamped
+            expect(intersection.members[0].typeName).toEqual('refObject');
+            expect((intersection.members[0] as RefObjectType).refName).toEqual('Person');
+            expect(intersection.members[1].typeName).toEqual('refObject');
+            expect((intersection.members[1] as RefObjectType).refName).toEqual('Timestamped');
         });
     });
 
@@ -170,27 +168,17 @@ describe('complex type metadata extraction', () => {
     });
 
     describe('utility types', () => {
-        it('should resolve PartialPerson', () => {
+        it('should resolve PartialPerson with all properties optional', () => {
             const pp = metadata.referenceTypes.PartialPerson;
             expect(pp).toBeDefined();
-            // Partial<Person> may resolve as refAlias (nestedObjectLiteral) or refObject
-            expect(['refAlias', 'refObject']).toContain(pp.typeName);
-
-            if (pp.typeName === 'refAlias') {
-                const alias = pp as RefAliasType;
-                expect(alias.type.typeName).toEqual('nestedObjectLiteral');
-                const obj = alias.type as NestedObjectLiteralType;
-                expect(obj.properties.length).toBeGreaterThan(0);
-                for (const prop of obj.properties) {
-                    expect(prop.required).toBe(false);
-                }
-            } else {
-                // refObject — verify it has properties from Person
-                const obj = pp as RefObjectType;
-                expect(obj.properties.length).toBeGreaterThan(0);
-                // Note: Partial<T> should make all properties optional,
-                // but the resolver currently preserves original required flags.
-                // This is a known limitation tracked for future improvement.
+            expect(pp.typeName).toEqual('refAlias');
+            const alias = pp as RefAliasType;
+            expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+            const obj = alias.type as NestedObjectLiteralType;
+            const propNames = obj.properties.map((p) => p.name).sort();
+            expect(propNames).toEqual(['address', 'name']);
+            for (const prop of obj.properties) {
+                expect(prop.required).toBe(false);
             }
         });
 

@@ -102,14 +102,10 @@ describe('additionalProperties', () => {
             expect(def.additionalProperties).toBeDefined();
         });
 
-        it('should preserve type information in additionalProperties', () => {
+        it('should set additionalProperties to true (V2 limitation)', () => {
             const def = specV2.definitions!.StringMap;
-            if (typeof def.additionalProperties === 'object') {
-                expect((def.additionalProperties as any).type).toEqual('string');
-            } else {
-                // Current behavior: just sets true — documents the known limitation
-                expect(def.additionalProperties).toBe(true);
-            }
+            // V2 generator uses boolean additionalProperties (doesn't preserve type)
+            expect(def.additionalProperties).toBe(true);
         });
 
         it('should support additionalProperties alongside named properties', () => {
@@ -140,12 +136,11 @@ describe('additionalProperties', () => {
 
         it('should not use bare $ref in additionalProperties', () => {
             const schema = specV3.components.schemas!.StringMap;
-            if (typeof schema.additionalProperties === 'object') {
-                const ap = schema.additionalProperties as any;
-                if (ap.$ref) {
-                    expect(Object.keys(ap)).toEqual(['$ref']);
-                }
-            }
+            expect(typeof schema.additionalProperties).toBe('object');
+            const ap = schema.additionalProperties as any;
+            // StringMap has string additionalProperties, not a $ref
+            expect(ap.type).toEqual('string');
+            expect(ap.$ref).toBeUndefined();
         });
     });
 });

@@ -13,7 +13,7 @@ TypeScript Source Code → Metadata Extraction → OpenAPI Specification
 
 2. **Type Resolution** — The `resolver/` module walks TypeScript's type system to resolve interfaces, generics, unions, intersections, and utility types into a normalized type representation. This is the most complex part of the codebase.
 
-3. **Spec Generation** — The swagger package takes the normalized metadata and produces OpenAPI 2.0 or 3.0 JSON/YAML output.
+3. **Spec Generation** — The swagger package takes the normalized metadata and produces OpenAPI 2.0 or 3.0 JSON/YAML output. Lossy conversions (e.g. tuples → arrays) happen here, never in the metadata layer.
 
 ## Metadata Generation
 
@@ -75,6 +75,16 @@ The abstract generator handles shared logic: schema building, reference resoluti
 - `resolveAdditionalProperties()` — `true` (V2) vs resolved type schema (V3)
 
 Version-specific generators handle structural format differences (e.g., `requestBody` in V3 vs `in: body` parameters in V2, `allOf` composition in V3 vs flattened properties in V2).
+
+## Metadata Fidelity Principle
+
+The metadata package (`@trapi/metadata`) must faithfully represent TypeScript's type system. When a TypeScript construct has no direct OpenAPI equivalent (e.g. tuples, branded types), the metadata layer must still model it accurately with a dedicated type (e.g. `TupleType` with named elements). Simplifications and lossy conversions for OpenAPI constraints happen exclusively in the swagger package (`@trapi/swagger`).
+
+**Never collapse a TypeScript concept in the metadata layer to fit OpenAPI.** The metadata is a general-purpose intermediate representation — other consumers (routing code generators, validation libraries, documentation tools) may need the full type information.
+
+Examples:
+- Tuples → metadata emits `TupleType` with per-element names and types; swagger converts to `array` with `anyOf` items
+- Intersection types → metadata emits `IntersectionType` with members; V2 swagger flattens to properties, V3 uses `allOf`
 
 ## Caching
 

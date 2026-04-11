@@ -29,6 +29,7 @@ export type Type = PrimitiveType |
         NestedObjectLiteralType |
         UnionType |
         IntersectionType |
+        TupleType |
         VoidType;
 
 // -------------------------------------------
@@ -143,6 +144,16 @@ export interface UnionType extends BaseType {
     members: Type[];
 }
 
+export type TupleElement = {
+    type: Type;
+    name?: string;
+};
+
+export interface TupleType extends BaseType {
+    typeName: `${TypeName.TUPLE}`;
+    elements: TupleElement[];
+}
+
 // -------------------------------------------
 // Reference Type(s)
 // -------------------------------------------
@@ -218,10 +229,6 @@ export interface IResolverCache {
     clear(): void;
 }
 
-export type UtilityTypeOptions = {
-    keys: Array<string | number | boolean | null>;
-};
-
 // -------------------------------------------
 // Resolver Internal Types
 // -------------------------------------------
@@ -265,7 +272,6 @@ export type SubResolverContext = {
     propertyFromDeclaration(
         decl: ts.PropertyDeclaration | ts.ParameterDeclaration,
         overrideToken?: OverrideToken,
-        utilityType?: string,
     ): ResolverProperty;
 
     getNodeDescription(

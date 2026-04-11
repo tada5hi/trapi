@@ -55,7 +55,7 @@ import type {
     TypeNodeResolverContext,
     UsableDeclaration,
 } from './types';
-import { getNodeDescription, toTypeNodeOrFail } from './utils';
+import { getNodeDescription } from './utils';
 
 export class TypeNodeResolver extends ResolverBase {
     private static readonly MAX_DEPTH = 50;
@@ -181,91 +181,15 @@ export class TypeNodeResolver extends ResolverBase {
     // ------------------------------------------------------------------
 
     private resolveConditionalType(): Type | undefined {
-        if (
-            !ts.isConditionalTypeNode(this.typeNode) ||
-            !this.referencer ||
-            !ts.isTypeReferenceNode(this.referencer)
-        ) {
+        if (!ts.isConditionalTypeNode(this.typeNode)) {
             return undefined;
         }
 
-        const type = this.current.typeChecker.getTypeFromTypeNode(this.referencer);
-
-        if (type.aliasSymbol) {
-            let [declaration] = type.aliasSymbol.declarations as (
-                ts.TypeAliasDeclaration | ts.EnumDeclaration | ts.DeclarationStatement
-            )[];
-
-            if (declaration && declaration.name) {
-                declaration = this.getModelTypeDeclaration(
-                    declaration.name as ts.EntityName,
-                ) as ts.TypeAliasDeclaration |
-                ts.EnumDeclaration |
-                ts.DeclarationStatement;
-            }
-
-            const name = TypeNodeResolver.getRefTypeName(this.referencer.getText());
-            return this.handleCachingAndCircularReferences(name, () => {
-                if (declaration) {
-                    if (ts.isTypeAliasDeclaration(declaration)) {
-                        return this.getTypeAliasReference(
-                            declaration,
-                            this.current.typeChecker.typeToString(type),
-                            this.referencer as ts.TypeReferenceNode,
-                        );
-                    }
-
-                    if (ts.isEnumDeclaration(declaration)) {
-                        return this.getEnumerateType(declaration.name) as RefEnumType;
-                    }
-                }
-
-                const declarationKind = declaration ? ts.SyntaxKind[declaration.kind] : 'unknown';
-                throw new ResolverError(
-                    `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. We found an aliasSymbol and its declaration was of kind ${declarationKind}`,
-                    this.typeNode,
-                );
-            });
-        }
-
-        if (type.isClassOrInterface()) {
-            let [declaration] = type.symbol.declarations as (
-                ts.InterfaceDeclaration | ts.ClassDeclaration
-            )[];
-            if (declaration && declaration.name) {
-                declaration = this.getModelTypeDeclaration(declaration.name) as ts.InterfaceDeclaration | ts.ClassDeclaration;
-            }
-
-            if (!declaration) {
-                throw new ResolverError('Couldn\'t get declaration for type symbol', this.typeNode);
-            }
-
-            const name = TypeNodeResolver.getRefTypeName(this.referencer.getText());
-            return this.handleCachingAndCircularReferences(name, () => this.getModelReference(
-                declaration,
-                this.current.typeChecker.typeToString(type),
-            ));
-        }
-
-        try {
-            return this.resolveNestedType(
-                toTypeNodeOrFail(
-                    this.current.typeChecker,
-                    type,
-                    undefined,
-                    ts.NodeBuilderFlags.NoTruncation,
-                ),
-                this.typeNode,
-                this.context,
-                this.referencer,
-            );
-        } catch (err) {
-            throw new ResolverError(
-                `Couldn't resolve Conditional to TypeNode. If you think this should be resolvable, please file an Issue. The flags on the result of the ConditionalType was ${type.flags}`,
-                this.typeNode,
-                { cause: err },
-            );
-        }
+        // Delegate conditional type evaluation to the TypeScript type
+        // checker. The checker can evaluate any conditional directly,
+        // including complex patterns like `typeof globalThis extends
+        // { onmessage: any } ? {} : X` from @types/node (#753).
+        return this.resolveTypeViaChecker(this.typeNode);
     }
 
     // ------------------------------------------------------------------
@@ -386,7 +310,25 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private resolveUtilityTypeViaChecker(typeReference: ts.TypeReferenceNode): Type {
-        const type = this.current.typeChecker.getTypeFromTypeNode(typeReference);
+        // When type arguments reference unbound type parameters from our
+        // context (e.g. `Awaited<T>` inside `type Box<T> = Awaited<T>`),
+        // the checker can't resolve them from the declaration-site node.
+        // Use the referencer (usage-site node like `Box<Promise<Foo>>`)
+        // which the checker CAN resolve with concrete type arguments.
+        if (this.hasUnboundContextArgs(typeReference) && this.referencer) {
+            return this.resolveTypeViaChecker(this.referencer);
+        }
+
+        return this.resolveTypeViaChecker(typeReference);
+    }
+
+    /**
+     * Shared checker delegation: resolves a type node by letting the TS
+     * type checker evaluate it, converting back to a TypeNode, and
+     * recursively resolving the result.
+     */
+    private resolveTypeViaChecker(typeNode: ts.TypeNode): Type {
+        const type = this.current.typeChecker.getTypeFromTypeNode(typeNode);
         // InTypeAlias prevents the node builder from emitting type alias
         // references (which could cause circular resolution when the utility
         // type is used inside a type alias declaration).
@@ -408,6 +350,22 @@ export class TypeNodeResolver extends ResolverBase {
             this.parentNode,
             this.context,
         );
+    }
+
+    /**
+     * Check if a type reference has type arguments that reference unbound
+     * type parameters from this.context (e.g. `Awaited<T>` where T is a
+     * generic parameter mapped in context).
+     */
+    private hasUnboundContextArgs(typeReference: ts.TypeReferenceNode): boolean {
+        if (!typeReference.typeArguments || Object.keys(this.context).length === 0) {
+            return false;
+        }
+
+        return typeReference.typeArguments.some((arg) =>
+            ts.isTypeReferenceNode(arg) &&
+            ts.isIdentifier(arg.typeName) &&
+            arg.typeName.text in this.context);
     }
 
     private static resolveSpecialReference(node: ts.Identifier) : Type | undefined {

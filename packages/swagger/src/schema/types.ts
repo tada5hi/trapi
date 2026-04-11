@@ -102,7 +102,7 @@ export interface BaseSchema<T> {
     items?: T | BaseSchema<T> | any;
     additionalProperties?: boolean | { [ref: string]: string } | T;
     properties?: { [propertyName: string]: T };
-    discriminator?: string;
+    discriminator?: string | { propertyName: string; mapping?: Record<string, string> };
     readOnly?: boolean;
     xml?: XML;
     externalDocs?: ExternalDocs;

@@ -158,6 +158,7 @@ export interface SchemaV3 extends BaseSchema<SchemaV3> {
     nullable?: boolean;
     anyOf?: SchemaV3[];
     allOf?: SchemaV3[];
+    oneOf?: SchemaV3[];
     deprecated?: boolean;
 }
 

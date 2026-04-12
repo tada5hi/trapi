@@ -56,13 +56,19 @@ export class ConditionalTypesController {
         return { bar: 'a' };
     }
 
-    // Regression test for #753: @types/node defines Headers via a conditional
-    // like `typeof globalThis extends { onmessage: any } ? {} : SomeClass`.
-    // This synthetic conditional mimics that pattern to verify the resolver
-    // handles typeof-globalThis conditional types without crashing.
+    // Regression test for #753: typeof-globalThis conditional pattern.
+    @Get()
+    @Mount('web-conditional')
+    public webConditional(): WebStyleConditional {
+        return { resolved: true };
+    }
+
+    // Regression test for #753: the global Headers type from @types/node
+    // uses a complex declaration chain (interface extends conditional type).
+    // The resolver must handle this via the checker fallback.
     @Get()
     @Mount('web-headers')
-    public webHeaders(): WebStyleConditional {
-        return { resolved: true };
+    public webHeaders(): Headers {
+        return new Headers();
     }
 }

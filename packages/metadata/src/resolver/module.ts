@@ -279,10 +279,22 @@ export class TypeNodeResolver extends ResolverBase {
             }
         }
 
-        const referenceType = this.getReferenceType(typeReference);
+        try {
+            const referenceType = this.getReferenceType(typeReference);
 
-        this.current.addReferenceType(referenceType);
-        return referenceType;
+            this.current.addReferenceType(referenceType);
+            return referenceType;
+        } catch (err) {
+            // When the model declaration walker fails (e.g. for global types
+            // like Headers, Request, Response from @types/node that use
+            // complex declaration patterns — #753), fall back to the checker.
+            // If the checker also fails, re-throw the original error.
+            try {
+                return this.resolveTypeViaChecker(typeReference);
+            } catch {
+                throw err;
+            }
+        }
     }
 
     // ------------------------------------------------------------------------

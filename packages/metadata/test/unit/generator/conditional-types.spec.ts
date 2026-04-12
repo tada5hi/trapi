@@ -57,8 +57,8 @@ describe('conditional type and generic context metadata extraction', () => {
     });
 
     describe('typeof-globalThis conditional types (#753)', () => {
-        it('should resolve typeof-globalThis conditional (mimics @types/node Headers pattern)', () => {
-            const method = getMethod('webHeaders');
+        it('should resolve typeof-globalThis conditional pattern', () => {
+            const method = getMethod('webConditional');
             // With types: ['node'], globalThis has onmessage, so the conditional
             // resolves to the true branch: { resolved: boolean }
             expect(method.type.typeName).toEqual('refAlias');
@@ -67,6 +67,15 @@ describe('conditional type and generic context metadata extraction', () => {
             expect(alias.type.typeName).toEqual('nestedObjectLiteral');
             const obj = alias.type as NestedObjectLiteralType;
             expect(obj.properties.map((p) => p.name)).toEqual(['resolved']);
+        });
+
+        it('should resolve global Headers type from @types/node (#753)', () => {
+            const method = getMethod('webHeaders');
+            // The global Headers type from @types/node uses a complex
+            // declaration chain (interface extends conditional type).
+            // The resolver must handle this via the checker fallback.
+            expect(method.type.typeName).toBeDefined();
+            expect(method.type.typeName).not.toEqual('void');
         });
     });
 

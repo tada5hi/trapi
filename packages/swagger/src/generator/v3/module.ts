@@ -13,6 +13,7 @@ import type {
     Method,
     Parameter,
     RefEnumType,
+    RefObjectType,
     ResolverProperty,
     Response,
     Type,
@@ -23,7 +24,9 @@ import {
     TypeName,
     isAnyType,
     isEnumType,
+    isIntersectionType,
     isNestedObjectLiteralType,
+    isRefAliasType,
     isRefObjectType,
     isUndefinedType,
     isVoidType,
@@ -605,8 +608,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             schemas.push(this.getSchemaForEnumType(enumType));
         }
 
+        // Use oneOf when all non-enum members are object-like types
+        const useOneOf = members.length > 0 &&
+            enumMembersKeys.length === 0 &&
+            members.every((m) => V3Generator.isObjectLikeType(m));
+
+        const compositionKey = useOneOf ? 'oneOf' : 'anyOf';
+
         if (this.isV31OrLater()) {
-            // 3.1+: add { type: 'null' } to anyOf for nullable unions
             if (nullable) {
                 schemas.push({ type: 'null' } as unknown as SchemaV3);
             }
@@ -615,7 +624,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 return schemas[0];
             }
 
-            return { anyOf: schemas };
+            const schema: SchemaV3 = { [compositionKey]: schemas };
+            if (useOneOf) {
+                this.applyDiscriminator(schema, members);
+            }
+            return schema;
         }
 
         // 3.0: use nullable keyword
@@ -629,6 +642,95 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             return { ...schema, nullable };
         }
 
-        return { anyOf: schemas, ...(nullable ? { nullable } : {}) };
+        const schema: SchemaV3 = {
+            [compositionKey]: schemas,
+            ...(nullable ? { nullable } : {}),
+        };
+        if (useOneOf) {
+            this.applyDiscriminator(schema, members);
+        }
+        return schema;
+    }
+
+    private static isObjectLikeType(type: Type): boolean {
+        if (isRefObjectType(type) ||
+            isNestedObjectLiteralType(type) ||
+            isIntersectionType(type)) {
+            return true;
+        }
+
+        // Unwrap refAlias to check the underlying type — a refAlias
+        // wrapping a primitive (e.g. `type Id = string`) is not object-like.
+        if (isRefAliasType(type)) {
+            return V3Generator.isObjectLikeType(type.type);
+        }
+
+        return false;
+    }
+
+    private applyDiscriminator(schema: SchemaV3, members: Type[]): void {
+        const discriminator = this.detectDiscriminator(members);
+        if (discriminator) {
+            schema.discriminator = discriminator;
+        }
+    }
+
+    private detectDiscriminator(
+        members: Type[],
+    ): { propertyName: string; mapping: Record<string, string> } | undefined {
+        // All members must be ref objects so we can inspect their properties
+        if (!members.every((m) => isRefObjectType(m))) {
+            return undefined;
+        }
+
+        const refMembers = members as RefObjectType[];
+        const resolvedMembers = refMembers.map((m) => {
+            const resolved = this.metadata.referenceTypes[m.refName];
+            return resolved && resolved.typeName === 'refObject' ?
+                resolved as RefObjectType :
+                undefined;
+        });
+
+        if (resolvedMembers.some((m) => !m)) {
+            return undefined;
+        }
+
+        // Find a common property with distinct enum literal values in each member
+        const firstProps = resolvedMembers[0]!.properties;
+        for (const prop of firstProps) {
+            if (prop.type.typeName !== 'enum') continue;
+            const enumType = prop.type as EnumType;
+            if (enumType.members.length !== 1) continue;
+
+            const propName = prop.name;
+            const mapping: Record<string, string> = {};
+            let isDiscriminator = true;
+
+            for (const member of resolvedMembers) {
+                const memberProp = member!.properties.find((p) => p.name === propName);
+                if (
+                    !memberProp ||
+                    !memberProp.required ||
+                    memberProp.type.typeName !== 'enum' ||
+                    (memberProp.type as EnumType).members.length !== 1
+                ) {
+                    isDiscriminator = false;
+                    break;
+                }
+
+                const value = String((memberProp.type as EnumType).members[0]);
+                if (mapping[value]) {
+                    isDiscriminator = false;
+                    break;
+                }
+                mapping[value] = `${this.getRefPrefix()}${member!.refName}`;
+            }
+
+            if (isDiscriminator && Object.keys(mapping).length === members.length) {
+                return { propertyName: propName, mapping };
+            }
+        }
+
+        return undefined;
     }
 }

@@ -77,7 +77,7 @@ export interface BaseParameterV3 {
     explode?: boolean,
     allowReserved?: boolean,
 
-    schema?: BaseSchema<SchemaV3>,
+    schema?: SchemaV3,
     example?: unknown;
     examples?: Record<string, Example | string>;
 
@@ -135,7 +135,7 @@ export interface HeaderV3 extends Omit<BaseSchema<SchemaV3>, 'required'> {
     description?: string;
     example?: unknown;
     examples?: Record<string, Example | string>;
-    schema: BaseSchema<SchemaV3>;
+    schema: SchemaV3;
     type?: `${DataTypeName}`;
     format?: `${DataFormatName}`;
 }
@@ -154,10 +154,12 @@ export interface MediaTypeV3 {
 }
 
 // tslint:disable-next-line:no-shadowed-variable
-export interface SchemaV3 extends BaseSchema<SchemaV3> {
+export interface SchemaV3 extends Omit<BaseSchema<SchemaV3>, 'discriminator'> {
+    discriminator?: string | { propertyName: string; mapping?: Record<string, string> };
     nullable?: boolean;
     anyOf?: SchemaV3[];
     allOf?: SchemaV3[];
+    oneOf?: SchemaV3[];
     deprecated?: boolean;
 }
 

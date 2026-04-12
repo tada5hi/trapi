@@ -653,10 +653,19 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     private static isObjectLikeType(type: Type): boolean {
-        return isRefObjectType(type) ||
-            isRefAliasType(type) ||
+        if (isRefObjectType(type) ||
             isNestedObjectLiteralType(type) ||
-            isIntersectionType(type);
+            isIntersectionType(type)) {
+            return true;
+        }
+
+        // Unwrap refAlias to check the underlying type — a refAlias
+        // wrapping a primitive (e.g. `type Id = string`) is not object-like.
+        if (isRefAliasType(type)) {
+            return V3Generator.isObjectLikeType(type.type);
+        }
+
+        return false;
     }
 
     private applyDiscriminator(schema: SchemaV3, members: Type[]): void {
@@ -701,6 +710,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 const memberProp = member!.properties.find((p) => p.name === propName);
                 if (
                     !memberProp ||
+                    !memberProp.required ||
                     memberProp.type.typeName !== 'enum' ||
                     (memberProp.type as EnumType).members.length !== 1
                 ) {

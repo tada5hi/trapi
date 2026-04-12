@@ -29,6 +29,7 @@ import {
 describe('union composition (oneOf / discriminator)', () => {
     let specV2: SpecV2;
     let specV3: SpecV3;
+    let specV31: SpecV3;
 
     const referenceTypes = {
         User: createRefObject('User', [
@@ -178,6 +179,15 @@ describe('union composition (oneOf / discriminator)', () => {
                 metadata,
             },
         });
+
+        specV31 = await generate({
+            version: Version.V3_1,
+            options: {
+                output: false,
+                servers: 'http://localhost:3000/',
+                metadata,
+            },
+        });
     });
 
     describe('V3 oneOf', () => {
@@ -213,6 +223,28 @@ describe('union composition (oneOf / discriminator)', () => {
             expect(schema).toHaveProperty('oneOf');
             expect(schema.oneOf).toHaveLength(2);
             expect(schema.nullable).toBe(true);
+        });
+    });
+
+    describe('V3.1 oneOf (type: null instead of nullable)', () => {
+        it('should use oneOf for object union', () => {
+            const { schema } = specV31.paths['/composition/result'].get!.responses['200'].content['application/json'];
+            expect(schema).toHaveProperty('oneOf');
+            expect(schema).not.toHaveProperty('anyOf');
+            expect(schema.oneOf).toHaveLength(2);
+            expect(schema.oneOf![0].$ref).toEqual('#/components/schemas/User');
+            expect(schema.oneOf![1].$ref).toEqual('#/components/schemas/ErrorModel');
+        });
+
+        it('should use { type: "null" } instead of nullable for nullable object union', () => {
+            const { schema } = specV31.paths['/composition/nullable'].get!.responses['200'].content['application/json'];
+            expect(schema).toHaveProperty('oneOf');
+            expect(schema).not.toHaveProperty('nullable');
+            // 3.1+: nullable members are represented as { type: 'null' } in the oneOf array
+            const nullMember = schema.oneOf!.find((s: any) => s.type === 'null');
+            expect(nullMember).toBeDefined();
+            // Two object refs + null type member
+            expect(schema.oneOf).toHaveLength(3);
         });
     });
 

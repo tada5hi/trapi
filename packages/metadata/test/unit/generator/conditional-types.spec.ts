@@ -56,6 +56,20 @@ describe('conditional type and generic context metadata extraction', () => {
         });
     });
 
+    describe('typeof-globalThis conditional types (#753)', () => {
+        it('should resolve typeof-globalThis conditional (mimics @types/node Headers pattern)', () => {
+            const method = getMethod('webHeaders');
+            // With types: ['node'], globalThis has onmessage, so the conditional
+            // resolves to the true branch: { resolved: boolean }
+            expect(method.type.typeName).toEqual('refAlias');
+            const alias = method.type as RefAliasType;
+            expect(alias.refName).toEqual('WebStyleConditional');
+            expect(alias.type.typeName).toEqual('nestedObjectLiteral');
+            const obj = alias.type as NestedObjectLiteralType;
+            expect(obj.properties.map((p) => p.name)).toEqual(['resolved']);
+        });
+    });
+
     describe('wrapped generic utility types (#777)', () => {
         it('should resolve Box<Promise<Foo>> (wrapped Awaited) to Foo shape', () => {
             const method = getMethod('wrappedAwaited');

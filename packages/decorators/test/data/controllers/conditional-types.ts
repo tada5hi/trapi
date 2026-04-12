@@ -30,6 +30,7 @@ type WebStyleConditional = typeof globalThis extends { onmessage: any } ?
 // Generic conditional type: resolves based on the type argument (#782)
 type ConditionalGeneric<T> = T extends string ? { strVal: string } : { otherVal: number };
 type ResolvedConditionalGeneric = ConditionalGeneric<string>;
+type ResolvedConditionalGenericFalse = ConditionalGeneric<number>;
 
 // Wrapped generic utility type: Box<T> = Awaited<T>
 type Box<T> = Awaited<T>;
@@ -64,6 +65,12 @@ export class ConditionalTypesController {
     @Mount('conditional-generic')
     public conditionalGeneric(): ResolvedConditionalGeneric {
         return { strVal: 'hello' };
+    }
+
+    @Get()
+    @Mount('conditional-generic-false')
+    public conditionalGenericFalse(): ResolvedConditionalGenericFalse {
+        return { otherVal: 42 };
     }
 
     // Regression test for #753: typeof-globalThis conditional pattern.

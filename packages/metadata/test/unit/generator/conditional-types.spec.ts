@@ -69,6 +69,18 @@ describe('conditional type and generic context metadata extraction', () => {
             const obj = inner.type as NestedObjectLiteralType;
             expect(obj.properties.map((p) => p.name)).toEqual(['strVal']);
         });
+
+        it('should resolve ConditionalGeneric<number> to the false branch', () => {
+            const method = getMethod('conditionalGenericFalse');
+            expect(method.type.typeName).toEqual('refAlias');
+            const outer = method.type as RefAliasType;
+            expect(outer.refName).toEqual('ResolvedConditionalGenericFalse');
+            expect(outer.type.typeName).toEqual('refAlias');
+            const inner = outer.type as RefAliasType;
+            expect(inner.type.typeName).toEqual('nestedObjectLiteral');
+            const obj = inner.type as NestedObjectLiteralType;
+            expect(obj.properties.map((p) => p.name)).toEqual(['otherVal']);
+        });
     });
 
     describe('typeof-globalThis conditional types (#753)', () => {

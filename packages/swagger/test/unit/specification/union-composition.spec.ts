@@ -349,3 +349,150 @@ describe('discriminator with refAlias members (#783)', () => {
         });
     });
 });
+
+describe('discriminator with refAlias wrapping nestedObjectLiteral (#783)', () => {
+    let specV3: SpecV3;
+
+    const referenceTypes = {
+        InlineCircle: createRefAlias('InlineCircle', {
+            typeName: 'nestedObjectLiteral',
+            properties: [
+                createProperty({ name: 'kind', type: enumType(['circle']) }),
+                createProperty({ name: 'radius', type: { typeName: 'double' } }),
+            ],
+        } as any),
+        InlineSquare: createRefAlias('InlineSquare', {
+            typeName: 'nestedObjectLiteral',
+            properties: [
+                createProperty({ name: 'kind', type: enumType(['square']) }),
+                createProperty({ name: 'side', type: { typeName: 'double' } }),
+            ],
+        } as any),
+    };
+
+    const metadata = createMetadata(
+        [
+            createController({
+                name: 'InlineController',
+                path: 'inline',
+                methods: [
+                    createMethod({
+                        name: 'getShape',
+                        method: 'get',
+                        path: 'shape',
+                        responses: [
+                            createResponse({
+                                status: '200',
+                                description: 'Success',
+                                schema: unionType([
+                                    createRefAlias('InlineCircle', refObjectType('_unused')),
+                                    createRefAlias('InlineSquare', refObjectType('_unused')),
+                                ]),
+                            }),
+                        ],
+                        type: unionType([
+                            createRefAlias('InlineCircle', refObjectType('_unused')),
+                            createRefAlias('InlineSquare', refObjectType('_unused')),
+                        ]),
+                    }),
+                ],
+            }),
+        ],
+        referenceTypes,
+    );
+
+    beforeAll(async () => {
+        specV3 = await generate({
+            version: Version.V3,
+            options: {
+                output: false,
+                servers: 'http://localhost:3000/',
+                metadata,
+            },
+        });
+    });
+
+    it('should detect discriminator for refAlias wrapping nestedObjectLiteral', () => {
+        const { schema } = specV3.paths['/inline/shape'].get!.responses['200'].content['application/json'];
+        expect(schema).toHaveProperty('oneOf');
+        expect(schema.oneOf).toHaveLength(2);
+        expect(schema).toHaveProperty('discriminator');
+        const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+        expect(disc.propertyName).toEqual('kind');
+        expect(disc.mapping).toEqual({
+            circle: '#/components/schemas/InlineCircle',
+            square: '#/components/schemas/InlineSquare',
+        });
+    });
+});
+
+describe('discriminator with mixed refObject + refAlias members (#783)', () => {
+    let specV3: SpecV3;
+
+    const referenceTypes = {
+        Circle: createRefObject('Circle', [
+            createProperty({ name: 'kind', type: enumType(['circle']) }),
+            createProperty({ name: 'radius', type: { typeName: 'double' } }),
+        ]),
+        Square: createRefObject('Square', [
+            createProperty({ name: 'kind', type: enumType(['square']) }),
+            createProperty({ name: 'side', type: { typeName: 'double' } }),
+        ]),
+        SquareAlias: createRefAlias('SquareAlias', refObjectType('Square')),
+    };
+
+    const metadata = createMetadata(
+        [
+            createController({
+                name: 'MixedController',
+                path: 'mixed',
+                methods: [
+                    createMethod({
+                        name: 'getShape',
+                        method: 'get',
+                        path: 'shape',
+                        responses: [
+                            createResponse({
+                                status: '200',
+                                description: 'Success',
+                                schema: unionType([
+                                    refObjectType('Circle'),
+                                    createRefAlias('SquareAlias', refObjectType('Square')),
+                                ]),
+                            }),
+                        ],
+                        type: unionType([
+                            refObjectType('Circle'),
+                            createRefAlias('SquareAlias', refObjectType('Square')),
+                        ]),
+                    }),
+                ],
+            }),
+        ],
+        referenceTypes,
+    );
+
+    beforeAll(async () => {
+        specV3 = await generate({
+            version: Version.V3,
+            options: {
+                output: false,
+                servers: 'http://localhost:3000/',
+                metadata,
+            },
+        });
+    });
+
+    it('should detect discriminator for mixed refObject + refAlias union', () => {
+        const { schema } = specV3.paths['/mixed/shape'].get!.responses['200'].content['application/json'];
+        expect(schema).toHaveProperty('oneOf');
+        expect(schema.oneOf).toHaveLength(2);
+        expect(schema).toHaveProperty('discriminator');
+        const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+        expect(disc.propertyName).toEqual('kind');
+        expect(disc.mapping).toEqual({
+            circle: '#/components/schemas/Circle',
+            square: '#/components/schemas/SquareAlias',
+        });
+    });
+});

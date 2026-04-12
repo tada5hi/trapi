@@ -18,6 +18,7 @@ import {
     createMetadata,
     createMethod,
     createProperty,
+    createRefAlias,
     createRefObject,
     createResponse,
     enumType,
@@ -273,6 +274,78 @@ describe('union composition (oneOf / discriminator)', () => {
         it('should not use oneOf in V2 output', () => {
             const response = specV2.paths['/composition/result'].get!.responses['200'];
             expect(response.schema).not.toHaveProperty('oneOf');
+        });
+    });
+});
+
+describe('discriminator with refAlias members (#783)', () => {
+    let specV3Alias: SpecV3;
+
+    const aliasReferenceTypes = {
+        Circle: createRefObject('Circle', [
+            createProperty({ name: 'kind', type: enumType(['circle']) }),
+            createProperty({ name: 'radius', type: { typeName: 'double' } }),
+        ]),
+        Square: createRefObject('Square', [
+            createProperty({ name: 'kind', type: enumType(['square']) }),
+            createProperty({ name: 'side', type: { typeName: 'double' } }),
+        ]),
+        CircleAlias: createRefAlias('CircleAlias', refObjectType('Circle')),
+        SquareAlias: createRefAlias('SquareAlias', refObjectType('Square')),
+    };
+
+    const aliasMetadata = createMetadata(
+        [
+            createController({
+                name: 'AliasController',
+                path: 'alias',
+                methods: [
+                    createMethod({
+                        name: 'getShape',
+                        method: 'get',
+                        path: 'shape',
+                        responses: [
+                            createResponse({
+                                status: '200',
+                                description: 'Success',
+                                schema: unionType([
+                                    createRefAlias('CircleAlias', refObjectType('Circle')),
+                                    createRefAlias('SquareAlias', refObjectType('Square')),
+                                ]),
+                            }),
+                        ],
+                        type: unionType([
+                            createRefAlias('CircleAlias', refObjectType('Circle')),
+                            createRefAlias('SquareAlias', refObjectType('Square')),
+                        ]),
+                    }),
+                ],
+            }),
+        ],
+        aliasReferenceTypes,
+    );
+
+    beforeAll(async () => {
+        specV3Alias = await generate({
+            version: Version.V3,
+            options: {
+                output: false,
+                servers: 'http://localhost:3000/',
+                metadata: aliasMetadata,
+            },
+        });
+    });
+
+    it('should detect discriminator for union of refAlias members', () => {
+        const { schema } = specV3Alias.paths['/alias/shape'].get!.responses['200'].content['application/json'];
+        expect(schema).toHaveProperty('oneOf');
+        expect(schema.oneOf).toHaveLength(2);
+        expect(schema).toHaveProperty('discriminator');
+        const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+        expect(disc.propertyName).toEqual('kind');
+        expect(disc.mapping).toEqual({
+            circle: '#/components/schemas/CircleAlias',
+            square: '#/components/schemas/SquareAlias',
         });
     });
 });

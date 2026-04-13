@@ -6,7 +6,7 @@
  */
 
 import { isObject, load } from 'locter';
-import { ConfigErrorCode } from '../../config/constants';
+import { ConfigErrorCode } from '../../config/index.ts';
 import { ConfigError } from '../../config/error';
 import process from 'node:process';
 import path from 'node:path';

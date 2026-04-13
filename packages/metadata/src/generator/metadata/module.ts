@@ -7,31 +7,31 @@
 
 import { minimatch } from 'minimatch';
 import type {
-    Node, 
-    Program, 
-    SourceFile, 
+    Node,
+    Program,
+    SourceFile,
     TypeChecker,
 } from 'typescript';
 import {
-    NodeFlags, 
-    createProgram, 
-    forEachChild, 
-    isClassDeclaration, 
-    isModuleBlock, 
+    NodeFlags,
+    createProgram,
+    forEachChild,
+    isClassDeclaration,
+    isModuleBlock,
     isModuleDeclaration,
 } from 'typescript';
 import { CacheClient } from '../../cache';
-import type { Options } from '../../config';
+import type { MetadataGeneratorOptions } from '../../config';
 import { DecoratorResolver } from '../../decorator';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../resolver';
 import { ResolverCache } from '../../resolver/cache';
 import type { Controller } from '../controller';
 import { ControllerGenerator } from '../controller';
-import type { 
-    IGeneratorContext, 
-    IMetadataGenerator, 
-    Metadata, 
-    MetadataGeneratorContext, 
+import type {
+    IGeneratorContext,
+    IMetadataGenerator,
+    Metadata,
+    MetadataGeneratorContext,
 } from './types';
 
 export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator {
@@ -43,7 +43,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     public readonly resolverCache: ResolverCache;
 
-    public readonly config: Options;
+    public readonly config: MetadataGeneratorOptions;
 
     private readonly program: Program;
 

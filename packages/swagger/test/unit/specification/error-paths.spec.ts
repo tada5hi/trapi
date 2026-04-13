@@ -10,7 +10,7 @@ import {
     expect,
     it,
 } from 'vitest';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     createController,
     createMetadata,
@@ -50,13 +50,10 @@ describe('error paths', () => {
                 }),
             ]);
 
-            await expect(generate({
+            await expect(generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             })).rejects.toThrow(/body parameter/i);
         });
     });
@@ -89,13 +86,10 @@ describe('error paths', () => {
                 }),
             ]);
 
-            await expect(generate({
+            await expect(generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             })).rejects.toThrow(/body parameter/i);
         });
     });
@@ -128,13 +122,10 @@ describe('error paths', () => {
                 }),
             ]);
 
-            await expect(generate({
+            await expect(generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             })).rejects.toThrow(/body.*form|form.*body/i);
         });
     });
@@ -168,13 +159,10 @@ describe('error paths', () => {
             ]);
 
             // V2 only processes path, queryProp, header, formData — cookie is filtered out
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             });
 
             const params = spec.paths['/cookie/{id}'].get!.parameters!;
@@ -218,13 +206,10 @@ describe('error paths', () => {
                 },
             );
 
-            await expect(generate({
+            await expect(generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             })).rejects.toThrow(/unsupported type/i);
         });
     });
@@ -251,13 +236,10 @@ describe('error paths', () => {
                 }),
             ]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             });
 
             expect(spec.paths).toHaveProperty('/hidden/visible');
@@ -269,13 +251,10 @@ describe('error paths', () => {
         it('should handle empty controllers array', async () => {
             const metadata = createMetadata([]);
 
-            const specV2 = await generate({
+            const specV2 = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             });
 
             expect(specV2.paths).toEqual({});
@@ -285,13 +264,10 @@ describe('error paths', () => {
         it('V3 should handle empty controllers array', async () => {
             const metadata = createMetadata([]);
 
-            const specV3 = await generate({
+            const specV3 = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers: 'http://localhost:3000/', 
-                    metadata, 
-                },
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
             });
 
             expect(specV3.paths).toEqual({});

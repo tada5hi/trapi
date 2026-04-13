@@ -16,8 +16,8 @@ import { load } from 'locter';
 import type { Metadata } from '@trapi/metadata';
 import type { SpecV2, SpecV3 } from '../../../src';
 import {
-    Version, 
-    generate,
+    Version,
+    generateSwagger,
 } from '../../../src';
 
 describe('TypeEndpoint', () => {
@@ -26,13 +26,10 @@ describe('TypeEndpoint', () => {
     beforeAll(async () => {
         const metadata : Metadata = await load('./test/data/metadata.json');
 
-        spec = await generate({
+        spec = await generateSwagger({
             version: Version.V2,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 

@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 import type { SpecV2, SpecV3 } from '../../../src';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     createController,
     createMetadata,
@@ -79,22 +79,16 @@ describe('intersection types', () => {
     );
 
     beforeAll(async () => {
-        specV2 = await generate({
+        specV2 = await generateSwagger({
             version: Version.V2,
-            options: {
-                output: false, 
-                servers: 'http://localhost:3000/', 
-                metadata, 
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
 
-        specV3 = await generate({
+        specV3 = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false, 
-                servers: 'http://localhost:3000/', 
-                metadata, 
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 

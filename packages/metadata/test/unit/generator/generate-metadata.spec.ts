@@ -19,8 +19,8 @@ const entryPoint = [{
     pattern: './test/data/controllers/**/*.ts',
 }];
 
-describe('generateMetadata signatures', () => {
-    it('should accept unified options with tsconfig inside', async () => {
+describe('generateMetadata', () => {
+    it('should accept options with tsconfig', async () => {
         const metadata = await generateMetadata({
             entryPoint,
             cache: false,
@@ -33,7 +33,7 @@ describe('generateMetadata signatures', () => {
         expect(metadata.controllers.length).toBeGreaterThan(0);
     });
 
-    it('should accept legacy Options object without tsconfig', async () => {
+    it('should accept options without tsconfig', async () => {
         const metadata = await generateMetadata({
             entryPoint,
             cache: false,
@@ -42,24 +42,5 @@ describe('generateMetadata signatures', () => {
 
         expect(metadata).toHaveProperty('controllers');
         expect(metadata.controllers.length).toBeGreaterThan(0);
-    });
-
-    it('should produce the same result for both signatures', async () => {
-        const newResult = await generateMetadata({
-            entryPoint,
-            cache: false,
-            preset: '@trapi/decorators',
-            tsconfig: undefined,
-        });
-
-        const legacyResult = await generateMetadata({
-            entryPoint,
-            cache: false,
-            preset: '@trapi/decorators',
-        }, undefined);
-
-        expect(newResult.controllers.length).toEqual(legacyResult.controllers.length);
-        expect(Object.keys(newResult.referenceTypes).length)
-            .toEqual(Object.keys(legacyResult.referenceTypes).length);
     });
 });

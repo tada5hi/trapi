@@ -11,7 +11,7 @@ import {
     it,
 } from 'vitest';
 import type { SpecV2, SpecV3 } from '../../../src';
-import { Version, generate, generateSwagger } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     createController,
     createMetadata,
@@ -67,25 +67,6 @@ describe('generateSwagger', () => {
             expect(spec).toBeDefined();
             expect((spec as SpecV2).swagger).toEqual('2.0');
         });
-
-        it('should produce the same spec as generate()', async () => {
-            const spec = await generateSwagger({
-                version: Version.V2,
-                metadata,
-                data: { servers: 'http://localhost:3000/' },
-            });
-
-            const legacySpec = await generate({
-                version: Version.V2,
-                options: {
-                    output: false,
-                    servers: 'http://localhost:3000/',
-                    metadata,
-                },
-            });
-
-            expect(spec).toEqual(legacySpec);
-        });
     });
 
     describe('v3', () => {
@@ -98,25 +79,6 @@ describe('generateSwagger', () => {
 
             expect(spec).toBeDefined();
             expect((spec as SpecV3).openapi).toMatch(/^3\./);
-        });
-
-        it('should produce the same spec as generate()', async () => {
-            const spec = await generateSwagger({
-                version: Version.V3,
-                metadata,
-                data: { servers: 'http://localhost:3000/' },
-            });
-
-            const legacySpec = await generate({
-                version: Version.V3,
-                options: {
-                    output: false,
-                    servers: 'http://localhost:3000/',
-                    metadata,
-                },
-            });
-
-            expect(spec).toEqual(legacySpec);
         });
     });
 

@@ -5,18 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
-import type { Options } from '../../config';
+import type { MetadataGeneratorOptions } from '../../config';
 import type { IDecoratorResolver } from '../../decorator';
-import type { 
-    DependencyResolver, 
-    IResolverCache, 
-    ReferenceType, 
-    ReferenceTypes, 
+import type {
+    DependencyResolver,
+    IResolverCache,
+    ReferenceType,
+    ReferenceTypes,
 } from '../../resolver';
 import type { Controller } from '../controller';
 
 export type MetadataGeneratorContext = {
-    options: Options,
+    options: MetadataGeneratorOptions,
     sourceFiles: string[],
     compilerOptions?: CompilerOptions
 };
@@ -70,5 +70,5 @@ export interface IReferenceTypeRegistry {
  * can pass `this.current` directly to TypeNodeResolver.
  */
 export interface IGeneratorContext extends IResolverContext, IReferenceTypeRegistry {
-    readonly config: Options;
+    readonly config: MetadataGeneratorOptions;
 }

@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 import type { SecurityDefinitions, SpecV2, SpecV3  } from '../../../src';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     createController,
     createMetadata,
@@ -104,22 +104,20 @@ describe('security schemes', () => {
     );
 
     beforeAll(async () => {
-        specV2 = await generate({
+        specV2 = await generateSwagger({
             version: Version.V2,
-            options: {
-                output: false,
+            metadata,
+            data: {
                 servers: 'http://localhost:3000/',
-                metadata,
                 securityDefinitions,
             },
         });
 
-        specV3 = await generate({
+        specV3 = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false,
+            metadata,
+            data: {
                 servers: 'http://localhost:3000/',
-                metadata,
                 securityDefinitions,
             },
         });

@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Metadata, TsConfig } from '@trapi/metadata';
+import type { Metadata } from '@trapi/metadata';
 import { generateMetadata, isMetadata } from '@trapi/metadata';
 import type { OptionsInput, SwaggerGenerateOptions } from '../config';
 import { Version } from '../constants';
@@ -13,50 +13,9 @@ import type { SpecV2, SpecV3 } from '../schema';
 import { V2Generator } from './v2';
 import { V3Generator } from './v3';
 
-export async function buildMetadata(options: OptionsInput, tsConfig?: TsConfig | string) {
-    if (isMetadata(options.metadata)) {
-        return options.metadata;
-    }
-
-    return generateMetadata(options.metadata, tsConfig);
-}
-
-/**
- * @deprecated Use `SwaggerGenerateOptions` with `generateSwagger()` instead.
- */
-export type DocumentationGenerationContext<V extends `${Version}`> = {
-    version: V,
-    options: OptionsInput,
-    tsConfig?: TsConfig | string
-};
-
 type OutputSpec<V extends `${Version}`> = V extends `${Version.V2}` ?
     SpecV2 :
     SpecV3;
-
-/**
- * @deprecated Use `generateSwagger()` instead.
- */
-export async function generate<V extends `${Version}`>(
-    context: DocumentationGenerationContext<V>,
-): Promise<OutputSpec<V>> {
-    const metadata = await buildMetadata(context.options, context.tsConfig);
-
-    switch (context.version) {
-        case Version.V3:
-        case Version.V3_1:
-        case Version.V3_2: {
-            const generator = new V3Generator(metadata, context.options, context.version);
-
-            return await generator.build() as OutputSpec<V>;
-        }
-        default: {
-            const generator = new V2Generator(metadata, context.options);
-
-            return await generator.build() as OutputSpec<V>;
-        }
-    }
-}
 
 function toOptionsInput(options: SwaggerGenerateOptions): OptionsInput {
     const { data } = options;

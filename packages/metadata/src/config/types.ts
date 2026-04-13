@@ -16,7 +16,7 @@ export type EntryPointOptions = {
 
 export type EntryPoint = string | string[] | EntryPointOptions | EntryPointOptions[];
 
-export interface Options {
+export interface MetadataGeneratorOptions {
     /**
      * The entry point to your API.
      */
@@ -51,7 +51,7 @@ export interface Options {
     preset?: string;
 }
 
-export type MetadataGenerateOptions = Options & {
+export type MetadataGenerateOptions = MetadataGeneratorOptions & {
     /**
      * Path to tsconfig.json or a TsConfig object.
      */

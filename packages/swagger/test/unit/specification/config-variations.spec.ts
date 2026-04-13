@@ -10,7 +10,7 @@ import {
     expect,
     it,
 } from 'vitest';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     arrayType,
     createController,
@@ -28,13 +28,12 @@ describe('config variations', () => {
         it('V2: should merge specificationExtra into the spec', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
-                    specificationExtra: {
+                    extra: {
                         'x-custom-field': 'custom-value',
                         externalDocs: {
                             description: 'External docs',
@@ -54,13 +53,12 @@ describe('config variations', () => {
         it('V3: should merge specificationExtra into the spec', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
-                    specificationExtra: {
+                    extra: {
                         'x-custom-field': 'v3-custom',
                         externalDocs: {
                             description: 'V3 docs',
@@ -80,13 +78,12 @@ describe('config variations', () => {
         it('V2: specificationExtra should not overwrite core fields', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
-                    specificationExtra: { swagger: '3.0' },
+                    extra: { swagger: '3.0' },
                 },
             });
 
@@ -97,13 +94,12 @@ describe('config variations', () => {
         it('V3: specificationExtra should not overwrite core fields', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
-                    specificationExtra: { openapi: '9.9.9' },
+                    extra: { openapi: '9.9.9' },
                 },
             });
 
@@ -135,13 +131,10 @@ describe('config variations', () => {
         ]);
 
         it('V2: should default to multi collectionFormat for array query params', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const pathItem = spec.paths['/arrays'];
@@ -153,12 +146,11 @@ describe('config variations', () => {
         });
 
         it('V2: should use configured collectionFormat', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
                     collectionFormat: 'csv',
                 },
             });
@@ -176,12 +168,11 @@ describe('config variations', () => {
         it('should use configured name, version, and description', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
                     name: 'My API',
                     version: '2.5.0',
                     description: 'A test API',
@@ -196,13 +187,10 @@ describe('config variations', () => {
         it('should default name to Documentation and version to 1.0.0', async () => {
             const metadata = createMetadata([]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             expect(spec.info.title).toEqual('Documentation');

@@ -5,7 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat, Metadata, Options as MetadataOptions } from '@trapi/metadata';
+import type {
+    CollectionFormat,
+    Metadata,
+    MetadataGenerateOptions,
+    Options as MetadataOptions,
+} from '@trapi/metadata';
+import type { Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 
 export type ServerOption = {
@@ -103,4 +109,94 @@ export interface Options {
 
 export type OptionsInput = Omit<Partial<Options>, 'servers'> & {
     servers?: string | string[] | ServerOption | ServerOption[]
+};
+
+export type SwaggerGenerateOutput = {
+    /**
+     * Output directory for generated files.
+     *
+     * default: process.cwd()
+     */
+    directory?: string;
+
+    /**
+     * Base file name (without extension).
+     *
+     * default: 'swagger'
+     */
+    fileName?: string;
+
+    /**
+     * Also generate a YAML file.
+     */
+    yaml?: boolean;
+};
+
+export type SwaggerGenerateData = {
+    /**
+     * API name; defaults to npm package name.
+     */
+    name?: string;
+
+    /**
+     * API version; defaults to npm package version.
+     */
+    version?: string;
+
+    /**
+     * API description; defaults to npm package description.
+     */
+    description?: string;
+
+    /**
+     * API license; defaults to npm package license.
+     */
+    license?: string;
+
+    /**
+     * API servers.
+     */
+    servers?: string | string[] | ServerOption | ServerOption[];
+
+    /**
+     * Security scheme definitions.
+     */
+    securityDefinitions?: SecurityDefinitions;
+
+    /**
+     * Default consumes content types.
+     */
+    consumes?: string[];
+
+    /**
+     * Default produces content types.
+     */
+    produces?: string[];
+
+    /**
+     * Default collection format for array query parameters.
+     */
+    collectionFormat?: `${CollectionFormat}`;
+
+    /**
+     * Extra properties to merge into the generated spec.
+     */
+    extra?: Record<string, any>;
+};
+
+export type SwaggerGenerateOptions = {
+    /**
+     * Swagger/OpenAPI spec version to generate (e.g. 'v2', 'v3').
+     */
+    version: `${Version}`;
+
+    /**
+     * Pre-built metadata or options to generate metadata from source.
+     */
+    metadata: MetadataGenerateOptions | Metadata;
+
+    /**
+     * Document content (info, servers, security, etc.).
+     */
+    data?: SwaggerGenerateData;
 };

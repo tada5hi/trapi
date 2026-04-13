@@ -34,20 +34,23 @@ npm install @trapi/metadata @trapi/swagger
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
-import { generate } from '@trapi/swagger';
+import { generateSwagger, saveSwagger } from '@trapi/swagger';
 
 // Extract metadata from your decorated TypeScript source
 const metadata = await generateMetadata({
-    entryFile: './src/controllers/**/*.ts',
+    entryPoint: './src/controllers/**/*.ts',
     preset: '@trapi/decorators',
 });
 
 // Generate OpenAPI spec
-await generate({
+const spec = await generateSwagger({
+    version: 'v3',
     metadata,
-    output: { directory: './docs' },
-    spec: { info: { title: 'My API', version: '1.0.0' } },
+    data: { name: 'My API', version: '1.0.0' },
 });
+
+// Write spec to disk
+await saveSwagger(spec, { directory: './docs' });
 ```
 
 ## How It Works

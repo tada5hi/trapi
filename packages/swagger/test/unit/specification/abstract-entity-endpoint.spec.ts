@@ -13,7 +13,8 @@ import {
 } from 'vitest';
 import { load } from 'locter';
 import jsonata from 'jsonata';
-import type { Metadata, SpecV2, SpecV3 } from '../../../src';
+import type { Metadata } from '@trapi/metadata';
+import type { SpecV2, SpecV3 } from '../../../src';
 import { Version, generate } from '../../../src';
 
 describe('AbstractEntityEndpoint', () => {

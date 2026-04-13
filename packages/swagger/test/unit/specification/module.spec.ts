@@ -12,9 +12,10 @@ import {
     it, 
 } from 'vitest';
 import { CollectionFormat } from '@trapi/metadata';
+import type { Metadata } from '@trapi/metadata';
 import jsonata from 'jsonata';
 import { load } from 'locter';
-import type { Metadata, SpecV2, SpecV3 } from '../../../src';
+import type { SpecV2, SpecV3 } from '../../../src';
 import { Version, generate } from '../../../src';
 
 describe('generating swagger spec from metadata', () => {

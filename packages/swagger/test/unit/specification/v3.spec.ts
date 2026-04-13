@@ -12,10 +12,8 @@ import {
     it, 
 } from 'vitest';
 import { load } from 'locter';
-import type {
-    Metadata, 
-    SpecV3,
-} from '../../../src';
+import type { Metadata } from '@trapi/metadata';
+import type { SpecV3 } from '../../../src';
 import {
     Version,
     generate,

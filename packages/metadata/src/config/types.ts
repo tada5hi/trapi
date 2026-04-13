@@ -7,6 +7,7 @@
 
 import type { CacheOptions } from '../cache';
 import type { DecoratorConfig } from '../decorator';
+import type { TsConfig } from '../utils';
 
 export type EntryPointOptions = {
     cwd: string,
@@ -49,3 +50,10 @@ export interface Options {
      */
     preset?: string;
 }
+
+export type MetadataGenerateOptions = Options & {
+    /**
+     * Path to tsconfig.json or a TsConfig object.
+     */
+    tsconfig?: string | TsConfig;
+};

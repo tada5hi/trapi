@@ -25,6 +25,7 @@ import type {
     IntersectionType,
     LongType,
     NestedObjectLiteralType,
+    NeverType,
     ObjectType,
     PrimitiveType,
     RefAliasType,
@@ -80,6 +81,10 @@ export function isLongType(param: BaseType): param is LongType {
 
 export function isVoidType(param: BaseType | undefined): param is VoidType {
     return typeof param === 'undefined' || param.typeName === TypeName.VOID;
+}
+
+export function isNeverType(param: BaseType): param is NeverType {
+    return param.typeName === TypeName.NEVER;
 }
 
 // -------------------------------------------

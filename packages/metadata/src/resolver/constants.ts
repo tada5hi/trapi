@@ -25,6 +25,7 @@ export enum TypeName {
     OBJECT = 'object',
     ANY = 'any',
     UNDEFINED = 'undefined',
+    NEVER = 'never',
     REF_ENUM = 'refEnum',
     REF_OBJECT = 'refObject',
     REF_ALIAS = 'refAlias',

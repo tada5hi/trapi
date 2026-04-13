@@ -33,6 +33,7 @@ import {
     isEnumType,
     isIntersectionType,
     isNestedObjectLiteralType,
+    isNeverType,
     isPrimitiveType,
     isReferenceType,
     isTupleType,
@@ -144,7 +145,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     }
 
     protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
-        if (isVoidType(type) || isUndefinedType(type)) {
+        if (isVoidType(type) || isUndefinedType(type) || isNeverType(type)) {
             return {} as Schema;
         } if (isReferenceType(type)) {
             return this.getSchemaForReferenceType(type);

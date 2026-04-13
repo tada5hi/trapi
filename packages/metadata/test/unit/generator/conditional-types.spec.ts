@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 import path from 'node:path';
-import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import type {
     Metadata,
     NestedObjectLiteralType,
@@ -26,7 +26,7 @@ describe('conditional type and generic context metadata extraction', () => {
     beforeAll(async () => {
         metadata = await generateMetadata({
             entryPoint: [{
-                cwd: path.join(process.cwd(), '..', 'decorators'),
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../decorators'),
                 pattern: './test/data/controllers/conditional-types.ts',
             }],
             cache: false,

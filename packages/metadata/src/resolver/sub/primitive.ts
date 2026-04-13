@@ -11,7 +11,7 @@ import type { IDecoratorResolver } from '../../decorator';
 import { DecoratorID } from '../../decorator';
 import { getJSDocTagNames } from '../../utils';
 import { TypeName } from '../constants';
-import type { PrimitiveType, VoidType } from '../types';
+import type { NeverType, PrimitiveType, VoidType } from '../types';
 
 export class PrimitiveResolver {
     protected decoratorResolver : IDecoratorResolver;
@@ -20,7 +20,7 @@ export class PrimitiveResolver {
         this.decoratorResolver = decoratorResolver;
     }
 
-    resolve(node: TypeNode, parentNode?: Node) : PrimitiveType | VoidType | undefined {
+    resolve(node: TypeNode, parentNode?: Node) : PrimitiveType | NeverType | VoidType | undefined {
         const resolved = this.resolveSyntaxKind(node.kind);
         if (resolved) {
             if (resolved === 'string') {
@@ -42,6 +42,10 @@ export class PrimitiveResolver {
             if (resolved === 'null') {
                 // todo: check
                 return undefined;
+            }
+
+            if (resolved === 'never') {
+                return { typeName: TypeName.NEVER };
             }
 
             if (resolved === 'bigint') {
@@ -123,6 +127,8 @@ export class PrimitiveResolver {
                 return 'number';
             case SyntaxKind.BigIntKeyword:
                 return 'bigint';
+            case SyntaxKind.NeverKeyword:
+                return 'never';
             default:
                 return undefined;
         }

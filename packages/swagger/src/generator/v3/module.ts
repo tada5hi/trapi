@@ -28,6 +28,7 @@ import {
     isEnumType,
     isIntersectionType,
     isNestedObjectLiteralType,
+    isNeverType,
     isRefAliasType,
     isRefObjectType,
     isUndefinedType,
@@ -326,7 +327,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             if (
                 res.schema &&
-                !isVoidType(res.schema)
+                !isVoidType(res.schema) &&
+                !isNeverType(res.schema)
             ) {
                 const examples : Record<string, Example> = {};
                 if (
@@ -590,6 +592,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             if (
                 !isAnyType(member) &&
                 !isUndefinedType(member) &&
+                !isNeverType(member) &&
                 !isEnumType(member)
             ) {
                 members.push(member);

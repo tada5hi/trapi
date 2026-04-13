@@ -23,6 +23,7 @@ export type Type = PrimitiveType |
         ByteType |
         AnyType |
         UndefinedType |
+        NeverType |
         RefEnumType |
         RefObjectType |
         RefAliasType |
@@ -80,6 +81,10 @@ export interface LongType extends BaseType {
 
 export interface VoidType extends BaseType {
     typeName: `${TypeName.VOID}`;
+}
+
+export interface NeverType extends BaseType {
+    typeName: `${TypeName.NEVER}`;
 }
 
 // -------------------------------------------

@@ -161,6 +161,10 @@ export function voidType(): Type {
     return { typeName: 'void' };
 }
 
+export function neverType(): Type {
+    return { typeName: 'never' };
+}
+
 export function stringType(): Type {
     return { typeName: 'string' };
 }

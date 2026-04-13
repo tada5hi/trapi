@@ -22,6 +22,7 @@ import {
     isAnyType,
     isBinaryType,
     isEnumType,
+    isNeverType,
     isRefEnumType,
     isRefObjectType,
     isUndefinedType,
@@ -505,6 +506,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             if (
                 !isAnyType(member) &&
                 !isUndefinedType(member) &&
+                !isNeverType(member) &&
                 !isEnumType(member)
             ) {
                 members.push(member);
@@ -554,7 +556,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
             if (
                 res.schema &&
-                !isVoidType(res.schema)
+                !isVoidType(res.schema) &&
+                !isNeverType(res.schema)
             ) {
                 if (res.produces) {
                     produces.push(...res.produces);

@@ -17,7 +17,7 @@ type AlwaysThrows = never;
 // Conditional type resolving to never (false branch of impossible condition)
 type NeverBranch = number extends string ? { value: string } : never;
 
-// Union containing never — never should be stripped
+// Union containing never — preserved in metadata; stripped in swagger mapping
 type CleanUnion = string | never;
 
 @Controller()

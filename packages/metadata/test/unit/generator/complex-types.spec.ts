@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 import path from 'node:path';
-import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import type {
     ArrayType,
     IntersectionType,
@@ -30,7 +30,7 @@ describe('complex type metadata extraction', () => {
     beforeAll(async () => {
         metadata = await generateMetadata({
             entryPoint: [{
-                cwd: path.join(process.cwd(), '..', 'decorators'),
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../decorators'),
                 pattern: './test/data/controllers/**/*.ts',
             }],
             cache: false,

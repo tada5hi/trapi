@@ -185,6 +185,13 @@ export class TypeNodeResolver extends ResolverBase {
             return undefined;
         }
 
+        // When inside a generic type alias (context has entries) and we
+        // have a usage-site node (referencer), resolve via the referencer
+        // so the checker evaluates with concrete type arguments (#782).
+        if (Object.keys(this.context).length > 0 && this.referencer) {
+            return this.resolveTypeViaChecker(this.referencer);
+        }
+
         // Delegate conditional type evaluation to the TypeScript type
         // checker. The checker can evaluate any conditional directly,
         // including complex patterns like `typeof globalThis extends

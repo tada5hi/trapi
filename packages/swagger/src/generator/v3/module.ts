@@ -11,7 +11,9 @@ import type {
     IntersectionType,
     Metadata,
     Method,
+    NestedObjectLiteralType,
     Parameter,
+    RefAliasType,
     RefEnumType,
     RefObjectType,
     ResolverProperty,
@@ -678,19 +680,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private detectDiscriminator(
         members: Type[],
     ): { propertyName: string; mapping: Record<string, string> } | undefined {
-        // All members must be ref objects so we can inspect their properties
-        if (!members.every((m) => isRefObjectType(m))) {
-            return undefined;
-        }
-
-        const refMembers = members as RefObjectType[];
-        const resolvedMembers = refMembers.map((m) => {
-            const resolved = this.metadata.referenceTypes[m.refName];
-            return resolved && resolved.typeName === 'refObject' ?
-                resolved as RefObjectType :
-                undefined;
-        });
-
+        // Resolve each member to { refName, properties }. Supports both
+        // refObject and refAlias members (#783).
+        const resolvedMembers = members.map((m) => this.resolveDiscriminatorMember(m));
         if (resolvedMembers.some((m) => !m)) {
             return undefined;
         }
@@ -728,6 +720,53 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             if (isDiscriminator && Object.keys(mapping).length === members.length) {
                 return { propertyName: propName, mapping };
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Resolve a union member to its refName and properties for discriminator
+     * detection. Accepts both refObject and refAlias members, unwrapping
+     * aliases to find the underlying properties while preserving the
+     * original refName for $ref mapping.
+     */
+    private resolveDiscriminatorMember(
+        member: Type,
+    ): { refName: string; properties: ResolverProperty[] } | undefined {
+        if (!isRefObjectType(member) && !isRefAliasType(member)) {
+            return undefined;
+        }
+
+        const { refName } = member as RefObjectType | RefAliasType;
+        const referenceType = this.metadata.referenceTypes[refName];
+        if (!referenceType) {
+            return undefined;
+        }
+
+        if (referenceType.typeName === 'refObject') {
+            return { refName, properties: (referenceType as RefObjectType).properties };
+        }
+
+        if (referenceType.typeName === 'refAlias') {
+            let inner: Type = (referenceType as RefAliasType).type;
+            for (let depth = 0; depth < 10; depth++) {
+                if (isRefObjectType(inner)) {
+                    const resolved = this.metadata.referenceTypes[inner.refName];
+                    if (resolved?.typeName === 'refObject') {
+                        return { refName, properties: (resolved as RefObjectType).properties };
+                    }
+                    return undefined;
+                }
+                if (isNestedObjectLiteralType(inner)) {
+                    return { refName, properties: (inner as NestedObjectLiteralType).properties };
+                }
+                if (isRefAliasType(inner)) {
+                    inner = (inner as RefAliasType).type;
+                    continue;
+                }
+                return undefined;
             }
         }
 

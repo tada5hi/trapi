@@ -6,11 +6,5 @@
  */
 
 export * from './array';
-export * from './initializer';
-export * from './js-doc';
-export * from './node';
 export * from './object';
 export * from './path-normalize';
-export * from './source-files';
-export * from './tsconfig';
-export * from './validator';

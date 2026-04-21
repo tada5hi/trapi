@@ -1,10 +1,13 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './core';
-export * from './adapters';
-export * from './app';
+import type { DecoratorConfig } from './types';
+
+export type PresetSchema = {
+    extends: string[],
+    items: DecoratorConfig[]
+};

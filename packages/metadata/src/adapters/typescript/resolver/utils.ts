@@ -10,7 +10,7 @@ import type {
     TypeNode,
 } from 'typescript';
 import { SyntaxKind, displayPartsToString } from 'typescript';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import { ResolverError } from '../../../core/error/resolver';
 
 export function getNodeDescription(

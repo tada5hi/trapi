@@ -14,7 +14,7 @@ import type {
 } from '../../../core/types/decorator';
 import type { NodeDecorator } from '../../typescript/node-utils';
 import { getNodeDecorators } from '../../typescript/node-utils';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import type { DecoratorResolverMap, IDecoratorResolver } from './types';
 
 export class DecoratorResolver implements IDecoratorResolver {

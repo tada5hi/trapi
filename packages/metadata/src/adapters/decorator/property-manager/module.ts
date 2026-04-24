@@ -12,7 +12,7 @@ import type {
     DecoratorPropertyConfig,
 } from '../../../core/types/decorator';
 import type { NodeDecorator } from '../../typescript/node-utils';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import { buildDecoratorPropertyConfig, extractPropertyFromDecorator } from './utils';
 
 export class DecoratorPropertyManager<T extends `${DecoratorID}`> {

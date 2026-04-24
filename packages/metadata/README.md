@@ -32,9 +32,10 @@ The metadata configuration object (Top-Level) is the main configuration object o
 and can be defined according the following type scheme:
 
 ```typescript
-import { 
+import type {
     CacheOptions,
-    DecoratorConfig 
+    DecoratorConfig,
+    TsConfig,
 } from "@trapi/metadata";
 
 export type EntryPointOptions = {
@@ -47,12 +48,12 @@ export type EntryPoint = string |
     EntryPointOptions |
     EntryPointOptions[];
 
-export interface Options {
+export interface MetadataGenerateOptions {
     /**
      * The entry point to your API.
      */
     entryPoint: EntryPoint;
-    
+
     /**
      * Directory to ignore during TypeScript files scan.
      * Default: []
@@ -64,13 +65,13 @@ export interface Options {
      * Default: []
      */
     allow?: string[],
-    
+
     /**
      * Directory to store and cache metadata files.
      * Default: false
      */
     cache?: string | boolean | Partial<CacheOptions>;
-    
+
     /**
      * Manual decorator properties configuration.
      */
@@ -80,6 +81,11 @@ export interface Options {
      * Load a specific preset configuration.
      */
     preset?: string;
+
+    /**
+     * Path to tsconfig.json or a TsConfig object.
+     */
+    tsconfig?: string | TsConfig;
 }
 ```
 
@@ -107,7 +113,7 @@ const metadata : Metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
     ignore: ['**/node_modules/**'],
     cache: true,
-    preset: '@trapi/preset-routup'
+    preset: '@trapi/decorators'
 });
 
 console.log(metadata);

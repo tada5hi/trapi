@@ -28,7 +28,7 @@ import {
     getJSDocTagComment,
 } from '../../../adapters/typescript/js-doc';
 import { getNodeDecorators } from '../../../adapters/typescript/node-utils';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import { AbstractGenerator } from '../abstract';
 import type { IGeneratorContext } from '../../../core/types/metadata';
 import type { Parameter } from '../../../core/types/parameter';

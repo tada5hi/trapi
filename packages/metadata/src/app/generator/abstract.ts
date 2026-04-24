@@ -16,7 +16,7 @@ import {
     hasJSDocTag,
 } from '../../adapters/typescript/js-doc';
 import { getInitializerValue } from '../../adapters/typescript/initializer';
-import { isStringArray, normalizePath } from '../../utils';
+import { isStringArray, normalizePath } from '../../core/utils';
 import type { IGeneratorContext } from '../../core/types/metadata';
 
 export abstract class AbstractGenerator<T extends Node> {

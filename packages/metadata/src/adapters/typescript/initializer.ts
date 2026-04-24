@@ -8,7 +8,7 @@
 import * as ts from 'typescript';
 import { MetadataError } from '../../core/error';
 import type { Type } from '../../core/types/resolver';
-import { hasOwnProperty } from '../../utils/object';
+import { hasOwnProperty } from '../../core/utils/object';
 
 export function getInitializerValue(
     initializer?: ts.Expression,

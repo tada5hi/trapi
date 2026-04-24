@@ -13,7 +13,7 @@ import type {
 } from 'typescript';
 import { SyntaxKind, isJSDocParameterTag } from 'typescript';
 import { MetadataError } from '../../../core/error';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import type { JSDocTagName } from './constants';
 import { transformJSDocComment } from './utils';
 

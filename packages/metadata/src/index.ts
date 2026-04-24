@@ -8,4 +8,4 @@
 export * from './core';
 export * from './adapters';
 export * from './app';
-export * from './utils';
+export * from './core/utils';

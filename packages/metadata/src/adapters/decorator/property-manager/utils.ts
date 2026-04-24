@@ -9,7 +9,7 @@ import { isObject } from 'locter';
 import type { Expression } from 'typescript';
 import type { NodeDecorator } from '../../typescript/node-utils';
 import { getInitializerValue } from '../../typescript/initializer';
-import { hasOwnProperty } from '../../../utils';
+import { hasOwnProperty } from '../../../core/utils';
 import type { DecoratorPropertyConfig, DecoratorPropertyConfigInput } from '../../../core/types/decorator';
 
 export function buildDecoratorPropertyConfig(property: DecoratorPropertyConfigInput): DecoratorPropertyConfig {

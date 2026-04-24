@@ -123,7 +123,32 @@ console.log(metadata);
 
 ## Structure
 
-**coming soon**
+The package follows a hexagonal layout:
+
+```
+src/
+├── core/         # Domain types, port interfaces, generator contracts
+│   ├── types/          # Metadata, Controller, Method, Parameter, Type, ...
+│   ├── config/         # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint
+│   ├── decorator/      # DecoratorID enum, decorator config shapes
+│   ├── error/          # MetadataError, GeneratorError, ResolverError
+│   ├── metadata/       # IMetadataGenerator, IGeneratorContext
+│   └── utils/          # Internal helpers (hasOwnProperty, normalizePath, …)
+│
+├── adapters/     # Infrastructure adapters
+│   ├── typescript/     # TypeScript compiler API adapter (type resolver, JSDoc, AST)
+│   ├── decorator/      # Decorator resolver + preset loader
+│   ├── filesystem/     # Source file scanner, tsconfig loader
+│   └── cache/          # Metadata cache
+│
+├── app/          # Orchestration / use-cases
+│   ├── generate.ts     # generateMetadata()
+│   └── generator/      # Controller, Method, Parameter generators
+│
+└── index.ts      # Public entry point
+```
+
+The dependency rule is strict: `core/` imports nothing from `adapters/` or `app/`, `adapters/` depends only on `core/`, and `app/` wires both together.
 
 ## License
 

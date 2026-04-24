@@ -77,7 +77,14 @@ This means any HTTP framework built on TypeScript decorators can get metadata ex
 
 ## Documentation
 
-To read the full docs, visit [https://trapi.tada5hi.net](https://trapi.tada5hi.net)
+The full docs live at [https://trapi.tada5hi.net](https://trapi.tada5hi.net). Highlights:
+
+- **[Quick Start](https://trapi.tada5hi.net/guide/quick-start)** — get an OpenAPI spec on disk in five minutes
+- **[Key Concepts](https://trapi.tada5hi.net/guide/concepts)** — the mental model: decorators, mappings, metadata, emitters
+- **[Framework Integration](https://trapi.tada5hi.net/guide/framework-integration)** — using TRAPI with typescript-rest, @decorators/express, or your own decorators
+- **[Supported TypeScript Types](https://trapi.tada5hi.net/guide/advanced-type-support)** — what the resolver understands
+- **[Custom Presets](https://trapi.tada5hi.net/guide/advanced-custom-presets)** — publish a decorator mapping others can reuse
+- **[API Reference](https://trapi.tada5hi.net/guide/metadata-api-reference)** — stable public surface for both packages
 
 ## License
 

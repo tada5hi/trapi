@@ -4,28 +4,30 @@ TRAPI resolves TypeScript types through the compiler's own type checker, so the 
 
 ## Primitives
 
-| TypeScript | Metadata | OpenAPI |
+| TypeScript | Metadata `typeName` | OpenAPI |
 | --- | --- | --- |
-| `string` | `StringType` | `type: string` |
-| `number` | `NumberType` / refinement | `type: number` |
-| `boolean` | `BooleanType` | `type: boolean` |
-| `bigint` | `BigintType` | `type: integer`, `format: int64` |
-| `void` | `VoidType` | Omitted response content |
-| `undefined` | `UndefinedType` | Nullable marker |
+| `string` | `string` | `type: string` |
+| `number` (default) | `double` | `type: number`, `format: double` |
+| `boolean` | `boolean` | `type: boolean` |
+| `bigint` | `bigint` | `type: integer` |
+| `void` | `void` | Omitted response content |
+| `undefined` | `undefined` | Nullable marker |
 | `null` | — | Nullable marker |
-| `never` | `NeverType` | No schema emitted (since 1.3) |
-| `any` | `AnyType` | No schema constraint |
+| `never` | `never` | No schema emitted |
+| `any` | `any` | No schema constraint |
 
 ### Numeric Refinements
 
-The `@IsInt`, `@IsLong`, `@IsFloat`, `@IsDouble` decorators refine a `number` into a more specific schema:
+A plain `number` resolves to `DoubleType` (OpenAPI `type: number`, `format: double`). To emit a more specific shape, either use a decorator from the `IS_*` family or a JSDoc tag on the containing declaration:
 
-| Decorator | `type` | `format` |
-| --- | --- | --- |
-| `@IsInt()` | `integer` | `int32` |
-| `@IsLong()` | `integer` | `int64` |
-| `@IsFloat()` | `number` | `float` |
-| `@IsDouble()` | `number` | `double` |
+| Decorator | JSDoc tag | Metadata `typeName` | OpenAPI `type` | OpenAPI `format` |
+| --- | --- | --- | --- | --- |
+| `@IsInt()` | `@isInt` | `integer` | `integer` | `int32` |
+| `@IsLong()` | `@isLong` | `long` | `integer` | `int64` |
+| `@IsFloat()` | `@isFloat` | `float` | `number` | `float` |
+| `@IsDouble()` | `@isDouble` | `double` | `number` | `double` |
+
+TypeScript's `bigint` is a separate type and resolves to `BigintType` (`type: integer`, no `format`).
 
 ### Date & Binary
 
@@ -99,7 +101,7 @@ The metadata models this as a `TupleType` with named elements. OpenAPI has no di
 
 ## Utility Types
 
-Fully resolved by the compiler:
+Handled explicitly by TRAPI's resolver:
 
 - `Partial<T>` — all properties optional
 - `Required<T>` — all properties required
@@ -109,7 +111,17 @@ Fully resolved by the compiler:
 - `Record<K, V>` — keyed map
 - `NonNullable<T>` — strips `null | undefined`
 
-Other utility types (`ReturnType`, `Parameters`, etc.) are not explicitly supported; they may or may not resolve depending on context.
+Delegated to the TypeScript type checker (TRAPI lets the compiler compute the resolved type, then walks the result):
+
+- `Extract<T, U>`
+- `Exclude<T, U>`
+- `ReturnType<T>`
+- `Parameters<T>`
+- `Awaited<T>`
+- `InstanceType<T>`
+- `ConstructorParameters<T>`
+
+Other utility types may still resolve correctly via the compiler fallback, but are not guaranteed.
 
 ## Generics
 
@@ -155,8 +167,8 @@ type TreeNode = { value: string; children: TreeNode[] };
 
 ## Not Supported
 
-- `ReturnType<T>`, `Parameters<T>`, `Awaited<T>` — sometimes resolve, sometimes do not; do not rely on them
 - Template literal types — emitted as plain `string`
-- Conditional types where the condition cannot be evaluated at compile time
+- Conditional types where the condition cannot be evaluated statically
+- Arbitrary mapped types with key remapping — simple mapped types work through the explicit utility set above
 
 For gaps that matter to you, open an issue — the metadata layer is deliberately extensible.

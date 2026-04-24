@@ -1,32 +1,52 @@
 # Custom Presets
 
-A preset is a published npm package that exports a TRAPI decorator mapping. Publishing a preset lets you reuse a mapping across projects, and lets other teams adopt your decorator library with a one-line config change.
+A preset is a published npm package whose default export is a `PresetSchema`. Publishing a preset lets you reuse a mapping across projects, and lets other teams adopt your decorator library with a one-line config change.
 
 ## Anatomy
 
-A preset package needs exactly two things:
-
-1. An exported `schema` mapping decorator names to `DecoratorID`.
-2. A package name the consumer can reference in `preset`.
+```typescript
+type PresetSchema = {
+    extends: string[];          // other preset package names to inherit from (empty array if none)
+    items: DecoratorConfig[];   // this preset's mapping entries
+};
+```
 
 ```typescript
 // src/index.ts
 import { DecoratorID, type PresetSchema } from '@trapi/metadata';
 
-export const schema: PresetSchema = {
-    name: '@my-org/trapi-preset',
+const schema: PresetSchema = {
+    extends: [],
     items: [
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
-        { id: DecoratorID.GET,        name: 'HttpGet' },
-        { id: DecoratorID.POST,       name: 'HttpPost' },
-        { id: DecoratorID.BODY,       name: 'FromBody' },
-        { id: DecoratorID.QUERY,      name: 'FromQuery' },
+        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
+        { id: DecoratorID.GET,        name: 'HttpGet',  properties: { value: {} } },
+        { id: DecoratorID.POST,       name: 'HttpPost', properties: { value: {} } },
+        { id: DecoratorID.BODY,       name: 'FromBody', properties: { value: {} } },
+        { id: DecoratorID.QUERY,      name: 'FromQuery', properties: { value: {} } },
         // ...
+    ],
+};
+
+export default schema;
+```
+
+TRAPI accepts the schema as either the default export or a named `default` member on the module. `extends` must be present — pass `[]` if your preset does not build on another.
+
+### Extending Another Preset
+
+Instead of re-listing every entry, you can extend an existing preset and add your own mappings on top:
+
+```typescript
+const schema: PresetSchema = {
+    extends: ['@trapi/decorators'],
+    items: [
+        // Recognise @Route(...) in addition to the inherited @Controller(...)
+        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
     ],
 };
 ```
 
-The default export must be the schema (or a named `schema` export — TRAPI accepts either).
+TRAPI concatenates this preset's `items` first, then the entries loaded from each extended preset. Matches are tried in that order, so your own entries are attempted first — both decorator names remain valid for the same `DecoratorID`. Extension is additive, not override.
 
 ## Package Setup
 
@@ -70,25 +90,45 @@ That's it — TRAPI resolves `@my-org/trapi-preset`, imports its `schema`, and u
 
 ## Property Configuration
 
-If your decorators accept arguments that do not map cleanly to TRAPI's defaults (e.g. a custom options object, positional arguments in an unusual order), describe them with `properties`:
+`properties` is a map keyed by logical property name — the valid keys depend on the `DecoratorID` (see [Property Names by DecoratorID](/guide/metadata-decorators#property-names-by-decoratorid)). Each value says where on the decorator call to read that property from:
+
+```typescript
+type DecoratorPropertyConfigInput = Partial<{
+    isType: boolean;       // argument carries a type reference
+    index: number;         // positional argument index (default: 0)
+    amount?: number;       // number of arguments to consume (-1 = all remaining)
+    strategy?: 'merge' | ((...items: any[]) => any);
+}>;
+```
+
+### Positional
 
 ```typescript
 {
-    id: DecoratorID.CONTROLLER,
-    name: 'Route',
-    properties: [
-        { type: 'path', strategy: 'object', key: 'path' },
-    ],
+    id: DecoratorID.DESCRIPTION,
+    name: 'Response',
+    properties: {
+        statusCode: { index: 0 },
+        description: { index: 1 },
+        payload: { index: 2 },
+        type: { isType: true },
+    },
 }
 ```
 
-`strategy` can be:
+### Variadic with Merge
 
-- `'positional'` (default) — read from `properties[index]`
-- `'object'` — read from an argument object by `key`
-- `'call'` — the decorator is called with a factory function
+```typescript
+{
+    id: DecoratorID.ACCEPT,
+    name: 'Accept',
+    properties: {
+        value: { amount: -1, strategy: 'merge' },
+    },
+}
+```
 
-See the [API Reference](/guide/metadata-api-reference#decoratorconfig) for the full property schema.
+See the [API Reference](/guide/metadata-api-reference#decoratorconfig) for the full property schema and [Decorators & Presets](/guide/metadata-decorators#property-names-by-decoratorid) for the per-`DecoratorID` property name table.
 
 ## Worked Example: typescript-rest
 
@@ -100,7 +140,7 @@ The simplest test harness is to feed `generateMetadata()` a fixture controller t
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
-import { schema } from '../src';
+import schema from '../src';
 
 const metadata = await generateMetadata({
     entryPoint: ['test/fixtures/**/*.ts'],
@@ -115,11 +155,12 @@ Using `decorators` directly (rather than `preset`) side-steps the module-resolut
 
 ## Publishing Checklist
 
-- [ ] `schema.name` matches the package name (useful for diagnostics)
+- [ ] `schema.extends` is present (pass `[]` if you do not inherit from another preset)
 - [ ] All decorators your library exports are mapped
 - [ ] `@trapi/metadata` is a peer dependency, not a direct dependency
 - [ ] Package is ESM (`"type": "module"`)
 - [ ] `exports` field points to both the JS bundle and the type declarations
+- [ ] The default export is the schema (TRAPI checks for a plain export and for a `.default` on the module)
 - [ ] A fixture test covers a realistic controller
 
 Once published, consider opening a pull request against the TRAPI monorepo to add a link from the documentation — it helps other users find framework support.

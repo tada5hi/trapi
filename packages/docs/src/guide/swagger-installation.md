@@ -6,16 +6,18 @@ Add the package as a dependency:
 npm install --save @trapi/swagger
 ```
 
-## Peer Requirements
+## Requirements
 
 - **Node.js** ≥ 22
-- **`@trapi/metadata`** — the swagger package operates on metadata, so you need this installed alongside it:
+- **TypeScript** ≥ 5 — required through `@trapi/metadata`, which uses the compiler API at runtime.
+
+`@trapi/metadata` is a direct dependency of `@trapi/swagger`, so installing swagger pulls it in transitively. Install it explicitly too if you want to import its types (`Metadata`, `MetadataGenerateOptions`) in your own code:
 
 ```bash
 npm install --save @trapi/metadata
 ```
 
-If you also want `@trapi/swagger` to run metadata extraction on your behalf (by passing options to `generateSwagger` instead of a pre-built `Metadata` object), install a decorator mapping too:
+If you want `@trapi/swagger` to run metadata extraction itself (by passing `MetadataGenerateOptions` to `generateSwagger`), you also need a decorator mapping installed — either `@trapi/decorators`, a shipped preset, or your own:
 
 ```bash
 npm install --save @trapi/decorators

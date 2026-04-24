@@ -66,12 +66,12 @@ allow: ['**/*.controller.ts']
 
 ### cache
 
-Enables the metadata cache so unchanged files are not re-parsed on subsequent runs. See [Caching](/guide/metadata-caching).
+Enables the metadata cache so a previous extraction can be reused on subsequent runs. See [Caching](/guide/metadata-caching).
 
 ```typescript
-cache: true                       // uses defaults
-cache: './.cache/trapi'           // shorthand for { directory: ... }
-cache: { directory: '.cache' }    // full options object
+cache: true                             // enabled, directory defaults to os.tmpdir()
+cache: './.cache/trapi'                 // shorthand for { enabled: true, directoryPath: './.cache/trapi' }
+cache: { enabled: true, directoryPath: '.cache/trapi' }  // full options object
 ```
 
 ### decorators
@@ -86,7 +86,7 @@ Name of a published preset package. Loaded dynamically via `import()`.
 preset: '@trapi/decorators'
 ```
 
-When both `preset` and `decorators` are supplied, entries in `decorators` override the preset.
+When both `preset` and `decorators` are supplied, the two lists are concatenated — user entries are tried first, then the preset's. Both names will be recognised for the same `DecoratorID`.
 
 ### tsconfig
 
@@ -146,7 +146,7 @@ await generateMetadata({
         { id: DecoratorID.POST,       name: 'HttpPost' },
         { id: DecoratorID.BODY,       name: 'FromBody' },
     ],
-    cache: { directory: '.cache/trapi' },
+    cache: { enabled: true, directoryPath: '.cache/trapi' },
 });
 ```
 

@@ -14,14 +14,14 @@ Most tools that generate OpenAPI from decorators force you to adopt their own de
 - **Pure static analysis** — decorators are no-ops at runtime; metadata is extracted via the TypeScript compiler API
 - **Zero runtime overhead** — all work happens at build time, nothing is added to your application
 - **Framework presets** — ships with presets for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) and [@decorators/express](https://github.com/serhiisol/node-decorators), or create your own
-- **OpenAPI 2.0 & 3.0** — generates spec-compliant JSON/YAML output
+- **OpenAPI 2.0, 3.0, 3.1 & 3.2** — generates spec-compliant JSON/YAML output
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
 | [@trapi/metadata](./packages/metadata) | Core: extracts API metadata from TypeScript decorators |
-| [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0/3.0 specifications |
+| [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
 | [@trapi/decorators](./packages/decorators) | Default decorator set and mapping |
 | [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Preset for typescript-rest |
 | [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Preset for @decorators/express |

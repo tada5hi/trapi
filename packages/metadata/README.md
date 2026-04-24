@@ -90,14 +90,26 @@ export interface MetadataGenerateOptions {
 ```
 
 ## Limitations
-At the moment only the following TypeScript UtilityTypes are supported:
-* NonNullable
-* Omit
-* Partial
-* Readonly
-* Record
-* Required
-* Pick
+
+TRAPI's resolver explicitly handles these TypeScript utility types:
+
+* `NonNullable`
+* `Omit`
+* `Partial`
+* `Readonly`
+* `Record`
+* `Required`
+* `Pick`
+
+Additionally these are delegated to the TypeScript type checker and resolve through the compiler's own computation:
+
+* `Extract`
+* `Exclude`
+* `ReturnType`
+* `Parameters`
+* `Awaited`
+* `InstanceType`
+* `ConstructorParameters`
 
 ## Usage
 

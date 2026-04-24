@@ -25,10 +25,21 @@ See [Generating a Spec](/guide/swagger-generation) for usage patterns.
 async function saveSwagger(
     spec: SpecV2 | SpecV3,
     output: SwaggerGenerateOutput,
-): Promise<Record<string, { path: string; name: string; content: string }>>;
+): Promise<Record<`${DocumentFormat}`, DocumentFormatData>>;
+
+interface DocumentFormatData {
+    path: string;       // absolute path the file was written to
+    name: string;       // filename with extension
+    content?: string;   // serialised content (JSON string or YAML string)
+}
+
+enum DocumentFormat {
+    JSON = 'json',
+    YAML = 'yaml',
+}
 ```
 
-Writes the spec to disk as JSON, and optionally YAML. Returns a record of every file written, keyed by filename.
+Writes the spec to disk as JSON and, when `yaml: true`, also as YAML. Returns a record of the files written. The record's values carry the resolved `path`, `name`, and the serialised `content` as it was written.
 
 See [Saving Output](/guide/swagger-output) for usage patterns.
 
@@ -88,7 +99,7 @@ type ServerOption = {
 
 ### `SpecV2` / `SpecV3`
 
-The shape of the emitted document. These follow the official OpenAPI 2.0 and 3.0 schemas respectively. The swagger package re-exports them as TypeScript types so you can write utilities over the output without pulling in a third-party type package.
+The shape of the emitted document. `SpecV2` follows the OpenAPI 2.0 (Swagger) schema; `SpecV3` covers 3.0, 3.1, and 3.2 outputs. The swagger package re-exports them as TypeScript types so you can write utilities over the output without pulling in a third-party type package.
 
 ### `Version`
 
@@ -105,27 +116,29 @@ enum Version {
 
 The swagger package throws `SwaggerError` for spec-level problems (duplicate operation IDs, body parameter conflicts, etc.). `MetadataError` subclasses surface through `generateSwagger` when extraction fails.
 
+There is no dedicated type guard — use `instanceof`:
+
 ```typescript
-import { isSwaggerError } from '@trapi/swagger';
+import { SwaggerError } from '@trapi/swagger';
 
 try {
     await generateSwagger({ ... });
 } catch (error) {
-    if (isSwaggerError(error)) {
+    if (error instanceof SwaggerError) {
         console.error('Swagger emission failed:', error.message);
     }
     throw error;
 }
 ```
 
-## Re-exports from `@trapi/metadata`
+## Working with Metadata Types
 
-For convenience, `@trapi/swagger` re-exports the metadata types most users need when wiring things up:
+`@trapi/swagger` consumes types from `@trapi/metadata` — `Metadata` and `MetadataGenerateOptions` — but does not re-export them. Import them from `@trapi/metadata` directly:
 
-- `Metadata`
-- `MetadataGenerateOptions`
-
-Import them from `@trapi/metadata` directly if you want a single source of truth.
+```typescript
+import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
+import { generateSwagger } from '@trapi/swagger';
+```
 
 ## Stability
 

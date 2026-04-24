@@ -5,7 +5,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/trapi/badge.svg)](https://snyk.io/test/github/Tada5hi/trapi)
 [![npm version](https://badge.fury.io/js/@trapi%2Fswagger.svg)](https://badge.fury.io/js/@trapi%2Fswagger)
 
-Transforms TRAPI metadata into an OpenAPI 2.0 (Swagger) or OpenAPI 3.0 specification and, optionally, writes it to disk as JSON or YAML.
+Transforms TRAPI metadata into an OpenAPI specification (2.0 / Swagger, 3.0, 3.1, or 3.2) and, optionally, writes it to disk as JSON or YAML.
 
 Inspect the `CHANGELOG.md` in the repository for breaking changes.
 
@@ -25,7 +25,7 @@ Inspect the `CHANGELOG.md` in the repository for breaking changes.
 npm install --save @trapi/swagger
 ```
 
-`@trapi/metadata` is a peer dependency and must be installed alongside it:
+`@trapi/metadata` is a direct dependency of `@trapi/swagger`, so it is pulled in automatically. Install it explicitly if you want to import its types (`Metadata`, `MetadataGenerateOptions`) in your own code:
 
 ```bash
 npm install --save @trapi/metadata
@@ -129,12 +129,12 @@ If you need in-memory output only, skip `saveSwagger()` and use the value return
 
 ## Supported Versions
 
-| Version | Emitter | Notes |
-|---------|---------|-------|
-| `v2`    | OpenAPI 2.0 (Swagger) | Uses `x-nullable`, `x-deprecated`, flattens intersection types |
-| `v3`    | OpenAPI 3.0 | Uses `nullable`, `deprecated`, `allOf` for intersections, `requestBody` |
-| `v3.1`  | OpenAPI 3.1 | Same as 3.0 emitter with 3.1 schema header |
-| `v3.2`  | OpenAPI 3.2 | Same as 3.0 emitter with 3.2 schema header |
+| Version | `spec.openapi` | Notes |
+|---------|---------------|-------|
+| `v2`    | swagger 2.0    | Uses `x-nullable`, `x-deprecated`, flattens intersection types |
+| `v3`    | `3.0.0`        | Uses `nullable`, `deprecated`, `allOf` for intersections, `requestBody`; strips `$ref` siblings for spec compliance |
+| `v3.1`  | `3.1.0`        | Same emitter as `v3`; allows `$ref` siblings (OpenAPI 3.1 relaxed that restriction) |
+| `v3.2`  | `3.2.0`        | Same emitter as `v3.1` |
 
 Version-specific differences that matter most:
 

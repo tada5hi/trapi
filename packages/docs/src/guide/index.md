@@ -1,6 +1,6 @@
 # What is TRAPI?
 
-**T**ypeScript **R**est **API** is a suite of packages that extracts REST API metadata from TypeScript decorators and turns it into OpenAPI 2.0 or 3.x specifications — without locking you into a specific decorator library.
+**T**ypeScript **R**est **API** is a suite of packages that extracts REST API metadata from TypeScript decorators and turns it into OpenAPI 2.0, 3.0, 3.1, or 3.2 specifications — without locking you into a specific decorator library.
 
 Most tools in this space ship their own decorator set that you have to adopt. TRAPI takes the opposite approach: you describe how your existing decorators (custom or third-party) map to a shared semantic model, and TRAPI takes it from there.
 
@@ -26,7 +26,7 @@ The metadata model is a first-class output. Other consumers — route generators
 | Package | Purpose |
 | --- | --- |
 | [`@trapi/metadata`](/guide/metadata-installation) | Extracts metadata from decorated TypeScript source |
-| [`@trapi/swagger`](/guide/swagger-installation) | Emits OpenAPI 2.0 / 3.x specs from metadata |
+| [`@trapi/swagger`](/guide/swagger-installation) | Emits OpenAPI 2.0, 3.0, 3.1 & 3.2 specs from metadata |
 | `@trapi/decorators` | Reference decorator set and mapping schema |
 | `@trapi/preset-typescript-rest` | Preset for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
 | `@trapi/preset-decorators-express` | Preset for [@decorators/express](https://github.com/serhiisol/node-decorators) |

@@ -38,9 +38,8 @@ NX caches build, lint, and test targets. Build dependencies (`^build`) ensure pa
 - **Base config**: extends `@tada5hi/tsconfig` with overrides
 - **Module format**: ESM (`.mjs` output via tsdown)
 - **Decorators**: `experimentalDecorators: true` enabled
-- **Strict mode**: Currently disabled (`strict: false`); see `.agents/plans/001-enable-strict-typescript.md` for the incremental re-enablement plan
-- Peer dependency on TypeScript >=5.0.0 (root devDependency: ^6.0.2)
-- See `.agents/plans/002-typescript-6-migration.md` for TS6 migration details, compiler API audit, and decorator roadmap
+- **Strict mode**: Currently disabled (`strict: false`); re-enablement is tracked as a future plan
+- Peer dependency on TypeScript >=5.0.0 (root devDependency in the ^6 line)
 - The metadata package uses the TypeScript compiler API directly (`ts.createProgram`, type checker, AST traversal)
 
 ## Imports

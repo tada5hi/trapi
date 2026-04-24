@@ -61,12 +61,21 @@ A single mapping entry:
 ```typescript
 type DecoratorConfig = {
     id: `${DecoratorID}`;
-    name: string;                         // the decorator's name in source
-    properties?: DecoratorPropertyConfig[]; // where to read each logical property from
+    name: string;
+    properties?: {
+        [propertyName: string]: DecoratorPropertyConfigInput;
+    };
 };
+
+type DecoratorPropertyConfigInput = Partial<{
+    isType: boolean;       // default: false — true when the argument carries a type reference
+    index: number;         // default: 0 — positional argument to read from
+    amount?: number;       // how many arguments starting from `index` to consume (-1 = all remaining)
+    strategy?: 'merge' | ((...items: any[]) => any);
+}>;
 ```
 
-`name` is what TRAPI searches for in your AST. `properties` is an optional list describing where on the decorator call (which argument, which object field) each logical property lives.
+`name` is the decorator's identifier as it appears in your source. `properties` is a map keyed by **logical property name** — the keys depend on the `id` (see [Property Names by DecoratorID](#property-names-by-decoratorid) below). Each value tells TRAPI where on the decorator call to read that property from.
 
 ### Minimal
 
@@ -80,36 +89,69 @@ Matches `@Get()` and `@Get('/path')` with sensible defaults: positional argument
 
 ```typescript
 {
-    id: DecoratorID.RESPONSE_DESCRIPTION,
+    id: DecoratorID.DESCRIPTION,
     name: 'Response',
-    properties: [
-        { type: 'status-code', index: 0 },
-        { type: 'description', index: 1 },
-    ],
+    properties: {
+        statusCode: { index: 0 },
+        description: { index: 1 },
+        payload: { index: 2 },
+        type: { isType: true },
+    },
 }
 ```
 
-Interprets `@Response(404, 'Not Found')` as `{ statusCode: 404, description: 'Not Found' }`.
+Interprets `@Response<User>(404, 'Not Found')` by reading the status code from argument 0, the description from argument 1, and a type reference from the decorator's type argument.
 
-### Options Object
+### Variadic Arguments
 
-Some libraries pass a single options object instead of positional arguments:
+Some decorators accept any number of arguments and expect them merged into an array. Use `amount: -1` together with `strategy: 'merge'`:
 
 ```typescript
 {
-    id: DecoratorID.CONTROLLER,
-    name: 'Controller',
-    properties: [
-        { type: 'path', strategy: 'object', key: 'path' },
-    ],
+    id: DecoratorID.ACCEPT,
+    name: 'Accept',
+    properties: {
+        value: { amount: -1, strategy: 'merge' },
+    },
 }
 ```
 
-Matches `@Controller({ path: '/users' })` and pulls `path` from the options object.
+Matches `@Accept('application/json', 'application/xml')` and yields `value: ['application/json', 'application/xml']`.
+
+### Type References
+
+When an argument is a *type* rather than a value (e.g. an `@Example<User>({ ... })` decorator), set `isType: true`. TRAPI reads the type argument from the decorator call instead of a runtime value.
+
+### Property Names by DecoratorID
+
+Each `DecoratorID` has its own property schema. A quick reference for the common ones:
+
+| DecoratorID | Property names | Expected value |
+| --- | --- | --- |
+| `CONTROLLER`, `MOUNT`, HTTP verbs (`GET`, `POST`, …) | `value` | `string` — the route path |
+| `TAGS` | `value` | `string[]` — tag names |
+| `DESCRIPTION` | `statusCode`, `description`, `payload`, `type` | — |
+| `EXAMPLE` | `type`, `payload`, `label` (optional) | — |
+| `SECURITY` | `key`, `value` | scheme name + required scopes |
+| `PRODUCES`, `ACCEPT`, `CONSUMES` | `value` | `string[]` — media types |
+| `QUERY`, `BODY`, `HEADER`, `PATH`, `FORM`, `COOKIE`, `FILE`, … | `value` | `string` — parameter name |
+| `HIDDEN`, `DEPRECATED` | — | marker only, no properties |
+| `EXTENSION` | `key`, `value` | `x-*` key + value |
+
+For the full, type-safe schema see `DecoratorClassSetProperties`, `DecoratorMethodSetProperties`, `DecoratorParameterSetProperties`, etc. in the source.
 
 ## Presets
 
-A **preset** is a published npm package that exports a ready-made `DecoratorConfig[]` plus metadata TRAPI uses for load-time diagnostics.
+A **preset** is a published npm package whose default export is a `PresetSchema`:
+
+```typescript
+type PresetSchema = {
+    extends: string[];          // other preset package names to inherit from
+    items: DecoratorConfig[];   // this preset's mapping entries
+};
+```
+
+`extends` lets a preset build on top of another by package name — TRAPI loads each referenced preset recursively and concatenates the `items`.
 
 Shipped presets:
 
@@ -130,22 +172,22 @@ await generateMetadata({
 
 Presets are resolved via Node's module resolution, so they must be installed as regular dependencies.
 
-## Merging Presets with Overrides
+## Combining Presets with Additional Mappings
 
-If you use a preset but one of your decorators has a non-standard name, combine both:
+If you use a preset but also have a decorator with a non-standard name, supply both:
 
 ```typescript
 await generateMetadata({
     entryPoint: 'src/controllers/**/*.ts',
     preset: '@trapi/decorators',
     decorators: [
-        // Keep everything the preset defines; override only CONTROLLER
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
+        // Recognise @Route(...) *in addition to* the preset's @Controller(...)
+        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
     ],
 });
 ```
 
-Entries in `decorators` override the preset for matching `id` values.
+Mappings are additive: entries in `decorators` are concatenated with the preset's entries, and TRAPI tries them in order (user entries first). Both decorator names will be recognised for the same `DecoratorID`. If you genuinely want to replace a preset entry rather than add to it, don't load the preset — supply your own `decorators` list directly.
 
 ## Writing Your Own
 

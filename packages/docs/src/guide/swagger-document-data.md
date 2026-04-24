@@ -66,10 +66,9 @@ In OpenAPI 2.0 there is no `servers` array — the emitter maps the first entry 
 ```typescript
 data: {
     securityDefinitions: {
-        bearerAuth: {
+        basicAuth: {
             type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
+            scheme: 'basic',
         },
         apiKey: {
             type: 'apiKey',
@@ -89,6 +88,8 @@ data: {
     },
 }
 ```
+
+Supported schemes: `apiKey` (header/query), `http` with `scheme: 'basic'`, and `oauth2` with any of the four OAuth2 flow types (`implicit`, `password`, `authorizationCode`, `clientCredentials`). For bearer-token JWT auth you can model it as an API key in the `Authorization` header, or extend the spec through `data.extra` if you need a non-basic HTTP scheme.
 
 Operation-level `security` is driven by the `@Security` decorator on your controllers and methods — the value you pass here only *defines* the schemes.
 

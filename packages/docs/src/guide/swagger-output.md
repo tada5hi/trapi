@@ -28,16 +28,31 @@ type SwaggerGenerateOutput = {
 
 ## Return Value
 
-`saveSwagger()` returns a record keyed by filename:
+`saveSwagger()` returns a record whose values are `DocumentFormatData` entries — one per file written, each carrying the absolute `path`, the filename (`name`), and the serialised `content`:
 
 ```typescript
-{
-    'openapi.json': { path: '...', name: 'openapi.json', content: '...' },
-    'openapi.yaml': { path: '...', name: 'openapi.yaml', content: '...' },
+interface DocumentFormatData {
+    path: string;
+    name: string;
+    content?: string;
 }
 ```
 
-Useful when you want to upload the produced files to an artefact store or post-process them.
+The most reliable way to consume it is to iterate:
+
+```typescript
+const written = await saveSwagger(spec, { directory: './docs', yaml: true });
+
+for (const entry of Object.values(written)) {
+    console.log(`Wrote ${entry.name} to ${entry.path}`);
+}
+```
+
+::: warning Declared type vs runtime keys
+The declared return type is `Record<'json' | 'yaml', DocumentFormatData>`, but at runtime the record is keyed by the generated filename (e.g. `'swagger.json'`, `'swagger.yaml'`). Prefer `Object.values(result)` over keyed access to avoid surprises.
+:::
+
+Useful when you want to upload the produced files to an artefact store or post-process them without re-reading from disk.
 
 ## Picking a Location
 

@@ -39,14 +39,14 @@ This matters when you want to emit multiple versions, feed the metadata into a c
 
 ## Choosing a Version
 
-| `version` | Emitter |
-| --- | --- |
-| `'v2'` | OpenAPI 2.0 / Swagger |
-| `'v3'` | OpenAPI 3.0 |
-| `'v3.1'` | OpenAPI 3.1 (3.0 emitter with 3.1 header) |
-| `'v3.2'` | OpenAPI 3.2 (3.0 emitter with 3.2 header) |
+| `version` | `spec.openapi` / header | Emitter |
+| --- | --- | --- |
+| `'v2'` | swagger 2.0 | `V2Generator` |
+| `'v3'` | `'3.0.0'` | `V3Generator` in 3.0 mode |
+| `'v3.1'` | `'3.1.0'` | `V3Generator` in 3.1-or-later mode |
+| `'v3.2'` | `'3.2.0'` | `V3Generator` in 3.1-or-later mode |
 
-The `version` parameter is type-narrowing — the return type of `generateSwagger` is `SpecV2` for `'v2'` and `SpecV3` for any v3.x value.
+The v3.x values all use the same `V3Generator` class but with minor behavioural differences — most visibly, `'v3.1'` and `'v3.2'` allow `$ref` siblings (OpenAPI 3.1 relaxed that restriction), while `'v3'` strips them for spec compliance. The `version` parameter is type-narrowing: the return type of `generateSwagger` is `SpecV2` for `'v2'` and `SpecV3` for any v3.x value.
 
 ## Supplying Document Data
 

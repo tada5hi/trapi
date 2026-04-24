@@ -57,34 +57,36 @@ import { DecoratorID, generateMetadata } from '@trapi/metadata';
 await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
     decorators: [
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
+        { id: DecoratorID.CONTROLLER, name: 'Route',     properties: { value: {} } },
         { id: DecoratorID.GET,        name: 'HttpGet' },
         { id: DecoratorID.POST,       name: 'HttpPost' },
-        { id: DecoratorID.BODY,       name: 'FromBody' },
-        { id: DecoratorID.QUERY,      name: 'FromQuery' },
+        { id: DecoratorID.BODY,       name: 'FromBody',  properties: { value: {} } },
+        { id: DecoratorID.QUERY,      name: 'FromQuery', properties: { value: {} } },
         // ...
     ],
 });
 ```
 
+Decorators that carry a value (route paths, parameter names, content types) need `properties: { value: {} }` so TRAPI knows to read the first argument. HTTP verb decorators can be declared with just `id` and `name` — they default to reading the path from argument `0`.
+
 If you intend to reuse the mapping across multiple projects, publish it as a [Custom Preset](/guide/advanced-custom-presets).
 
-## Combining a Preset with Overrides
+## Combining a Preset with Extra Mappings
 
-You can load a preset and override specific mappings by also passing `decorators`:
+You can load a preset and add your own mappings via `decorators`:
 
 ```typescript
 await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
     preset: '@trapi/decorators',
     decorators: [
-        // override only the controller decorator; keep everything else from the preset
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
+        // Recognise @Route(...) in addition to the preset's @Controller(...)
+        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
     ],
 });
 ```
 
-Entries in `decorators` take precedence over the preset.
+The lists are concatenated, with `decorators` entries tried first — both decorator names end up valid. If you need to *replace* a preset entry, supply only `decorators` (no `preset`) with your complete mapping.
 
 ## What TRAPI Does Not Do
 

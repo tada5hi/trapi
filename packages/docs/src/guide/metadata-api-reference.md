@@ -62,111 +62,149 @@ type Metadata = {
 ### `Controller`
 
 ```typescript
-type Controller = {
-    path: string;
+interface Controller {
     name: string;
+    path: string;                 // relative URL path, e.g. '/users'
+    location: string;             // source file path
     methods: Method[];
-    consumes?: string[];
-    produces?: string[];
-    tags?: string[];
+    responses: Response[];
+    tags: string[];
+    consumes: string[];           // default Content-Types accepted
+    produces: string[];           // default Content-Types produced
+    hidden: boolean;              // excluded from emitted specs when true
     security?: Security[];
-    // ...
-};
+}
 ```
 
 ### `Method`
 
 ```typescript
-type Method = {
-    method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
+type MethodType = 'get' | 'post' | 'put' | 'delete' | 'options' | 'head' | 'patch';
+
+interface Method {
+    method: MethodType;
     name: string;
     path: string;
+    description: string;
     parameters: Parameter[];
     responses: Response[];
-    description?: string;
+    type: BaseType;               // resolved return type
+    tags: string[];
+    consumes: string[];
+    produces: string[];
+    extensions: Extension[];      // x-* extensions
+    hidden: boolean;
+    operationId?: string;
+    summary?: string;
     deprecated?: boolean;
-    hidden?: boolean;
-    // ...
-};
+    security?: Security[];
+}
 ```
 
 ### `Parameter`
 
 ```typescript
-type Parameter = {
-    name: string;
-    in: 'path' | 'query' | 'body' | 'formData' | 'header' | 'cookie';
+interface Parameter {
+    parameterName: string;        // argument name in source
+    name: string;                 // public name (may differ, e.g. from a decorator arg)
+    description: string;
+    in: `${ParameterSource}`;     // 'body' | 'bodyProp' | 'context' | 'cookie' | 'header'
+                                  // | 'formData' | 'query' | 'queryProp' | 'path'
     type: Type;
     required: boolean;
-    description?: string;
-    // ...
-};
+    default?: any;
+    deprecated?: boolean;
+    collectionFormat?: `${CollectionFormat}`;  // 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
+    allowEmptyValue?: boolean;
+    minItems?: number;
+    maxItems?: number;
+    examples?: Example[];
+    exampleLabels?: string[];
+    validators?: Record<string, Validator>;
+}
 ```
 
 ### `Type`
 
 The `Type` union covers every shape the resolver produces:
 
-- `StringType`, `NumberType`, `BooleanType`, `BigintType`
-- `DateType`, `DateTimeType`, `BufferType`, `ByteType`, `BinaryType`
+- `StringType`, `BooleanType`, `BigintType`
+- `IntegerType`, `LongType`, `FloatType`, `DoubleType` (TypeScript `number` resolves to `DoubleType` by default; `@IsInt` / `@IsLong` / `@IsFloat` / `@IsDouble` refine it)
+- `DateType`, `DateTimeType`, `BufferType`, `ByteType`, `BinaryType`, `FileType`
 - `VoidType`, `UndefinedType`, `NeverType`, `AnyType`
 - `ArrayType`, `TupleType`
 - `ObjectType`, `NestedObjectLiteralType`, `EnumType`
 - `UnionType`, `IntersectionType`
-- `RefObjectType`, `RefEnumType`, `RefAliasType` (named references)
+- `RefObjectType`, `RefEnumType`, `RefAliasType` — named references, each has a `refName: string`
+
+`PrimitiveType` is a convenience alias spanning the non-reference primitives. Every variant carries a `typeName: ${TypeName}` discriminator.
 
 See [Supported TypeScript Types](/guide/advanced-type-support) for behavioural detail.
 
 ### `CacheOptions`
 
 ```typescript
-type CacheOptions = {
-    directory: string;
-    clearAtRandom?: boolean;
-};
+interface CacheOptions {
+    enabled: boolean;          // default: true when cache is explicitly configured
+    directoryPath: string;     // default: os.tmpdir()
+    fileName?: string;         // default: metadata-{hash}.json
+    clearAtRandom: boolean;    // prune stale entries ~10% of the time; default: true outside of NODE_ENV=test
+}
+
+type CacheOptionsInput = Partial<CacheOptions>;
 ```
+
+Accepted inputs to `MetadataGenerateOptions.cache`:
+
+- `true` → `{ enabled: true }`
+- `false` → cache disabled
+- `string` → `{ enabled: true, directoryPath: string }`
+- `Partial<CacheOptions>` → merged onto the defaults
 
 ### `DecoratorConfig`
 
 ```typescript
-type DecoratorConfig = {
-    id: `${DecoratorID}`;
+type DecoratorConfig<T extends `${DecoratorID}` = `${DecoratorID}`> = {
+    id: T;
     name: string;
-    properties?: DecoratorPropertyConfig[];
+    properties?: {
+        [propertyName: string]: DecoratorPropertyConfigInput;
+    };
 };
 
+type DecoratorPropertyConfigInput = Partial<DecoratorPropertyConfig>;
+
 type DecoratorPropertyConfig = {
-    type: string;                   // logical property name
-    index?: number;                 // argument index (positional)
-    strategy?: 'positional' | 'object' | 'call';
-    key?: string;                   // object key when strategy is 'object'
-    amount?: number;                // number of arguments consumed
-    isType?: boolean;               // argument carries a type reference
+    isType: boolean;           // default: false — true when the argument carries a type reference
+    index: number;             // default: 0 — positional argument to read from
+    amount?: number;           // how many arguments to consume (-1 = all remaining)
+    strategy?: DecoratorPropertyStrategy;
 };
+
+type DecoratorPropertyStrategy = 'merge' | ((...items: any[]) => any);
 ```
+
+`properties` is a map keyed by logical property name. Valid keys depend on the `DecoratorID` — see [Property Names by DecoratorID](/guide/metadata-decorators#property-names-by-decoratorid).
 
 ### `PresetSchema`
 
 ```typescript
 type PresetSchema = {
-    name: string;
+    extends: string[];         // other preset package names to inherit from
     items: DecoratorConfig[];
 };
 ```
 
 ### `TsConfig`
 
-Subset of the TypeScript compiler options TRAPI reads:
-
 ```typescript
+type TsCompilerOptions = CompilerOptions;  // re-exported from 'typescript'
+
 type TsConfig = {
-    compilerOptions?: CompilerOptions;
-    include?: string[];
-    exclude?: string[];
+    compilerOptions?: TsCompilerOptions;
+    [key: string]: any;        // standard tsconfig fields like include, exclude, files, references
 };
 ```
-
-Where `CompilerOptions` is re-exported from `typescript`.
 
 ## Enums
 

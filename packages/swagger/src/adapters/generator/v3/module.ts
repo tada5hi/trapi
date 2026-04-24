@@ -54,7 +54,7 @@ import {
     DataTypeName,
     ParameterSourceV3,
 } from '../../../core/schema';
-import type { OptionsInput } from '../../../core/config';
+import type { SpecGeneratorOptionsInput } from '../../../core/config';
 import type { SecurityDefinition, SecurityDefinitions } from '../../../core/types';
 import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
 import {
@@ -76,7 +76,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     constructor(
         metadata: Metadata,
-        config: OptionsInput,
+        config: SpecGeneratorOptionsInput,
         version: `${Version}` = 'v3.2',
     ) {
         super(metadata, config);
@@ -102,8 +102,6 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         this.spec = spec;
-
-        await this.save();
 
         return spec;
     }

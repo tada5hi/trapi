@@ -91,8 +91,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         this.spec = spec;
 
-        await this.save();
-
         return spec;
     }
 

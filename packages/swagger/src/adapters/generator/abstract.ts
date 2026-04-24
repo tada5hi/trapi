@@ -42,18 +42,13 @@ import {
     isVoidType,
 } from '@trapi/metadata';
 
-import path from 'node:path';
-import fs from 'node:fs';
 import { isObject } from 'smob';
-import YAML from 'yamljs';
-import { buildOptions } from '../../core/config';
+import { buildSpecGeneratorOptions } from '../../core/config';
 import { SwaggerError, SwaggerErrorCode } from '../../core/error';
-import type { Options, OptionsInput } from '../../core/config';
-import type { DocumentFormat } from '../../core/constants';
+import type { SpecGeneratorOptions, SpecGeneratorOptionsInput } from '../../core/config';
 import { DataFormatName, DataTypeName } from '../../core/schema';
 import { transformValueTo } from '../../core/utils';
 
-import type { DocumentFormatData } from '../../core/types';
 import type {
     BaseSchema,
     Info,
@@ -68,61 +63,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected readonly metadata: Metadata;
 
-    protected readonly config: Options;
+    protected readonly config: SpecGeneratorOptions;
 
-    constructor(metadata: Metadata, config: OptionsInput) {
+    constructor(metadata: Metadata, config: SpecGeneratorOptionsInput) {
         this.metadata = metadata;
-        this.config = buildOptions(config);
-    }
-
-    async save(): Promise<Record<`${DocumentFormat}`, DocumentFormatData>> {
-        if (!this.config.output) {
-            return {} as Record<`${DocumentFormat}`, DocumentFormatData>;
-        }
-
-        if (typeof this.spec === 'undefined') {
-            throw new SwaggerError({
-                message: 'The spec has not been built yet.',
-                code: SwaggerErrorCode.SPEC_NOT_BUILT,
-            });
-        }
-
-        try {
-            await fs.promises.access(this.config.outputDirectory, fs.constants.R_OK | fs.constants.O_DIRECTORY);
-        } catch {
-            await fs.promises.mkdir(this.config.outputDirectory, { recursive: true });
-        }
-
-        const data : DocumentFormatData[] = [
-            {
-                path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.json`),
-                name: `${this.config.outputFileName}.json`,
-                content: JSON.stringify(this.spec, null, 4),
-            },
-        ];
-
-        if (this.config.yaml) {
-            data.push({
-                path: path.join(this.config.outputDirectory, `${this.config.outputFileName}.yaml`),
-                name: `${this.config.outputFileName}.yaml`,
-                content: YAML.stringify(this.spec, 1000),
-            });
-        }
-
-        const promises: Promise<void>[] = [];
-
-        for (const datum of data) {
-            promises.push(fs.promises.writeFile(datum.path, datum.content, { encoding: 'utf-8' }));
-        }
-
-        await Promise.all(promises);
-
-        const output = {} as Record<`${DocumentFormat}`, DocumentFormatData>;
-        for (const datum of data) {
-            output[datum.name as `${DocumentFormat}`] = datum;
-        }
-
-        return output;
+        this.config = buildSpecGeneratorOptions(config);
     }
 
     public abstract build(): Promise<Spec>;

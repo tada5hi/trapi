@@ -9,7 +9,6 @@ import type {
     CollectionFormat,
     Metadata,
     MetadataGenerateOptions,
-    MetadataGeneratorOptions as MetadataOptions,
 } from '@trapi/metadata';
 import type { DocumentFormat, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
@@ -19,42 +18,11 @@ export type ServerOption = {
     description?: string,
 };
 
-export interface Options {
+export interface SpecGeneratorOptions {
     /**
-     * Generate a yaml file
-     */
-    yaml?: boolean;
-
-    /**
-     * Specify if an output file should be generated.
-     *
-     * default: true
-     */
-    output: boolean,
-
-    /**
-     * Generated swagger.{json|yaml} will output here.
-     *
-     * default: process.cwd()
-     */
-    outputDirectory: string;
-
-    /**
-     * Generated documentation base file name.
-     *
-     * default: swagger
-     */
-    outputFileName: string;
-
-    /**
-     * API host, expressTemplate.g. localhost:3000 or https://myapi.com
+     * API host, e.g. localhost:3000 or https://myapi.com
      */
     servers?: ServerOption[];
-
-    /**
-     * Metadata options or metadata itself.
-     */
-    metadata?: MetadataOptions | Metadata,
 
     /**
      * API version number; defaults to npm package version
@@ -107,7 +75,7 @@ export interface Options {
     collectionFormat?: `${CollectionFormat}`;
 }
 
-export type OptionsInput = Omit<Partial<Options>, 'servers'> & {
+export type SpecGeneratorOptionsInput = Omit<Partial<SpecGeneratorOptions>, 'servers'> & {
     servers?: string | string[] | ServerOption | ServerOption[]
 };
 

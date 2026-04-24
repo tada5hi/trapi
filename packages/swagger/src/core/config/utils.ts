@@ -5,11 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from 'node:path';
-import process from 'node:process';
-import type { Options, OptionsInput, ServerOption } from './types';
+import type { ServerOption, SpecGeneratorOptions, SpecGeneratorOptionsInput } from './types';
 
-export function buildOptions(input: OptionsInput) : Options {
+export function buildSpecGeneratorOptions(input: SpecGeneratorOptionsInput) : SpecGeneratorOptions {
     const servers : ServerOption[] = [];
     if (input.servers) {
         if (Array.isArray(input.servers)) {
@@ -28,20 +26,8 @@ export function buildOptions(input: OptionsInput) : Options {
         }
     }
 
-    let outputDirectory : string;
-    if (input.outputDirectory) {
-        outputDirectory = path.isAbsolute(input.outputDirectory) ?
-            input.outputDirectory :
-            path.join(process.cwd(), input.outputDirectory);
-    } else {
-        outputDirectory = process.cwd();
-    }
-
     return {
         ...input,
-        output: input.output ?? true,
-        outputDirectory,
-        outputFileName: input.outputFileName || 'swagger',
         servers,
     };
 }

@@ -118,6 +118,7 @@ export default {
             name: 'Cookies',
             properties: { value: {} },
         },
+        // `@Params()` in @decorators/express reads `req.params` (Express path params), so it maps to PATHS
         {
             id: DecoratorID.PATHS,
             name: 'Params',

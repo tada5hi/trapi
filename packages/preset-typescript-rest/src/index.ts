@@ -8,8 +8,7 @@
 import type { PresetSchema } from '@trapi/metadata';
 import { DecoratorID } from '@trapi/metadata';
 
-// todo: tags, extension, example, description, produces,
-//  consumes, hidden, deprecated, is-{int,long, ...} missing
+// TODO: missing mappings — tags, extension, produces, consumes, hidden, deprecated, isInt/isLong/isFloat/isDouble
 export default {
     extends: [],
     items: [
@@ -110,22 +109,22 @@ export default {
             properties: { value: {} },
         },
         {
-            id: DecoratorID.HEADERS,
+            id: DecoratorID.HEADER,
             name: 'HeaderParam',
             properties: { value: {} },
         },
         {
-            id: DecoratorID.COOKIES,
+            id: DecoratorID.COOKIE,
             name: 'CookieParam',
             properties: { value: {} },
         },
         {
-            id: DecoratorID.PARAMS,
+            id: DecoratorID.PARAM,
             name: 'Param',
             properties: { value: {} },
         },
         {
-            id: DecoratorID.PATHS,
+            id: DecoratorID.PATH,
             name: 'PathParam',
             properties: { value: {} },
         },

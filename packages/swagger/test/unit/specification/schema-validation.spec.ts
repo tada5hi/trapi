@@ -10,7 +10,7 @@ import {
     expect,
     it,
 } from 'vitest';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     arrayType,
     createController,
@@ -36,13 +36,10 @@ describe('OAI schema validation', () => {
     describe('empty spec', () => {
         it('V2: empty metadata should produce a valid spec', async () => {
             const metadata = createMetadata([]);
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV2Spec(spec);
@@ -52,13 +49,10 @@ describe('OAI schema validation', () => {
 
         it('V3: empty metadata should produce a valid spec', async () => {
             const metadata = createMetadata([]);
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV3Spec(spec);
@@ -152,13 +146,10 @@ describe('OAI schema validation', () => {
         );
 
         it('V2: CRUD controller should produce a valid spec', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV2Spec(spec);
@@ -167,13 +158,10 @@ describe('OAI schema validation', () => {
         });
 
         it('V3: CRUD controller should produce a valid spec', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV3Spec(spec);
@@ -260,13 +248,10 @@ describe('OAI schema validation', () => {
         );
 
         it('V2: complex types should produce a valid spec', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV2Spec(spec);
@@ -275,13 +260,10 @@ describe('OAI schema validation', () => {
         });
 
         it('V3: complex types should produce a valid spec', async () => {
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             const result = validateV3Spec(spec);
@@ -293,13 +275,10 @@ describe('OAI schema validation', () => {
     describe('V3.1 schema validation', () => {
         it('V3.1: empty metadata should produce a valid spec', async () => {
             const metadata = createMetadata([]);
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3_1,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             expect(spec.openapi).toEqual('3.1.0');
@@ -359,13 +338,10 @@ describe('OAI schema validation', () => {
                 },
             );
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3_1,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata: crudMetadata, 
-                },
+                metadata: crudMetadata,
+                data: { servers },
             });
 
             const result = validateV31Spec(spec);
@@ -375,13 +351,10 @@ describe('OAI schema validation', () => {
 
         it('V3.2: should produce valid spec with version 3.2.0', async () => {
             const metadata = createMetadata([]);
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3_2,
-                options: {
-                    output: false, 
-                    servers, 
-                    metadata, 
-                },
+                metadata,
+                data: { servers },
             });
 
             expect(spec.openapi).toEqual('3.2.0');
@@ -413,12 +386,11 @@ describe('OAI schema validation', () => {
                 }),
             ]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V2,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
                     securityDefinitions: { bearerAuth: { type: 'http', scheme: 'basic' } },
                 },
             });
@@ -445,12 +417,11 @@ describe('OAI schema validation', () => {
                 }),
             ]);
 
-            const spec = await generate({
+            const spec = await generateSwagger({
                 version: Version.V3,
-                options: {
-                    output: false,
+                metadata,
+                data: {
                     servers,
-                    metadata,
                     securityDefinitions: { bearerAuth: { type: 'http', scheme: 'basic' } },
                 },
             });

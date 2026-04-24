@@ -47,14 +47,18 @@ packages/metadata/test/
 │   ├── cache.spec.ts
 │   ├── decorator/
 │   ├── generator/
-│   │   ├── metadata.spec.ts       # Core metadata generation
-│   │   ├── reference-types.spec.ts # Reference type resolution
-│   │   ├── controller.spec.ts     # Controller-level metadata (tags, paths, methods, JSDoc)
-│   │   ├── parameters.spec.ts     # Parameter extraction (query, body, form, path, defaults)
-│   │   ├── responses.spec.ts      # Response descriptions, examples, produces
-│   │   ├── security.spec.ts       # Security scheme extraction and inheritance
-│   │   ├── complex-types.spec.ts  # Circular refs, generics, intersections, nullable, Record
-│   │   └── error-paths.spec.ts    # Invalid inputs, empty metadata, edge cases
+│   │   ├── metadata.spec.ts          # Core metadata generation
+│   │   ├── generate-metadata.spec.ts # generateMetadata() entry-point scenarios
+│   │   ├── reference-types.spec.ts   # Reference type resolution
+│   │   ├── controller.spec.ts        # Controller-level metadata (tags, paths, methods, JSDoc)
+│   │   ├── parameters.spec.ts        # Parameter extraction (query, body, form, path, defaults)
+│   │   ├── responses.spec.ts         # Response descriptions, examples, produces
+│   │   ├── security.spec.ts          # Security scheme extraction and inheritance
+│   │   ├── complex-types.spec.ts     # Circular refs, generics, intersections, nullable, Record
+│   │   ├── conditional-types.spec.ts # Conditional and mapped type resolution
+│   │   ├── utility-types.spec.ts     # Partial/Pick/Omit/Record/NonNullable/... coverage
+│   │   ├── never-type.spec.ts        # never in returns, unions, and exhaustive checks
+│   │   └── error-paths.spec.ts       # Invalid inputs, empty metadata, edge cases
 │   ├── resolver/
 │   └── utils/
 └── data/         # Test fixtures (controller files with decorators)
@@ -67,7 +71,8 @@ packages/swagger/test/
 ├── schemas/
 │   ├── v2.0-schema.json     # Official OAI Swagger 2.0 JSON Schema
 │   ├── v3.0-schema.json     # Official OAI OpenAPI 3.0 JSON Schema
-│   └── v3.1-schema.json     # Official OAI OpenAPI 3.1 JSON Schema
+│   ├── v3.0-schema.yaml     # YAML copy of the 3.0 schema
+│   └── v3.1-schema.json     # Official OAI OpenAPI 3.1 JSON Schema (also used for 3.2 output)
 ├── unit/
 │   ├── specification/  # Endpoint specification tests
 │   └── utils/
@@ -121,7 +126,7 @@ The following test files use inline metadata to verify OpenAPI compliance:
 
 | File | What it tests |
 |------|--------------|
-| `ref-sibling-properties.spec.ts` | `$ref` must be the only key in a schema object |
+| `ref-sibling-properties.spec.ts` | `$ref` must be the only key in a schema object (v3.0); v3.1/v3.2 allow siblings |
 | `nullable-types.spec.ts` | V2 `x-nullable`, V3 `nullable`, nullable refs |
 | `enum-compliance.spec.ts` | String/numeric/mixed enums, `x-enum-varnames`, V3 `anyOf` |
 | `multiple-responses.spec.ts` | Multiple status codes, void 204, response examples |
@@ -133,3 +138,9 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `error-paths.spec.ts` | Duplicate body params, body+form conflict, cookie filtering, hidden methods |
 | `schema-validation.spec.ts` | V2/V3 output validated against official OAI JSON Schemas |
 | `config-variations.spec.ts` | specificationExtra merging, collectionFormat, info defaults |
+| `generate-swagger.spec.ts` | `generateSwagger()` entry-point wiring (pre-built metadata vs options) |
+| `never-type.spec.ts` | `never` returns emit no schema |
+| `union-composition.spec.ts` | Union vs discriminated-union emission |
+| `union-type-endpoint.spec.ts` | Union parameter/return types against a live endpoint |
+| `primitive-endpoint.spec.ts`, `parameterized-endpoint.spec.ts`, `type-endpoint.spec.ts`, `abstract-entity-endpoint.spec.ts` | End-to-end endpoint coverage from fixture controllers |
+| `v3.spec.ts` | V3-family version dispatch (v3 vs v3.1 vs v3.2) |

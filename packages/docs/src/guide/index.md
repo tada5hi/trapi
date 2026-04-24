@@ -1,17 +1,39 @@
-# What is it?
+# What is TRAPI?
 
-**T**ypeScript **R**est **API** is a collection of packages to create/generate:
-- Metadata for REST-APIs
-- Swagger documentation
+**T**ypeScript **R**est **API** is a suite of packages that extracts REST API metadata from TypeScript decorators and turns it into OpenAPI 2.0, 3.0, 3.1, or 3.2 specifications — without locking you into a specific decorator library.
 
-::: warning **Important NOTE**
+Most tools in this space ship their own decorator set that you have to adopt. TRAPI takes the opposite approach: you describe how your existing decorators (custom or third-party) map to a shared semantic model, and TRAPI takes it from there.
 
-The guide is under construction ☂ at the moment. So please stay patient or contribute to it, till it covers all parts ⭐.
-:::
+## At a Glance
+
+- **Decorator-agnostic** — use any decorator library, bring your own mapping or a preset
+- **Pure AST analysis** — decorators stay as no-op markers; all work happens at build time
+- **Zero runtime overhead** — the generated spec is static, nothing ships to production
+- **Composable** — metadata can feed OpenAPI, code generators, validators, or SDK tooling
+- **Spec-compliant** — tested against the official OpenAPI JSON Schemas
+
+## Pipeline
+
+```text
+TypeScript source  →  @trapi/metadata  →  Metadata  →  @trapi/swagger  →  OpenAPI spec
+   (decorators)        (AST analysis)     (normalised)    (emitters)       (JSON/YAML)
+```
+
+The metadata model is a first-class output. Other consumers — route generators, runtime validators, typed API clients — can be built on top of it without knowing anything about OpenAPI.
 
 ## Packages
 
-- **@trapi/decorator**: A package to map and manage (self or third-party defined) decorators and resolve (node-) types.
-- **@trapi/metadata**: A package for generating metadata information by analyzing present decorators.
-  The metadata can than be used for generating a documentation according to the OpenAPI Specification or to create route schema/handling for libraries like: express, koa, etc.
-- **@trapi/swagger**: A package to generate a fully featured documentation according the OpenAPI Specification from given metadata.
+| Package | Purpose |
+| --- | --- |
+| [`@trapi/metadata`](/guide/metadata-installation) | Extracts metadata from decorated TypeScript source |
+| [`@trapi/swagger`](/guide/swagger-installation) | Emits OpenAPI 2.0, 3.0, 3.1 & 3.2 specs from metadata |
+| `@trapi/decorators` | Reference decorator set and mapping schema |
+| `@trapi/preset-typescript-rest` | Preset for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
+| `@trapi/preset-decorators-express` | Preset for [@decorators/express](https://github.com/serhiisol/node-decorators) |
+
+## Where to Next
+
+- New to TRAPI? Start with the [Quick Start](/guide/quick-start).
+- Curious about the design trade-offs? Read the [Philosophy](/guide/philosophy).
+- Need a mental model of how pieces fit together? See [Key Concepts](/guide/concepts).
+- Already using a framework? Jump to [Framework Integration](/guide/framework-integration).

@@ -14,13 +14,13 @@ TRAPI draws inspiration from [tsoa](https://github.com/lukeautry/tsoa), a TypeSc
 
 | Concept | tsoa | TRAPI |
 |---------|------|-------|
-| **Type resolver** | `packages/cli/src/metadataGeneration/typeResolver.ts` | `packages/metadata/src/resolver/module.ts` |
-| **Metadata generator** | `packages/cli/src/metadataGeneration/metadataGenerator.ts` | `packages/metadata/src/generator/metadata/module.ts` |
-| **Controller generator** | `packages/cli/src/metadataGeneration/controllerGenerator.ts` | `packages/metadata/src/generator/controller/module.ts` |
-| **Parameter generator** | `packages/cli/src/metadataGeneration/parameterGenerator.ts` | `packages/metadata/src/generator/parameter/module.ts` |
-| **Method generator** | `packages/cli/src/metadataGeneration/methodGenerator.ts` | `packages/metadata/src/generator/method/module.ts` |
-| **Swagger generator (v2)** | `packages/cli/src/swagger/specGenerator2.ts` | `packages/swagger/src/generator/v2/module.ts` |
-| **Swagger generator (v3)** | `packages/cli/src/swagger/specGenerator3.ts` | `packages/swagger/src/generator/v3/module.ts` |
+| **Type resolver** | `packages/cli/src/metadataGeneration/typeResolver.ts` | `packages/metadata/src/adapters/typescript/resolver/module.ts` |
+| **Metadata generator** | `packages/cli/src/metadataGeneration/metadataGenerator.ts` | `packages/metadata/src/app/generator/metadata/module.ts` |
+| **Controller generator** | `packages/cli/src/metadataGeneration/controllerGenerator.ts` | `packages/metadata/src/app/generator/controller/module.ts` |
+| **Parameter generator** | `packages/cli/src/metadataGeneration/parameterGenerator.ts` | `packages/metadata/src/app/generator/parameter/module.ts` |
+| **Method generator** | `packages/cli/src/metadataGeneration/methodGenerator.ts` | `packages/metadata/src/app/generator/method/module.ts` |
+| **Swagger generator (v2)** | `packages/cli/src/swagger/specGenerator2.ts` | `packages/swagger/src/adapters/generator/v2/module.ts` |
+| **Swagger generator (v3)** | `packages/cli/src/swagger/specGenerator3.ts` | `packages/swagger/src/adapters/generator/v3/module.ts` (covers 3.0, 3.1, 3.2) |
 | **Ref name sanitization** | `TypeResolver.getRefTypeName()` | `TypeNodeResolver.getRefTypeName()` |
 | **Decorator config** | Built-in decorators only | Configurable via `DecoratorConfig` presets |
 

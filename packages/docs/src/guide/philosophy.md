@@ -2,9 +2,9 @@
 
 ## Why TRAPI?
 
-Libraries like [tsoa](https://github.com/lukeautry/tsoa) pioneered the idea of extracting OpenAPI specifications from TypeScript decorators. TRAPI shares that vision but takes a fundamentally different approach: **decorator-framework agnosticism**.
+Most tools that extract OpenAPI specifications from TypeScript decorators ship their own decorator set, which you have to adopt. TRAPI takes the opposite approach: **decorator-framework agnosticism**.
 
-Most TypeScript REST frameworks — Express with decorators, typescript-rest, routing-controllers — define their own decorator sets. Each framework's decorators carry the same semantic meaning (`@Get()`, `@Post()`, `@Body()`, `@Query()`), but with different names, import paths, and conventions. tsoa solves this by shipping its own decorator set that you must adopt. TRAPI solves it by letting you **map any decorator set** to a shared metadata model.
+Most TypeScript REST frameworks — Express with decorators, typescript-rest, routing-controllers — define their own decorator sets. Each framework's decorators carry the same semantic meaning (`@Get()`, `@Post()`, `@Body()`, `@Query()`), but with different names, import paths, and conventions. TRAPI lets you **map any decorator set** to a shared metadata model instead of rewriting your controllers.
 
 ## Core Principles
 
@@ -14,13 +14,13 @@ TRAPI does not force you to adopt a specific decorator library. Instead, you def
 
 ```typescript
 // Example: mapping @decorators/express to TRAPI's metadata model
-{
-    [DecoratorID.CONTROLLER]: { name: 'Controller' },
-    [DecoratorID.GET]: { name: 'Get' },
-    [DecoratorID.POST]: { name: 'Post' },
-    [DecoratorID.BODY]: { name: 'Body' },
+[
+    { id: DecoratorID.CONTROLLER, name: 'Controller', properties: { value: {} } },
+    { id: DecoratorID.GET,        name: 'Get' },
+    { id: DecoratorID.POST,       name: 'Post' },
+    { id: DecoratorID.BODY,       name: 'Body', properties: { value: {} } },
     // ...
-}
+]
 ```
 
 This means any HTTP framework built on TypeScript decorators can get metadata extraction and OpenAPI generation for free — without changing a single line of application code.
@@ -30,7 +30,8 @@ This means any HTTP framework built on TypeScript decorators can get metadata ex
 TRAPI extracts metadata entirely through **static analysis** of the TypeScript AST. Decorators are no-ops at runtime — they exist only as markers for the compiler API to read. There is no dependency on `reflect-metadata` or runtime type information.
 
 This has several advantages:
-- **Zero runtime overhead** — decorators add no behavior to your application
+
+- **Zero runtime overhead** — decorators add no behaviour to your application
 - **Build-time safety** — metadata errors are caught during generation, not at runtime
 - **Framework independence** — works with any TypeScript version and any decorator style
 
@@ -58,17 +59,7 @@ find(@Query('status') status: 'active' | 'inactive'): Promise<User[]> {
 
 TRAPI resolves `'active' | 'inactive'` and `Promise<User[]>` through the same type checker that powers your IDE. Generics, utility types (`Partial<T>`, `Pick<T, K>`), intersections, mapped types — they all resolve through TypeScript itself, not through a reimplemented type system.
 
-## TRAPI vs tsoa
-
-| Aspect | TRAPI | tsoa |
-|--------|-------|------|
-| Decorator source | Any framework's decorators (via presets) | tsoa's own decorators only |
-| Runtime behavior | Decorators are no-ops | Decorators are no-ops |
-| Type resolution | TypeScript compiler API | TypeScript compiler API |
-| Output | OpenAPI 2.0 / 3.0 | OpenAPI 2.0 / 3.0 / 3.1 |
-| Route generation | No (metadata only) | Yes (generates Express/Koa/Hapi routes) |
-| Runtime validation | No (build-time only) | Yes (validates requests at runtime) |
-| Framework lock-in | None | Must use tsoa decorators |
+### 5. Metadata, Not Routes
 
 TRAPI intentionally does **not** generate route handlers or perform runtime validation. These are orthogonal concerns best handled by the HTTP framework you already chose. TRAPI focuses on doing one thing well: turning your decorated TypeScript into accurate API metadata and specifications.
 
@@ -81,4 +72,4 @@ TRAPI is the right choice when:
 - You need to support multiple frameworks with the same tooling
 - You want the metadata for purposes beyond OpenAPI (custom generators, validators, SDK generation)
 
-If you need an all-in-one solution that handles routing, validation, and documentation from a single decorator set, tsoa is a great choice. TRAPI is for teams that want to keep those concerns separate.
+If you need an all-in-one solution that also handles routing and runtime validation from a single decorator set, TRAPI is probably not the right fit — pick a tool that bundles those concerns. TRAPI is for teams that want to keep those concerns separate.

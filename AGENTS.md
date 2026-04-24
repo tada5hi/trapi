@@ -2,7 +2,7 @@
 
 # TRAPI — Agent Guide
 
-TRAPI (TypeScript REST API) is a monorepo that generates REST API metadata and OpenAPI/Swagger documentation from TypeScript decorators. It analyzes decorated source code using the TypeScript compiler, extracts a normalized metadata representation, and transforms it into OpenAPI 2.0 or 3.0 specifications.
+TRAPI (TypeScript REST API) is a monorepo that generates REST API metadata and OpenAPI/Swagger documentation from TypeScript decorators. It analyzes decorated source code using the TypeScript compiler, extracts a normalized metadata representation, and transforms it into OpenAPI 2.0, 3.0, 3.1, or 3.2 specifications.
 
 ## Quick Reference
 
@@ -28,8 +28,8 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 | Package | npm Name | Description |
 |---------|----------|-------------|
 | `packages/metadata` | `@trapi/metadata` | Core: extracts API metadata from TypeScript decorators |
-| `packages/swagger` | `@trapi/swagger` | Transforms metadata into OpenAPI 2.0/3.0 specs |
-| `packages/decorators` | `@trapi/decorators` | Preset of swagger-related decorators |
+| `packages/swagger` | `@trapi/swagger` | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specs |
+| `packages/decorators` | `@trapi/decorators` | Reference decorator set + default preset |
 | `packages/preset-typescript-rest` | `@trapi/preset-typescript-rest` | Decorator mapping for typescript-rest |
 | `packages/preset-decorators-express` | `@trapi/preset-decorators-express` | Decorator mapping for @decorators/express |
 | `packages/docs` | _(private)_ | VitePress documentation site |
@@ -44,4 +44,3 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
 - **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns
 - **[Conventions](.agents/conventions.md)** — Commit conventions, linting, CI/CD, and release process
-- **[Plans](.agents/plans/)** — Future improvement plans (strict TypeScript, etc.)

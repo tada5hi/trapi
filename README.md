@@ -14,14 +14,14 @@ Most tools that generate OpenAPI from decorators force you to adopt their own de
 - **Pure static analysis** — decorators are no-ops at runtime; metadata is extracted via the TypeScript compiler API
 - **Zero runtime overhead** — all work happens at build time, nothing is added to your application
 - **Framework presets** — ships with presets for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) and [@decorators/express](https://github.com/serhiisol/node-decorators), or create your own
-- **OpenAPI 2.0 & 3.0** — generates spec-compliant JSON/YAML output
+- **OpenAPI 2.0, 3.0, 3.1 & 3.2** — generates spec-compliant JSON/YAML output
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
 | [@trapi/metadata](./packages/metadata) | Core: extracts API metadata from TypeScript decorators |
-| [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0/3.0 specifications |
+| [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
 | [@trapi/decorators](./packages/decorators) | Default decorator set and mapping |
 | [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Preset for typescript-rest |
 | [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Preset for @decorators/express |
@@ -34,20 +34,23 @@ npm install @trapi/metadata @trapi/swagger
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
-import { generate } from '@trapi/swagger';
+import { generateSwagger, saveSwagger } from '@trapi/swagger';
 
 // Extract metadata from your decorated TypeScript source
 const metadata = await generateMetadata({
-    entryFile: './src/controllers/**/*.ts',
+    entryPoint: './src/controllers/**/*.ts',
     preset: '@trapi/decorators',
 });
 
 // Generate OpenAPI spec
-await generate({
+const spec = await generateSwagger({
+    version: 'v3',
     metadata,
-    output: { directory: './docs' },
-    spec: { info: { title: 'My API', version: '1.0.0' } },
+    data: { name: 'My API', version: '1.0.0' },
 });
+
+// Write spec to disk
+await saveSwagger(spec, { cwd: './docs' });
 ```
 
 ## How It Works
@@ -74,7 +77,14 @@ This means any HTTP framework built on TypeScript decorators can get metadata ex
 
 ## Documentation
 
-To read the full docs, visit [https://trapi.tada5hi.net](https://trapi.tada5hi.net)
+The full docs live at [https://trapi.tada5hi.net](https://trapi.tada5hi.net). Highlights:
+
+- **[Quick Start](https://trapi.tada5hi.net/guide/quick-start)** — get an OpenAPI spec on disk in five minutes
+- **[Key Concepts](https://trapi.tada5hi.net/guide/concepts)** — the mental model: decorators, mappings, metadata, emitters
+- **[Framework Integration](https://trapi.tada5hi.net/guide/framework-integration)** — using TRAPI with typescript-rest, @decorators/express, or your own decorators
+- **[Supported TypeScript Types](https://trapi.tada5hi.net/guide/advanced-type-support)** — what the resolver understands
+- **[Custom Presets](https://trapi.tada5hi.net/guide/advanced-custom-presets)** — publish a decorator mapping others can reuse
+- **[API Reference](https://trapi.tada5hi.net/guide/metadata-api-reference)** — stable public surface for both packages
 
 ## License
 

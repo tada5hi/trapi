@@ -15,7 +15,7 @@ export function buildParamConfig(name?: string) : DecoratorConfig {
         properties: { value: {} },
     };
 }
-export function buildParamsSchema(name?: string) : DecoratorConfig {
+export function buildParamsConfig(name?: string) : DecoratorConfig {
     return {
         id: DecoratorID.PARAMS,
         name: name || 'Params',

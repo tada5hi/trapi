@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 import type { SpecV2, SpecV3 } from '../../../src';
-import { Version, generate } from '../../../src';
+import { Version, generateSwagger } from '../../../src';
 import {
     createController,
     createMetadata,
@@ -163,31 +163,22 @@ describe('union composition (oneOf / discriminator)', () => {
     );
 
     beforeAll(async () => {
-        specV2 = await generate({
+        specV2 = await generateSwagger({
             version: Version.V2,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
 
-        specV3 = await generate({
+        specV3 = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
 
-        specV31 = await generate({
+        specV31 = await generateSwagger({
             version: Version.V3_1,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 
@@ -326,13 +317,10 @@ describe('discriminator with refAlias members (#783)', () => {
     );
 
     beforeAll(async () => {
-        specV3Alias = await generate({
+        specV3Alias = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata: aliasMetadata,
-            },
+            metadata: aliasMetadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 
@@ -402,13 +390,10 @@ describe('discriminator with refAlias wrapping nestedObjectLiteral (#783)', () =
     );
 
     beforeAll(async () => {
-        specV3 = await generate({
+        specV3 = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 
@@ -473,13 +458,10 @@ describe('discriminator with mixed refObject + refAlias members (#783)', () => {
     );
 
     beforeAll(async () => {
-        specV3 = await generate({
+        specV3 = await generateSwagger({
             version: Version.V3,
-            options: {
-                output: false,
-                servers: 'http://localhost:3000/',
-                metadata,
-            },
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
         });
     });
 

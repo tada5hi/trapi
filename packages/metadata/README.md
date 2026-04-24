@@ -32,9 +32,10 @@ The metadata configuration object (Top-Level) is the main configuration object o
 and can be defined according the following type scheme:
 
 ```typescript
-import { 
+import type {
     CacheOptions,
-    DecoratorConfig 
+    DecoratorConfig,
+    TsConfig,
 } from "@trapi/metadata";
 
 export type EntryPointOptions = {
@@ -47,12 +48,12 @@ export type EntryPoint = string |
     EntryPointOptions |
     EntryPointOptions[];
 
-export interface Options {
+export interface MetadataGenerateOptions {
     /**
      * The entry point to your API.
      */
     entryPoint: EntryPoint;
-    
+
     /**
      * Directory to ignore during TypeScript files scan.
      * Default: []
@@ -64,13 +65,13 @@ export interface Options {
      * Default: []
      */
     allow?: string[],
-    
+
     /**
      * Directory to store and cache metadata files.
      * Default: false
      */
     cache?: string | boolean | Partial<CacheOptions>;
-    
+
     /**
      * Manual decorator properties configuration.
      */
@@ -80,18 +81,35 @@ export interface Options {
      * Load a specific preset configuration.
      */
     preset?: string;
+
+    /**
+     * Path to tsconfig.json or a TsConfig object.
+     */
+    tsconfig?: string | TsConfig;
 }
 ```
 
 ## Limitations
-At the moment only the following TypeScript UtilityTypes are supported:
-* NonNullable
-* Omit
-* Partial
-* Readonly
-* Record
-* Required
-* Pick
+
+TRAPI's resolver explicitly handles these TypeScript utility types:
+
+* `NonNullable`
+* `Omit`
+* `Partial`
+* `Readonly`
+* `Record`
+* `Required`
+* `Pick`
+
+Additionally these are delegated to the TypeScript type checker and resolve through the compiler's own computation:
+
+* `Extract`
+* `Exclude`
+* `ReturnType`
+* `Parameters`
+* `Awaited`
+* `InstanceType`
+* `ConstructorParameters`
 
 ## Usage
 
@@ -107,7 +125,7 @@ const metadata : Metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
     ignore: ['**/node_modules/**'],
     cache: true,
-    preset: '@trapi/preset-routup'
+    preset: '@trapi/decorators'
 });
 
 console.log(metadata);
@@ -117,7 +135,32 @@ console.log(metadata);
 
 ## Structure
 
-**coming soon**
+The package follows a hexagonal layout:
+
+```
+src/
+├── core/         # Domain types, port interfaces, generator contracts
+│   ├── types/          # Metadata, Controller, Method, Parameter, Type, ...
+│   ├── config/         # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint
+│   ├── decorator/      # DecoratorID enum, decorator config shapes
+│   ├── error/          # MetadataError, GeneratorError, ResolverError
+│   ├── metadata/       # IMetadataGenerator, IGeneratorContext
+│   └── utils/          # Internal helpers (hasOwnProperty, normalizePath, …)
+│
+├── adapters/     # Infrastructure adapters
+│   ├── typescript/     # TypeScript compiler API adapter (type resolver, JSDoc, AST)
+│   ├── decorator/      # Decorator resolver + preset loader
+│   ├── filesystem/     # Source file scanner, tsconfig loader
+│   └── cache/          # Metadata cache
+│
+├── app/          # Orchestration / use-cases
+│   ├── generate.ts     # generateMetadata()
+│   └── generator/      # Controller, Method, Parameter generators
+│
+└── index.ts      # Public entry point
+```
+
+The dependency rule is strict: `core/` imports nothing from `adapters/` or `app/`, `adapters/` depends only on `core/`, and `app/` wires both together.
 
 ## License
 

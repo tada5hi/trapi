@@ -39,7 +39,7 @@ Note which JSON Schema draft the OAI schema uses — this determines whether to 
 
 ## 3. Add the Version enum value
 
-In `packages/swagger/src/constants.ts`:
+In `packages/swagger/src/core/constants.ts`:
 
 ```typescript
 export enum Version {
@@ -51,9 +51,9 @@ export enum Version {
 }
 ```
 
-## 4. Update the generator factory
+## 4. Update the generator dispatch
 
-In `packages/swagger/src/generator/module.ts`, add the new case to the switch:
+In `packages/swagger/src/app/module.ts`, add the new case inside `generateSwagger()`:
 
 ```typescript
 case Version.V3:
@@ -64,7 +64,7 @@ case Version.V3_2:
 
 ## 5. Update the V3 generator version map
 
-In `packages/swagger/src/generator/v3/module.ts`:
+In `packages/swagger/src/adapters/generator/v3/module.ts`:
 
 ```typescript
 const OPENAPI_VERSION_MAP: Partial<Record<`${Version}`, string>> = {

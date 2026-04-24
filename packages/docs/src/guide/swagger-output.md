@@ -1,58 +1,61 @@
 # Saving Output
 
-`saveSwagger()` writes an in-memory spec to disk as JSON, and optionally YAML.
+`saveSwagger()` writes an in-memory spec to disk as a single JSON or YAML file. Call it twice if you need both formats.
 
 ```typescript
 import { saveSwagger } from '@trapi/swagger';
 
 await saveSwagger(spec, {
-    directory: './docs',
-    fileName: 'openapi',
-    yaml: true,
+    cwd: './docs',
+    name: 'openapi',
+    format: 'yaml',
 });
 ```
 
 ## Options
 
 ```typescript
-type SwaggerGenerateOutput = {
-    directory?: string;  // default: process.cwd()
-    fileName?: string;   // default: 'swagger'
-    yaml?: boolean;      // default: false
+import type { SwaggerSaveOptions, DocumentFormat } from '@trapi/swagger';
+
+type SwaggerSaveOptions = {
+    cwd?: string;                    // default: process.cwd()
+    name?: string;                   // default: 'swagger'
+    format?: `${DocumentFormat}`;    // 'json' | 'yaml' — default: 'json'
 };
 ```
 
-- **`directory`** — created recursively if it does not exist.
-- **`fileName`** — base name without extension. JSON always emits as `${fileName}.json`; YAML as `${fileName}.yaml` when enabled.
-- **`yaml`** — when `true`, writes both JSON and YAML.
+- **`cwd`** — the working directory the file is written into. Relative paths resolve against `process.cwd()`; the directory is created recursively if missing.
+- **`name`** — base filename. Extensions are optional: `'openapi'`, `'openapi.json'`, and `'openapi.yaml'` all behave the same — any trailing `.json` or `.yaml` is stripped and replaced with the one that matches `format`.
+- **`format`** — either the literal `'json'`/`'yaml'` or `DocumentFormat.JSON`/`DocumentFormat.YAML` from `@trapi/swagger`.
 
 ## Return Value
 
-`saveSwagger()` returns a record whose values are `DocumentFormatData` entries — one per file written, each carrying the absolute `path`, the filename (`name`), and the serialised `content`:
+`saveSwagger()` returns the `DocumentFormatData` for the written file:
 
 ```typescript
 interface DocumentFormatData {
-    path: string;
-    name: string;
-    content?: string;
+    path: string;       // absolute path to the written file
+    name: string;       // filename with extension, e.g. 'openapi.yaml'
+    content?: string;   // serialised content (JSON or YAML string)
 }
 ```
-
-The most reliable way to consume it is to iterate:
 
 ```typescript
-const written = await saveSwagger(spec, { directory: './docs', yaml: true });
+const written = await saveSwagger(spec, { cwd: './docs', format: 'yaml' });
 
-for (const entry of Object.values(written)) {
-    console.log(`Wrote ${entry.name} to ${entry.path}`);
-}
+console.log(`Wrote ${written.name} to ${written.path}`);
 ```
 
-::: warning Declared type vs runtime keys
-The declared return type is `Record<'json' | 'yaml', DocumentFormatData>`, but at runtime the record is keyed by the generated filename (e.g. `'swagger.json'`, `'swagger.yaml'`). Prefer `Object.values(result)` over keyed access to avoid surprises.
-:::
+Useful when you want to upload the produced file to an artefact store or post-process it without re-reading from disk.
 
-Useful when you want to upload the produced files to an artefact store or post-process them without re-reading from disk.
+## Writing Both Formats
+
+`saveSwagger()` writes a single file per call. For both JSON and YAML, call it twice:
+
+```typescript
+await saveSwagger(spec, { cwd: './docs', format: 'json' });
+await saveSwagger(spec, { cwd: './docs', format: 'yaml' });
+```
 
 ## Picking a Location
 
@@ -72,7 +75,10 @@ const metadata = await generateMetadata({ entryPoint: 'src/**/*.controller.ts', 
 
 for (const version of ['v2', 'v3'] as const) {
     const spec = await generateSwagger({ version, metadata, data: { name: 'API', version: '1.0.0' } });
-    await saveSwagger(spec, { directory: './docs', fileName: `openapi-${version}`, yaml: true });
+
+    for (const format of ['json', 'yaml'] as const) {
+        await saveSwagger(spec, { cwd: './docs', name: `openapi-${version}`, format });
+    }
 }
 ```
 

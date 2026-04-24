@@ -63,7 +63,7 @@ const spec = await generateSwagger({
     },
 });
 
-await saveSwagger(spec, { directory: './docs', yaml: true });
+await saveSwagger(spec, { cwd: './docs', format: 'yaml' });
 ```
 
 Run the script:
@@ -72,7 +72,7 @@ Run the script:
 npx tsx scripts/generate-openapi.ts
 ```
 
-`./docs/swagger.json` and `./docs/swagger.yaml` are now on disk.
+`./docs/swagger.yaml` is now on disk. Drop `format: 'yaml'` (or set `format: 'json'`) for JSON output instead — one `saveSwagger()` call writes one file. Call it twice if you want both.
 
 ## 4. Hook It into Your Build
 
@@ -95,11 +95,13 @@ for (const version of ['v2', 'v3'] as const) {
         data: { name: 'Example API', version: '1.0.0' },
     });
 
-    await saveSwagger(spec, {
-        directory: './docs',
-        fileName: `openapi-${version}`,
-        yaml: true,
-    });
+    for (const format of ['json', 'yaml'] as const) {
+        await saveSwagger(spec, {
+            cwd: './docs',
+            name: `openapi-${version}`,
+            format,
+        });
+    }
 }
 ```
 

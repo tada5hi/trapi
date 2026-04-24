@@ -50,7 +50,7 @@ const spec = await generateSwagger({
 });
 
 // Write spec to disk
-await saveSwagger(spec, { directory: './docs' });
+await saveSwagger(spec, { cwd: './docs' });
 ```
 
 ## How It Works

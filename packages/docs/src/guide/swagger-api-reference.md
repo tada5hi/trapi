@@ -19,13 +19,13 @@ Produces an OpenAPI document from either pre-built metadata or metadata generati
 
 See [Generating a Spec](/guide/swagger-generation) for usage patterns.
 
-### `saveSwagger(spec, output)`
+### `saveSwagger(spec, options?)`
 
 ```typescript
 async function saveSwagger(
     spec: SpecV2 | SpecV3,
-    output: SwaggerGenerateOutput,
-): Promise<Record<`${DocumentFormat}`, DocumentFormatData>>;
+    options?: SwaggerSaveOptions,
+): Promise<DocumentFormatData>;
 
 interface DocumentFormatData {
     path: string;       // absolute path the file was written to
@@ -39,7 +39,7 @@ enum DocumentFormat {
 }
 ```
 
-Writes the spec to disk as JSON and, when `yaml: true`, also as YAML. Returns a record of the files written. The record's values carry the resolved `path`, `name`, and the serialised `content` as it was written.
+Writes the spec to disk in a single format. Returns the `DocumentFormatData` describing the written file — absolute `path`, `name`, and serialised `content`. Call twice if you need both JSON and YAML.
 
 See [Saving Output](/guide/swagger-output) for usage patterns.
 
@@ -78,15 +78,17 @@ type SwaggerGenerateData = {
 
 Field-by-field notes in [Document Data](/guide/swagger-document-data).
 
-### `SwaggerGenerateOutput`
+### `SwaggerSaveOptions`
 
 ```typescript
-type SwaggerGenerateOutput = {
-    directory?: string;  // default: process.cwd()
-    fileName?: string;   // default: 'swagger'
-    yaml?: boolean;      // default: false
+type SwaggerSaveOptions = {
+    cwd?: string;                    // default: process.cwd()
+    name?: string;                   // default: 'swagger' — extension optional
+    format?: `${DocumentFormat}`;    // 'json' | 'yaml' — default: 'json'
 };
 ```
+
+Any trailing `.json` or `.yaml` on `name` is stripped and replaced to match `format`, so `'openapi'`, `'openapi.json'`, and `'openapi.yaml'` all behave the same for a given `format`.
 
 ### `ServerOption`
 

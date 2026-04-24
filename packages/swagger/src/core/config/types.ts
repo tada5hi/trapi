@@ -11,7 +11,7 @@ import type {
     MetadataGenerateOptions,
     MetadataGeneratorOptions as MetadataOptions,
 } from '@trapi/metadata';
-import type { Version } from '../constants';
+import type { DocumentFormat, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 
 export type ServerOption = {
@@ -111,25 +111,28 @@ export type OptionsInput = Omit<Partial<Options>, 'servers'> & {
     servers?: string | string[] | ServerOption | ServerOption[]
 };
 
-export type SwaggerGenerateOutput = {
+export type SwaggerSaveOptions = {
     /**
-     * Output directory for generated files.
+     * Working directory the output file is written to. Relative paths are resolved against it.
      *
      * default: process.cwd()
      */
-    directory?: string;
+    cwd?: string;
 
     /**
-     * Base file name (without extension).
+     * File format to emit.
+     *
+     * default: DocumentFormat.JSON
+     */
+    format?: `${DocumentFormat}`;
+
+    /**
+     * File name, with or without extension. Any `.json` / `.yaml` suffix is stripped
+     * and replaced to match `format`.
      *
      * default: 'swagger'
      */
-    fileName?: string;
-
-    /**
-     * Also generate a YAML file.
-     */
-    yaml?: boolean;
+    name?: string;
 };
 
 export type SwaggerGenerateData = {

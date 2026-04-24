@@ -52,7 +52,7 @@ const spec = await generateSwagger({
     },
 });
 
-await saveSwagger(spec, { directory: './docs', yaml: true });
+await saveSwagger(spec, { cwd: './docs', format: 'yaml' });
 ```
 
 Reusing pre-built metadata is useful if you need it for more than just OpenAPI generation:
@@ -115,13 +115,13 @@ export type SwaggerGenerateData = {
 
 ## Saving to Disk
 
-`saveSwagger()` writes the spec to `outputDirectory/outputFileName.json` (and `.yaml` when `yaml: true`). It returns a record of the files written.
+`saveSwagger()` writes the spec to `cwd/name.{format}`. Each call writes exactly one file — call it twice if you want both JSON and YAML. It returns the `DocumentFormatData` for the written file.
 
 ```typescript
 await saveSwagger(spec, {
-    directory: './docs',       // default: process.cwd()
-    fileName: 'openapi',       // default: 'swagger'
-    yaml: true,                // additionally write openapi.yaml
+    cwd: './docs',       // default: process.cwd() (relative paths resolve against it)
+    name: 'openapi',     // default: 'swagger' — any trailing .json/.yaml is replaced to match format
+    format: 'yaml',      // 'json' | 'yaml' — default: 'json'
 });
 ```
 
@@ -151,10 +151,9 @@ src/
 │   ├── config/
 │   ├── schema/v2, v3
 │   └── utils/
-├── adapters/     # Emitters (V2Generator, V3Generator) and file writer (saveSwagger)
-│   ├── generator/abstract.ts, v2/, v3/
-│   └── save/
-├── app/          # Orchestration (generateSwagger)
+├── adapters/     # Emitters (V2Generator, V3Generator)
+│   └── generator/abstract.ts, v2/, v3/
+├── app/          # Orchestration (generateSwagger, saveSwagger)
 └── index.ts      # Public entry point
 ```
 

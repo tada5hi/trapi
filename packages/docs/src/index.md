@@ -2,13 +2,42 @@
 layout: home
 hero:
     name: TRAPI 🦜
-    text: REST API
-    tagline: A collection of packages to create/generate metadata for REST-APis & swagger documentations.
+    text: REST API metadata & OpenAPI generation
+    tagline: Extract API metadata from TypeScript decorators and turn it into OpenAPI 2.0, 3.0, 3.1 or 3.2 specs — without adopting a new decorator library.
     actions:
-       - theme: brand
-         text: Get Started
-         link: /guide/
-       - theme: alt
-         text: View on GitHub
-         link: https://github.com/tada5hi/trapi
+        - theme: brand
+          text: Get Started
+          link: /guide/quick-start
+        - theme: alt
+          text: What is TRAPI?
+          link: /guide/
+        - theme: alt
+          text: View on GitHub
+          link: https://github.com/tada5hi/trapi
+
+features:
+    - title: Decorator-agnostic
+      details: Bring your own decorator library. Map any framework's decorators to TRAPI's semantic model — typescript-rest, @decorators/express, or your own.
+      link: /guide/framework-integration
+      linkText: See framework integration
+    - title: Pure static analysis
+      details: Decorators stay as no-op markers. All work happens at build time through the TypeScript compiler API — no reflect-metadata, no runtime type information.
+      link: /guide/philosophy
+      linkText: Read the philosophy
+    - title: Faithful metadata
+      details: The metadata representation models TypeScript's type system directly — primitives, unions, intersections, tuples, utility types, generics. OpenAPI simplifications live only in the swagger layer.
+      link: /guide/advanced-type-support
+      linkText: Supported types
+    - title: OpenAPI 2.0, 3.0, 3.1 & 3.2
+      details: One call to generateSwagger() emits a spec validated against the official OAI JSON Schemas. Save to disk as JSON or YAML.
+      link: /guide/swagger-generation
+      linkText: Generate a spec
+    - title: Composable pipeline
+      details: "@trapi/metadata can be used on its own to power route generators, validators, or typed SDK tooling. The metadata is not tied to OpenAPI."
+      link: /guide/concepts
+      linkText: Key concepts
+    - title: Reusable presets
+      details: Package a decorator mapping once and reuse it across projects. Presets can extend each other — no forced rewrites of existing controllers.
+      link: /guide/advanced-custom-presets
+      linkText: Write a custom preset
 ---

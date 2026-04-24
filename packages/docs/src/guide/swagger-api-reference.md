@@ -142,4 +142,6 @@ import { generateSwagger } from '@trapi/swagger';
 
 ## Stability
 
-The names above form the stable public contract. Internal emitter classes (`V2Generator`, `V3Generator`, `AbstractGenerator`) and helpers are currently exported for historical reasons but may be hidden in a future major version — rely on the documented surface above.
+The names above are the **documented public contract**. Breaking changes to anything listed here will bump the major version.
+
+`@trapi/swagger` also re-exports internals from the root entry — emitter classes (`V2Generator`, `V3Generator`, `AbstractSpecGenerator`) and their supporting types. These are available for advanced scenarios where you need to subclass or invoke an emitter directly, but they are not documented here as part of the stable surface and may change between minor versions. Pin a specific version if you rely on them.

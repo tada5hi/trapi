@@ -100,10 +100,4 @@ This builds a cumulative mapping over time so future work can quickly find corre
 
 ## Plans
 
-Plans live in `.agents/plans/` and document future improvements or migration strategies.
-
-- **Numbering**: Every plan gets a sequential number: `# Plan #001: Title`. Use zero-padded 3-digit format.
-- **Filename**: Prefix the filename with the plan number: `001-enable-strict-typescript.md`, `002-typescript-6-migration.md`.
-- **GitHub issues**: If a plan has an associated issue, append it: `# Plan #002: Title (#755)`.
-- **Numbering without issues**: Plans without a GitHub issue still get a number for easy reference.
-- **New plans**: Check the highest existing plan number and increment.
+Local plan scratchpads live in `.agents/plans/` (gitignored). This is agent-local working state, not a shared convention — substantive plans should live on GitHub as issues or PR descriptions.

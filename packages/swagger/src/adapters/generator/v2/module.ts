@@ -85,6 +85,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
         }
 
+        const tags = this.buildTags();
+        if (tags.length > 0) {
+            spec.tags = tags;
+        }
+
         if (this.config.specificationExtra) {
             spec = merge(spec, this.config.specificationExtra);
         }
@@ -175,7 +180,15 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
         this.metadata.controllers.forEach((controller) => {
+            if (controller.hidden) {
+                return;
+            }
+
             controller.methods.forEach((method) => {
+                if (method.hidden) {
+                    return;
+                }
+
                 let fullPath = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
                 fullPath = normalizePathParameters(fullPath);
 
@@ -293,9 +306,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             output.parameters.push(bodyParameter);
         }
 
-        for (let i = 0; i < method.extensions.length; i++) {
-            output[method.extensions[i].key] = method.extensions[i].value;
-        }
+        Object.assign(output, this.transformExtensions(method.extensions));
 
         return output;
     }
@@ -343,6 +354,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             name: input.name,
             required: input.required,
         } as ParameterV2;
+
+        Object.assign(parameter, this.transformExtensions(input.extensions));
 
         if (
             input.in !== ParameterSource.BODY &&

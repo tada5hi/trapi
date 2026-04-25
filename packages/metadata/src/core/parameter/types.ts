@@ -7,6 +7,7 @@
 
 import type { Validator } from '../validator/types';
 import type { ArrayType, Type } from '../resolver/types';
+import type { Extension } from '../resolver/extension';
 import type { Example } from '../generator/types';
 import type { CollectionFormat, ParameterSource } from './constants';
 
@@ -25,7 +26,8 @@ export interface Parameter {
     deprecated?: boolean;
 
     examples?: Example[];
-    exampleLabels?: string[],
+    exampleLabels?: string[];
+    extensions: Extension[];
     validators?: Record<string, Validator>;
 }
 

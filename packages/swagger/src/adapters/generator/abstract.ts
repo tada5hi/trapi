@@ -89,6 +89,43 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return info;
     }
 
+    protected buildTags() {
+        // Tag entries are emitted only for controllers that declare extensions.
+        // When multiple controllers share a tag name, their extensions merge into
+        // the same Tag entry; on key conflict, the last controller processed wins
+        // (silent — strict-mode validation is a future addition).
+        // Hidden controllers are skipped. If a controller declares extensions but
+        // no tags, the controller name is used as a synthetic tag name so the
+        // extensions still surface in the spec.
+        const tagMap = new Map<string, { name: string } & Record<string, unknown>>();
+
+        for (const controller of this.metadata.controllers) {
+            if (controller.hidden) {
+                continue;
+            }
+
+            const extensions = controller.extensions ?? [];
+            if (extensions.length === 0) {
+                continue;
+            }
+
+            const tagNames = controller.tags.length > 0 ? controller.tags : [controller.name];
+            const extensionFields = this.transformExtensions(extensions);
+
+            for (const tagName of tagNames) {
+                let entry = tagMap.get(tagName);
+                if (!entry) {
+                    entry = { name: tagName };
+                    tagMap.set(tagName, entry);
+                }
+
+                Object.assign(entry, extensionFields);
+            }
+        }
+
+        return Array.from(tagMap.values());
+    }
+
     protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
         if (isVoidType(type) || isUndefinedType(type) || isNeverType(type)) {
             return {} as Schema;
@@ -430,11 +467,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         const output : Record<string, any> = {};
         for (const extension of input) {
-            if (!extension.key.startsWith('x-')) {
-                extension.key = `x-${extension.key}`;
-            }
-
-            output[extension.key] = extension.value;
+            const key = extension.key.startsWith('x-') ? extension.key : `x-${extension.key}`;
+            output[key] = extension.value;
         }
 
         return output;

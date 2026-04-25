@@ -110,12 +110,16 @@ export interface FormDataParameterV3 extends FormDataParameter, BaseParameterV3 
 
 }
 
-export type ParameterV3 = BodyParameterV3 |
-CookieParameterV3 |
-QueryParameterV3 |
-PathParameterV3 |
-HeaderParameterV3 |
-FormDataParameterV3;
+type PatternFieldV3 = `x-${string}`;
+
+export type ParameterV3 = (
+    BodyParameterV3 |
+    CookieParameterV3 |
+    QueryParameterV3 |
+    PathParameterV3 |
+    HeaderParameterV3 |
+    FormDataParameterV3
+) & { [key: PatternFieldV3]: unknown };
 
 export interface OperationV3 extends BaseOperation<ParameterV3, ResponseV3> {
     requestBody?: RequestBodyV3;

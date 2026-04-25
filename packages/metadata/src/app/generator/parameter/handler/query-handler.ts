@@ -68,6 +68,7 @@ export function handleQueryParameter(
         description: ctx.getParameterDescription(),
         examples,
         exampleLabels,
+        extensions: [],
         in: source,
         maxItems: options.maxItems,
         minItems: options.minItems,

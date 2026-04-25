@@ -19,6 +19,7 @@ import { GeneratorError, isGeneratorError } from '../../../core/error/generator'
 import { AbstractGenerator } from '../abstract';
 import type { Method } from '../../../core/types/method';
 import { MethodGenerator } from '../method';
+import { getNodeExtensions } from '../../../adapters/typescript/resolver/extension';
 import type { IGeneratorContext } from '../../../core/types/metadata';
 import type { Controller, IControllerGenerator } from '../../../core/types/controller';
 
@@ -56,6 +57,7 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
 
         return {
             consumes: this.getConsumes(),
+            extensions: getNodeExtensions(this.node, this.current.decoratorResolver),
             hidden: this.isHidden(this.node),
             location: sourceFile.fileName,
             name: this.getCurrentLocation(),

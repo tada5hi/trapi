@@ -180,6 +180,7 @@ export class ParameterHandlerContext implements IParameterHandlerContext {
             }
 
             output.push({
+                extensions: [],
                 ...details,
                 default: propertyDefaultValue,
                 description: property.description || details.description || this.getParameterDescription(),

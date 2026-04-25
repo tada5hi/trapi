@@ -94,7 +94,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             openapi: this.openApiVersion,
             paths: this.buildPaths(),
             servers: this.buildServers(),
-            tags: [],
+            tags: this.buildTags(),
         };
 
         if (this.config.specificationExtra) {
@@ -158,6 +158,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         for (let i = 0; i < this.metadata.controllers.length; i++) {
             const controller = this.metadata.controllers[i];
+            if (controller.hidden) {
+                continue;
+            }
+
             for (let j = 0; j < controller.methods.length; j++) {
                 const method = controller.methods[j];
                 if (method.hidden) {
@@ -237,6 +241,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     },
                     validators: {},
                     deprecated: false,
+                    extensions: [],
                 });
             }
 
@@ -261,9 +266,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             output.requestBody = this.buildRequestBodyWithFormData(formParams);
         }
 
-        for (let i = 0; i < method.extensions.length; i++) {
-            output[method.extensions[i].key] = method.extensions[i].value;
-        }
+        Object.assign(output, this.transformExtensions(method.extensions));
 
         return output;
     }
@@ -436,6 +439,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 ...this.transformValidators(input.validators),
             },
         };
+
+        Object.assign(parameter, this.transformExtensions(input.extensions));
 
         if (input.deprecated) {
             parameter.deprecated = true;

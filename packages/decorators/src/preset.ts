@@ -221,11 +221,14 @@ const methodExampleHandler = method({
             return;
         }
         const label = readString(ctx.argument(1));
+        const value = label === undefined ?
+            { value: payload.raw } :
+            { value: payload.raw, label };
         // Stash example on the draft via extensions until the orchestrator merges it
         // into the default 200-response.
         draft.extensions.push({
             key: '__trapi_example__',
-            value: { value: payload.raw, label } as never,
+            value: value as never,
         });
     },
 });
@@ -268,15 +271,7 @@ const parameterBodyPropHandler = parameter({
 
 const parameterQueryHandler = parameter({
     match: { name: 'Query', on: 'parameter' },
-    apply: (ctx, draft) => {
-        const name = readString(ctx.argument(0));
-        if (name !== undefined) {
-            draft.in = ParamKind.Query;
-            draft.name = name;
-        } else {
-            draft.in = ParamKind.QueryProp;
-        }
-    },
+    apply: claimParameter(ParamKind.Query, ParamKind.QueryProp),
 });
 
 const parameterQueryPropHandler = parameter({
@@ -516,7 +511,12 @@ function appendExtensionToDraft(
     const keyArg = ctx.argument(0);
     const valueArg = ctx.argument(1);
     const key = readString(keyArg);
-    if (!key || !valueArg) {
+    if (
+        !key ||
+        !valueArg ||
+        valueArg.kind === 'unresolvable' ||
+        typeof valueArg.raw === 'undefined'
+    ) {
         return;
     }
     draft.extensions.push({ key, value: valueArg.raw as never });

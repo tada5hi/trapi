@@ -202,19 +202,57 @@ describe('applyJsDocHandlers', () => {
         expect(seen).toEqual(['short text']);
     });
 
-    it('passes the parameterType callback through', () => {
-        const sf = compile('class C {}');
+    it('exposes the parameterType callback on JsDocHandlerContext', () => {
+        const sf = compile(`
+            /**
+             * @description short text
+             */
+            class C {}
+        `);
         const node = findClass(sf, 'C');
-        const draft = newMethodDraft({ name: 'list' });
-        const handlers: MethodHandler[] = [];
+        const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
+        let resolved: Type | undefined;
+        const handlers: ControllerJsDocHandler[] = [
+            {
+                match: { tag: 'description' },
+                apply: (ctx) => { resolved = ctx.parameterType(); },
+            },
+        ];
 
-        applyDecoratorHandlers(node, handlers, draft, {
-            target: 'method',
-            host: { name: 'list' },
+        applyJsDocHandlers(node, handlers, draft, {
+            target: 'class',
+            host: { name: 'C' },
             resolveTypeNode: stubResolveTypeNode,
             parameterType: () => ({ typeName: 'string' } as Type),
         });
-        // No assertion target — covers the parameterType wiring path without runtime crash.
-        expect(draft.parameters).toEqual([]);
+        expect(resolved).toEqual({ typeName: 'string' });
+    });
+});
+
+describe('applyDecoratorHandlers — parameterType wiring', () => {
+    it('passes the parameterType callback through to handlers', () => {
+        const sf = compile(`
+            class C {
+                @Get() list() {}
+            }
+        `);
+        const cls = findClass(sf, 'C');
+        const method = cls.members[0] as ts.MethodDeclaration;
+        const draft = newMethodDraft({ name: 'list' });
+        let observed: Type | undefined;
+        const handlers: MethodHandler[] = [
+            {
+                match: { name: 'Get' },
+                apply: (ctx) => { observed = ctx.parameterType(); },
+            },
+        ];
+
+        applyDecoratorHandlers(method, handlers, draft, {
+            target: 'method',
+            host: { name: 'list', parentName: 'C' },
+            resolveTypeNode: stubResolveTypeNode,
+            parameterType: () => ({ typeName: 'string' } as Type),
+        });
+        expect(observed).toEqual({ typeName: 'string' });
     });
 });

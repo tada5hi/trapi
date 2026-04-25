@@ -62,5 +62,5 @@ export interface Controller {
 
 export interface IControllerGenerator {
     isValid(): boolean;
-    generate(): Controller;
+    generate(): Controller | null;
 }

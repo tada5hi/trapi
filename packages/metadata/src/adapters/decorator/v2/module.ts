@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { load } from 'locter';
 import type {
     AnyDecoratorHandler,
     AnyJsDocHandler,
@@ -21,6 +22,7 @@ import type {
 } from './types';
 import { createRegistry } from './utils';
 import { validatePreset } from './validation';
+import { generatePresetLookupPaths } from '../preset/utils/normalize';
 
 const decoratorKinds = ['controllers', 'methods', 'parameters'] as const;
 const jsDocKinds = ['controllerJsDoc', 'methodJsDoc', 'parameterJsDoc'] as const;
@@ -208,4 +210,53 @@ function stripOrigins(tagged: TaggedRegistry): Registry {
     registry.methodJsDoc = tagged.methodJsDoc.map((e) => e.handler);
     registry.parameterJsDoc = tagged.parameterJsDoc.map((e) => e.handler);
     return registry;
+}
+
+/**
+ * Resolve a preset by string identifier (npm package, relative path, etc.) and
+ * return the v2 Preset object. Looks for a `preset` named export, then the
+ * default export, then the module itself.
+ */
+export async function resolvePresetByName(input: string): Promise<Preset> {
+    const lookupPaths = generatePresetLookupPaths(input);
+
+    for (const lookupPath of lookupPaths) {
+        try {
+            const moduleExport = await load(lookupPath) as Record<string, unknown>;
+
+            const candidates: unknown[] = [
+                (moduleExport as { preset?: unknown }).preset,
+                (moduleExport as { default?: unknown }).default,
+                moduleExport,
+            ];
+
+            for (const candidate of candidates) {
+                if (isV2Preset(candidate)) {
+                    return candidate;
+                }
+            }
+        } catch {
+            // try next lookup path
+        }
+    }
+
+    throw new Error(`Preset '${input}' could not be resolved.`);
+}
+
+/**
+ * Resolve a preset by name and immediately materialize its registry, recursively
+ * loading `extends` parents through the same resolver.
+ */
+export async function loadRegistryByName(input: string): Promise<Registry> {
+    const preset = await resolvePresetByName(input);
+    return loadRegistry(preset, { resolver: resolvePresetByName });
+}
+
+function isV2Preset(input: unknown): input is Preset {
+    return (
+        typeof input === 'object' &&
+        input !== null &&
+        typeof (input as { name?: unknown }).name === 'string' &&
+        !('items' in input)
+    );
 }

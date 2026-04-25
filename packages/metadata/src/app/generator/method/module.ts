@@ -1,68 +1,130 @@
 /*
- * Copyright (c) 2021-2023.
+ * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
 import path from 'node:path';
-import { isObject } from 'locter';
-import { NodeBuilderFlags, isIdentifier, isTypeNode } from 'typescript';
+import { NodeBuilderFlags } from 'typescript';
 import type {
-    ClassDeclaration, 
-    Identifier, 
-    MethodDeclaration, 
-    Node, 
+    ClassDeclaration,
+    Identifier,
+    MethodDeclaration,
     TypeNode,
 } from 'typescript';
-import { DecoratorID } from '../../../core/types/decorator-id';
+import {
+    type ApplyHandlersOptions,
+    applyDecoratorHandlers,
+    applyJsDocHandlers,
+    newMethodDraft,
+} from '../../../adapters/decorator/v2';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { GeneratorError } from '../../../core/error/generator';
 import type { BaseType } from '../../../core/types/resolver';
 import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
-import { getNodeExtensions } from '../../../adapters/typescript/resolver/extension';
 import { isVoidType } from '../../../core/types/type-guards';
 import {
     JSDocTagName,
     getJSDocDescription,
     getJSDocTagComment,
 } from '../../../adapters/typescript/js-doc';
-import { getNodeDecorators } from '../../../adapters/typescript/node-utils';
-import { hasOwnProperty } from '../../../core/utils';
-import { AbstractGenerator } from '../abstract';
+import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/types/metadata';
 import type { Parameter } from '../../../core/types/parameter';
 import { ParameterGenerator } from '../parameter';
 import { ParameterSource } from '../../../core/types/parameter-source';
 import type { Example, Response } from '../../../core/types/generator';
-import type { Method, MethodType } from '../../../core/types/method';
+import type { Method } from '../../../core/types/method';
 
-export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
-    private method: MethodType;
+const EXAMPLE_EXTENSION_KEY = '__trapi_example__';
 
-    // --------------------------------------------------------------------
+type StashedExample = {
+    value: unknown;
+    label?: string;
+};
 
-    constructor(
-        node: MethodDeclaration,
-        current: IGeneratorContext,
-    ) {
-        super(node, current);
+export class MethodGenerator {
+    protected readonly node: MethodDeclaration;
 
-        this.determineVerb();
+    protected readonly current: IGeneratorContext;
+
+    constructor(node: MethodDeclaration, current: IGeneratorContext) {
+        this.node = node;
+        this.current = current;
     }
 
-    // --------------------------------------------------------------------
-
-    public isValid() : boolean {
-        return typeof this.method !== 'undefined';
-    }
-
-    public getMethodName() {
+    public getMethodName(): string {
         const identifier = this.node.name as Identifier;
         return identifier.text;
     }
 
-    public generate(controllerPath: string): Method {
+    public generate(controllerPath: string): Method | null {
+        const name = this.getMethodName();
+        const draft = newMethodDraft({ name });
+
+        const options = this.applyOptions();
+        applyDecoratorHandlers(this.node, this.current.registry.methods, draft, options);
+        applyJsDocHandlers(this.node, this.current.registry.methodJsDoc, draft, options);
+
+        // Not a route method (no HTTP verb decorator matched).
+        if (!draft.verb) {
+            return null;
+        }
+
+        // Skip hidden methods entirely (matches v1 behaviour for class member iteration).
+        if (draft.hidden) {
+            return null;
+        }
+
+        // Resolve return type.
+        const returnType = this.resolveReturnType();
+
+        // Stashed examples (from @Example) get unpacked into a default 200-response.
+        const stashedExamples = this.consumeStashedExamples(draft.extensions);
+
+        // Build responses: handler-supplied first, then a derived default.
+        const defaultResponse = buildDefaultResponse(returnType, stashedExamples);
+        const responses = mergeDefaultResponse(draft.responses, defaultResponse);
+
+        // Walk parameters.
+        const parameters = this.buildParameters(controllerPath, draft.path, draft.verb);
+
+        // Description from leading JSDoc comment (no v2 handler covers this since it
+        // isn't a tagged value).
+        const description = getJSDocDescription(this.node) ?? draft.description;
+        const summary = draft.summary ?? getJSDocTagComment(this.node, JSDocTagName.SUMMARY);
+
+        return {
+            consumes: draft.consumes,
+            deprecated: draft.deprecated ?? false,
+            description: description ?? '',
+            extensions: draft.extensions,
+            hidden: draft.hidden,
+            method: draft.verb,
+            name,
+            path: normalizePath(draft.path),
+            produces: draft.produces,
+            responses,
+            security: draft.security,
+            summary,
+            tags: draft.tags,
+            type: returnType,
+            parameters,
+        };
+    }
+
+    private applyOptions(): ApplyHandlersOptions {
+        const parentName = (this.node.parent as ClassDeclaration).name?.text;
+        return {
+            target: 'method',
+            host: { name: this.getMethodName(), parentName },
+            resolveTypeNode: (n: TypeNode) => new TypeNodeResolver(n, this.current).resolve(),
+            typeChecker: this.current.typeChecker,
+        };
+    }
+
+    private resolveReturnType(): BaseType {
         let nodeType = this.node.type;
         if (!nodeType) {
             const { typeChecker } = this.current;
@@ -70,47 +132,32 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
             const implicitType = typeChecker.getReturnTypeOfSignature(signature);
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
         }
-
-        const type = new TypeNodeResolver(nodeType, this.current).resolve();
-        const responses = this.mergeResponses(this.buildResponses(), this.buildResponse(type));
-
-        const methodPath = this.buildPath();
-
-        return {
-            consumes: this.getConsumes(),
-            deprecated: this.isDeprecated(this.node),
-            description: getJSDocDescription(this.node),
-            extensions: getNodeExtensions(this.node, this.current.decoratorResolver),
-            hidden: this.isHidden(this.node),
-            method: this.method,
-            name: (this.node.name as Identifier).text,
-            path: methodPath,
-            produces: this.getProduces(),
-            responses,
-            security: this.getSecurity(),
-            summary: getJSDocTagComment(this.node, JSDocTagName.SUMMARY),
-            tags: this.getTags(),
-            type,
-            parameters: this.buildParameters(controllerPath, methodPath),
-        };
+        return new TypeNodeResolver(nodeType, this.current).resolve();
     }
 
-    protected getCurrentLocation() {
-        const methodId = this.node.name as Identifier;
-        const controllerId = (this.node.parent as ClassDeclaration).name as Identifier;
-        return `${controllerId.text}.${methodId.text}`;
+    private consumeStashedExamples(extensions: { key: string; value: unknown }[]): Example[] {
+        const examples: Example[] = [];
+        for (let i = extensions.length - 1; i >= 0; i--) {
+            const ext = extensions[i];
+            if (ext.key === EXAMPLE_EXTENSION_KEY) {
+                const stashed = ext.value as StashedExample;
+                examples.unshift({ value: stashed.value, label: stashed.label });
+                extensions.splice(i, 1);
+            }
+        }
+        return examples;
     }
 
     private buildParameters(
         controllerPath: string,
         methodPath: string,
-    ) {
+        verb: string,
+    ): Parameter[] {
         const controllerId = (this.node.parent as ClassDeclaration).name as Identifier;
-
         const methodId = this.node.name as Identifier;
         const fullPath = path.posix.join('/', controllerPath, methodPath);
 
-        const output : Parameter[] = [];
+        const output: Parameter[] = [];
         let bodyParameterCount = 0;
         let formParameterCount = 0;
 
@@ -118,7 +165,7 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
             try {
                 const generator = new ParameterGenerator(
                     this.node.parameters[i],
-                    this.method,
+                    verb,
                     fullPath,
                     this.current,
                 );
@@ -127,22 +174,19 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
 
                 for (const parameter of parameters) {
                     if (parameter.in === ParameterSource.BODY) {
-                        bodyParameterCount++;
+                        bodyParameterCount += 1;
                     }
-
                     if (parameter.in === ParameterSource.FORM_DATA) {
-                        formParameterCount++;
+                        formParameterCount += 1;
                     }
-
                     if (parameter.in !== ParameterSource.CONTEXT) {
                         output.push(parameter);
                     }
                 }
             } catch (e) {
-                const parameterNameNode = this.node.parameters[i].name;
-                const parameterName = isIdentifier(parameterNameNode) ? parameterNameNode.text : parameterNameNode.getText();
+                const causeMsg = e instanceof Error ? `: ${e.message}` : '';
                 throw new GeneratorError({
-                    message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument: ${parameterName}`,
+                    message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument index ${i}${causeMsg}`,
                     code: GeneratorErrorCode.PARAMETER_GENERATION_FAILED,
                     cause: e,
                 });
@@ -151,122 +195,45 @@ export class MethodGenerator extends AbstractGenerator<MethodDeclaration> {
 
         if (bodyParameterCount > 1) {
             throw new GeneratorError({
-                message: `Only one body parameter allowed in '${this.getCurrentLocation()}' method.`,
+                message: `Only one body parameter allowed in '${controllerId.text}.${methodId.text}' method.`,
                 code: GeneratorErrorCode.BODY_PARAMETER_DUPLICATE,
             });
         }
 
         if (bodyParameterCount > 0 && formParameterCount > 0) {
             throw new GeneratorError({
-                message: `Cannot mix body and form parameters in '${this.getCurrentLocation()}' method.`,
+                message: `Cannot mix body and form parameters in '${controllerId.text}.${methodId.text}' method.`,
                 code: GeneratorErrorCode.BODY_FORM_CONFLICT,
             });
         }
 
         return output;
     }
+}
 
-    private determineVerb() {
-        const methods = [
-            DecoratorID.ALL,
-            DecoratorID.DELETE,
-            DecoratorID.GET,
-            DecoratorID.HEAD,
-            DecoratorID.OPTIONS,
-            DecoratorID.PATCH,
-            DecoratorID.POST,
-            DecoratorID.PUT,
-        ];
+function buildDefaultResponse(returnType: BaseType, examples: Example[]): Response {
+    const isVoid = isVoidType(returnType);
+    return {
+        description: isVoid ? 'No content' : 'Ok',
+        examples,
+        schema: returnType,
+        status: isVoid ? '204' : '200',
+        name: isVoid ? '204' : '200',
+    };
+}
 
-        const decorators = getNodeDecorators(this.node);
-
-        let method : string | undefined;
-
-        for (const method_ of methods) {
-            const representationManager = this.current.decoratorResolver.match(method_, decorators);
-            if (representationManager) {
-                method = method_;
-                break;
-            }
-        }
-
-        if (typeof method === 'undefined') {
-            return;
-        }
-
-        this.method = method.toLowerCase() as MethodType;
+function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Response): Response[] {
+    if (handlerResponses.length === 0) {
+        return [defaultResponse];
     }
-
-    private buildResponse(type: BaseType): Response {
-        type = this.guessResponseType(type);
-
-        return {
-            description: isVoidType(type) ? 'No content' : 'Ok',
-            examples: this.getResponseExamples(),
-            schema: type,
-            status: isVoidType(type) ? '204' : '200',
-            name: isVoidType(type) ? '204' : '200',
-        };
+    const existing = handlerResponses.findIndex((r) => r.status === defaultResponse.status);
+    if (existing >= 0) {
+        const target = handlerResponses[existing];
+        if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
+            (!target.examples || target.examples.length === 0)) {
+            target.examples = defaultResponse.examples;
+        }
+        return handlerResponses;
     }
-
-    private guessResponseType(type: BaseType) : BaseType {
-        if (!isVoidType(type)) {
-            return type;
-        }
-
-        const representation = this.current.decoratorResolver.match(DecoratorID.EXAMPLE, this.node);
-        if (typeof representation === 'undefined') {
-            return type;
-        }
-
-        const value = representation.get('type');
-
-        if (
-            isObject(value) &&
-            hasOwnProperty(value, 'kind') &&
-            isTypeNode(value as Node)
-        ) {
-            type = new TypeNodeResolver(value as TypeNode, this.current).resolve();
-        }
-
-        return type;
-    }
-
-    private getResponseExamples() : Example[] {
-        const representation = this.current.decoratorResolver.match(DecoratorID.EXAMPLE, this.node);
-        if (typeof representation === 'undefined') {
-            return [];
-        }
-
-        const output : Example[] = [];
-        for (let i = 0; i < representation.decorators.length; i++) {
-            const value = representation.get('payload');
-            const label = representation.get('label');
-            if (typeof value !== 'undefined') {
-                output.push({ value, label });
-            }
-        }
-
-        return output;
-    }
-
-    private mergeResponses(responses: Response[], exampleResponse: Response) {
-        if (!responses || !responses.length) {
-            return [exampleResponse];
-        }
-
-        const index = responses.findIndex((resp) => resp.status === exampleResponse.status);
-        if (index >= 0) {
-            if (
-                exampleResponse.examples &&
-                (!responses[index].examples || !responses[index].examples.length)
-            ) {
-                responses[index].examples = exampleResponse.examples;
-            }
-        } else {
-            responses.push(exampleResponse);
-        }
-
-        return responses;
-    }
+    return [...handlerResponses, defaultResponse];
 }

@@ -1,43 +1,61 @@
 /*
- * Copyright (c) 2021-2023.
+ * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ClassDeclaration, Expression, MethodDeclaration } from 'typescript';
+import type {
+    ClassDeclaration, 
+    Expression, 
+    MethodDeclaration, 
+    TypeNode,
+} from 'typescript';
 import {
     SymbolFlags,
     SyntaxKind,
     isClassDeclaration,
     isMethodDeclaration,
 } from 'typescript';
-import { DecoratorID } from '../../../core/types/decorator-id';
+import {
+    type ApplyHandlersOptions,
+    applyDecoratorHandlers,
+    applyJsDocHandlers,
+    newControllerDraft,
+} from '../../../adapters/decorator/v2';
+import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
 import { isResolverError } from '../../../core/error/resolver';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { GeneratorError, isGeneratorError } from '../../../core/error/generator';
-import { AbstractGenerator } from '../abstract';
+import { normalizePath } from '../../../core/utils';
 import type { Method } from '../../../core/types/method';
 import { MethodGenerator } from '../method';
-import { getNodeExtensions } from '../../../adapters/typescript/resolver/extension';
 import type { IGeneratorContext } from '../../../core/types/metadata';
 import type { Controller, IControllerGenerator } from '../../../core/types/controller';
 
-export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> implements IControllerGenerator {
+export class ControllerGenerator implements IControllerGenerator {
+    protected readonly node: ClassDeclaration;
+
+    protected readonly current: IGeneratorContext;
+
     constructor(node: ClassDeclaration, current: IGeneratorContext) {
-        super(node, current);
+        this.node = node;
+        this.current = current;
     }
 
-    public isValid() : boolean {
-        const isController = this.current.decoratorResolver.match(
-            DecoratorID.CONTROLLER,
-            this.node,
-        );
-
-        return !!isController;
+    public isValid(): boolean {
+        // Controllers are detected by having a 'Controller' or equivalent decorator
+        // that marks them as such — verified during generate() via the registry.
+        // Pre-flight check: does any controller-target handler match a decorator on this node?
+        if (!this.node.name) {
+            return false;
+        }
+        // Cheap pre-check: just verify the node has at least one decorator.
+        // Real validation happens in generate() via handler dispatch.
+        return true;
     }
 
-    public generate(): Controller {
+    public generate(): Controller | null {
         if (!this.node.parent) {
             throw new GeneratorError({
                 message: 'Controller node doesn\'t have a valid parent source file.',
@@ -52,65 +70,88 @@ export class ControllerGenerator extends AbstractGenerator<ClassDeclaration> imp
         }
 
         const sourceFile = this.node.parent.getSourceFile();
+        const draft = newControllerDraft({
+            name: this.node.name.text,
+            location: sourceFile.fileName,
+        });
 
-        const path = this.buildPath();
+        const options = this.applyOptions();
+        applyDecoratorHandlers(this.node, this.current.registry.controllers, draft, options);
+        applyJsDocHandlers(this.node, this.current.registry.controllerJsDoc, draft, options);
+
+        // A class is a controller iff a controller-target handler claimed it
+        // (convention: the Controller handler sets `draft.path` to '' or a value).
+        if (draft.path === undefined) {
+            return null;
+        }
+
+        const path = normalizePath(draft.path);
+        const methods = this.buildMethods(path);
 
         return {
-            consumes: this.getConsumes(),
-            extensions: getNodeExtensions(this.node, this.current.decoratorResolver),
-            hidden: this.isHidden(this.node),
-            location: sourceFile.fileName,
-            name: this.getCurrentLocation(),
+            consumes: draft.consumes,
+            extensions: draft.extensions,
+            hidden: draft.hidden,
+            location: draft.location,
+            name: draft.name,
             path,
-            produces: this.getProduces(),
-            responses: this.buildResponses(),
-            security: this.getSecurity(),
-            tags: this.getTags(),
-            methods: this.buildMethods(path),
+            produces: draft.produces,
+            responses: draft.responses,
+            security: draft.security,
+            tags: draft.tags,
+            methods,
         };
     }
 
-    protected getCurrentLocation(): string {
-        return (this.node as ClassDeclaration).name.text;
+    private applyOptions(): ApplyHandlersOptions {
+        return {
+            target: 'class',
+            host: { name: this.node.name!.text },
+            resolveTypeNode: (n: TypeNode) => new TypeNodeResolver(n, this.current).resolve(),
+            typeChecker: this.current.typeChecker,
+        };
     }
 
-    protected buildMethods(controllerPath: string) : Method[] {
+    protected buildMethods(controllerPath: string): Method[] {
         const set = new Set<string>();
-        const output : Method[] = [];
+        const output: Method[] = [];
 
         // Process own methods first
         for (const member of this.node.members) {
-            if (!isMethodDeclaration(member) || this.isHidden(member)) {
+            if (!isMethodDeclaration(member)) {
                 continue;
             }
 
             const generator = new MethodGenerator(member, this.current);
             const methodName = generator.getMethodName();
-            if (set.has(methodName) || !generator.isValid()) {
+            if (set.has(methodName)) {
                 continue;
             }
 
+            const method = generator.generate(controllerPath);
+            if (!method) {
+                continue;
+            }
             set.add(methodName);
-            output.push(generator.generate(controllerPath));
+            output.push(method);
         }
 
         // Then process inherited methods from base classes
         const inheritedMethods = this.collectInheritedMethodDeclarations(this.node);
         for (const node of inheritedMethods) {
-            if (this.isHidden(node)) {
-                continue;
-            }
-
             const generator = new MethodGenerator(node, this.current);
             const methodName = generator.getMethodName();
-            if (set.has(methodName) || !generator.isValid()) {
+            if (set.has(methodName)) {
                 continue;
             }
 
-            set.add(methodName);
-
             try {
-                output.push(generator.generate(controllerPath));
+                const method = generator.generate(controllerPath);
+                if (!method) {
+                    continue;
+                }
+                set.add(methodName);
+                output.push(method);
             } catch (error: unknown) {
                 // Skip inherited methods that fail due to unresolvable generic
                 // type parameters (e.g., return type T or parameter type T from

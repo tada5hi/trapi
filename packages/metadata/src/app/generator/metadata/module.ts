@@ -23,6 +23,8 @@ import {
 import { CacheClient } from '../../../adapters/cache';
 import type { MetadataGeneratorOptions } from '../../../core/config';
 import { DecoratorResolver } from '../../../adapters/decorator';
+import type { Registry } from '../../../adapters/decorator/v2';
+import { createRegistry, loadRegistryByName } from '../../../adapters/decorator/v2';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../../core/types/resolver';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
 import type { Controller } from '../../../core/types/controller';
@@ -40,6 +42,8 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     public readonly typeChecker: TypeChecker;
 
     public readonly decoratorResolver: DecoratorResolver;
+
+    public registry: Registry;
 
     public readonly resolverCache: ResolverCache;
 
@@ -63,6 +67,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
         this.cache = new CacheClient(context.options.cache);
         this.decoratorResolver = new DecoratorResolver();
+        this.registry = createRegistry();
         this.resolverCache = new ResolverCache();
 
         this.program = createProgram(
@@ -85,7 +90,11 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             }
 
             if (this.config.preset) {
+                // v1 path (kept until type resolver is migrated; populates the
+                // decorator-name → DecoratorID mapping used by TypeNodeResolver).
                 await this.decoratorResolver.applyPreset(this.config.preset);
+                // v2 path (drives the new generator pipeline via registry handlers).
+                this.registry = await loadRegistryByName(this.config.preset);
             }
 
             this.buildControllers();
@@ -213,7 +222,10 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                 continue;
             }
 
-            this.controllers.push(generator.generate());
+            const controller = generator.generate();
+            if (controller) {
+                this.controllers.push(controller);
+            }
         }
     }
 }

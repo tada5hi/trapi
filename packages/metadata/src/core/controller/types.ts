@@ -4,6 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
+import type { Extension } from '../resolver/extension';
 import type { Response, Security } from '../generator/types';
 import type { Method } from '../method/types';
 
@@ -15,6 +16,11 @@ export interface Controller {
      * i.e. ['application/json']
      */
     consumes: string[];
+
+    /**
+     * Vendor extensions (x-* keys) declared on the controller class.
+     */
+    extensions: Extension[];
 
     /**
      * Is controller hidden, and should

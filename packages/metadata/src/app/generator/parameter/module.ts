@@ -9,6 +9,7 @@ import type * as ts from 'typescript';
 import type { DecoratorPropertyManager } from '../../../adapters/decorator';
 import { DecoratorID } from '../../../core/types/decorator-id';
 import { getNodeDecorators } from '../../../adapters/typescript/node-utils';
+import { getNodeExtensions } from '../../../adapters/typescript/resolver/extension';
 import type { IGeneratorContext } from '../../../core/types/metadata';
 import {
     ParameterHandlerContext,
@@ -58,6 +59,14 @@ export class ParameterGenerator implements IParameterGenerator {
 
     public generate(): Parameter[] {
         const decorators = getNodeDecorators(this.ctx.parameter);
+        const extensions = getNodeExtensions(this.ctx.parameter, this.current.decoratorResolver);
+
+        const decorate = (parameters: Parameter[]): Parameter[] => {
+            for (const parameter of parameters) {
+                parameter.extensions = [...extensions];
+            }
+            return parameters;
+        };
 
         for (const parameterKey of parameterKeys) {
             const manager = this.current.decoratorResolver.match(parameterKey, decorators);
@@ -67,11 +76,11 @@ export class ParameterGenerator implements IParameterGenerator {
 
             const result = this.dispatch(manager);
             if (result) {
-                return result;
+                return decorate(result);
             }
         }
 
-        return handleBodyParameter(this.ctx);
+        return decorate(handleBodyParameter(this.ctx));
     }
 
     private dispatch(manager: DecoratorPropertyManager<`${DecoratorID}`>): Parameter[] | undefined {

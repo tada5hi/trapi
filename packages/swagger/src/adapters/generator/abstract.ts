@@ -89,6 +89,35 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return info;
     }
 
+    protected buildTags() {
+        // Tag entries are emitted only for controllers that declare extensions.
+        // When multiple controllers share a tag name, their extensions merge into
+        // the same Tag entry; on key conflict, the last controller processed wins
+        // (silent — strict-mode validation is a future addition).
+        const tagMap = new Map<string, { name: string } & Record<string, unknown>>();
+
+        for (const controller of this.metadata.controllers) {
+            const extensions = controller.extensions ?? [];
+            if (extensions.length === 0) {
+                continue;
+            }
+
+            for (const tagName of controller.tags) {
+                let entry = tagMap.get(tagName);
+                if (!entry) {
+                    entry = { name: tagName };
+                    tagMap.set(tagName, entry);
+                }
+
+                for (const extension of extensions) {
+                    entry[extension.key] = extension.value;
+                }
+            }
+        }
+
+        return Array.from(tagMap.values());
+    }
+
     protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
         if (isVoidType(type) || isUndefinedType(type) || isNeverType(type)) {
             return {} as Schema;

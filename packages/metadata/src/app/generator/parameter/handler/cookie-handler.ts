@@ -62,6 +62,7 @@ export function handleCookieParameter(
             description: ctx.getParameterDescription(),
             examples,
             exampleLabels,
+            extensions: [],
             in: ParameterSource.COOKIE,
             name: name || parameterName,
             parameterName,

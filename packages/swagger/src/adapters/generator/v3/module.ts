@@ -94,7 +94,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             openapi: this.openApiVersion,
             paths: this.buildPaths(),
             servers: this.buildServers(),
-            tags: [],
+            tags: this.buildTags(),
         };
 
         if (this.config.specificationExtra) {
@@ -237,6 +237,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     },
                     validators: {},
                     deprecated: false,
+                    extensions: [],
                 });
             }
 
@@ -436,6 +437,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 ...this.transformValidators(input.validators),
             },
         };
+
+        for (const extension of input.extensions ?? []) {
+            parameter[extension.key] = extension.value;
+        }
 
         if (input.deprecated) {
             parameter.deprecated = true;

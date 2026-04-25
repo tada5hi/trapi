@@ -49,6 +49,8 @@ export function handleBodyParameter(
             description: ctx.getParameterDescription(),
             examples,
             exampleLabels,
+            // Placeholder; ParameterGenerator.generate() overwrites with the real extensions array.
+            extensions: [],
             in: source,
             name: name || parameterName,
             parameterName,

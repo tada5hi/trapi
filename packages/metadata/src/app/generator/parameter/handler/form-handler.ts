@@ -45,6 +45,7 @@ export function handleFormParameter(
             description: ctx.getParameterDescription(),
             examples,
             exampleLabels,
+            extensions: [],
             in: ParameterSource.FORM_DATA,
             name: name || parameterName,
             parameterName,

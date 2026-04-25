@@ -57,6 +57,7 @@ export function handleHeaderParameter(
             description: ctx.getParameterDescription(),
             examples,
             exampleLabels,
+            extensions: [],
             in: ParameterSource.HEADER,
             name: name || parameterName,
             parameterName,

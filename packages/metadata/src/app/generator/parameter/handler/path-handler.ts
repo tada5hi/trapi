@@ -85,6 +85,7 @@ export function handlePathParameter(
             description: ctx.getParameterDescription(),
             examples,
             exampleLabels,
+            extensions: [],
             in: ParameterSource.PATH,
             name: name || parameterName,
             parameterName,

@@ -43,6 +43,7 @@ describe('src/cache', () => {
             const testData = {
                 controllers: [{
                     consumes: [],
+                    extensions: [],
                     hidden: false,
                     location: '/test.ts',
                     methods: [],
@@ -86,6 +87,7 @@ describe('src/cache', () => {
             await cache.save({
                 controllers: [{
                     consumes: [],
+                    extensions: [],
                     hidden: false,
                     location: '/a.ts',
                     methods: [],

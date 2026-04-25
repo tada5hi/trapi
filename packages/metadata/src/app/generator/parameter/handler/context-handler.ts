@@ -17,6 +17,7 @@ export function handleContextParameter(
     return [
         {
             description: ctx.getParameterDescription(),
+            extensions: [],
             in: ParameterSource.CONTEXT,
             name: parameterName,
             parameterName,

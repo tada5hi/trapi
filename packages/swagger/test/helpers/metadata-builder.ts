@@ -40,6 +40,7 @@ export function createController(
 ): Controller {
     return {
         consumes: [],
+        extensions: [],
         hidden: false,
         location: '/test/fake.ts',
         produces: [],
@@ -85,6 +86,7 @@ export function createParameter(
         parameterName: overrides.name,
         required: true,
         deprecated: false,
+        extensions: [],
         validators: {},
         ...overrides,
     };

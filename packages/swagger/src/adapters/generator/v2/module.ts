@@ -85,6 +85,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
         }
 
+        const tags = this.buildTags();
+        if (tags.length > 0) {
+            spec.tags = tags;
+        }
+
         if (this.config.specificationExtra) {
             spec = merge(spec, this.config.specificationExtra);
         }
@@ -343,6 +348,10 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             name: input.name,
             required: input.required,
         } as ParameterV2;
+
+        for (const extension of input.extensions ?? []) {
+            parameter[extension.key] = extension.value;
+        }
 
         if (
             input.in !== ParameterSource.BODY &&

@@ -7,6 +7,7 @@
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
 import type { MetadataGeneratorOptions } from '../config';
 import type { IDecoratorResolver } from '../../adapters/decorator';
+import type { Registry } from '../../adapters/decorator/v2';
 import type {
     DependencyResolver,
     IResolverCache,
@@ -71,4 +72,5 @@ export interface IReferenceTypeRegistry {
  */
 export interface IGeneratorContext extends IResolverContext, IReferenceTypeRegistry {
     readonly config: MetadataGeneratorOptions;
+    readonly registry: Registry;
 }

@@ -78,6 +78,7 @@ export function newMethodDraft(input: Pick<MethodDraft, 'name'>): MethodDraft {
         security: [],
         extensions: [],
         parameters: [],
+        defaultResponseExamples: [],
     };
 }
 

@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { load } from 'locter';
 import type {
     AnyDecoratorHandler,
     AnyJsDocHandler,
@@ -21,6 +22,10 @@ import type {
 } from './types';
 import { createRegistry } from './utils';
 import { validatePreset } from './validation';
+import { generatePresetLookupPaths } from '../preset/utils/normalize';
+import { ConfigError } from '../../../core/error/config';
+import { ConfigErrorCode } from '../../../core/error/config-codes';
+import { MetadataError } from '../../../core/error/base';
 
 const decoratorKinds = ['controllers', 'methods', 'parameters'] as const;
 const jsDocKinds = ['controllerJsDoc', 'methodJsDoc', 'parameterJsDoc'] as const;
@@ -64,9 +69,7 @@ async function loadTaggedRegistry(
     const validated = await validatePreset(preset);
 
     if (visited.has(validated.name)) {
-        throw new Error(
-            `Preset cycle detected: ${[...visited, validated.name].join(' -> ')}`,
-        );
+        throw new MetadataError({ message: `Preset cycle detected: ${[...visited, validated.name].join(' -> ')}` });
     }
     const nextVisited = new Set(visited);
     nextVisited.add(validated.name);
@@ -130,9 +133,7 @@ function applyReplacesDecorator(
         remaining.push(entry);
     }
     if (removed === 0 && strict) {
-        throw new Error(
-            `Preset '${presetName}': handler with replaces=${describeReplaces(handler.replaces!)} on '${handler.match.name}' did not match any parent handler`,
-        );
+        throw new MetadataError({ message: `Preset '${presetName}': handler with replaces=${describeReplaces(handler.replaces!)} on '${handler.match.name}' did not match any parent handler` });
     }
     (merged as Record<string, unknown>)[kind] = remaining;
 }
@@ -157,9 +158,7 @@ function applyReplacesJsDoc(
         remaining.push(entry);
     }
     if (removed === 0 && strict) {
-        throw new Error(
-            `Preset '${presetName}': JSDoc handler with replaces=${describeReplaces(handler.replaces!)} on '@${handler.match.tag}' did not match any parent handler`,
-        );
+        throw new MetadataError({ message: `Preset '${presetName}': JSDoc handler with replaces=${describeReplaces(handler.replaces!)} on '@${handler.match.tag}' did not match any parent handler` });
     }
     (merged as Record<string, unknown>)[kind] = remaining;
 }
@@ -208,4 +207,60 @@ function stripOrigins(tagged: TaggedRegistry): Registry {
     registry.methodJsDoc = tagged.methodJsDoc.map((e) => e.handler);
     registry.parameterJsDoc = tagged.parameterJsDoc.map((e) => e.handler);
     return registry;
+}
+
+/**
+ * Resolve a preset by string identifier (npm package, relative path, etc.) and
+ * return the v2 Preset object. Looks for a `preset` named export, then the
+ * default export, then the module itself.
+ */
+export async function resolvePresetByName(input: string): Promise<Preset> {
+    const lookupPaths = generatePresetLookupPaths(input);
+    let lastError: unknown;
+
+    for (const lookupPath of lookupPaths) {
+        try {
+            const moduleExport = await load(lookupPath) as Record<string, unknown>;
+
+            const candidates: unknown[] = [
+                (moduleExport as { preset?: unknown }).preset,
+                (moduleExport as { default?: unknown }).default,
+                moduleExport,
+            ];
+
+            for (const candidate of candidates) {
+                if (isV2Preset(candidate)) {
+                    return candidate;
+                }
+            }
+        } catch (e) {
+            // Module-not-found errors are expected when iterating lookup paths;
+            // capture the last error so we can surface it if every path fails.
+            lastError = e;
+        }
+    }
+
+    throw new ConfigError({
+        message: `Preset '${input}' could not be resolved.`,
+        code: ConfigErrorCode.PRESET_NOT_FOUND,
+        cause: lastError,
+    });
+}
+
+/**
+ * Resolve a preset by name and immediately materialize its registry, recursively
+ * loading `extends` parents through the same resolver.
+ */
+export async function loadRegistryByName(input: string): Promise<Registry> {
+    const preset = await resolvePresetByName(input);
+    return loadRegistry(preset, { resolver: resolvePresetByName });
+}
+
+function isV2Preset(input: unknown): input is Preset {
+    return (
+        typeof input === 'object' &&
+        input !== null &&
+        typeof (input as { name?: unknown }).name === 'string' &&
+        !('items' in input)
+    );
 }

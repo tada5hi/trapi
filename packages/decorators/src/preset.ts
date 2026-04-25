@@ -193,24 +193,35 @@ const methodExtensionHandler = method({
     apply: (ctx, draft) => appendExtensionToDraft(ctx, draft),
 });
 
+function applyDescriptionToDraft(
+    ctx: HandlerContext,
+    draft: ControllerDraft | MethodDraft,
+): void {
+    const statusArg = ctx.argument(0);
+    const status = readString(statusArg) ?? String(readNumber(statusArg) ?? '200');
+    const description = readString(ctx.argument(1)) ?? 'Ok';
+    const payload = ctx.argument(2);
+    const examples = payload && payload.kind !== 'unresolvable' ?
+        [{ value: payload.raw }] :
+        [];
+    const typeArg = ctx.typeArgument(0);
+    draft.responses.push({
+        name: status,
+        status,
+        description,
+        examples,
+        schema: typeArg ? typeArg.resolve() : undefined,
+    });
+}
+
+const controllerDescriptionHandler = controller({
+    match: { name: 'Description', on: 'class' },
+    apply: (ctx, draft) => applyDescriptionToDraft(ctx, draft),
+});
+
 const methodDescriptionHandler = method({
     match: { name: 'Description', on: 'method' },
-    apply: (ctx, draft) => {
-        const status = readString(ctx.argument(0)) ?? String(readNumber(ctx.argument(0)) ?? '200');
-        const description = readString(ctx.argument(1)) ?? 'Ok';
-        const payload = ctx.argument(2);
-        const examples = payload && payload.kind !== 'unresolvable' ?
-            [{ value: payload.raw }] :
-            [];
-        const typeArg = ctx.typeArgument(0);
-        draft.responses.push({
-            name: status,
-            status,
-            description,
-            examples,
-            schema: typeArg ? typeArg.resolve() : undefined,
-        });
-    },
+    apply: (ctx, draft) => applyDescriptionToDraft(ctx, draft),
 });
 
 const methodExampleHandler = method({
@@ -221,15 +232,11 @@ const methodExampleHandler = method({
             return;
         }
         const label = readString(ctx.argument(1));
-        const value = label === undefined ?
-            { value: payload.raw } :
-            { value: payload.raw, label };
-        // Stash example on the draft via extensions until the orchestrator merges it
-        // into the default 200-response.
-        draft.extensions.push({
-            key: '__trapi_example__',
-            value: value as never,
-        });
+        draft.defaultResponseExamples.push(
+            label === undefined ?
+                { value: payload.raw } :
+                { value: payload.raw, label },
+        );
     },
 });
 
@@ -538,6 +545,7 @@ export const preset: Preset = {
         controllerAcceptHandler,
         controllerSecurityHandler,
         controllerExtensionHandler,
+        controllerDescriptionHandler,
     ],
     methods: [
         methodGetHandler,

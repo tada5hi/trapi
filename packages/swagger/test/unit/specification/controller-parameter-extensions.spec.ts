@@ -170,3 +170,142 @@ describe('controller and parameter extensions', () => {
         });
     });
 });
+
+describe('controller extensions without declared tags', () => {
+    const metadata = createMetadata([
+        createController({
+            name: 'UntaggedController',
+            path: 'untagged',
+            tags: [],
+            extensions: [{ key: 'x-fallback', value: 'value' }],
+            methods: [
+                createMethod({
+                    name: 'list',
+                    method: 'get',
+                    path: '',
+                    responses: [createResponse({ status: '204', schema: voidType() })],
+                }),
+            ],
+        }),
+    ]);
+
+    it('falls back to the controller name as the tag entry name (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const entry = (spec.tags ?? []).find((t) => t.name === 'UntaggedController');
+        expect(entry).toBeDefined();
+        expect((entry as Record<string, unknown>)['x-fallback']).toEqual('value');
+    });
+
+    it('falls back to the controller name as the tag entry name (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const entry = (spec.tags ?? []).find((t) => t.name === 'UntaggedController');
+        expect(entry).toBeDefined();
+        expect((entry as Record<string, unknown>)['x-fallback']).toEqual('value');
+    });
+});
+
+describe('hidden controllers and methods', () => {
+    const metadata = createMetadata([
+        createController({
+            name: 'HiddenController',
+            path: 'hidden-controller',
+            hidden: true,
+            tags: ['hidden-tag'],
+            extensions: [{ key: 'x-hidden', value: 'should-not-appear' }],
+            methods: [
+                createMethod({
+                    name: 'list',
+                    method: 'get',
+                    path: '',
+                    responses: [createResponse({ status: '204', schema: voidType() })],
+                }),
+            ],
+        }),
+        createController({
+            name: 'PartiallyHiddenController',
+            path: 'partial',
+            tags: ['partial'],
+            methods: [
+                createMethod({
+                    name: 'visible',
+                    method: 'get',
+                    path: 'visible',
+                    responses: [createResponse({ status: '204', schema: voidType() })],
+                }),
+                createMethod({
+                    name: 'invisible',
+                    method: 'get',
+                    path: 'invisible',
+                    hidden: true,
+                    responses: [createResponse({ status: '204', schema: voidType() })],
+                }),
+            ],
+        }),
+    ]);
+
+    it('skips hidden controllers in the path output (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        expect(Object.keys(spec.paths)).not.toContain('/hidden-controller');
+    });
+
+    it('skips hidden controllers in the path output (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        expect(Object.keys(spec.paths)).not.toContain('/hidden-controller');
+    });
+
+    it('skips hidden controllers when building tag entries (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const entry = (spec.tags ?? []).find((t) => t.name === 'hidden-tag');
+        expect(entry).toBeUndefined();
+    });
+
+    it('skips hidden controllers when building tag entries (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const entry = (spec.tags ?? []).find((t) => t.name === 'hidden-tag');
+        expect(entry).toBeUndefined();
+    });
+
+    it('skips hidden methods but keeps visible siblings (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        expect(spec.paths['/partial/visible']).toBeDefined();
+        expect(spec.paths['/partial/invisible']).toBeUndefined();
+    });
+
+    it('skips hidden methods but keeps visible siblings (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        expect(spec.paths['/partial/visible']).toBeDefined();
+        expect(spec.paths['/partial/invisible']).toBeUndefined();
+    });
+});

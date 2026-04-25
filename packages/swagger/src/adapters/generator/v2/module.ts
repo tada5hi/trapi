@@ -180,7 +180,15 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
         this.metadata.controllers.forEach((controller) => {
+            if (controller.hidden) {
+                return;
+            }
+
             controller.methods.forEach((method) => {
+                if (method.hidden) {
+                    return;
+                }
+
                 let fullPath = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
                 fullPath = normalizePathParameters(fullPath);
 

@@ -158,6 +158,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         for (let i = 0; i < this.metadata.controllers.length; i++) {
             const controller = this.metadata.controllers[i];
+            if (controller.hidden) {
+                continue;
+            }
+
             for (let j = 0; j < controller.methods.length; j++) {
                 const method = controller.methods[j];
                 if (method.hidden) {

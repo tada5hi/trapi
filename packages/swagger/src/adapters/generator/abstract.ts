@@ -94,15 +94,24 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         // When multiple controllers share a tag name, their extensions merge into
         // the same Tag entry; on key conflict, the last controller processed wins
         // (silent — strict-mode validation is a future addition).
+        // Hidden controllers are skipped. If a controller declares extensions but
+        // no tags, the controller name is used as a synthetic tag name so the
+        // extensions still surface in the spec.
         const tagMap = new Map<string, { name: string } & Record<string, unknown>>();
 
         for (const controller of this.metadata.controllers) {
+            if (controller.hidden) {
+                continue;
+            }
+
             const extensions = controller.extensions ?? [];
             if (extensions.length === 0) {
                 continue;
             }
 
-            for (const tagName of controller.tags) {
+            const tagNames = controller.tags.length > 0 ? controller.tags : [controller.name];
+
+            for (const tagName of tagNames) {
                 let entry = tagMap.get(tagName);
                 if (!entry) {
                     entry = { name: tagName };

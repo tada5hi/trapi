@@ -25,6 +25,8 @@ import type { MetadataGeneratorOptions } from '../../../core/config';
 import { DecoratorResolver } from '../../../adapters/decorator';
 import type { Registry } from '../../../adapters/decorator/v2';
 import { createRegistry, loadRegistryByName } from '../../../adapters/decorator/v2';
+import { ConfigError } from '../../../core/error/config';
+import { ConfigErrorCode } from '../../../core/error/config-codes';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../../core/types/resolver';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
 import type { Controller } from '../../../core/types/controller';
@@ -95,6 +97,16 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                 await this.decoratorResolver.applyPreset(this.config.preset);
                 // v2 path (drives the new generator pipeline via registry handlers).
                 this.registry = await loadRegistryByName(this.config.preset);
+            } else if (this.config.decorators && this.config.decorators.length > 0) {
+                // The v2 generator pipeline is driven by a Registry, which can only
+                // be built from a Preset. The legacy `decorators` option populates
+                // the v1 DecoratorResolver but does not produce v2 handlers, so the
+                // generators would silently emit zero controllers. Surface this
+                // explicitly instead of returning empty metadata.
+                throw new ConfigError({
+                    message: "config.decorators without `preset` is not supported. Provide a v2 preset (e.g. `preset: '@trapi/decorators'`).",
+                    code: ConfigErrorCode.PRESET_NOT_FOUND,
+                });
             }
 
             this.buildControllers();

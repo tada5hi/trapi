@@ -37,13 +37,6 @@ import { ParameterSource } from '../../../core/types/parameter-source';
 import type { Example, Response } from '../../../core/types/generator';
 import type { Method } from '../../../core/types/method';
 
-const EXAMPLE_EXTENSION_KEY = '__trapi_example__';
-
-type StashedExample = {
-    value: unknown;
-    label?: string;
-};
-
 export class MethodGenerator {
     protected readonly node: MethodDeclaration;
 
@@ -80,11 +73,9 @@ export class MethodGenerator {
         // Resolve return type.
         const returnType = this.resolveReturnType();
 
-        // Stashed examples (from @Example) get unpacked into a default 200-response.
-        const stashedExamples = this.consumeStashedExamples(draft.extensions);
-
-        // Build responses: handler-supplied first, then a derived default.
-        const defaultResponse = buildDefaultResponse(returnType, stashedExamples);
+        // Build responses: handler-supplied first, then a derived default that
+        // carries any handler-contributed default-response examples.
+        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples);
         const responses = mergeDefaultResponse(draft.responses, defaultResponse);
 
         // Walk parameters.
@@ -133,19 +124,6 @@ export class MethodGenerator {
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
         }
         return new TypeNodeResolver(nodeType, this.current).resolve();
-    }
-
-    private consumeStashedExamples(extensions: { key: string; value: unknown }[]): Example[] {
-        const examples: Example[] = [];
-        for (let i = extensions.length - 1; i >= 0; i--) {
-            const ext = extensions[i];
-            if (ext.key === EXAMPLE_EXTENSION_KEY) {
-                const stashed = ext.value as StashedExample;
-                examples.unshift({ value: stashed.value, label: stashed.label });
-                extensions.splice(i, 1);
-            }
-        }
-        return examples;
     }
 
     private buildParameters(

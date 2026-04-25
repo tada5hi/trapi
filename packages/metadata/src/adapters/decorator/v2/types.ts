@@ -87,6 +87,12 @@ export type MethodDraft = {
     extensions: Extension[];
     parameters: ParameterDraft[];
     type?: BaseType;
+    /**
+     * Examples that handlers (e.g. `@Example`) want attached to the implicitly
+     * generated default response. The orchestrator merges these into the
+     * default 200/204 response when finalising the method.
+     */
+    defaultResponseExamples: Example[];
 };
 
 export type ParameterDraft = {

@@ -232,15 +232,11 @@ const methodExampleHandler = method({
             return;
         }
         const label = readString(ctx.argument(1));
-        const value = label === undefined ?
-            { value: payload.raw } :
-            { value: payload.raw, label };
-        // Stash example on the draft via extensions until the orchestrator merges it
-        // into the default 200-response.
-        draft.extensions.push({
-            key: '__trapi_example__',
-            value: value as never,
-        });
+        draft.defaultResponseExamples.push(
+            label === undefined ?
+                { value: payload.raw } :
+                { value: payload.raw, label },
+        );
     },
 });
 

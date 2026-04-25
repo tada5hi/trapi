@@ -44,15 +44,12 @@ export class ControllerGenerator implements IControllerGenerator {
     }
 
     public isValid(): boolean {
-        // Controllers are detected by having a 'Controller' or equivalent decorator
-        // that marks them as such — verified during generate() via the registry.
-        // Pre-flight check: does any controller-target handler match a decorator on this node?
-        if (!this.node.name) {
-            return false;
-        }
-        // Cheap pre-check: just verify the node has at least one decorator.
-        // Real validation happens in generate() via handler dispatch.
-        return true;
+        // Whether a class is a controller depends on whether any registry handler
+        // matches one of its decorators (e.g. `@Controller`). Resolving that
+        // requires running handler dispatch — which `generate()` does — so
+        // `isValid()` only screens out unnamed classes here. `generate()` returns
+        // `null` when no controller handler claimed the node.
+        return !!this.node.name;
     }
 
     public generate(): Controller | null {

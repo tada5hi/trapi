@@ -44,6 +44,7 @@ import type {
     RefObjectType,
     Type,
 } from '../../../core/types/resolver';
+import type { Extension } from '../../../core/types/extension';
 import type { ArrayParameter, IParameterGenerator, Parameter } from '../../../core/types/parameter';
 
 const BODY_SUPPORTED_METHODS = new Set(['delete', 'post', 'put', 'patch', 'get']);
@@ -160,6 +161,7 @@ export class ParameterGenerator implements IParameterGenerator {
     ): Parameter[] {
         const kind = draft.in!;
         const wrappedExamples = examples ? examples.map((value) => ({ value })) : undefined;
+        const filteredLabels = exampleLabels?.filter((l): l is string => l !== undefined);
 
         // Object decomposition for kinds that can carry an object payload.
         if ((kind === ParameterSource.QUERY || kind === ParameterSource.PATH) &&
@@ -167,7 +169,8 @@ export class ParameterGenerator implements IParameterGenerator {
             const decomposed = this.decomposeObject(type, {
                 in: kind === ParameterSource.QUERY ? ParameterSource.QUERY_PROP : ParameterSource.PATH,
                 examples: wrappedExamples,
-                exampleLabels,
+                exampleLabels: filteredLabels,
+                extensions: draft.extensions,
             });
             if (kind === ParameterSource.PATH) {
                 this.validatePathDecomposition(decomposed);
@@ -236,7 +239,8 @@ export class ParameterGenerator implements IParameterGenerator {
         details: {
             in: `${ParameterSource}`;
             examples: { value: unknown }[] | undefined;
-            exampleLabels: Array<string | undefined> | undefined;
+            exampleLabels: string[] | undefined;
+            extensions: Extension[];
         },
     ): Parameter[] {
         if (type.properties.length === 0) {
@@ -259,7 +263,7 @@ export class ParameterGenerator implements IParameterGenerator {
             const required = isParamOptional ? false : property.required;
 
             output.push({
-                extensions: [],
+                extensions: [...details.extensions],
                 in: details.in,
                 examples: details.examples,
                 exampleLabels: details.exampleLabels,

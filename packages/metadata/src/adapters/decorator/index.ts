@@ -8,3 +8,4 @@
 export * from './resolver';
 export * from './property-manager';
 export * from './preset';
+export * from './v2';

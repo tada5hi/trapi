@@ -6,8 +6,6 @@
  */
 
 import type * as ts from 'typescript';
-import type { DecoratorID } from '../../../../core/types/decorator-id';
-import type { DecoratorPropertyManager } from '../../../../adapters/decorator/property-manager';
 import type {
     BaseType,
     NestedObjectLiteralType,
@@ -45,11 +43,3 @@ export interface IParameterHandlerContext {
         details: Omit<Partial<Parameter>, 'in'> & { in: `${ParameterSource}` },
     ): Parameter[];
 }
-
-/**
- * Type for parameter source handlers.
- */
-export type ParameterHandler = (
-    ctx: IParameterHandlerContext,
-    manager: DecoratorPropertyManager<`${DecoratorID}`>,
-) => Parameter[];

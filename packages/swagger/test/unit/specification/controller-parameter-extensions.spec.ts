@@ -309,3 +309,98 @@ describe('hidden controllers and methods', () => {
         expect(spec.paths['/partial/invisible']).toBeUndefined();
     });
 });
+
+describe('extensions never overwrite reserved fields', () => {
+    const metadata = createMetadata([
+        createController({
+            name: 'GuardedController',
+            path: 'guarded',
+            tags: ['guarded'],
+            // 'name' would collide with Tag.name without the x- prefix guard
+            extensions: [{ key: 'name', value: 'should-not-overwrite' }],
+            methods: [
+                createMethod({
+                    name: 'list',
+                    method: 'get',
+                    path: '',
+                    responses: [createResponse({ status: '204', schema: voidType() })],
+                    parameters: [
+                        createParameter({
+                            name: 'filter',
+                            in: 'queryProp',
+                            type: stringType(),
+                            // 'in', 'required', 'name' would collide with parameter fields
+                            extensions: [
+                                { key: 'in', value: 'should-not-overwrite' },
+                                { key: 'required', value: 'should-not-overwrite' },
+                                { key: 'custom', value: 'gets-prefixed' },
+                            ],
+                        }),
+                    ],
+                }),
+            ],
+        }),
+    ]);
+
+    it('preserves Tag.name and applies extensions under x-prefixed keys (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const tag = (spec.tags ?? []).find((t) => t.name === 'guarded');
+        expect(tag).toBeDefined();
+        expect(tag!.name).toEqual('guarded');
+        expect((tag as Record<string, unknown>)['x-name']).toEqual('should-not-overwrite');
+    });
+
+    it('preserves Tag.name and applies extensions under x-prefixed keys (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const tag = (spec.tags ?? []).find((t) => t.name === 'guarded');
+        expect(tag).toBeDefined();
+        expect(tag!.name).toEqual('guarded');
+        expect((tag as Record<string, unknown>)['x-name']).toEqual('should-not-overwrite');
+    });
+
+    it('preserves reserved parameter fields and prefixes non-x- extension keys (V2)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const operation = spec.paths['/guarded'].get!;
+        const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+        expect(param).toBeDefined();
+        const record = param as unknown as Record<string, unknown>;
+        // reserved fields preserved
+        expect(record.name).toEqual('filter');
+        expect(record.in).toEqual('query');
+        expect(record.required).toEqual(true);
+        // non-x- keys auto-prefixed
+        expect(record['x-in']).toEqual('should-not-overwrite');
+        expect(record['x-required']).toEqual('should-not-overwrite');
+        expect(record['x-custom']).toEqual('gets-prefixed');
+    });
+
+    it('preserves reserved parameter fields and prefixes non-x- extension keys (V3)', async () => {
+        const spec = await generateSwagger({
+            version: Version.V3,
+            metadata,
+            data: { servers: 'http://localhost:3000/' },
+        });
+        const operation = spec.paths['/guarded'].get!;
+        const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+        expect(param).toBeDefined();
+        const record = param as unknown as Record<string, unknown>;
+        expect(record.name).toEqual('filter');
+        expect(record.in).toEqual('query');
+        expect(record.required).toEqual(true);
+        expect(record['x-in']).toEqual('should-not-overwrite');
+        expect(record['x-required']).toEqual('should-not-overwrite');
+        expect(record['x-custom']).toEqual('gets-prefixed');
+    });
+});

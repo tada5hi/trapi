@@ -110,6 +110,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             }
 
             const tagNames = controller.tags.length > 0 ? controller.tags : [controller.name];
+            const extensionFields = this.transformExtensions(extensions);
 
             for (const tagName of tagNames) {
                 let entry = tagMap.get(tagName);
@@ -118,9 +119,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
                     tagMap.set(tagName, entry);
                 }
 
-                for (const extension of extensions) {
-                    entry[extension.key] = extension.value;
-                }
+                Object.assign(entry, extensionFields);
             }
         }
 
@@ -468,11 +467,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         const output : Record<string, any> = {};
         for (const extension of input) {
-            if (!extension.key.startsWith('x-')) {
-                extension.key = `x-${extension.key}`;
-            }
-
-            output[extension.key] = extension.value;
+            const key = extension.key.startsWith('x-') ? extension.key : `x-${extension.key}`;
+            output[key] = extension.value;
         }
 
         return output;

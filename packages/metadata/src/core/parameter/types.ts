@@ -26,7 +26,7 @@ export interface Parameter {
     deprecated?: boolean;
 
     examples?: Example[];
-    exampleLabels?: string[],
+    exampleLabels?: string[];
     extensions: Extension[];
     validators?: Record<string, Validator>;
 }

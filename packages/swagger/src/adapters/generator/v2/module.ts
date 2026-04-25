@@ -306,9 +306,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             output.parameters.push(bodyParameter);
         }
 
-        for (let i = 0; i < method.extensions.length; i++) {
-            output[method.extensions[i].key] = method.extensions[i].value;
-        }
+        Object.assign(output, this.transformExtensions(method.extensions));
 
         return output;
     }
@@ -357,9 +355,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             required: input.required,
         } as ParameterV2;
 
-        for (const extension of input.extensions ?? []) {
-            parameter[extension.key] = extension.value;
-        }
+        Object.assign(parameter, this.transformExtensions(input.extensions));
 
         if (
             input.in !== ParameterSource.BODY &&

@@ -17,7 +17,7 @@ import type { Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('extensions on Controller and Parameter', () => {
-    let metadata : Metadata;
+    let metadata: Metadata;
 
     beforeAll(async () => {
         metadata = await generateMetadata({

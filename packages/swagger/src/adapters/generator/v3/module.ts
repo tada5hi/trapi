@@ -266,9 +266,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             output.requestBody = this.buildRequestBodyWithFormData(formParams);
         }
 
-        for (let i = 0; i < method.extensions.length; i++) {
-            output[method.extensions[i].key] = method.extensions[i].value;
-        }
+        Object.assign(output, this.transformExtensions(method.extensions));
 
         return output;
     }
@@ -442,9 +440,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             },
         };
 
-        for (const extension of input.extensions ?? []) {
-            parameter[extension.key] = extension.value;
-        }
+        Object.assign(parameter, this.transformExtensions(input.extensions));
 
         if (input.deprecated) {
             parameter.deprecated = true;

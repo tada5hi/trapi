@@ -10,7 +10,7 @@ import * as ts from 'typescript';
 import type { Type } from '../../../../src/core/resolver/types';
 import {
     buildJsDocSources,
-} from '../../../../src/adapters/decorator/v2/typescript/jsdoc-source';
+} from '../../../../src/adapters/decorator/v2/typescript/module';
 
 function compileSource(source: string): ts.SourceFile {
     return ts.createSourceFile(
@@ -78,6 +78,28 @@ describe('buildJsDocSources', () => {
         expect(paramTag).toBeDefined();
         expect(paramTag?.parameterName).toEqual('userId');
         expect(paramTag?.text).toEqual('the user id');
+    });
+
+    it('captures dotted parameterName from QualifiedName @param', () => {
+        const sf = compileSource(`
+            class C {
+                /**
+                 * @param obj.foo nested field
+                 */
+                find(obj: { foo: string }) {}
+            }
+        `);
+        const cls = findClass(sf, 'C');
+        const method = cls.members[0] as ts.MethodDeclaration;
+        const sources = buildJsDocSources(method, {
+            target: 'method',
+            host: { name: 'find', parentName: 'C' },
+            resolveTypeNode: stubResolveTypeNode,
+        });
+
+        const paramTag = sources.find((s) => s.tag === 'param');
+        expect(paramTag).toBeDefined();
+        expect(paramTag?.parameterName).toEqual('obj.foo');
     });
 
     it('exposes typeExpression as lazy resolver callback', () => {

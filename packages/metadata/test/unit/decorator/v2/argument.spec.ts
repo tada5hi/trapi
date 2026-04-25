@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest';
 import * as ts from 'typescript';
-import { buildDecoratorArgument } from '../../../../src/adapters/decorator/v2/typescript/argument';
+import { buildDecoratorArgument } from '../../../../src/adapters/decorator/v2/typescript/utils';
 
 function parseFirstArgument(decoratorCallSource: string): ts.Expression {
     const sf = ts.createSourceFile(
@@ -35,6 +35,16 @@ describe('buildDecoratorArgument', () => {
     it('classifies negative number as literal', () => {
         const arg = parseFirstArgument('Foo(-7)');
         expect(buildDecoratorArgument(arg)).toEqual({ raw: -7, kind: 'literal' });
+    });
+
+    it('treats logical-not prefix as unresolvable instead of throwing', () => {
+        const arg = parseFirstArgument('Foo(!FOO)');
+        expect(buildDecoratorArgument(arg)).toEqual({ raw: undefined, kind: 'unresolvable' });
+    });
+
+    it('treats bitwise-not prefix as unresolvable instead of throwing', () => {
+        const arg = parseFirstArgument('Foo(~mask)');
+        expect(buildDecoratorArgument(arg)).toEqual({ raw: undefined, kind: 'unresolvable' });
     });
 
     it('classifies true/false/null as literal', () => {

@@ -8,7 +8,7 @@
 import type { Expression, TypeChecker } from 'typescript';
 import * as ts from 'typescript';
 import { getInitializerValue } from '../../../typescript/initializer';
-import type { DecoratorArgument } from '../source';
+import type { DecoratorArgument } from '../types';
 
 export function buildDecoratorArgument(
     expr: Expression,
@@ -34,7 +34,11 @@ export function buildDecoratorArgument(
         return { raw: null, kind: 'literal' };
     }
 
-    if (ts.isPrefixUnaryExpression(expr)) {
+    if (
+        ts.isPrefixUnaryExpression(expr) &&
+        (expr.operator === ts.SyntaxKind.PlusToken || expr.operator === ts.SyntaxKind.MinusToken) &&
+        ts.isNumericLiteral(expr.operand)
+    ) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'literal' };
     }
 

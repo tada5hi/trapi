@@ -94,6 +94,11 @@ describe('validatePreset', () => {
         await expect(validatePreset(42)).rejects.toBeInstanceOf(TypeError);
     });
 
+    it('rejects array input', async () => {
+        await expect(validatePreset([])).rejects.toBeInstanceOf(TypeError);
+        await expect(validatePreset([{ name: 'p' }])).rejects.toBeInstanceOf(TypeError);
+    });
+
     it('rejects JSDoc handler when match.tag is missing', async () => {
         const preset = {
             name: 'bad-preset',

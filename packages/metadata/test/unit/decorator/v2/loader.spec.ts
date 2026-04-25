@@ -163,13 +163,47 @@ describe('loadRegistry', () => {
         const child: Preset = {
             name: 'child',
             methods: [{
-                match: { name: 'Get' }, 
-                replaces: true, 
-                apply: noopApply, 
+                match: { name: 'Get' },
+                replaces: true,
+                apply: noopApply,
             }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([]) });
         expect(registry.methods).toHaveLength(1);
+    });
+
+    it('replaces:true does not shadow own-preset siblings (additive within preset)', async () => {
+        const child: Preset = {
+            name: 'child',
+            methods: [
+                { match: { name: 'Get' }, apply: noopApply },
+                {
+                    match: { name: 'Get' }, 
+                    replaces: true, 
+                    apply: noopApply, 
+                },
+            ],
+        };
+        const registry = await loadRegistry(child, { resolver: makeResolver([]) });
+        expect(registry.methods).toHaveLength(2);
+        expect(registry.methods.map((h) => h.replaces)).toEqual([undefined, true]);
+    });
+
+    it('strict mode counts only parent removals, not own-preset siblings', async () => {
+        const child: Preset = {
+            name: 'child',
+            methods: [
+                { match: { name: 'Get' }, apply: noopApply },
+                {
+                    match: { name: 'Get' }, 
+                    replaces: true, 
+                    apply: noopApply, 
+                },
+            ],
+        };
+        await expect(
+            loadRegistry(child, { resolver: makeResolver([]), strict: true }),
+        ).rejects.toThrow(/did not match any parent/);
     });
 
     it('detects extends cycles', async () => {

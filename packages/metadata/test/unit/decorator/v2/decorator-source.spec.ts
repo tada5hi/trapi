@@ -10,7 +10,7 @@ import * as ts from 'typescript';
 import type { Type } from '../../../../src/core/resolver/types';
 import {
     buildDecoratorSources,
-} from '../../../../src/adapters/decorator/v2/typescript/decorator-source';
+} from '../../../../src/adapters/decorator/v2/typescript/module';
 
 function compileSource(source: string): ts.SourceFile {
     return ts.createSourceFile(

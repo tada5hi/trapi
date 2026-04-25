@@ -115,6 +115,14 @@ describe('append', () => {
         apply(makeContext([{ raw: 'first', kind: 'literal' }]), draft);
         expect(draft.exampleLabels).toEqual(['first']);
     });
+
+    it('throws when existing key holds a non-array value', () => {
+        const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
+        (draft as Record<string, unknown>).path = '/scalar';
+        const apply = append('path').positional(0);
+        expect(() => apply(makeContext([{ raw: 'x', kind: 'literal' }]), draft))
+            .toThrow(/not an array/);
+    });
 });
 
 describe('flag', () => {

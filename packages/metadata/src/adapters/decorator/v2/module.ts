@@ -10,37 +10,20 @@ import type {
     AnyJsDocHandler,
     ControllerHandler,
     ControllerJsDocHandler,
+    LoadRegistryOptions,
     MethodHandler,
     MethodJsDocHandler,
     ParameterHandler,
     ParameterJsDocHandler,
+    Preset,
+    Registry,
     ReplacesPolicy,
-} from './handler';
-import type { Preset } from './preset';
-import type { Registry } from './registry';
-import { createRegistry } from './registry';
+} from './types';
+import { createRegistry } from './utils';
 import { validatePreset } from './validation';
 
-export type PresetResolver = (name: string) => Promise<Preset> | Preset;
-
-export type LoadRegistryOptions = {
-    resolver: PresetResolver;
-    strict?: boolean;
-};
-
-type RegistryKey = keyof Registry;
-
-const decoratorKinds: ReadonlyArray<Extract<RegistryKey, 'controllers' | 'methods' | 'parameters'>> = [
-    'controllers',
-    'methods',
-    'parameters',
-];
-
-const jsDocKinds: ReadonlyArray<Extract<RegistryKey, 'controllerJsDoc' | 'methodJsDoc' | 'parameterJsDoc'>> = [
-    'controllerJsDoc',
-    'methodJsDoc',
-    'parameterJsDoc',
-];
+const decoratorKinds = ['controllers', 'methods', 'parameters'] as const;
+const jsDocKinds = ['controllerJsDoc', 'methodJsDoc', 'parameterJsDoc'] as const;
 
 type TaggedDecoratorHandler = { origin: string; handler: AnyDecoratorHandler };
 type TaggedJsDocHandler = { origin: string; handler: AnyJsDocHandler };
@@ -138,7 +121,8 @@ function applyReplacesDecorator(
     const remaining: TaggedDecoratorHandler[] = [];
     let removed = 0;
     for (const entry of list) {
-        if (handlerMatches(handler, entry.handler.match.name, entry.handler.match.on) &&
+        if (entry.origin !== presetName &&
+            handlerMatches(handler, entry.handler.match.name, entry.handler.match.on) &&
             originMatches(handler.replaces!, entry.origin)) {
             removed += 1;
             continue;
@@ -164,7 +148,8 @@ function applyReplacesJsDoc(
     const remaining: TaggedJsDocHandler[] = [];
     let removed = 0;
     for (const entry of list) {
-        if (handlerMatches(handler, entry.handler.match.tag, entry.handler.match.on) &&
+        if (entry.origin !== presetName &&
+            handlerMatches(handler, entry.handler.match.tag, entry.handler.match.on) &&
             originMatches(handler.replaces!, entry.origin)) {
             removed += 1;
             continue;

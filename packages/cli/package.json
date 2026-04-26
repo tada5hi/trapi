@@ -45,7 +45,9 @@
     "scripts": {
         "build": "npm run build:js && npm run build:types",
         "build:js": "tsdown",
-        "build:types": "tsc -p tsconfig.build.json"
+        "build:types": "tsc -p tsconfig.build.json",
+        "test": "vitest --config ./test/vitest.config.ts --run",
+        "test:coverage": "vitest --config ./test/vitest.config.ts --run --coverage"
     },
     "dependencies": {
         "@trapi/metadata": "^1.3.0",

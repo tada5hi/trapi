@@ -5,78 +5,20 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import path from 'node:path';
-import process from 'node:process';
 import { defineCommand } from 'citty';
 import type { MetadataGenerateOptions } from '@trapi/metadata';
 import type { SwaggerGenerateOptions } from '@trapi/swagger';
 import {
-    DocumentFormat,
     Version,
     generateSwagger,
     saveSwagger,
 } from '@trapi/swagger';
-
-const VERSION_VALUES = Object.values(Version);
-const FORMAT_VALUES = Object.values(DocumentFormat);
-
-function normalizeVersion(input: string): `${Version}` {
-    const value = input.startsWith('v') ? input : `v${input}`;
-    if (!(VERSION_VALUES as string[]).includes(value)) {
-        throw new Error(
-            `Unknown OpenAPI version "${input}". Supported: ${VERSION_VALUES.join(', ')}.`,
-        );
-    }
-    return value as `${Version}`;
-}
-
-function detectFormatFromPath(filePath: string): `${DocumentFormat}` | undefined {
-    const ext = path.extname(filePath).toLowerCase();
-    if (ext === '.yaml' || ext === '.yml') {
-        return DocumentFormat.YAML;
-    }
-    if (ext === '.json') {
-        return DocumentFormat.JSON;
-    }
-    return undefined;
-}
-
-type ResolvedOutput = {
-    cwd: string;
-    name: string;
-    format: `${DocumentFormat}`;
-};
-
-function resolveOutput(
-    output: string | undefined,
-    formatArg: string | undefined,
-): ResolvedOutput {
-    const fallback = output ?? 'swagger.json';
-    const absolute = path.isAbsolute(fallback) ?
-        fallback :
-        path.join(process.cwd(), fallback);
-
-    const format = ((): `${DocumentFormat}` => {
-        if (formatArg) {
-            if (!(FORMAT_VALUES as string[]).includes(formatArg)) {
-                throw new Error(
-                    `Unknown output format "${formatArg}". Supported: ${FORMAT_VALUES.join(', ')}.`,
-                );
-            }
-            return formatArg as `${DocumentFormat}`;
-        }
-        return detectFormatFromPath(absolute) ?? DocumentFormat.JSON;
-    })();
-
-    const ext = path.extname(absolute);
-    const baseName = path.basename(absolute, ext);
-
-    return {
-        cwd: path.dirname(absolute),
-        name: baseName,
-        format,
-    };
-}
+import {
+    FORMAT_VALUES,
+    VERSION_VALUES,
+    normalizeVersion,
+    resolveOutput,
+} from './utils.ts';
 
 export function defineCLIGenerateCommand() {
     return defineCommand({

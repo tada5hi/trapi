@@ -33,129 +33,129 @@ export type Type = PrimitiveType |
 
 // -------------------------------------------
 
-export interface BaseType {
+export type BaseType = {
     typeName: `${TypeName}`;
-}
+};
 
 // -------------------------------------------
 // Primitive Type(s)
 // -------------------------------------------
 
-export interface AnyType extends BaseType {
+export type AnyType = BaseType & {
     typeName: `${TypeName.ANY}`;
-}
+};
 
-export interface UndefinedType extends BaseType {
+export type UndefinedType = BaseType & {
     typeName: `${TypeName.UNDEFINED}`;
-}
+};
 
-export interface StringType extends BaseType {
+export type StringType = BaseType & {
     typeName: `${TypeName.STRING}`;
-}
+};
 
-export interface BooleanType extends BaseType {
+export type BooleanType = BaseType & {
     typeName: `${TypeName.BOOLEAN}`;
-}
+};
 
-export interface BigintType extends BaseType {
+export type BigintType = BaseType & {
     typeName: `${TypeName.BIGINT}`;
-}
+};
 
-export interface DoubleType extends BaseType {
+export type DoubleType = BaseType & {
     typeName: `${TypeName.DOUBLE}`;
-}
+};
 
-export interface FloatType extends BaseType {
+export type FloatType = BaseType & {
     typeName: `${TypeName.FLOAT}`;
-}
+};
 
-export interface IntegerType extends BaseType {
+export type IntegerType = BaseType & {
     typeName: `${TypeName.INTEGER}`;
-}
+};
 
-export interface LongType extends BaseType {
+export type LongType = BaseType & {
     typeName: `${TypeName.LONG}`;
-}
+};
 
-export interface VoidType extends BaseType {
+export type VoidType = BaseType & {
     typeName: `${TypeName.VOID}`;
-}
+};
 
-export interface NeverType extends BaseType {
+export type NeverType = BaseType & {
     typeName: `${TypeName.NEVER}`;
-}
+};
 
 // -------------------------------------------
 // Simple Type(s)
 // -------------------------------------------
 
-export interface DateType extends BaseType {
+export type DateType = BaseType & {
     typeName: `${TypeName.DATE}`;
-}
+};
 
-export interface FileType extends BaseType {
+export type FileType = BaseType & {
     typeName: `${TypeName.FILE}`;
-}
+};
 
-export interface DateTimeType extends BaseType {
+export type DateTimeType = BaseType & {
     typeName: `${TypeName.DATETIME}`;
-}
+};
 
-export interface BinaryType extends BaseType {
+export type BinaryType = BaseType & {
     typeName: `${TypeName.BINARY}`;
-}
+};
 
-export interface BufferType extends BaseType {
+export type BufferType = BaseType & {
     typeName: `${TypeName.BUFFER}`;
-}
+};
 
-export interface ByteType extends BaseType {
+export type ByteType = BaseType & {
     typeName: `${TypeName.BYTE}`;
-}
+};
 
-export interface ObjectType extends BaseType {
+export type ObjectType = BaseType & {
     typeName: `${TypeName.OBJECT}`;
-}
+};
 
 // -------------------------------------------
 // Complex Type(s)
 // -------------------------------------------
 
-export interface EnumType extends BaseType {
+export type EnumType = BaseType & {
     members: Array<string | number | boolean | null>;
     typeName: `${TypeName.ENUM}`;
-}
+};
 
-export interface ArrayType extends BaseType {
+export type ArrayType = BaseType & {
     elementType: Type;
     typeName: `${TypeName.ARRAY}`;
-}
+};
 
-export interface NestedObjectLiteralType extends BaseType {
+export type NestedObjectLiteralType = BaseType & {
     typeName: `${TypeName.NESTED_OBJECT_LITERAL}`;
     properties: ResolverProperty[];
     additionalProperties?: Type;
-}
+};
 
-export interface IntersectionType extends BaseType {
+export type IntersectionType = BaseType & {
     typeName: `${TypeName.INTERSECTION}`;
     members: Type[];
-}
+};
 
-export interface UnionType extends BaseType {
+export type UnionType = BaseType & {
     typeName: `${TypeName.UNION}`;
     members: Type[];
-}
+};
 
 export type TupleElement = {
     type: Type;
     name?: string;
 };
 
-export interface TupleType extends BaseType {
+export type TupleType = BaseType & {
     typeName: `${TypeName.TUPLE}`;
     elements: TupleElement[];
-}
+};
 
 // -------------------------------------------
 // Reference Type(s)
@@ -166,29 +166,29 @@ export type ReferenceTypes = Record<string, ReferenceType>;
 
 export type DependencyResolver = (referenceTypes: ReferenceTypes) => void;
 
-export interface ReferenceTypeBase extends BaseType {
+export type ReferenceTypeBase = BaseType & {
     description?: string;
     typeName: `${TypeName.REF_ALIAS}` | `${TypeName.REF_ENUM}` | `${TypeName.REF_OBJECT}`;
     refName: string;
     example?: unknown;
     deprecated: boolean;
-}
+};
 
-export interface RefEnumType extends ReferenceTypeBase {
+export type RefEnumType = ReferenceTypeBase & {
     typeName: `${TypeName.REF_ENUM}`;
     members: Array<string | number | boolean>;
     memberNames?: string[];
-}
+};
 
-export interface RefObjectType extends ReferenceTypeBase {
+export type RefObjectType = ReferenceTypeBase & {
     typeName: `${TypeName.REF_OBJECT}`;
     properties: ResolverProperty[];
     additionalProperties?: Type;
-}
+};
 
-export interface RefAliasType extends Omit<ResolverProperty, 'name' | 'required'>, ReferenceTypeBase {
+export type RefAliasType = Omit<ResolverProperty, 'name' | 'required'> & ReferenceTypeBase & {
     typeName: `${TypeName.REF_ALIAS}`;
-}
+};
 
 export type PrimitiveType = AnyType |
 BinaryType |
@@ -207,7 +207,7 @@ ObjectType |
 StringType |
 UndefinedType;
 
-export interface ResolverProperty {
+export type ResolverProperty = {
     default?: any;
     format?: string;
     example?: unknown;
@@ -217,8 +217,8 @@ export interface ResolverProperty {
     type: Type;
     required: boolean;
     deprecated: boolean;
-    extensions?: Extension[]
-}
+    extensions?: Extension[];
+};
 
 /**
  * Cache interface for the resolver's type cache.

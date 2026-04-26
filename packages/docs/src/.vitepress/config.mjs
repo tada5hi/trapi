@@ -79,6 +79,13 @@ export default defineConfig({
                         { text: '@trapi/swagger', link: '/guide/swagger-api-reference' },
                     ]
                 },
+                {
+                    text: 'Migration',
+                    collapsible: false,
+                    items: [
+                        { text: '1.x → 2.0', link: '/guide/migration-2.0' },
+                    ]
+                },
             ]
         }
     }

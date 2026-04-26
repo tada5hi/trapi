@@ -8,4 +8,6 @@
 export const ConfigErrorCode = {
     TSCONFIG_MALFORMED: 'CONFIG_TSCONFIG_MALFORMED',
     PRESET_NOT_FOUND: 'CONFIG_PRESET_NOT_FOUND',
+    PRESET_MISSING: 'CONFIG_PRESET_MISSING',
 } as const;
+export type ConfigErrorCode = typeof ConfigErrorCode[keyof typeof ConfigErrorCode];

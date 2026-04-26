@@ -12,9 +12,40 @@ async function generateMetadata(
 ): Promise<Metadata>;
 ```
 
-Extracts API metadata from TypeScript source using the decorator configuration provided. Returns a normalised representation of every discovered controller, method, parameter, and referenced type.
+Extracts API metadata from TypeScript source using the preset configured in `options.preset`. Returns a normalised representation of every discovered controller, method, parameter, and referenced type.
 
 See [Configuration](/guide/metadata-configuration) for field-by-field notes on `MetadataGenerateOptions`.
+
+### `loadRegistry(preset, options)`
+
+```typescript
+async function loadRegistry(
+    preset: Preset,
+    options: LoadRegistryOptions,
+): Promise<Registry>;
+```
+
+Resolves a preset's `extends` chain through the supplied resolver and applies `replaces` semantics, returning a flat `Registry` ready for the orchestrator. `LoadRegistryOptions` is `{ resolver: PresetResolver; strict?: boolean }`. With `strict: true`, a `replaces` entry that doesn't match any parent throws.
+
+### `loadRegistryByName(name)`
+
+```typescript
+async function loadRegistryByName(name: string): Promise<Registry>;
+```
+
+Resolves a preset by package name (or relative path / `module:` URI) and immediately materialises its registry through the same resolver used internally by `generateMetadata`.
+
+### `resolvePresetByName(name)`
+
+```typescript
+async function resolvePresetByName(name: string): Promise<Preset>;
+```
+
+Loads a preset module by string identifier. Looks for a `preset` named export, then the default export, then the module itself.
+
+### `applyDecoratorHandlers(node, handlers, draft, options)` / `applyJsDocHandlers(...)`
+
+Low-level orchestrator entry points. Most consumers won't use these directly — `generateMetadata` runs them internally on every controller / method / parameter node. They are exported for advanced extension scenarios (custom generators, fixture-driven tests).
 
 ## Types
 
@@ -25,15 +56,17 @@ type MetadataGenerateOptions = MetadataGeneratorOptions & {
     tsconfig?: string | TsConfig;
 };
 
-interface MetadataGeneratorOptions {
+type MetadataGeneratorOptions = {
     entryPoint: EntryPoint;
     ignore?: string[];
     allow?: string[];
     cache?: string | boolean | Partial<CacheOptions>;
-    decorators?: DecoratorConfig[];
     preset?: string;
-}
+    strict?: boolean;
+};
 ```
+
+`strict: true` enables `console.warn` on decorators that don't match any registered handler (e.g. typos like `@Hiden`).
 
 ### `EntryPoint` / `EntryPointOptions`
 
@@ -62,7 +95,7 @@ type Metadata = {
 ### `Controller`
 
 ```typescript
-interface Controller {
+type Controller = {
     name: string;
     path: string;                 // relative URL path, e.g. '/users'
     location: string;             // source file path
@@ -73,7 +106,8 @@ interface Controller {
     produces: string[];           // default Content-Types produced
     hidden: boolean;              // excluded from emitted specs when true
     security?: Security[];
-}
+    extensions: Extension[];
+};
 ```
 
 ### `Method`
@@ -81,7 +115,7 @@ interface Controller {
 ```typescript
 type MethodType = 'get' | 'post' | 'put' | 'delete' | 'options' | 'head' | 'patch';
 
-interface Method {
+type Method = {
     method: MethodType;
     name: string;
     path: string;
@@ -98,13 +132,13 @@ interface Method {
     summary?: string;
     deprecated?: boolean;
     security?: Security[];
-}
+};
 ```
 
 ### `Parameter`
 
 ```typescript
-interface Parameter {
+type Parameter = {
     parameterName: string;        // argument name in source
     name: string;                 // public name (may differ, e.g. from a decorator arg)
     description: string;
@@ -121,7 +155,7 @@ interface Parameter {
     examples?: Example[];
     exampleLabels?: string[];
     validators?: Record<string, Validator>;
-}
+};
 ```
 
 ### `Type`
@@ -144,12 +178,12 @@ See [Supported TypeScript Types](/guide/advanced-type-support) for behavioural d
 ### `CacheOptions`
 
 ```typescript
-interface CacheOptions {
+type CacheOptions = {
     enabled: boolean;          // default: true when cache is explicitly configured
     directoryPath: string;     // default: os.tmpdir()
     fileName?: string;         // default: metadata-{hash}.json
     clearAtRandom: boolean;    // prune stale entries ~10% of the time; default: true outside of NODE_ENV=test
-}
+};
 
 type CacheOptionsInput = Partial<CacheOptions>;
 ```
@@ -161,39 +195,57 @@ Accepted inputs to `MetadataGenerateOptions.cache`:
 - `string` → `{ enabled: true, directoryPath: string }`
 - `Partial<CacheOptions>` → merged onto the defaults
 
-### `DecoratorConfig`
+### Decorator system (v2)
 
 ```typescript
-type DecoratorConfig<T extends `${DecoratorID}` = `${DecoratorID}`> = {
-    id: T;
+type Preset = {
     name: string;
-    properties?: {
-        [propertyName: string]: DecoratorPropertyConfigInput;
-    };
+    extends?: string[];
+    controllers?: ControllerHandler[];
+    methods?: MethodHandler[];
+    parameters?: ParameterHandler[];
+    controllerJsDoc?: ControllerJsDocHandler[];
+    methodJsDoc?: MethodJsDocHandler[];
+    parameterJsDoc?: ParameterJsDocHandler[];
 };
 
-type DecoratorPropertyConfigInput = Partial<DecoratorPropertyConfig>;
+type Match = { name: string; on?: 'class' | 'method' | 'parameter' };
+type JsDocMatch = { tag: string; on?: 'class' | 'method' | 'parameter' };
 
-type DecoratorPropertyConfig = {
-    isType: boolean;           // default: false — true when the argument carries a type reference
-    index: number;             // default: 0 — positional argument to read from
-    amount?: number;           // how many arguments to consume (-1 = all remaining)
-    strategy?: DecoratorPropertyStrategy;
+type HandlerContext = {
+    host: { name: string; parentName?: string };
+    argument: (i: number) => DecoratorArgument | undefined;
+    arguments: () => DecoratorArgument[];
+    typeArgument: (i: number) => DecoratorTypeArgument | undefined;
+    typeArguments: () => DecoratorTypeArgument[];
+    parameterType: () => Type | undefined;
 };
 
-type DecoratorPropertyStrategy = 'merge' | ((...items: any[]) => any);
+type ControllerHandler = {
+    match: Match;
+    apply: (ctx: HandlerContext, draft: ControllerDraft) => void;
+    replaces?: true | string;
+    marker?: ResolverMarker;
+};
+
+// MethodHandler / ParameterHandler / *JsDocHandler follow the same shape with
+// kind-specific drafts and contexts.
+
+type ResolverMarker =
+    | 'hidden' | 'deprecated' | 'extension'
+    | { numeric: 'int' | 'long' | 'float' | 'double' };
+
+type Registry = {
+    controllers: ControllerHandler[];
+    methods: MethodHandler[];
+    parameters: ParameterHandler[];
+    controllerJsDoc: ControllerJsDocHandler[];
+    methodJsDoc: MethodJsDocHandler[];
+    parameterJsDoc: ParameterJsDocHandler[];
+};
 ```
 
-`properties` is a map keyed by logical property name. Valid keys depend on the `DecoratorID` — see [Property Names by DecoratorID](/guide/metadata-decorators#property-names-by-decoratorid).
-
-### `PresetSchema`
-
-```typescript
-type PresetSchema = {
-    extends: string[];         // other preset package names to inherit from
-    items: DecoratorConfig[];
-};
-```
+See [Decorators & Presets](/guide/metadata-decorators) for the full handler API and [Custom Presets](/guide/advanced-custom-presets) for authoring guidance.
 
 ### `TsConfig`
 
@@ -206,11 +258,28 @@ type TsConfig = {
 };
 ```
 
-## Enums
+## Constants
 
-### `DecoratorID`
+### `ParamKind`, `MarkerName`, `NumericKind`, `DecoratorTargetKind`, `CollectionKind`
 
-Semantic identifiers for supported decorators. See [Decorators & Presets](/guide/metadata-decorators#decoratorid) for the full table.
+`as const` objects with paired `*Value` template-literal types — pass either the const reference (e.g. `ParamKind.Body`) or the bare string (`'body'`). Both type-check.
+
+```typescript
+const ParamKind = {
+    Body: 'body', BodyProp: 'bodyProp',
+    Query: 'query', QueryProp: 'queryProp',
+    Path: 'path', Cookie: 'cookie', Header: 'header',
+    FormData: 'formData', Context: 'context',
+} as const;
+
+const MarkerName = {
+    Hidden: 'hidden', Deprecated: 'deprecated', Extension: 'extension',
+} as const;
+
+const NumericKind = {
+    Int: 'int', Long: 'long', Float: 'float', Double: 'double',
+} as const;
+```
 
 ### `TypeName`
 
@@ -239,7 +308,7 @@ All errors are subclasses of `MetadataError`:
 - `MetadataError` — base
 - `GeneratorError` — raised while generating metadata (invalid decorator usage, etc.)
 - `ResolverError` — raised while resolving a TypeScript type
-- `ConfigError` — raised for invalid configuration
+- `ConfigError` — raised for invalid configuration (codes: `TSCONFIG_MALFORMED`, `PRESET_NOT_FOUND`, `PRESET_MISSING`)
 - `ParameterError` — raised for invalid parameter decorators
 - `ValidatorError` — raised for validator decorator misuse
 
@@ -270,8 +339,30 @@ if (isRefObjectType(parameter.type)) {
 }
 ```
 
+## Helpers
+
+### `into(key)` / `append(key)` / `flag(key)`
+
+Save boilerplate when a handler just copies one argument into a draft field:
+
+```typescript
+import { append, controller, flag, into, method } from '@trapi/metadata';
+
+method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
+method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });
+controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden') });
+```
+
+### `controller` / `method` / `parameter` / `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc`
+
+Identity helpers — pass the handler shape, get the same handler back. Their job is to preserve narrow types at the declaration site.
+
+### `namesForMarker(registry, predicate)` / `tagsForMarker(registry, predicate)`
+
+Enumerate decorator/JSDoc names whose `marker` matches the predicate. Used by the type resolver (and available to anyone authoring marker-aware tooling).
+
 ## Stability
 
 The names above are the **documented public contract**. Breaking changes to anything listed here will bump the major version.
 
-`@trapi/metadata` also re-exports internals from the root entry — implementation classes (`MetadataGenerator`, `TypeNodeResolver`, `DecoratorResolver`), low-level helpers (`hasOwnProperty`, `normalizePath`, `isStringArray`), and port interfaces (`IMetadataGenerator`, `IControllerGenerator`, `IParameterGenerator`, …). These are available for advanced extension scenarios (custom resolvers, alternative generators, adapter implementations), but they are not documented here as part of the stable surface and may change between minor versions. Pin a specific version if you rely on them.
+`@trapi/metadata` also re-exports internals from the root entry — implementation classes (`MetadataGenerator`, `TypeNodeResolver`), low-level helpers (`hasOwnProperty`, `normalizePath`, `isStringArray`), and port interfaces (`IMetadataGenerator`, `IControllerGenerator`, `IParameterGenerator`, …). These are available for advanced extension scenarios (custom resolvers, alternative generators, adapter implementations), but they are not documented here as part of the stable surface and may change between minor versions. Pin a specific version if you rely on them.

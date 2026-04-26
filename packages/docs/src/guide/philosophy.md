@@ -10,17 +10,29 @@ Most TypeScript REST frameworks — Express with decorators, typescript-rest, ro
 
 ### 1. Bring Your Own Decorators
 
-TRAPI does not force you to adopt a specific decorator library. Instead, you define a **decorator mapping** — a configuration that tells TRAPI which decorator in your codebase corresponds to which semantic concept (controller, HTTP method, parameter source, etc.).
+TRAPI does not force you to adopt a specific decorator library. Instead, you define a **preset** — a set of handlers that tell TRAPI which decorator in your codebase corresponds to which semantic concept (controller, HTTP method, parameter source, etc.).
 
 ```typescript
-// Example: mapping @decorators/express to TRAPI's metadata model
-[
-    { id: DecoratorID.CONTROLLER, name: 'Controller', properties: { value: {} } },
-    { id: DecoratorID.GET,        name: 'Get' },
-    { id: DecoratorID.POST,       name: 'Post' },
-    { id: DecoratorID.BODY,       name: 'Body', properties: { value: {} } },
-    // ...
-]
+// Example: a preset mapping a custom decorator library to TRAPI's metadata model
+import { type Preset, controller, method, parameter, ParamKind } from '@trapi/metadata';
+
+const preset: Preset = {
+    name: 'my-app/preset',
+    controllers: [
+        controller({ match: { name: 'Controller', on: 'class' },
+                     apply: (ctx, draft) => { /* read path from ctx.argument(0) */ } }),
+    ],
+    methods: [
+        method({ match: { name: 'Get', on: 'method' },
+                 apply: (_ctx, draft) => { draft.verb = 'get'; } }),
+        method({ match: { name: 'Post', on: 'method' },
+                 apply: (_ctx, draft) => { draft.verb = 'post'; } }),
+    ],
+    parameters: [
+        parameter({ match: { name: 'Body', on: 'parameter' },
+                    apply: (_ctx, draft) => { draft.in = ParamKind.Body; } }),
+    ],
+};
 ```
 
 This means any HTTP framework built on TypeScript decorators can get metadata extraction and OpenAPI generation for free — without changing a single line of application code.

@@ -15,7 +15,7 @@ import {
     namesForMarker,
     numericMarkerKind,
     tagsForMarker,
-} from '../../../decorator/v2';
+} from '../../../decorator';
 import { getJSDocTagNames } from '../../js-doc';
 import { TypeName } from '../../../../core/types/type-name';
 import type { NeverType, PrimitiveType, VoidType } from '../types';

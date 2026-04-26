@@ -1,0 +1,16 @@
+{
+    "name": "@trapi/example-custom-preset",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Worked example: a v2 Preset for a small custom decorator library",
+    "scripts": {
+        "test": "vitest --config ./test/vitest.config.ts --run"
+    },
+    "dependencies": {
+        "@trapi/metadata": "*"
+    },
+    "devDependencies": {
+        "vitest": "^4.1.4"
+    }
+}

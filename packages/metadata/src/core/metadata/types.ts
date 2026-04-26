@@ -6,7 +6,7 @@
  */
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
 import type { MetadataGeneratorOptions } from '../config';
-import type { Registry } from '../../adapters/decorator/v2';
+import type { Registry, UnmatchedDecoratorReport } from '../../adapters/decorator';
 import type {
     DependencyResolver,
     IResolverCache,
@@ -28,7 +28,7 @@ export interface IMetadataGenerator {
 /**
  * The output specification for metadata generation.
  */
-export interface Metadata {
+export type Metadata = {
     /**
      * A Controller is a collection of grouped methods (GET, POST, ...)
      * for a common URL path (i.e /users) or an more explicit URL path (i.e. /users/:id).
@@ -39,7 +39,7 @@ export interface Metadata {
      * and classes which were detected during code analysis.
      */
     referenceTypes: ReferenceTypes;
-}
+};
 
 /**
  * Narrow context interface for the type resolver.
@@ -72,4 +72,10 @@ export interface IReferenceTypeRegistry {
 export interface IGeneratorContext extends IResolverContext, IReferenceTypeRegistry {
     readonly config: MetadataGeneratorOptions;
     readonly registry: Registry;
+    /**
+     * Optional sink for unmatched-decorator reports. Generators forward to
+     * this when `config.strict` is enabled. The metadata generator drains the
+     * sink after the controller walk and emits a single warning summary.
+     */
+    reportUnmatchedDecorator?(report: UnmatchedDecoratorReport): void;
 }

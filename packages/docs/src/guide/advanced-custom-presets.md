@@ -198,9 +198,11 @@ await generateMetadata({
 
 The string is resolved by the loader (named export `preset`, then default export) and validated against the v2 `Preset` schema before any handler runs. Misshapen presets fail loud at load time with a path to the offending field.
 
-## Worked Example: typescript-rest
+## Worked Examples
 
-For inspiration, the [`@trapi/preset-typescript-rest`](https://github.com/tada5hi/trapi/tree/master/packages/preset-typescript-rest) source is short and readable. It maps `@Path`, `@GET`, `@POST`, `@QueryParam`, `@FileParam`, etc. to handler functions.
+- [`examples/custom-preset`](https://github.com/tada5hi/trapi/tree/master/examples/custom-preset) — minimal end-to-end example: a `Preset`, a fixture controller, and a Vitest spec that asserts `generateMetadata` resolves the expected shape.
+- [`@trapi/preset-typescript-rest`](https://github.com/tada5hi/trapi/tree/master/packages/preset-typescript-rest) — maps `@Path`, `@GET`, `@POST`, `@QueryParam`, `@FileParam`, etc. to handler functions; published as a real npm package.
+- [`@trapi/decorators`](https://github.com/tada5hi/trapi/tree/master/packages/decorators) — the canonical reference preset (the default `@trapi/decorators`); split into `src/handlers/{controller,method,parameter,jsdoc}.ts` for readability.
 
 ## Testing a Preset
 

@@ -18,7 +18,7 @@ import {
     applyDecoratorHandlers,
     applyJsDocHandlers,
     newMethodDraft,
-} from '../../../adapters/decorator/v2';
+} from '../../../adapters/decorator';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { GeneratorError } from '../../../core/error/generator';
 import type { BaseType } from '../../../core/types/resolver';
@@ -112,6 +112,9 @@ export class MethodGenerator {
             host: { name: this.getMethodName(), parentName },
             resolveTypeNode: (n: TypeNode) => new TypeNodeResolver(n, this.current).resolve(),
             typeChecker: this.current.typeChecker,
+            onUnmatchedDecorator: (this.current.config.strict || this.current.config.onUnmatchedDecorator) ?
+                (report) => this.current.reportUnmatchedDecorator?.(report) :
+                undefined,
         };
     }
 

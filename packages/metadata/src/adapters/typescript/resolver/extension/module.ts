@@ -11,7 +11,7 @@ import {
     findDecoratorsByName,
     isExtensionMarker,
     namesForMarker,
-} from '../../../decorator/v2';
+} from '../../../decorator';
 import type { Extension } from '../../../../core/types/extension';
 
 export function getNodeExtensions(node: Node, registry: Registry) : Extension[] {

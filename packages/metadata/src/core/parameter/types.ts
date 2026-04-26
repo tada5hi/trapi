@@ -11,7 +11,7 @@ import type { Extension } from '../resolver/extension';
 import type { Example } from '../generator/types';
 import type { CollectionFormat, ParameterSource } from './constants';
 
-export interface Parameter {
+export type Parameter = {
     parameterName: string;
     description: string;
     in: `${ParameterSource}`;
@@ -29,11 +29,11 @@ export interface Parameter {
     exampleLabels?: string[];
     extensions: Extension[];
     validators?: Record<string, Validator>;
-}
+};
 
-export interface ArrayParameter extends Parameter {
+export type ArrayParameter = Parameter & {
     type: ArrayType;
-}
+};
 
 export interface IParameterGenerator {
     generate(): Parameter[];

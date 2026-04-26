@@ -10,19 +10,19 @@ import type { BaseType, NestedObjectLiteralType, RefObjectType } from '../resolv
 // <label, scope[]>
 export type Security = Record<string, string[]>;
 
-export interface Example {
+export type Example = {
     value: unknown | unknown[];
     summary?: string;
     description?: string;
-    label?: string
-}
+    label?: string;
+};
 
-export interface Response {
+export type Response = {
     description: string;
     examples?: Example[];
     headers?: NestedObjectLiteralType | RefObjectType;
     name: string;
-    produces?: string[],
+    produces?: string[];
     status: string;
     schema?: BaseType;
-}
+};

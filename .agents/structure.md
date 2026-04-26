@@ -57,7 +57,7 @@ packages/metadata/src/
 │   │   ├── js-doc/         # JSDoc tag extraction
 │   │   ├── initializer.ts  # Literal-value extraction from initializers
 │   │   └── validator.ts    # Validator decorator parsing
-│   ├── decorator/v2/       # The decorator system (handlers, drafts, registry, orchestrator)
+│   ├── decorator/          # The decorator system (handlers, drafts, registry, orchestrator)
 │   │   ├── types.ts        # DecoratorSource, drafts, handlers, contexts, Preset, Registry, ResolverMarker
 │   │   ├── constants.ts    # ParamKind, CollectionKind, MarkerName, NumericKind, DecoratorTargetKind
 │   │   ├── module.ts       # loadRegistry, loadRegistryByName, resolvePresetByName
@@ -74,8 +74,6 @@ packages/metadata/src/
 │
 └── index.ts                # Public exports (re-exports from core/, adapters/, app/)
 ```
-
-> The `v2/` namespace is transitional — it disambiguates against the deleted v1 layer. After `@trapi/metadata` 2.0 is published, `v2/` may be flattened into `adapters/decorator/`.
 
 ## Package: `@trapi/swagger`
 

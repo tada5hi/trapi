@@ -61,7 +61,7 @@ This enables testability (mock implementations), decoupling (no circular class i
 
 ## String Literals vs Const Objects
 
-Prefer `as const` objects over bare string literal unions for any closed set of named values (decorator targets, parameter kinds, marker names, etc.). Pair the const with a derived template-literal type so consumers can pass *either* the const reference *or* the bare string — both check against the same union.
+Prefer `as const` objects over bare string literal unions for any closed set of named values (decorator targets, parameter kinds, marker names, etc.). Pair the const with a **same-named** type alias resolving to the value union — consumers then write `\`${Name}\`` and get the literal-string union exactly like they did with TypeScript enums.
 
 ```ts
 export const ParamKind = {
@@ -70,12 +70,16 @@ export const ParamKind = {
     Query: 'query',
     // ...
 } as const;
-export type ParamKindValue = `${typeof ParamKind[keyof typeof ParamKind]}`;
+// Same-name type alias: lets `${ParamKind}` template-literal types
+// resolve to the value union (matching the prior enum ergonomic).
+export type ParamKind = typeof ParamKind[keyof typeof ParamKind];
 ```
 
-- **Public API consumers can use either form.** `ParamKind.Body` is more discoverable and survives renames; the literal `'body'` is more concise. The type accepts both.
+- **Use the same name for the const and the type alias.** Value namespace and type namespace are separate in TypeScript — `ParamKind` (value) is the const object, `ParamKind` (type) is the value union. Don't introduce a `*Value` suffix.
+- **Reference the type via `\`${ParamKind}\``** when you want the bare-string union. Reference `ParamKind.Body` when you want the named constant.
+- **Public API consumers can use either form.** `ParamKind.Body` is more discoverable and survives renames; the literal `'body'` is more concise. Both type-check against `\`${ParamKind}\``.
 - **Inside this codebase, prefer the const reference** — it's discoverable in IDE autocomplete and shows up in find-all-references. Bare literals are reserved for places where the value is genuinely incidental (e.g. JSDoc tag matching against arbitrary user input).
-- **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums (`ParameterSource`, `MethodName`) are kept for now and may be migrated incrementally.
+- **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums have been migrated to the same-name pattern above; `\`${ParameterSource}\``, `\`${MethodName}\``, and `\`${CollectionFormat}\`` continue to work unchanged.
 
 ## File Organization
 
@@ -105,6 +109,12 @@ Automated via Release Please (`google-github-actions/release-please-action@v4`):
 - On merge, publishes to npm via `tada5hi/monoship@v2`
 - `metadata`, `swagger`, and `decorators` use linked versioning
 - Preset packages version independently
+
+## Continuous (preview) releases
+
+`.github/workflows/continuous-release.yml` publishes preview builds via [pkg.pr.new](https://github.com/stackblitz-labs/pkg.pr.new) on every push to `master`/`next`/`beta`/`alpha` and every PR. Reuses the `install` + `build` composite actions and runs `npx pkg-pr-new publish './packages/*'` once. The private `docs` package is auto-skipped.
+
+Requires the [pkg.pr.new GitHub App](https://github.com/apps/pkg-pr-new) to be installed on the repo — without it, the workflow fails. Preview installs look like `npm i https://pkg.pr.new/@trapi/metadata@<sha>`.
 
 ## References
 

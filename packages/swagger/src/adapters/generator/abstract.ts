@@ -28,7 +28,6 @@ import type {
 } from '@trapi/metadata';
 import {
     TypeName,
-    ValidatorName,
     isArrayType,
     isEnumType,
     isIntersectionType,
@@ -47,6 +46,7 @@ import { buildSpecGeneratorOptions } from '../../core/config';
 import { SwaggerError, SwaggerErrorCode } from '../../core/error';
 import type { SpecGeneratorOptions, SpecGeneratorOptionsInput } from '../../core/config';
 import { DataFormatName, DataTypeName } from '../../core/schema';
+import type { ValidatorOpenApiMeta } from '../../core/types';
 import { transformValueTo } from '../../core/utils';
 
 import type {
@@ -479,20 +479,35 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             return {};
         }
 
-        const keys = Object.keys(input);
         const output : Record<string, any> = {};
-        for (const key of keys) {
-            if (
-                key.startsWith('is') ||
-                key === ValidatorName.MIN_DATE ||
-                key === ValidatorName.MAX_DATE
-            ) {
+        for (const [name, validator] of Object.entries(input)) {
+            const mapping = validator.meta?.openApi ?? DEFAULT_VALIDATOR_OPENAPI_MAPPINGS[name];
+            if (!mapping || mapping.kind === 'ignore') {
                 continue;
             }
 
-            output[key] = input[key].value;
+            if (mapping.kind === 'keyword') {
+                output[mapping.key] = validator.value;
+            } else if (mapping.kind === 'format') {
+                output.format = mapping.format;
+            }
         }
 
         return output;
     }
 }
+
+// Default OpenAPI mappings for canonical validator names. Validator names that
+// do not appear here and that carry no `meta.openApi` hint are dropped — this
+// keeps third-party / custom validators out of the spec unless their handler
+// declares how to emit them.
+const DEFAULT_VALIDATOR_OPENAPI_MAPPINGS: Record<string, ValidatorOpenApiMeta> = {
+    maxLength: { kind: 'keyword', key: 'maxLength' },
+    minLength: { kind: 'keyword', key: 'minLength' },
+    maximum: { kind: 'keyword', key: 'maximum' },
+    minimum: { kind: 'keyword', key: 'minimum' },
+    pattern: { kind: 'keyword', key: 'pattern' },
+    maxItems: { kind: 'keyword', key: 'maxItems' },
+    minItems: { kind: 'keyword', key: 'minItems' },
+    uniqueItems: { kind: 'keyword', key: 'uniqueItems' },
+};

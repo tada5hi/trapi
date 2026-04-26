@@ -106,13 +106,35 @@ The shape of the emitted document. `SpecV2` follows the OpenAPI 2.0 (Swagger) sc
 ### `Version`
 
 ```typescript
-enum Version {
-    V2 = 'v2',
-    V3 = 'v3',
-    V3_1 = 'v3.1',
-    V3_2 = 'v3.2',
-}
+const Version = {
+    V2: 'v2',
+    V3: 'v3',
+    V3_1: 'v3.1',
+    V3_2: 'v3.2',
+} as const;
+type Version = typeof Version[keyof typeof Version];
 ```
+
+### `ValidatorOpenApiMeta`
+
+```typescript
+type ValidatorOpenApiMeta =
+    | { kind: 'keyword'; key: string }      // emit schema[key] = validator.value
+    | { kind: 'format'; format: string }    // emit schema.format = format
+    | { kind: 'ignore' };                   // explicit drop
+```
+
+`@trapi/swagger` augments [`ValidatorMeta`](/guide/metadata-api-reference#validator) from `@trapi/metadata` with an `openApi?` field of this type. Preset handlers can attach an OpenAPI hint to a validator at the point it is produced, and the swagger emitter consumes it without needing to know about the validator name:
+
+```typescript
+// In a preset handler
+draft.validators.isEmail = {
+    value: true,
+    meta: { openApi: { kind: 'format', format: 'email' } },
+};
+```
+
+For canonical OpenAPI keyword names (`maxLength`, `minLength`, `pattern`, `maximum`, `minimum`, `maxItems`, `minItems`, `uniqueItems`) swagger ships built-in defaults — the `meta.openApi` hint is optional. Validators that have neither a hint nor a default mapping are dropped from the spec.
 
 ## Errors
 

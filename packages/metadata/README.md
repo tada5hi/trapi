@@ -10,6 +10,10 @@ The metadata can than be used for generating a documentation according to the Op
 
 Inspect the `CHANGELOG.md` in the repository for breaking changes.
 
+## Public API
+
+The stable public surface is documented in the [API Reference](https://trapi.tada5hi.net/guide/metadata-api-reference). Anything not listed there should be treated as internal even if it is re-exported, and may change without a major version bump.
+
 **Table of Contents**
 
 - [Installation](#installation)

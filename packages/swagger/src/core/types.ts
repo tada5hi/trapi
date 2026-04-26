@@ -7,6 +7,16 @@
 
 import type { SecurityType } from './constants';
 
+export type ValidatorOpenApiMeta = { kind: 'keyword'; key: string } |
+    { kind: 'format'; format: string } |
+    { kind: 'ignore' };
+
+declare module '@trapi/metadata' {
+    interface ValidatorMeta {
+        openApi?: ValidatorOpenApiMeta;
+    }
+}
+
 export type DocumentFormatData = {
     path: string;
     name: string;

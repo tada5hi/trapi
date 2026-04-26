@@ -142,32 +142,40 @@ const parameterExtensionHandler = parameter({
     marker: MarkerName.Extension,
 });
 
-// Numeric type-narrowing handlers store an intent on validators; the orchestrator
-// (or swagger emitter) consumes them when shaping the parameter's emitted type.
-function numericValidator(kind: NumericKind): ParameterHandler['apply'] {
+// Numeric narrowing handlers — registered via `marker` so the resolver finds
+// them and narrows the TS type (IntegerType/LongType/...). The validator
+// itself carries an OpenAPI `format` hint via `meta.openApi`, which the
+// swagger emitter consumes through the augmented `ValidatorMeta` interface.
+// Serves as the canonical example of the meta.openApi pattern for preset
+// authors introducing custom validators.
+function numericValidator(kind: NumericKind, format: string): ParameterHandler['apply'] {
     return (_ctx, draft) => {
-        draft.validators[`is${kind[0].toUpperCase()}${kind.slice(1)}`] = { value: kind };
+        const name = `is${kind[0].toUpperCase()}${kind.slice(1)}`;
+        draft.validators[name] = {
+            value: kind,
+            meta: { openApi: { kind: 'format', format } },
+        };
     };
 }
 
 const parameterIsIntHandler = parameter({
     match: { name: 'IsInt', on: 'parameter' },
-    apply: numericValidator('int'),
+    apply: numericValidator('int', 'int32'),
     marker: { numeric: NumericKind.Int },
 });
 const parameterIsLongHandler = parameter({
     match: { name: 'IsLong', on: 'parameter' },
-    apply: numericValidator('long'),
+    apply: numericValidator('long', 'int64'),
     marker: { numeric: NumericKind.Long },
 });
 const parameterIsFloatHandler = parameter({
     match: { name: 'IsFloat', on: 'parameter' },
-    apply: numericValidator('float'),
+    apply: numericValidator('float', 'float'),
     marker: { numeric: NumericKind.Float },
 });
 const parameterIsDoubleHandler = parameter({
     match: { name: 'IsDouble', on: 'parameter' },
-    apply: numericValidator('double'),
+    apply: numericValidator('double', 'double'),
     marker: { numeric: NumericKind.Double },
 });
 

@@ -176,6 +176,20 @@ The `Type` union covers every shape the resolver produces:
 
 See [Supported TypeScript Types](/guide/advanced-type-support) for behavioural detail.
 
+### `Validator`
+
+```typescript
+type Validator = {
+    value?: unknown;
+    message?: string;
+    meta?: ValidatorMeta;
+};
+
+interface ValidatorMeta {}
+```
+
+`ValidatorMeta` is an empty interface that consumers extend via TypeScript declaration merging from their own package, e.g. `@trapi/swagger` augments it with an `openApi` field (see the [swagger API reference](/guide/swagger-api-reference)). The metadata layer never inspects `meta`; it carries opaque hints from preset handlers to downstream consumers. Third-party preset authors extending the type from their own package follow the same pattern.
+
 ### `CacheOptions`
 
 ```typescript

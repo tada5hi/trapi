@@ -9,6 +9,10 @@ Transforms TRAPI metadata into an OpenAPI specification (2.0 / Swagger, 3.0, 3.1
 
 Inspect the `CHANGELOG.md` in the repository for breaking changes.
 
+## Public API
+
+The stable public surface is documented in the [API Reference](https://trapi.tada5hi.net/guide/swagger-api-reference). Anything not listed there should be treated as internal even if it is re-exported, and may change without a major version bump.
+
 **Table of Contents**
 
 - [Installation](#installation)

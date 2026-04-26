@@ -62,11 +62,12 @@ type MetadataGeneratorOptions = {
     allow?: string[];
     cache?: string | boolean | Partial<CacheOptions>;
     preset?: string;
-    strict?: boolean;
+    strict?: boolean | 'throw';
+    onUnmatchedDecorator?: (reports: UnmatchedDecoratorReport[]) => void;
 };
 ```
 
-`strict: true` enables `console.warn` on decorators that don't match any registered handler (e.g. typos like `@Hiden`).
+`strict: true` warns via `console.warn` on decorators that don't match any registered handler (e.g. typos like `@Hiden`); `strict: 'throw'` raises a `GeneratorError` instead. `onUnmatchedDecorator` short-circuits both — the callback receives every report and decides what to do.
 
 ### `EntryPoint` / `EntryPointOptions`
 
@@ -262,7 +263,7 @@ type TsConfig = {
 
 ### `ParamKind`, `MarkerName`, `NumericKind`, `DecoratorTargetKind`, `CollectionKind`
 
-`as const` objects with paired `*Value` template-literal types — pass either the const reference (e.g. `ParamKind.Body`) or the bare string (`'body'`). Both type-check.
+`as const` objects paired with same-name type aliases (e.g. `type ParamKind = typeof ParamKind[keyof typeof ParamKind]`) — pass either the const reference (e.g. `ParamKind.Body`) or the bare string (`'body'`). Both type-check.
 
 ```typescript
 const ParamKind = {

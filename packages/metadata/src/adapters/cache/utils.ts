@@ -43,12 +43,17 @@ export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) 
     };
 }
 
-export function generateFileHash(sourceFilesSize?: number): string {
+export function generateFileHash(sourceFilesSize?: number, preset?: string): string {
     const hash = crypto.createHash('sha256');
 
     const strSize: string = (sourceFilesSize ?? 0).toString();
 
     hash.update(strSize);
+
+    if (preset) {
+        hash.update('|');
+        hash.update(preset);
+    }
 
     return hash.digest('hex');
 }

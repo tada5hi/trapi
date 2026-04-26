@@ -84,7 +84,13 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     async generate(): Promise<Metadata> {
         const sourceFileSize : number = this.buildNodesFromSourceFiles();
 
-        let cache = await this.cache.get(sourceFileSize);
+        // Strict reporting requires handler dispatch to actually run. A cache hit
+        // would skip it and silently swallow unmatched-decorator reports.
+        const bypassCache = !!(this.config.strict || this.config.onUnmatchedDecorator);
+
+        let cache = bypassCache ?
+            undefined :
+            await this.cache.get(sourceFileSize, this.config.preset);
 
         if (!cache) {
             if (this.config.preset) {
@@ -101,9 +107,12 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                 controllers: this.controllers,
                 referenceTypes: this.referenceTypes,
                 sourceFilesSize: sourceFileSize,
+                preset: this.config.preset,
             };
 
-            await this.cache.save(cache);
+            if (!bypassCache) {
+                await this.cache.save(cache);
+            }
         }
 
         if (this.config.strict || this.config.onUnmatchedDecorator) {

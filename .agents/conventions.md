@@ -76,10 +76,10 @@ export type ParamKind = typeof ParamKind[keyof typeof ParamKind];
 ```
 
 - **Use the same name for the const and the type alias.** Value namespace and type namespace are separate in TypeScript — `ParamKind` (value) is the const object, `ParamKind` (type) is the value union. Don't introduce a `*Value` suffix.
-- **Reference the type via `\`${ParamKind}\``** when you want the bare-string union. Reference `ParamKind.Body` when you want the named constant.
-- **Public API consumers can use either form.** `ParamKind.Body` is more discoverable and survives renames; the literal `'body'` is more concise. Both type-check against `\`${ParamKind}\``.
+- **Reference the type via `` `${ParamKind}` ``** when you want the bare-string union. Reference `ParamKind.Body` when you want the named constant.
+- **Public API consumers can use either form.** `ParamKind.Body` is more discoverable and survives renames; the literal `'body'` is more concise. Both type-check against `` `${ParamKind}` ``.
 - **Inside this codebase, prefer the const reference** — it's discoverable in IDE autocomplete and shows up in find-all-references. Bare literals are reserved for places where the value is genuinely incidental (e.g. JSDoc tag matching against arbitrary user input).
-- **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums have been migrated to the same-name pattern above; `\`${ParameterSource}\``, `\`${MethodName}\``, and `\`${CollectionFormat}\`` continue to work unchanged.
+- **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums have been migrated to the same-name pattern above; `` `${ParameterSource}` ``, `` `${MethodName}` ``, and `` `${CollectionFormat}` `` continue to work unchanged.
 
 ## File Organization
 

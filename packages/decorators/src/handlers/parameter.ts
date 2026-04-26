@@ -144,7 +144,7 @@ const parameterExtensionHandler = parameter({
 
 // Numeric type-narrowing handlers store an intent on validators; the orchestrator
 // (or swagger emitter) consumes them when shaping the parameter's emitted type.
-function numericValidator(kind: 'int' | 'long' | 'float' | 'double'): ParameterHandler['apply'] {
+function numericValidator(kind: NumericKind): ParameterHandler['apply'] {
     return (_ctx, draft) => {
         draft.validators[`is${kind[0].toUpperCase()}${kind.slice(1)}`] = { value: kind };
     };

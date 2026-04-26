@@ -5,10 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export enum ParameterSourceV2 {
-    BODY = 'body',
-    FORM_DATA = 'formData',
-    HEADER = 'header',
-    PATH = 'path',
-    QUERY = 'query',
-}
+export const ParameterSourceV2 = {
+    BODY: 'body',
+    FORM_DATA: 'formData',
+    HEADER: 'header',
+    PATH: 'path',
+    QUERY: 'query',
+} as const;
+export type ParameterSourceV2 = typeof ParameterSourceV2[keyof typeof ParameterSourceV2];

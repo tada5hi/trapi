@@ -9,11 +9,11 @@ import type { CollectionFormat } from '@trapi/metadata';
 import type { DataFormatName, DataTypeName } from './constants';
 import type { ParameterSourceV2 } from './v2';
 
-export interface BaseSpec {
+export type BaseSpec = {
     info: Info;
     tags?: Tag[];
     externalDocs?: ExternalDocs;
-}
+};
 
 export type Info = {
     title: string;
@@ -48,13 +48,13 @@ type Tag = {
 
 // ------------------------------------------------------
 
-export interface BaseResponse {
+export type BaseResponse = {
     description: string;
-}
+};
 
 // ------------------------------------------------------
 
-export interface BaseOperation<P, R> {
+export type BaseOperation<P, R> = {
     responses: { [name: string]: R };
     summary?: string;
     description?: string;
@@ -66,19 +66,19 @@ export interface BaseOperation<P, R> {
     deprecated?: boolean;
     security?: Record<string, string[]>[];
     tags?: string[];
-}
+};
 
 // ------------------------------------------------------
 
-export interface Example {
+export type Example = {
     value: unknown | unknown[];
     summary?: string;
     description?: string;
-}
+};
 
 // ------------------------------------------------------
 
-export interface BaseSchema<T> {
+export type BaseSchema<T> = {
     type?: `${DataTypeName}` | Array<`${DataTypeName}` | 'null'>;
     format?: `${DataFormatName}`;
     title?: string;
@@ -109,51 +109,51 @@ export interface BaseSchema<T> {
     example?: { [exampleName: string]: Example } | unknown;
     required?: string[];
     $ref?: string;
-}
+};
 
-interface XML {
+type XML = {
     type?: string;
     namespace?: string;
     prefix?: string;
     attribute?: string;
     wrapped?: boolean;
-}
+};
 
 // ------------------------------------------------------
 
-export interface BaseParameter {
+export type BaseParameter = {
     name: string;
     in: `${ParameterSourceV2}`;
     required?: boolean;
     description?: string;
-}
+};
 
-export interface BodyParameter extends BaseParameter {
-    in: `${ParameterSourceV2.BODY}`;
-}
+export type BodyParameter = BaseParameter & {
+    in: typeof ParameterSourceV2.BODY;
+};
 
-export interface QueryParameter extends BaseParameter {
-    in: `${ParameterSourceV2.QUERY}`;
+export type QueryParameter = BaseParameter & {
+    in: typeof ParameterSourceV2.QUERY;
     allowEmptyValue?: boolean;
     collectionFormat?: `${CollectionFormat}`;
-}
+};
 
-export interface PathParameter extends BaseParameter {
-    in: `${ParameterSourceV2.PATH}`;
-}
+export type PathParameter = BaseParameter & {
+    in: typeof ParameterSourceV2.PATH;
+};
 
-export interface HeaderParameter extends BaseParameter {
-    in: `${ParameterSourceV2.HEADER}`;
-}
+export type HeaderParameter = BaseParameter & {
+    in: typeof ParameterSourceV2.HEADER;
+};
 
-export interface FormDataParameter extends BaseParameter {
-    in: `${ParameterSourceV2.FORM_DATA}`;
+export type FormDataParameter = BaseParameter & {
+    in: typeof ParameterSourceV2.FORM_DATA;
     collectionFormat?: `${CollectionFormat}`;
-}
+};
 
 // ------------------------------------------------------
 
-export interface Path<Operation, Parameter> {
+export type Path<Operation, Parameter> = {
     $ref?: string;
     get?: Operation;
     put?: Operation;
@@ -163,4 +163,4 @@ export interface Path<Operation, Parameter> {
     head?: Operation;
     patch?: Operation;
     parameters?: Parameter[];
-}
+};

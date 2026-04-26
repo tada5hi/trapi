@@ -7,61 +7,61 @@
 
 import type { SecurityType } from './constants';
 
-export interface DocumentFormatData {
+export type DocumentFormatData = {
     path: string;
     name: string;
     content?: string;
-}
+};
 
-export interface BaseSecurity {
+export type BaseSecurity = {
     description?: string;
-}
+};
 
-export interface ApiKeySecurity extends BaseSecurity {
-    type: `${SecurityType.API_KEY}`;
+export type ApiKeySecurity = BaseSecurity & {
+    type: typeof SecurityType.API_KEY;
     name: string;
     in: 'query' | 'header';
-}
+};
 
-export interface BasicSecurity extends BaseSecurity {
-    type: `${SecurityType.HTTP}`;
+export type BasicSecurity = BaseSecurity & {
+    type: typeof SecurityType.HTTP;
     scheme: 'basic';
-}
+};
 
-export interface OAuth2Security extends BaseSecurity {
-    type: `${SecurityType.OAUTH2}`;
+export type OAuth2Security = BaseSecurity & {
+    type: typeof SecurityType.OAUTH2;
     flows: {
         implicit?: OAuth2ImplicitFlow,
         password?: OAuth2PasswordFlow,
         authorizationCode?: OAuth2AuthorizationCodeFlow,
         clientCredentials?: OAuth2ClientCredentialsFlow
     };
-}
+};
 
-export interface Oauth2BaseFlow {
+export type Oauth2BaseFlow = {
     scopes?: Record<string, string>;
     refreshUrl?: string;
-}
+};
 
-export interface OAuth2ImplicitFlow extends Oauth2BaseFlow {
+export type OAuth2ImplicitFlow = Oauth2BaseFlow & {
     authorizationUrl: string;
-}
+};
 
-export interface OAuth2PasswordFlow extends Oauth2BaseFlow {
+export type OAuth2PasswordFlow = Oauth2BaseFlow & {
     tokenUrl: string;
-}
+};
 
-export interface OAuth2AuthorizationCodeFlow extends Oauth2BaseFlow {
+export type OAuth2AuthorizationCodeFlow = Oauth2BaseFlow & {
     authorizationUrl: string;
     tokenUrl: string;
-}
+};
 
-export interface OAuth2ClientCredentialsFlow extends Oauth2BaseFlow {
+export type OAuth2ClientCredentialsFlow = Oauth2BaseFlow & {
     tokenUrl: string;
-}
+};
 
 export type SecurityDefinition = ApiKeySecurity | BasicSecurity | OAuth2Security;
 
-export interface SecurityDefinitions {
+export type SecurityDefinitions = {
     [key: string]: SecurityDefinition;
-}
+};

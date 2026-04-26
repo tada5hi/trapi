@@ -12,7 +12,7 @@ import { Version } from '../core/constants';
 import type { SpecV2, SpecV3 } from '../core/schema';
 import { V2Generator, V3Generator  } from '../adapters/index.ts';
 
-type OutputSpec<V extends `${Version}`> = V extends `${Version.V2}` ?
+type OutputSpec<V extends `${Version}`> = V extends typeof Version.V2 ?
     SpecV2 :
     SpecV3;
 

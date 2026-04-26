@@ -18,7 +18,7 @@ export type ServerOption = {
     description?: string,
 };
 
-export interface SpecGeneratorOptions {
+export type SpecGeneratorOptions = {
     /**
      * API host, e.g. localhost:3000 or https://myapi.com
      */
@@ -73,7 +73,7 @@ export interface SpecGeneratorOptions {
      * Possible values are `csv`, `ssv`, `tsv`, `pipes`, `multi`. If not specified, Swagger defaults to `csv`.
      */
     collectionFormat?: `${CollectionFormat}`;
-}
+};
 
 export type SpecGeneratorOptionsInput = Omit<Partial<SpecGeneratorOptions>, 'servers'> & {
     servers?: string | string[] | ServerOption | ServerOption[]

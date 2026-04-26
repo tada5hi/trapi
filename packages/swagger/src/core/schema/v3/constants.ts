@@ -5,9 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export enum ParameterSourceV3 {
-    COOKIE = 'cookie',
-    HEADER = 'header',
-    PATH = 'path',
-    QUERY = 'query',
-}
+export const ParameterSourceV3 = {
+    COOKIE: 'cookie',
+    HEADER: 'header',
+    PATH: 'path',
+    QUERY: 'query',
+} as const;
+export type ParameterSourceV3 = typeof ParameterSourceV3[keyof typeof ParameterSourceV3];

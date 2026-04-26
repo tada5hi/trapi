@@ -22,7 +22,7 @@ import type {
     QueryParameter,
 } from '../types';
 
-export interface SpecV2 extends BaseSpec {
+export type SpecV2 = BaseSpec & {
     swagger: '2.0';
     host?: string;
     basePath?: string;
@@ -35,11 +35,11 @@ export interface SpecV2 extends BaseSpec {
     responses?: { [responseName: string]: ResponseV2 };
     security?: SecurityV2[];
     securityDefinitions?: { [name: string]: SecurityV2 };
-}
+};
 
 type PatternField = `x-${string}`;
 
-export interface BaseParameterV2 {
+export type BaseParameterV2 = {
     type?: `${DataTypeName}`;
     format?: `${DataFormatName}`;
     allowEmptyValue?: boolean,
@@ -58,27 +58,19 @@ export interface BaseParameterV2 {
     uniqueItems?: number,
     enum?: unknown[],
     multipleOf?: number,
-}
+};
 
-export interface BodyParameterV2 extends BodyParameter {
+export type BodyParameterV2 = BodyParameter & {
     schema: BaseSchema<SchemaV2>;
-}
+};
 
-export interface QueryParameterV2 extends QueryParameter, BaseParameterV2 {
+export type QueryParameterV2 = QueryParameter & BaseParameterV2;
 
-}
+export type PathParameterV2 = PathParameter & BaseParameterV2;
 
-export interface PathParameterV2 extends PathParameter, BaseParameterV2 {
+export type HeaderParameterV2 = HeaderParameter & BaseParameterV2;
 
-}
-
-export interface HeaderParameterV2 extends HeaderParameter, BaseParameterV2 {
-
-}
-
-export interface FormDataParameterV2 extends FormDataParameter, BaseParameterV2 {
-
-}
+export type FormDataParameterV2 = FormDataParameter & BaseParameterV2;
 
 export type ParameterV2 = (
     BodyParameterV2 |
@@ -88,60 +80,61 @@ export type ParameterV2 = (
     FormDataParameterV2
 ) & { [key: PatternField]: any | undefined };
 
-export interface OperationV2 extends BaseOperation<ParameterV2, ResponseV2> {
+export type OperationV2 = BaseOperation<ParameterV2, ResponseV2> & {
     consumes?: string[],
     produces?: string[];
     schemes?: `${TransferProtocol}`[]
-}
+};
 
-export interface ResponseV2 extends BaseResponse {
+export type ResponseV2 = BaseResponse & {
     schema?: SchemaV2;
     headers?: { [headerName: string]: HeaderV2 };
     examples?: { [exampleName: string]: unknown };
-}
+};
 
-export interface HeaderV2 {
+export type HeaderV2 = {
     type: 'string' | 'number' | 'integer' | 'boolean' | 'array';
-}
+};
 
-// tslint:disable-next-line:no-shadowed-variable
+// Self-recursive: must remain `interface` because `type` aliases cannot reference
+// themselves through an intersection.
 export interface SchemaV2 extends BaseSchema<SchemaV2> {
     ['x-nullable']?: boolean;
     ['x-deprecated']?: boolean;
 }
 
-export interface BasicSecurityV2 extends BaseSecurity {
-    type: `${SecurityType.BASIC}`;
-}
+export type BasicSecurityV2 = BaseSecurity & {
+    type: typeof SecurityType.BASIC;
+};
 
-export interface BaseOAuthSecurityV2 extends BaseSecurity {
-    type: `${SecurityType.OAUTH2}`;
-}
+export type BaseOAuthSecurityV2 = BaseSecurity & {
+    type: typeof SecurityType.OAUTH2;
+};
 
-export interface OAuth2ImplicitSecurityV2 extends BaseOAuthSecurityV2 {
+export type OAuth2ImplicitSecurityV2 = BaseOAuthSecurityV2 & {
     flow: 'implicit';
     authorizationUrl: string;
     scopes?: Record<string, string>;
-}
+};
 
-export interface OAuth2PasswordSecurityV2 extends BaseOAuthSecurityV2 {
+export type OAuth2PasswordSecurityV2 = BaseOAuthSecurityV2 & {
     flow: 'password';
     tokenUrl: string;
     scopes?: Record<string, string>;
-}
+};
 
-export interface OAuth2ApplicationSecurityV2 extends BaseOAuthSecurityV2 {
+export type OAuth2ApplicationSecurityV2 = BaseOAuthSecurityV2 & {
     flow: 'application';
     tokenUrl: string;
     scopes?: Record<string, string>;
-}
+};
 
-export interface OAuth2AccessCodeSecurityV2 extends BaseOAuthSecurityV2 {
+export type OAuth2AccessCodeSecurityV2 = BaseOAuthSecurityV2 & {
     flow: 'accessCode';
     tokenUrl: string;
     authorizationUrl: string;
     scopes?: Record<string, string>;
-}
+};
 
 export type OAuth2SecurityV2 = OAuth2AccessCodeSecurityV2 |
 OAuth2ApplicationSecurityV2 |

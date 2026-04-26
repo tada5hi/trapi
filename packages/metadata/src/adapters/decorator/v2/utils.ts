@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import path from 'node:path';
 import type {
     ControllerDraft,
     ControllerHandler,
@@ -21,6 +22,7 @@ import type {
     ParameterHandler,
     ParameterJsDocHandler,
     Registry,
+    ResolverMarker,
 } from './types';
 
 // -----------------------------------------------------------------------------
@@ -108,6 +110,96 @@ export function createRegistry(): Registry {
         methodJsDoc: [],
         parameterJsDoc: [],
     };
+}
+
+// -----------------------------------------------------------------------------
+// Preset name resolution (used by loadRegistryByName)
+// -----------------------------------------------------------------------------
+
+export function generatePresetLookupPaths(input: string) : string[] {
+    if (path.isAbsolute(input) || input.startsWith('./') || input.startsWith('../')) {
+        return [input];
+    }
+
+    if (input.startsWith('module:')) {
+        return [input.substring('module:'.length)];
+    }
+
+    if (!input.startsWith('@')) {
+        return [input, `@trapi/${input}`];
+    }
+
+    return [input];
+}
+
+// -----------------------------------------------------------------------------
+// Resolver marker lookups
+// -----------------------------------------------------------------------------
+
+/**
+ * Collect the unique decorator names of every handler whose `marker` matches
+ * the given predicate. Lets the type resolver discover preset-renamed
+ * decorators without hard-coding canonical names.
+ */
+export function namesForMarker(
+    registry: Registry,
+    predicate: (marker: ResolverMarker) => boolean,
+): Set<string> {
+    const names = new Set<string>();
+    const all = [
+        ...registry.controllers,
+        ...registry.methods,
+        ...registry.parameters,
+    ];
+    for (const handler of all) {
+        if (handler.marker !== undefined && predicate(handler.marker)) {
+            names.add(handler.match.name);
+        }
+    }
+    return names;
+}
+
+/**
+ * Collect the unique JSDoc tag names of every JSDoc handler whose `marker`
+ * matches the given predicate. JSDoc analogue of `namesForMarker`.
+ */
+export function tagsForMarker(
+    registry: Registry,
+    predicate: (marker: ResolverMarker) => boolean,
+): Set<string> {
+    const tags = new Set<string>();
+    const all = [
+        ...registry.controllerJsDoc,
+        ...registry.methodJsDoc,
+        ...registry.parameterJsDoc,
+    ];
+    for (const handler of all) {
+        if (handler.marker !== undefined && predicate(handler.marker)) {
+            tags.add(handler.match.tag);
+        }
+    }
+    return tags;
+}
+
+export function isHiddenMarker(marker: ResolverMarker): boolean {
+    return marker === 'hidden';
+}
+
+export function isDeprecatedMarker(marker: ResolverMarker): boolean {
+    return marker === 'deprecated';
+}
+
+export function isExtensionMarker(marker: ResolverMarker): boolean {
+    return marker === 'extension';
+}
+
+export function numericMarkerKind(
+    marker: ResolverMarker,
+): 'int' | 'long' | 'float' | 'double' | undefined {
+    if (typeof marker === 'object' && marker !== null && 'numeric' in marker) {
+        return marker.numeric;
+    }
+    return undefined;
 }
 
 // -----------------------------------------------------------------------------

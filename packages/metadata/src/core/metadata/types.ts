@@ -6,7 +6,6 @@
  */
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
 import type { MetadataGeneratorOptions } from '../config';
-import type { IDecoratorResolver } from '../../adapters/decorator';
 import type { Registry } from '../../adapters/decorator/v2';
 import type {
     DependencyResolver,
@@ -49,7 +48,7 @@ export interface Metadata {
 export interface IResolverContext {
     readonly typeChecker: TypeChecker;
     readonly nodes: Node[];
-    readonly decoratorResolver: IDecoratorResolver;
+    readonly registry: Registry;
     readonly resolverCache: IResolverCache;
     isExportedNode(node: Node): boolean;
 }

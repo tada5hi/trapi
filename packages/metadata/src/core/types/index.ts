@@ -17,8 +17,4 @@ export * from './parameter';
 export * from './parameter-source';
 export * from './metadata';
 export * from './variable';
-export * from './decorator-id';
-export * from './decorator';
-export * from './preset';
 export * from './validator';
-export * from './decorator-sets';

@@ -7,7 +7,6 @@
 ```typescript
 import type {
     CacheOptions,
-    DecoratorConfig,
     TsConfig,
 } from '@trapi/metadata';
 
@@ -27,7 +26,6 @@ export interface MetadataGenerateOptions {
     ignore?: string[];
     allow?: string[];
     cache?: string | boolean | Partial<CacheOptions>;
-    decorators?: DecoratorConfig[];
     preset?: string;
     tsconfig?: string | TsConfig;
 }
@@ -74,19 +72,17 @@ cache: './.cache/trapi'                 // shorthand for { enabled: true, direct
 cache: { enabled: true, directoryPath: '.cache/trapi' }  // full options object
 ```
 
-### decorators
-
-A list of `DecoratorConfig` entries that describe how your decorators map to `DecoratorID` values. See [Decorators & Presets](/guide/metadata-decorators).
-
 ### preset
 
-Name of a published preset package. Loaded dynamically via `import()`.
+Name of a published preset package. Loaded dynamically via `import()` and validated against the v2 `Preset` schema before use.
 
 ```typescript
 preset: '@trapi/decorators'
 ```
 
-When both `preset` and `decorators` are supplied, the two lists are concatenated — user entries are tried first, then the preset's. Both names will be recognised for the same `DecoratorID`.
+`generateMetadata` resolves the package, looks for a named export `preset` (then the default export, then the module itself), validates the shape, and materialises a `Registry` of handlers via `loadRegistry`. `extends` chains in the resolved preset are loaded recursively through the same lookup.
+
+To author your own preset see [Custom Presets](/guide/advanced-custom-presets).
 
 ### tsconfig
 
@@ -133,22 +129,19 @@ await generateMetadata({
 });
 ```
 
-### Custom Decorators with a Cache
+### Custom Preset with a Cache
+
+For non-standard decorator names, author a v2 `Preset` (see [Custom Presets](/guide/advanced-custom-presets)) and load it by package name:
 
 ```typescript
-import { DecoratorID } from '@trapi/metadata';
-
 await generateMetadata({
     entryPoint: 'src/api/**/*.ts',
-    decorators: [
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
-        { id: DecoratorID.GET,        name: 'HttpGet' },
-        { id: DecoratorID.POST,       name: 'HttpPost' },
-        { id: DecoratorID.BODY,       name: 'FromBody' },
-    ],
+    preset: '@my-org/trapi-preset',
     cache: { enabled: true, directoryPath: '.cache/trapi' },
 });
 ```
+
+During local development you can also pass an absolute or relative path (`./presets/my-preset.ts`) instead of a package name — useful before the preset is published.
 
 ## The Output
 

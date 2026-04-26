@@ -5,10 +5,88 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Expression, TypeChecker } from 'typescript';
+import type {
+    Expression, 
+    Node, 
+    TypeChecker,
+} from 'typescript';
 import * as ts from 'typescript';
 import { getInitializerValue } from '../../../typescript/initializer';
 import type { DecoratorArgument } from '../types';
+
+export type RawDecorator = {
+    name: string;
+    arguments: DecoratorArgument[];
+};
+
+/**
+ * Enumerate decorators on a TS node and classify their argument values without
+ * going through the registry. Used by read-side consumers (type resolver,
+ * extension extraction) that only need decorator names + argument values.
+ */
+export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDecorator[] {
+    if (!ts.canHaveDecorators(node)) {
+        return [];
+    }
+    const decorators = ts.getDecorators(node);
+    if (!decorators || decorators.length === 0) {
+        return [];
+    }
+
+    const output: RawDecorator[] = [];
+    for (const decorator of decorators) {
+        const { expression } = decorator;
+        let name: string | undefined;
+        let argumentExpressions: readonly ts.Expression[] = [];
+
+        if (ts.isCallExpression(expression)) {
+            argumentExpressions = expression.arguments;
+            name = readDecoratorName(expression.expression);
+        } else {
+            name = readDecoratorName(expression);
+        }
+
+        if (!name) {
+            continue;
+        }
+
+        output.push({
+            name,
+            arguments: argumentExpressions.map((a) => buildDecoratorArgument(a, typeChecker)),
+        });
+    }
+    return output;
+}
+
+export function findDecoratorByName(
+    node: Node,
+    name: string,
+    typeChecker?: TypeChecker,
+): RawDecorator | undefined {
+    return readNodeDecorators(node, typeChecker).find((d) => d.name === name);
+}
+
+export function findDecoratorsByName(
+    node: Node,
+    name: string,
+    typeChecker?: TypeChecker,
+): RawDecorator[] {
+    return readNodeDecorators(node, typeChecker).filter((d) => d.name === name);
+}
+
+export function hasDecoratorNamed(node: Node, name: string, typeChecker?: TypeChecker): boolean {
+    return readNodeDecorators(node, typeChecker).some((d) => d.name === name);
+}
+
+function readDecoratorName(expression: ts.Node): string | undefined {
+    if (ts.isIdentifier(expression)) {
+        return expression.text;
+    }
+    if (ts.isPropertyAccessExpression(expression)) {
+        return expression.name.text;
+    }
+    return undefined;
+}
 
 export function buildDecoratorArgument(
     expr: Expression,

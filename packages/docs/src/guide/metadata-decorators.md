@@ -1,165 +1,128 @@
 # Decorators & Presets
 
-TRAPI's core design decision is that decorators are configurable. You tell it which decorator in your code represents which concept — TRAPI never assumes a specific naming scheme.
+TRAPI's core design decision is that decorators are **configurable**. You tell it which decorator in your code represents which concept — TRAPI never assumes a specific naming scheme.
 
-## DecoratorID
+A **preset** is a set of decorator and JSDoc handlers that map decorator names to draft-mutating functions. The preset drives the generator pipeline.
 
-`DecoratorID` is the semantic enum. Every decorator TRAPI understands corresponds to one of its members.
+## Concept Surface
 
-### Class-level
+Each handler can carry an optional `marker` that tags it with a semantic concept. The type resolver consults markers (not hardcoded names) to find decorators like `@Hidden`, `@IsInt`, etc., so preset authors can rename freely.
 
-| ID | Meaning |
-| --- | --- |
-| `CONTROLLER` | Marks a class as a controller; value is the route prefix |
-| `MOUNT` | Sub-mount point for composing controllers |
-| `TAGS` | Tag(s) for grouping in the OpenAPI spec |
-| `DEPRECATED` | Marks the controller or method as deprecated |
-| `HIDDEN` | Excludes the controller or method from the generated spec |
-| `SECURITY` | Applies a security scheme requirement |
-| `EXTENSION` | Arbitrary `x-*` extensions on the generated schema |
+| Concept | Used by | Example marker |
+| --- | --- | --- |
+| `'hidden'` | excludes a class/method/property from the spec | `marker: 'hidden'` |
+| `'deprecated'` | flags as deprecated | `marker: 'deprecated'` |
+| `'extension'` | reads `x-*` extensions (key/value from positional args 0 and 1) | `marker: 'extension'` |
+| `{ numeric: 'int' \| 'long' \| 'float' \| 'double' }` | narrows `number` types | `marker: { numeric: 'int' }` |
 
-### HTTP Methods
+Other concepts (HTTP verbs, parameter sources, content types) are conveyed directly through draft mutations — handlers set `draft.verb = 'get'`, `draft.in = ParamKind.Body`, append to `draft.tags`, and so on.
 
-| ID | Verb |
-| --- | --- |
-| `GET` / `POST` / `PUT` / `DELETE` / `PATCH` / `OPTIONS` / `HEAD` | The verb |
-| `ALL` | All verbs |
+## Handlers
 
-### Parameter Sources
-
-| ID | Binds to |
-| --- | --- |
-| `PATH` / `PATHS` | Path parameter(s) |
-| `QUERY` | Query string |
-| `BODY` | Request body |
-| `FORM` | Form field |
-| `HEADER` / `HEADERS` | Request header(s) |
-| `COOKIE` / `COOKIES` | Cookie(s) |
-| `FILE` / `FILES` | Uploaded file(s) |
-| `PARAM` / `PARAMS` | Generic parameter binding |
-| `CONTEXT` | Framework-provided context (ignored in OpenAPI output) |
-
-### Content Negotiation
-
-| ID | Meaning |
-| --- | --- |
-| `ACCEPT` / `CONSUMES` | Accepted request content types |
-| `PRODUCES` | Produced response content types |
-| `DESCRIPTION` | Description text for a method or response |
-| `EXAMPLE` | Example payload for a response |
-
-### Parameter Refinements
-
-| ID | Meaning |
-| --- | --- |
-| `IS_INT` / `IS_LONG` / `IS_FLOAT` / `IS_DOUBLE` | Numeric precision hint |
-
-## DecoratorConfig
-
-A single mapping entry:
+A handler matches by name and contributes to a draft:
 
 ```typescript
-type DecoratorConfig = {
-    id: `${DecoratorID}`;
-    name: string;
-    properties?: {
-        [propertyName: string]: DecoratorPropertyConfigInput;
-    };
+import { ParamKind, controller, method, parameter } from '@trapi/metadata';
+
+const controllerControllerHandler = controller({
+    match: { name: 'Controller', on: 'class' },
+    apply: (ctx, draft) => {
+        const arg = ctx.argument(0);
+        draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
+            ? arg.raw
+            : '';
+    },
+});
+
+const methodGetHandler = method({
+    match: { name: 'Get', on: 'method' },
+    apply: (ctx, draft) => {
+        draft.verb = 'get';
+        const path = ctx.argument(0);
+        if (path && path.kind === 'literal' && typeof path.raw === 'string') {
+            draft.path = path.raw;
+        }
+    },
+});
+
+const parameterBodyHandler = parameter({
+    match: { name: 'Body', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Body; },
+});
+```
+
+`controller(...)`, `method(...)`, `parameter(...)` are identity helpers that preserve narrow types at the declaration site.
+
+### Handler Context
+
+The first argument to `apply` is a `HandlerContext`:
+
+```typescript
+type HandlerContext = {
+    host: { name: string; parentName?: string };          // class/method name
+    argument: (i: number) => DecoratorArgument | undefined;
+    arguments: () => DecoratorArgument[];
+    typeArgument: (i: number) => DecoratorTypeArgument | undefined;
+    typeArguments: () => DecoratorTypeArgument[];
+    parameterType: () => Type | undefined;                // resolved type of the parameter (parameter handlers only)
 };
 
-type DecoratorPropertyConfigInput = Partial<{
-    isType: boolean;       // default: false — true when the argument carries a type reference
-    index: number;         // default: 0 — positional argument to read from
-    amount?: number;       // how many arguments starting from `index` to consume (-1 = all remaining)
-    strategy?: 'merge' | ((...items: any[]) => any);
-}>;
+type DecoratorArgument = {
+    raw: unknown;
+    kind: 'literal' | 'object' | 'array' | 'identifier' | 'unresolvable';
+};
 ```
 
-`name` is the decorator's identifier as it appears in your source. `properties` is a map keyed by **logical property name** — the keys depend on the `id` (see [Property Names by DecoratorID](#property-names-by-decoratorid) below). Each value tells TRAPI where on the decorator call to read that property from.
+`DecoratorTypeArgument.resolve()` lazily resolves a generic type argument (e.g. the `T` in `@Description<T>(...)`) into a metadata `Type`. Calling it triggers the TS type resolver — only do so when needed.
 
-### Minimal
+### JSDoc Handlers
+
+JSDoc tag handlers register under `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc`. Their `apply` receives a `JsDocHandlerContext` with `source.text`, `source.parameterName`, and `source.typeExpression?.resolve()`.
+
+Decorator handlers always run before JSDoc handlers on the same node — JSDoc acts as the override layer.
+
+## Built-in Helpers
+
+For routine cases, prebuilt helpers cut boilerplate:
 
 ```typescript
-{ id: DecoratorID.GET, name: 'Get' }
+import { append, controller, flag, into, method } from '@trapi/metadata';
+
+method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
+method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });
+controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden'), marker: 'hidden' });
 ```
 
-Matches `@Get()` and `@Get('/path')` with sensible defaults: positional argument `0` is treated as the route path.
-
-### Positional Arguments
-
-```typescript
-{
-    id: DecoratorID.DESCRIPTION,
-    name: 'Response',
-    properties: {
-        statusCode: { index: 0 },
-        description: { index: 1 },
-        payload: { index: 2 },
-        type: { isType: true },
-    },
-}
-```
-
-Interprets `@Response<User>(404, 'Not Found')` by reading the status code from argument 0, the description from argument 1, and a type reference from the decorator's type argument.
-
-### Variadic Arguments
-
-Some decorators accept any number of arguments and expect them merged into an array. Use `amount: -1` together with `strategy: 'merge'`:
-
-```typescript
-{
-    id: DecoratorID.ACCEPT,
-    name: 'Accept',
-    properties: {
-        value: { amount: -1, strategy: 'merge' },
-    },
-}
-```
-
-Matches `@Accept('application/json', 'application/xml')` and yields `value: ['application/json', 'application/xml']`.
-
-### Type References
-
-When an argument is a *type* rather than a value (e.g. an `@Example<User>({ ... })` decorator), set `isType: true`. TRAPI reads the type argument from the decorator call instead of a runtime value.
-
-### Property Names by DecoratorID
-
-Each `DecoratorID` has its own property schema. A quick reference for the common ones:
-
-| DecoratorID | Property names | Expected value |
-| --- | --- | --- |
-| `CONTROLLER`, `MOUNT`, HTTP verbs (`GET`, `POST`, …) | `value` | `string` — the route path |
-| `TAGS` | `value` | `string[]` — tag names |
-| `DESCRIPTION` | `statusCode`, `description`, `payload`, `type` | — |
-| `EXAMPLE` | `type`, `payload`, `label` (optional) | — |
-| `SECURITY` | `key`, `value` | scheme name + required scopes |
-| `PRODUCES`, `ACCEPT`, `CONSUMES` | `value` | `string[]` — media types |
-| `QUERY`, `BODY`, `HEADER`, `PATH`, `FORM`, `COOKIE`, `FILE`, … | `value` | `string` — parameter name |
-| `HIDDEN`, `DEPRECATED` | — | marker only, no properties |
-| `EXTENSION` | `key`, `value` | `x-*` key + value |
-
-For the full, type-safe schema see `DecoratorClassSetProperties`, `DecoratorMethodSetProperties`, `DecoratorParameterSetProperties`, etc. in the source.
+- `into(key).positional(i)` writes the literal at argument index `i` into `draft[key]`. Object/array/unresolvable kinds are intentionally ignored — use `append` for arrays.
+- `append(key).positional(i)` / `.positionalAll()` push values onto an array on the draft. Array arguments are flattened.
+- `flag(key, value = true)` unconditionally sets a flag.
 
 ## Presets
 
-A **preset** is a published npm package whose default export is a `PresetSchema`:
+A **`Preset`** is a `name`, optional `extends`, and arrays of handlers per kind:
 
 ```typescript
-type PresetSchema = {
-    extends: string[];          // other preset package names to inherit from
-    items: DecoratorConfig[];   // this preset's mapping entries
+type Preset = {
+    name: string;
+    extends?: string[];
+    controllers?: ControllerHandler[];
+    methods?: MethodHandler[];
+    parameters?: ParameterHandler[];
+    controllerJsDoc?: ControllerJsDocHandler[];
+    methodJsDoc?: MethodJsDocHandler[];
+    parameterJsDoc?: ParameterJsDocHandler[];
 };
 ```
 
-`extends` lets a preset build on top of another by package name — TRAPI loads each referenced preset recursively and concatenates the `items`.
+`extends` lets a preset build on another by package name — TRAPI loads each referenced preset recursively. Handlers run additively unless a child handler sets `replaces` (see [Custom Presets — Extending](/guide/advanced-custom-presets#extending-another-preset)).
 
 Shipped presets:
 
 | Preset | Framework |
 | --- | --- |
-| `@trapi/decorators` | Reference decorator set (also an actual usable library) |
+| `@trapi/decorators` | Reference decorator set (also a runnable decorator library) |
 | `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) |
+| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) (extends `@trapi/decorators`) |
 
 Use one by name:
 
@@ -170,25 +133,8 @@ await generateMetadata({
 });
 ```
 
-Presets are resolved via Node's module resolution, so they must be installed as regular dependencies.
-
-## Combining Presets with Additional Mappings
-
-If you use a preset but also have a decorator with a non-standard name, supply both:
-
-```typescript
-await generateMetadata({
-    entryPoint: 'src/controllers/**/*.ts',
-    preset: '@trapi/decorators',
-    decorators: [
-        // Recognise @Route(...) *in addition to* the preset's @Controller(...)
-        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
-    ],
-});
-```
-
-Mappings are additive: entries in `decorators` are concatenated with the preset's entries, and TRAPI tries them in order (user entries first). Both decorator names will be recognised for the same `DecoratorID`. If you genuinely want to replace a preset entry rather than add to it, don't load the preset — supply your own `decorators` list directly.
+Presets are resolved via Node's module resolution and validated against the `Preset` schema before any handler runs. Misshapen presets fail loud at load time with a path to the offending field.
 
 ## Writing Your Own
 
-If your decorators live in-house, you can author a mapping inline. To reuse it across projects, publish it as a [Custom Preset](/guide/advanced-custom-presets).
+If your decorators live in-house, write a preset and load it directly. To reuse it across projects, publish it as a [Custom Preset](/guide/advanced-custom-presets).

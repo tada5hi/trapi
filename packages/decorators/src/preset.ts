@@ -9,8 +9,10 @@ import {
     type ControllerDraft,
     type DecoratorArgument,
     type HandlerContext,
+    MarkerName,
     type MethodDraft,
     type MethodHandler,
+    NumericKind,
     ParamKind,
     type ParameterDraft,
     type ParameterHandler,
@@ -78,6 +80,7 @@ const controllerMountHandler = controller({
 const controllerHiddenHandler = controller({
     match: { name: 'Hidden', on: 'class' },
     apply: setHidden,
+    marker: MarkerName.Hidden,
 });
 
 const controllerTagsHandler = controller({
@@ -108,6 +111,7 @@ const controllerSecurityHandler = controller({
 const controllerExtensionHandler = controller({
     match: { name: 'Extension', on: 'class' },
     apply: (ctx, draft) => appendExtensionToDraft(ctx, draft),
+    marker: MarkerName.Extension,
 });
 
 // -----------------------------------------------------------------------------
@@ -156,11 +160,13 @@ const methodMountHandler = method({
 const methodHiddenHandler = method({
     match: { name: 'Hidden', on: 'method' },
     apply: setHidden,
+    marker: MarkerName.Hidden,
 });
 
 const methodDeprecatedHandler = method({
     match: { name: 'Deprecated', on: 'method' },
     apply: setDeprecated,
+    marker: MarkerName.Deprecated,
 });
 
 const methodTagsHandler = method({
@@ -191,6 +197,7 @@ const methodSecurityHandler = method({
 const methodExtensionHandler = method({
     match: { name: 'Extension', on: 'method' },
     apply: (ctx, draft) => appendExtensionToDraft(ctx, draft),
+    marker: MarkerName.Extension,
 });
 
 function applyDescriptionToDraft(
@@ -409,6 +416,7 @@ const parameterContextHandler = parameter({
 const parameterExtensionHandler = parameter({
     match: { name: 'Extension', on: 'parameter' },
     apply: (ctx, draft) => appendExtensionToDraft(ctx, draft),
+    marker: MarkerName.Extension,
 });
 
 // Numeric type-narrowing handlers store an intent on validators; the orchestrator
@@ -422,18 +430,22 @@ function numericValidator(kind: 'int' | 'long' | 'float' | 'double'): ParameterH
 const parameterIsIntHandler = parameter({
     match: { name: 'IsInt', on: 'parameter' },
     apply: numericValidator('int'),
+    marker: { numeric: NumericKind.Int },
 });
 const parameterIsLongHandler = parameter({
     match: { name: 'IsLong', on: 'parameter' },
     apply: numericValidator('long'),
+    marker: { numeric: NumericKind.Long },
 });
 const parameterIsFloatHandler = parameter({
     match: { name: 'IsFloat', on: 'parameter' },
     apply: numericValidator('float'),
+    marker: { numeric: NumericKind.Float },
 });
 const parameterIsDoubleHandler = parameter({
     match: { name: 'IsDouble', on: 'parameter' },
     apply: numericValidator('double'),
+    marker: { numeric: NumericKind.Double },
 });
 
 // -----------------------------------------------------------------------------
@@ -443,11 +455,13 @@ const parameterIsDoubleHandler = parameter({
 const methodHiddenJsDoc = methodJsDoc({
     match: { tag: 'hidden' },
     apply: (_ctx, draft) => { draft.hidden = true; },
+    marker: MarkerName.Hidden,
 });
 
 const methodDeprecatedJsDoc = methodJsDoc({
     match: { tag: 'deprecated' },
     apply: (_ctx, draft) => { draft.deprecated = true; },
+    marker: MarkerName.Deprecated,
 });
 
 const methodSummaryJsDoc = methodJsDoc({
@@ -460,11 +474,39 @@ const methodSummaryJsDoc = methodJsDoc({
 const controllerHiddenJsDoc = controllerJsDoc({
     match: { tag: 'hidden' },
     apply: (_ctx, draft) => { draft.hidden = true; },
+    marker: MarkerName.Hidden,
 });
 
 const parameterDeprecatedJsDoc = parameterJsDoc({
     match: { tag: 'deprecated' },
     apply: (_ctx, draft) => { draft.deprecated = true; },
+    marker: MarkerName.Deprecated,
+});
+
+// Numeric JSDoc tags. The apply is a no-op — the type resolver consumes these
+// via the `marker` field at type-resolution time (not at parameter-generation
+// time), so `match.tag` is the only field that needs to be authoritative.
+const noopJsDoc = () => { /* marker-only handler */ };
+
+const parameterIsIntJsDoc = parameterJsDoc({
+    match: { tag: 'isInt' },
+    apply: noopJsDoc,
+    marker: { numeric: NumericKind.Int },
+});
+const parameterIsLongJsDoc = parameterJsDoc({
+    match: { tag: 'isLong' },
+    apply: noopJsDoc,
+    marker: { numeric: NumericKind.Long },
+});
+const parameterIsFloatJsDoc = parameterJsDoc({
+    match: { tag: 'isFloat' },
+    apply: noopJsDoc,
+    marker: { numeric: NumericKind.Float },
+});
+const parameterIsDoubleJsDoc = parameterJsDoc({
+    match: { tag: 'isDouble' },
+    apply: noopJsDoc,
+    marker: { numeric: NumericKind.Double },
 });
 
 // -----------------------------------------------------------------------------
@@ -595,5 +637,11 @@ export const preset: Preset = {
     ],
     controllerJsDoc: [controllerHiddenJsDoc],
     methodJsDoc: [methodHiddenJsDoc, methodDeprecatedJsDoc, methodSummaryJsDoc],
-    parameterJsDoc: [parameterDeprecatedJsDoc],
+    parameterJsDoc: [
+        parameterDeprecatedJsDoc,
+        parameterIsIntJsDoc,
+        parameterIsLongJsDoc,
+        parameterIsFloatJsDoc,
+        parameterIsDoubleJsDoc,
+    ],
 };

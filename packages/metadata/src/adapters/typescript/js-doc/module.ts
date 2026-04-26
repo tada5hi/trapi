@@ -50,7 +50,12 @@ export function getJSDoc(node: Node, index?: number) : undefined | JSDoc {
 
 export function getJSDocTags(
     node: Node,
-    isMatching?: `${JSDocTagName}` | `${JSDocTagName}`[] | ((tag: JSDocTag) => boolean),
+    isMatching?:
+        | `${JSDocTagName}` |
+        `${JSDocTagName}`[] |
+        (string & {}) |
+        (string & {})[] |
+        ((tag: JSDocTag) => boolean),
 ) : JSDocTag[] {
     const jsDoc : JSDoc = getJSDoc(node);
     if (typeof jsDoc === 'undefined') {
@@ -76,7 +81,7 @@ export function getJSDocTags(
     return jsDocTags.filter((tag) => tagNames.includes(tag.tagName.text));
 }
 
-export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : boolean {
+export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}` | (string & {})) : boolean {
     const tags : JSDocTag[] = getJSDocTags(node, tagName);
 
     return !(!tags || !tags.length);

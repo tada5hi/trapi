@@ -7,7 +7,12 @@
 
 import { isEnumDeclaration, isEnumMember } from 'typescript';
 import * as ts from 'typescript';
-import { DecoratorID } from '../../../core/types/decorator-id';
+import {
+    hasDecoratorNamed,
+    isDeprecatedMarker,
+    namesForMarker,
+    tagsForMarker,
+} from '../../decorator/v2';
 import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/types/metadata';
 import { TypeName, UtilityTypeName } from '../../../core/types/type-name';
 
@@ -93,7 +98,7 @@ export class TypeNodeResolver extends ResolverBase {
         this.referencer = referencer;
         this.depth = depth ?? 0;
 
-        this.primitiveResolver = new PrimitiveResolver(current.decoratorResolver);
+        this.primitiveResolver = new PrimitiveResolver(current.registry);
         this.referenceResolver = new ReferenceResolver(current.typeChecker);
     }
 
@@ -595,14 +600,10 @@ export class TypeNodeResolver extends ResolverBase {
     ) : ReferenceType {
         const example = this.getNodeExample(modelType);
         const description = this.getNodeDescription(modelType);
-        const deprecated : boolean = hasJSDocTag(
-            modelType,
-            JSDocTagName.DEPRECATED,
-        ) ||
-            !!this.current.decoratorResolver.match(
-                DecoratorID.DEPRECATED,
-                modelType,
-            );
+        const deprecatedDecoratorNames = namesForMarker(this.current.registry, isDeprecatedMarker);
+        const deprecatedJsDocTags = tagsForMarker(this.current.registry, isDeprecatedMarker);
+        const deprecated : boolean =            [...deprecatedJsDocTags].some((tag) => hasJSDocTag(modelType, tag)) ||
+            [...deprecatedDecoratorNames].some((name) => hasDecoratorNamed(modelType, name));
 
         // Handle toJSON methods
         if (!modelType.name) {
@@ -1123,6 +1124,6 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     protected getNodeExtensions(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) : Extension[] {
-        return getNodeExtensions(node, this.current.decoratorResolver);
+        return getNodeExtensions(node, this.current.registry);
     }
 }

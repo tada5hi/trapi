@@ -28,14 +28,13 @@ Both `@trapi/metadata` and `@trapi/swagger` are organised into three layers with
 The metadata generator modules in `@trapi/metadata`:
 
 - **`app/generate.ts`** — `generateMetadata()` public entry point; loads tsconfig, scans source files, instantiates the generator.
-- **`app/generator/metadata/`** — `MetadataGenerator` orchestrator; applies decorator configuration and walks controllers.
-- **`app/generator/abstract.ts`** — Base generator class with shared logic for JSDoc, path normalisation, decorator lookup.
+- **`app/generator/metadata/`** — `MetadataGenerator` orchestrator; loads the v2 preset into a `Registry` and walks controllers.
 - **`app/generator/controller/`** — Extracts controller-level metadata (routes, tags, security, inherited methods from base classes).
 - **`app/generator/method/`** — Extracts method-level metadata (HTTP verb, path, responses, extensions).
-- **`app/generator/parameter/`** — Extracts parameter metadata (body, query, path, form, header, cookie, file).
-- **`adapters/typescript/resolver/`** — `TypeNodeResolver` resolves TypeScript types to metadata type nodes using the compiler's type checker.
+- **`app/generator/parameter/`** — Extracts parameter metadata (body, query, path, form, header, cookie, file). Handles object decomposition for query/path of object type, and TS-side concerns (parameter optionality, default value, JSDoc description, declaration validators).
+- **`adapters/typescript/resolver/`** — `TypeNodeResolver` resolves TypeScript types to metadata type nodes using the compiler's type checker. Reads decorators directly from the AST (no v1 abstraction layer); marker-driven lookups (see "Decorator System" below) discover preset-renamed decorators.
 
-Each generator level reads decorators and delegates to the next level down. The controller generator walks `heritageClauses` to include decorated methods from base classes, using the type checker to resolve import aliases. Inherited methods from generic base classes with unresolvable type parameters are skipped gracefully.
+Each generator builds a draft via `applyDecoratorHandlers` + `applyJsDocHandlers` from the v2 orchestrator, then finalises the draft into `Controller`/`Method`/`Parameter`. The controller generator walks `heritageClauses` to include decorated methods from base classes, using the type checker to resolve import aliases. Inherited methods from generic base classes with unresolvable type parameters are skipped gracefully.
 
 ## Type Resolution
 
@@ -51,24 +50,46 @@ The resolver handles TypeScript type constructs:
 - **Utility types — explicit handling**: `Partial`, `Required`, `Readonly`, `Pick`, `Omit`, `Record`, `NonNullable`.
 - **Utility types — checker-delegated**: `Extract`, `Exclude`, `ReturnType`, `Parameters`, `Awaited`, `InstanceType`, `ConstructorParameters` (the resolver lets the compiler compute the type, then walks the result).
 
-## Decorator System
+## Decorator System (v2)
 
-Decorators are mapped via a `DecoratorConfig` that associates decorator names with `DecoratorID` values. `properties` is a map keyed by logical property name:
+Presets declare **handlers** that match against a decorator name and mutate a **draft**:
 
 ```typescript
-// Example preset mapping entry
-{
-    id: DecoratorID.CONTROLLER,
-    name: 'Controller',
-    properties: { value: {} },  // read the route path from positional arg 0
-}
+const controllerHandler = controller({
+    match: { name: 'Controller', on: 'class' },
+    apply: (ctx, draft) => {
+        const path = readString(ctx.argument(0));
+        draft.path = path ?? '';
+    },
+});
 ```
 
-`DecoratorPropertyConfigInput` fields: `isType` (argument carries a type reference), `index` (positional arg index), `amount` (number of args to consume; `-1` = all remaining), `strategy` (`'merge'` or a custom combiner function).
+A `Preset` has `name`, optional `extends: string[]`, and arrays of handlers per kind: `controllers`, `methods`, `parameters`, `controllerJsDoc`, `methodJsDoc`, `parameterJsDoc`. `loadRegistry(preset, { resolver })` resolves the `extends` chain and applies `replaces` semantics, returning a flat `Registry`.
 
-A `PresetSchema` has two fields: `extends: string[]` (other preset package names to inherit) and `items: DecoratorConfig[]`. Loading is additive — entries from `decorators` and the preset are concatenated, user entries tried first; both decorator names remain valid for the same `DecoratorID`.
+**Layers:**
 
-Presets provide alternative mappings for different frameworks (typescript-rest, @decorators/express, the reference `@trapi/decorators`), allowing TRAPI to work with existing codebases.
+- **Layer 1 — Source** (`adapters/decorator/v2/typescript/`): `buildDecoratorSources` extracts AST-agnostic `DecoratorSource[]` from a TS node; `buildJsDocSources` does the same for JSDoc tags. `readNodeDecorators` is a lightweight read-only variant for the type resolver.
+- **Layer 2 — Drafts**: `ControllerDraft`/`MethodDraft`/`ParameterDraft` are mutable accumulators. Handlers contribute by mutating; the orchestrator finalises into the public `Controller`/`Method`/`Parameter` types.
+- **Layer 3 — Handlers + Context**: `HandlerContext` exposes `argument(i)`, `arguments()`, `typeArgument(i)`, `parameterType()`, `host`. `JsDocHandlerContext` exposes `source`, `host`, `parameterType()`. Decorator and JSDoc handlers are separate kinds.
+- **Layer 4 — Helpers**: `into('path').positional(0)`, `append('tags').positionalAll()`, `flag('hidden')`, identity builders (`controller(...)`, `method(...)`).
+- **Layer 5 — Registry**: `Registry` is a flat per-kind list. The orchestrator iterates it for each TS node.
+- **Layer 6 — Preset**: declarative `{ name, extends, controllers, methods, parameters, controllerJsDoc, methodJsDoc, parameterJsDoc }`.
+
+**Locked design decisions** (Q1–Q10, see `.agents/plans/000-decorator-redesign.md`):
+
+- Mutation model (handlers mutate the draft, orchestrator owns final assembly).
+- `replaces: true | string` semantics: `true` shadows all parent matches; `'<presetName>'` shadows that preset's contributions; same-preset siblings are always additive.
+- Decorator handlers run before JSDoc handlers on the same node (JSDoc as override layer).
+- Fail-fast on handler exceptions (no graceful skip at handler layer).
+- Preset shape is validated at load time via zod (in a `validup` container) — bad presets fail loud with a path to the offending field.
+
+**Resolver markers.** Type-resolver concerns (`@Hidden` / `@IsInt` / `@Extension(...)` on properties) need to find decorators by *concept*, not by hardcoded name. Each handler can carry an optional `marker?: ResolverMarker` (one of `'hidden' | 'deprecated' | 'extension' | { numeric: 'int' | 'long' | 'float' | 'double' }`). The type resolver uses `namesForMarker(registry, predicate)` and `tagsForMarker(registry, predicate)` to enumerate decorator/JSDoc names that map to a given concept, then matches them against the AST. Preset authors who rename decorators (e.g. `@Hidden` → `@Skip`) keep working without resolver changes.
+
+**Presets ship with the core repo:**
+
+- `@trapi/decorators` — canonical reference preset (default export is the v2 `Preset`).
+- `@trapi/preset-typescript-rest` — typescript-rest naming conventions.
+- `@trapi/preset-decorators-express` — extends `@trapi/decorators`, adds Express-specific names (`@Request`/`@Response`/`@Next`, `@Headers`/`@Cookies`/`@Params` bulk handlers).
 
 ## Swagger Generator
 

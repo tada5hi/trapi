@@ -6,45 +6,26 @@ Before diving in, it helps to have a mental model of the pieces involved.
 
 TRAPI reads the decorators already present in your source (`@Controller`, `@Get`, `@Body`, …). It never executes them — they stay as compile-time markers that the TypeScript compiler API can introspect.
 
-Because decorator *names* differ from framework to framework, TRAPI normalises them via a **decorator mapping**.
+Because decorator *names* differ from framework to framework, TRAPI normalises them via **handlers** declared in a **preset** (see below).
 
-## DecoratorID
+## Handlers
 
-`DecoratorID` is TRAPI's semantic enum. Every supported concept — class-level route, HTTP verb, parameter source, response shape — has a member.
-
-```typescript
-import { DecoratorID } from '@trapi/metadata';
-
-DecoratorID.CONTROLLER  // class-level route prefix
-DecoratorID.GET         // GET method
-DecoratorID.BODY        // parameter bound to the request body
-DecoratorID.QUERY       // parameter bound to a query string value
-// ...
-```
-
-See the [API Reference](/guide/metadata-api-reference#decoratorid) for the full list.
-
-## Decorator Mapping
-
-A **mapping** tells TRAPI which decorator names in your code correspond to which `DecoratorID`. It can be supplied inline as `decorators`, or loaded by name as `preset`.
+A **handler** is a function that matches against a decorator name (or JSDoc tag) and contributes to a draft. The orchestrator walks each TS node, dispatches its decorators to all matching handlers in the registry, and finalises the draft into a `Controller` / `Method` / `Parameter`.
 
 ```typescript
-import { DecoratorID } from '@trapi/metadata';
+import { ParamKind, parameter } from '@trapi/metadata';
 
-const decorators = [
-    { id: DecoratorID.CONTROLLER, name: 'Controller' },
-    { id: DecoratorID.GET,        name: 'Get' },
-    { id: DecoratorID.POST,       name: 'Post' },
-    { id: DecoratorID.BODY,       name: 'Body' },
-    // ...
-];
+const bodyHandler = parameter({
+    match: { name: 'Body', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Body; },
+});
 ```
 
-See [Decorators & Presets](/guide/metadata-decorators) for the full schema.
+See [Decorators & Presets](/guide/metadata-decorators) for the full handler shape.
 
 ## Presets
 
-A **preset** is a published package that exports a decorator mapping. Instead of describing the mapping inline, you reference the package by name and TRAPI loads it:
+A **preset** is a published package whose default export is a `Preset` — a name plus arrays of handlers per kind. Instead of describing handlers inline, you reference the package by name and TRAPI loads it:
 
 ```typescript
 await generateMetadata({
@@ -96,7 +77,7 @@ For the full support matrix, see [Supported TypeScript Types](/guide/advanced-ty
 ## The Short Version
 
 1. You write decorators. TRAPI does not care which ones.
-2. You describe how your decorators map to `DecoratorID` values.
+2. A preset (built-in or your own) defines handlers that match those decorator names and mutate drafts.
 3. `generateMetadata()` produces a normalised, framework-agnostic representation.
 4. `generateSwagger()` turns that into an OpenAPI spec.
 5. Anything else that wants to consume the metadata — validators, SDK generators, CLI tools — can do so directly.

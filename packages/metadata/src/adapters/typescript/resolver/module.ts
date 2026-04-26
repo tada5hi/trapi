@@ -12,7 +12,7 @@ import {
     isDeprecatedMarker,
     namesForMarker,
     tagsForMarker,
-} from '../../decorator/v2';
+} from '../../decorator';
 import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/types/metadata';
 import { TypeName, UtilityTypeName } from '../../../core/types/type-name';
 

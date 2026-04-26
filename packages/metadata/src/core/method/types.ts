@@ -10,7 +10,7 @@ import type { Extension } from '../resolver/extension';
 import type { Parameter } from '../parameter/types';
 import type { Response, Security } from '../generator/types';
 
-export interface Method {
+export type Method = {
     operationId?: string;
     deprecated?: boolean;
     description: string;
@@ -27,6 +27,6 @@ export interface Method {
     consumes: string[];
     produces: string[];
     hidden: boolean;
-}
+};
 
 export type MethodType = 'get' | 'post' | 'put' | 'delete' | 'options' | 'head' | 'patch';

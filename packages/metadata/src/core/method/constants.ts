@@ -5,13 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export enum MethodName {
-    ALL = 'ALL',
-    GET = 'GET',
-    POST = 'POST',
-    PUT = 'PUT',
-    DELETE = 'DELETE',
-    PATCH = 'PATCH',
-    OPTIONS = 'OPTIONS',
-    HEAD = 'HEAD',
-}
+export const MethodName = {
+    ALL: 'ALL',
+    GET: 'GET',
+    POST: 'POST',
+    PUT: 'PUT',
+    DELETE: 'DELETE',
+    PATCH: 'PATCH',
+    OPTIONS: 'OPTIONS',
+    HEAD: 'HEAD',
+} as const;
+export type MethodName = typeof MethodName[keyof typeof MethodName];

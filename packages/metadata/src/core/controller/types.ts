@@ -8,7 +8,7 @@ import type { Extension } from '../resolver/extension';
 import type { Response, Security } from '../generator/types';
 import type { Method } from '../method/types';
 
-export interface Controller {
+export type Controller = {
     /**
      * Allowed Content-Types to pass
      * data according the definition.
@@ -58,7 +58,7 @@ export interface Controller {
      */
     tags: string[];
     security?: Security[];
-}
+};
 
 export interface IControllerGenerator {
     isValid(): boolean;

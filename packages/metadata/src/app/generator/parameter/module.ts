@@ -14,7 +14,7 @@ import {
     applyDecoratorHandlers,
     applyJsDocHandlers,
     newParameterDraft,
-} from '../../../adapters/decorator/v2';
+} from '../../../adapters/decorator';
 import { getInitializerValue } from '../../../adapters/typescript/initializer';
 import { getDeclarationValidators } from '../../../adapters/typescript/validator';
 import {
@@ -402,6 +402,9 @@ export class ParameterGenerator implements IParameterGenerator {
             typeChecker: this.current.typeChecker,
             parameterType: () => this.parameter.type ?
                 new TypeNodeResolver(this.parameter.type, this.current).resolve() :
+                undefined,
+            onUnmatchedDecorator: (this.current.config.strict || this.current.config.onUnmatchedDecorator) ?
+                (report) => this.current.reportUnmatchedDecorator?.(report) :
                 undefined,
         };
     }

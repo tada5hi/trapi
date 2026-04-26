@@ -5,10 +5,10 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export interface Extension {
+export type Extension = {
     key: string;
     value: ExtensionType | ExtensionType[];
-}
+};
 
 export type ExtensionType =    string |
     number |

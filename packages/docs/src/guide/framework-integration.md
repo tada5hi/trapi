@@ -49,44 +49,96 @@ await generateMetadata({
 
 ## Using a Custom Decorator Set
 
-If your framework is not on the list (or you have home-grown decorators), describe the mapping inline:
+If your framework is not on the list (or you have home-grown decorators), author a [Custom Preset](/guide/advanced-custom-presets):
 
 ```typescript
-import { DecoratorID, generateMetadata } from '@trapi/metadata';
+// my-preset.ts
+import {
+    type Preset,
+    ParamKind,
+    controller,
+    method,
+    parameter,
+} from '@trapi/metadata';
 
+const preset: Preset = {
+    name: 'my-app/preset',
+    controllers: [
+        controller({
+            match: { name: 'Route', on: 'class' },
+            apply: (ctx, draft) => {
+                const arg = ctx.argument(0);
+                draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
+                    ? arg.raw
+                    : '';
+            },
+        }),
+    ],
+    methods: [
+        method({
+            match: { name: 'HttpGet', on: 'method' },
+            apply: (_ctx, draft) => { draft.verb = 'get'; },
+        }),
+        method({
+            match: { name: 'HttpPost', on: 'method' },
+            apply: (_ctx, draft) => { draft.verb = 'post'; },
+        }),
+    ],
+    parameters: [
+        parameter({
+            match: { name: 'FromBody', on: 'parameter' },
+            apply: (_ctx, draft) => { draft.in = ParamKind.Body; },
+        }),
+        parameter({
+            match: { name: 'FromQuery', on: 'parameter' },
+            apply: (ctx, draft) => {
+                const name = ctx.argument(0);
+                if (name?.kind === 'literal' && typeof name.raw === 'string') {
+                    draft.in = ParamKind.QueryProp;
+                    draft.name = name.raw;
+                } else {
+                    draft.in = ParamKind.Query;
+                }
+            },
+        }),
+    ],
+};
+
+export default preset;
+```
+
+```typescript
+// generate-metadata.ts
 await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    decorators: [
-        { id: DecoratorID.CONTROLLER, name: 'Route',     properties: { value: {} } },
-        { id: DecoratorID.GET,        name: 'HttpGet' },
-        { id: DecoratorID.POST,       name: 'HttpPost' },
-        { id: DecoratorID.BODY,       name: 'FromBody',  properties: { value: {} } },
-        { id: DecoratorID.QUERY,      name: 'FromQuery', properties: { value: {} } },
-        // ...
-    ],
+    preset: './my-preset.ts',
 });
 ```
 
-Decorators that carry a value (route paths, parameter names, content types) need `properties: { value: {} }` so TRAPI knows to read the first argument. HTTP verb decorators can be declared with just `id` and `name` — they default to reading the path from argument `0`.
+If you intend to reuse the preset across multiple projects, publish it as an npm package and pass the package name as `preset`. See [Custom Presets](/guide/advanced-custom-presets) for the full reference.
 
-If you intend to reuse the mapping across multiple projects, publish it as a [Custom Preset](/guide/advanced-custom-presets).
+## Extending an Existing Preset
 
-## Combining a Preset with Extra Mappings
-
-You can load a preset and add your own mappings via `decorators`:
+To add your own decorators on top of a published preset, declare an `extends` chain:
 
 ```typescript
-await generateMetadata({
-    entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
-    decorators: [
-        // Recognise @Route(...) in addition to the preset's @Controller(...)
-        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
+const preset: Preset = {
+    name: 'my-app/preset',
+    extends: ['@trapi/decorators'],
+    controllers: [
+        // Recognise @Route(...) in addition to the inherited @Controller(...)
+        controller({
+            match: { name: 'Route', on: 'class' },
+            apply: (ctx, draft) => {
+                const arg = ctx.argument(0);
+                draft.path = arg?.kind === 'literal' && typeof arg.raw === 'string' ? arg.raw : '';
+            },
+        }),
     ],
-});
+};
 ```
 
-The lists are concatenated, with `decorators` entries tried first — both decorator names end up valid. If you need to *replace* a preset entry, supply only `decorators` (no `preset`) with your complete mapping.
+By default, parent and child handlers are additive — both decorator names are recognised. To shadow a parent handler, set `replaces: true` (or `replaces: '<parentPresetName>'` to scope the override).
 
 ## What TRAPI Does Not Do
 

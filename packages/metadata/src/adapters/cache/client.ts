@@ -30,21 +30,21 @@ export class CacheClient implements ICacheClient {
             return undefined;
         }
 
-        const filePath = this.buildFilePath(undefined, data.sourceFilesSize);
+        const filePath = this.buildFilePath(undefined, data.sourceFilesSize, data.preset);
 
         await fs.promises.writeFile(filePath, this.serialize(data));
 
         return filePath;
     }
 
-    async get(sourceFilesSize: number): Promise<CacheData | undefined> {
+    async get(sourceFilesSize: number, preset?: string): Promise<CacheData | undefined> {
         if (!this.options.enabled) {
             return undefined;
         }
 
         await this.clear();
 
-        const filePath: string = this.buildFilePath(undefined, sourceFilesSize);
+        const filePath: string = this.buildFilePath(undefined, sourceFilesSize, preset);
 
         try {
             const content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
@@ -52,7 +52,7 @@ export class CacheClient implements ICacheClient {
             // todo: maybe add shape validation here :)
             const cache: CacheData | undefined = JSON.parse(content) as CacheData;
 
-            if (!cache || cache.sourceFilesSize !== sourceFilesSize) {
+            if (!cache || cache.sourceFilesSize !== sourceFilesSize || cache.preset !== preset) {
                 return undefined;
             }
 
@@ -92,15 +92,15 @@ export class CacheClient implements ICacheClient {
 
     // -------------------------------------------------------------------------
 
-    private buildFilePath(hash?: string, sourceFilesSize?: number): string {
-        return path.join(this.options.directoryPath, this.buildFileName(hash, sourceFilesSize));
+    private buildFilePath(hash?: string, sourceFilesSize?: number, preset?: string): string {
+        return path.join(this.options.directoryPath, this.buildFileName(hash, sourceFilesSize, preset));
     }
 
-    private buildFileName(hash?: string, sourceFilesSize?: number): string {
+    private buildFileName(hash?: string, sourceFilesSize?: number, preset?: string): string {
         if (typeof this.options.fileName === 'string') {
             return this.options.fileName;
         }
-        return `.swagger-${hash ?? generateFileHash(sourceFilesSize)}.json`;
+        return `.swagger-${hash ?? generateFileHash(sourceFilesSize, preset)}.json`;
     }
 
     protected serialize(input: unknown) : string {

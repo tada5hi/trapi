@@ -22,8 +22,12 @@ import {
 } from 'typescript';
 import { CacheClient } from '../../../adapters/cache';
 import type { MetadataGeneratorOptions } from '../../../core/config';
-import type { Registry } from '../../../adapters/decorator/v2';
-import { createRegistry, loadRegistryByName } from '../../../adapters/decorator/v2';
+import type { Registry, UnmatchedDecoratorReport } from '../../../adapters/decorator';
+import { createRegistry, loadRegistryByName } from '../../../adapters/decorator';
+import { ConfigError } from '../../../core/error/config';
+import { ConfigErrorCode } from '../../../core/error/config-codes';
+import { GeneratorError } from '../../../core/error/generator';
+import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../../core/types/resolver';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
 import type { Controller } from '../../../core/types/controller';
@@ -56,6 +60,8 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     private circularDependencyResolvers = new Array<DependencyResolver>();
 
+    private unmatchedDecorators: Map<string, UnmatchedDecoratorReport[]> = new Map();
+
     // -------------------------------------------------------------------------
 
     constructor(context: MetadataGeneratorContext) {
@@ -78,7 +84,13 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     async generate(): Promise<Metadata> {
         const sourceFileSize : number = this.buildNodesFromSourceFiles();
 
-        let cache = await this.cache.get(sourceFileSize);
+        // Strict reporting requires handler dispatch to actually run. A cache hit
+        // would skip it and silently swallow unmatched-decorator reports.
+        const bypassCache = !!(this.config.strict || this.config.onUnmatchedDecorator);
+
+        let cache = bypassCache ?
+            undefined :
+            await this.cache.get(sourceFileSize, this.config.preset);
 
         if (!cache) {
             if (this.config.preset) {
@@ -87,21 +99,99 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
             this.buildControllers();
 
+            this.assertPresetProducedControllers();
+
             this.circularDependencyResolvers.forEach((resolve) => resolve(this.referenceTypes));
 
             cache = {
                 controllers: this.controllers,
                 referenceTypes: this.referenceTypes,
                 sourceFilesSize: sourceFileSize,
+                preset: this.config.preset,
             };
 
-            await this.cache.save(cache);
+            if (!bypassCache) {
+                await this.cache.save(cache);
+            }
+        }
+
+        if (this.config.strict || this.config.onUnmatchedDecorator) {
+            this.dispatchUnmatchedDecoratorReports();
         }
 
         return {
             controllers: cache.controllers,
             referenceTypes: cache.referenceTypes,
         };
+    }
+
+    private assertPresetProducedControllers(): void {
+        if (this.config.preset || this.controllers.length > 0) {
+            return;
+        }
+        // Only fault a missing preset when we actually scanned source files —
+        // an empty entry point is a different misconfiguration that shouldn't
+        // surface as a preset error.
+        if (this.nodes.length === 0) {
+            return;
+        }
+        throw new ConfigError({
+            message: 'No preset configured and no controllers detected. Provide `preset: \'@trapi/decorators\'` (or another preset) so handlers can match your decorators.',
+            code: ConfigErrorCode.PRESET_MISSING,
+        });
+    }
+
+    public reportUnmatchedDecorator(report: UnmatchedDecoratorReport): void {
+        const key = `${report.target}:${report.name}`;
+        const existing = this.unmatchedDecorators.get(key);
+        if (existing) {
+            existing.push(report);
+            return;
+        }
+        this.unmatchedDecorators.set(key, [report]);
+    }
+
+    private dispatchUnmatchedDecoratorReports(): void {
+        if (this.unmatchedDecorators.size === 0) {
+            return;
+        }
+
+        const flat: UnmatchedDecoratorReport[] = [];
+        for (const reports of this.unmatchedDecorators.values()) {
+            flat.push(...reports);
+        }
+
+        // User-supplied callback short-circuits the default warn/throw path.
+        if (this.config.onUnmatchedDecorator) {
+            this.config.onUnmatchedDecorator(flat);
+            return;
+        }
+
+        const summary = this.formatUnmatchedSummary();
+
+        if (this.config.strict === 'throw') {
+            throw new GeneratorError({
+                message: summary,
+                code: GeneratorErrorCode.STRICT_UNMATCHED_DECORATORS,
+            });
+        }
+
+        // eslint-disable-next-line no-console
+        console.warn(summary);
+    }
+
+    private formatUnmatchedSummary(): string {
+        const lines: string[] = ['[trapi] strict mode: decorators with no matching handler:'];
+        for (const reports of this.unmatchedDecorators.values()) {
+            const first = reports[0];
+            const occurrences = reports.length;
+            const location = `${first.file}:${first.line}`;
+            const suffix = occurrences > 1 ?
+                ` (${occurrences} occurrences; first at ${location})` :
+                ` (${location})`;
+            lines.push(`  - @${first.name} on ${first.target} '${first.host.name}'${suffix}`);
+        }
+        return lines.join('\n');
     }
 
     protected buildNodesFromSourceFiles() : number {

@@ -95,7 +95,7 @@ controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden'), mark
 
 - `into(key).positional(i)` writes the literal at argument index `i` into `draft[key]`. Object/array/unresolvable kinds are intentionally ignored — use `append` for arrays.
 - `append(key).positional(i)` / `.positionalAll()` push values onto an array on the draft. Array arguments are flattened.
-- `flag(key, value = true)` unconditionally sets a flag.
+- `flag(key, value = true)` unconditionally sets a flag. The second argument is optional — pass it for shorthand non-boolean assignments (e.g. `flag('verb', 'get')` for a verb-only HTTP method handler that doesn't read a path argument).
 
 ## Presets
 

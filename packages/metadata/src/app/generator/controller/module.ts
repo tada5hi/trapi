@@ -22,7 +22,7 @@ import {
     applyDecoratorHandlers,
     applyJsDocHandlers,
     newControllerDraft,
-} from '../../../adapters/decorator/v2';
+} from '../../../adapters/decorator';
 import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
 import { isResolverError } from '../../../core/error/resolver';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
@@ -106,6 +106,9 @@ export class ControllerGenerator implements IControllerGenerator {
             host: { name: this.node.name!.text },
             resolveTypeNode: (n: TypeNode) => new TypeNodeResolver(n, this.current).resolve(),
             typeChecker: this.current.typeChecker,
+            onUnmatchedDecorator: (this.current.config.strict || this.current.config.onUnmatchedDecorator) ?
+                (report) => this.current.reportUnmatchedDecorator?.(report) :
+                undefined,
         };
     }
 

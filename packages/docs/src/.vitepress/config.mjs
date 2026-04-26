@@ -64,6 +64,13 @@ export default defineConfig({
                     ]
                 },
                 {
+                    text: 'CLI',
+                    collapsible: false,
+                    items: [
+                        { text: '@trapi/cli', link: '/guide/cli' },
+                    ]
+                },
+                {
                     text: 'Advanced',
                     collapsible: false,
                     items: [

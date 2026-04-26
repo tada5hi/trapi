@@ -1,52 +1,162 @@
 # Custom Presets
 
-A preset is a published npm package whose default export is a `PresetSchema`. Publishing a preset lets you reuse a mapping across projects, and lets other teams adopt your decorator library with a one-line config change.
+A preset is a published npm package whose default export is a v2 `Preset`. Publishing a preset lets you reuse a decorator mapping across projects, and lets other teams adopt your decorator library with a one-line config change.
 
 ## Anatomy
 
 ```typescript
-type PresetSchema = {
-    extends: string[];          // other preset package names to inherit from (empty array if none)
-    items: DecoratorConfig[];   // this preset's mapping entries
+type Preset = {
+    name: string;                          // unique preset name (used by `extends` / `replaces`)
+    extends?: string[];                    // other preset package names to inherit from
+    controllers?: ControllerHandler[];     // class-target handlers
+    methods?: MethodHandler[];             // method-target handlers
+    parameters?: ParameterHandler[];       // parameter-target handlers
+    controllerJsDoc?: ControllerJsDocHandler[];
+    methodJsDoc?: MethodJsDocHandler[];
+    parameterJsDoc?: ParameterJsDocHandler[];
 };
 ```
+
+A handler matches a decorator (or JSDoc tag) by name and contributes to a draft:
+
+```typescript
+type ControllerHandler = {
+    match: { name: string; on?: 'class' };
+    apply: (ctx: HandlerContext, draft: ControllerDraft) => void;
+    replaces?: true | string;
+    marker?: ResolverMarker;
+};
+```
+
+## Minimal Example
 
 ```typescript
 // src/index.ts
-import { DecoratorID, type PresetSchema } from '@trapi/metadata';
+import {
+    type Preset,
+    ParamKind,
+    controller,
+    method,
+    parameter,
+} from '@trapi/metadata';
 
-const schema: PresetSchema = {
-    extends: [],
-    items: [
-        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
-        { id: DecoratorID.GET,        name: 'HttpGet',  properties: { value: {} } },
-        { id: DecoratorID.POST,       name: 'HttpPost', properties: { value: {} } },
-        { id: DecoratorID.BODY,       name: 'FromBody', properties: { value: {} } },
-        { id: DecoratorID.QUERY,      name: 'FromQuery', properties: { value: {} } },
-        // ...
-    ],
+const routeControllerHandler = controller({
+    match: { name: 'Route', on: 'class' },
+    apply: (ctx, draft) => {
+        const arg = ctx.argument(0);
+        draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
+            ? arg.raw
+            : '';
+    },
+});
+
+const httpGetHandler = method({
+    match: { name: 'HttpGet', on: 'method' },
+    apply: (_ctx, draft) => { draft.verb = 'get'; },
+});
+
+const fromBodyHandler = parameter({
+    match: { name: 'FromBody', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Body; },
+});
+
+const preset: Preset = {
+    name: '@my-org/trapi-preset',
+    controllers: [routeControllerHandler],
+    methods: [httpGetHandler],
+    parameters: [fromBodyHandler],
 };
 
-export default schema;
+export default preset;
 ```
 
-TRAPI accepts the schema as either the default export or a named `default` member on the module. `extends` must be present — pass `[]` if your preset does not build on another.
+`controller(...)`, `method(...)`, `parameter(...)` are identity helpers — they exist to preserve narrow types at declaration sites.
 
-### Extending Another Preset
+## Extending Another Preset
 
-Instead of re-listing every entry, you can extend an existing preset and add your own mappings on top:
+Use `extends` to inherit handlers from another preset:
 
 ```typescript
-const schema: PresetSchema = {
+const preset: Preset = {
+    name: '@my-org/trapi-preset',
     extends: ['@trapi/decorators'],
-    items: [
-        // Recognise @Route(...) in addition to the inherited @Controller(...)
-        { id: DecoratorID.CONTROLLER, name: 'Route', properties: { value: {} } },
+    controllers: [
+        // Recognise @Route(...) in addition to inherited @Controller(...)
+        routeControllerHandler,
     ],
 };
 ```
 
-TRAPI concatenates this preset's `items` first, then the entries loaded from each extended preset. Matches are tried in that order, so your own entries are attempted first — both decorator names remain valid for the same `DecoratorID`. Extension is additive, not override.
+By default, all handlers from `extends` parents and your own preset run additively. To shadow a parent handler, set `replaces`:
+
+```typescript
+controller({
+    match: { name: 'Controller', on: 'class' },
+    replaces: true,                   // shadow ALL parent handlers matching the same name
+    apply: (ctx, draft) => { /* ... */ },
+});
+```
+
+`replaces: '<presetName>'` shadows handlers contributed by exactly that parent preset; `replaces: true` shadows every parent's matching handlers. Same-preset siblings are always additive — `replaces` only affects inherited handlers.
+
+## Built-in Helpers
+
+For simple cases, `into()`, `append()`, and `flag()` save boilerplate:
+
+```typescript
+import { append, controller, flag, into, method } from '@trapi/metadata';
+
+method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
+method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });
+controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden') });
+```
+
+## Resolver Markers
+
+If your preset renames decorators that the type resolver consumes (`@Hidden`, `@Deprecated`, `@Extension`, `@IsInt`/`@IsLong`/`@IsFloat`/`@IsDouble`), tag the handler with a `marker` so the type resolver discovers it:
+
+```typescript
+import {
+    MarkerName,
+    NumericKind,
+    controller,
+    flag,
+    parameter,
+} from '@trapi/metadata';
+
+controller({
+    match: { name: 'Skip', on: 'class' },
+    apply: flag('hidden'),
+    marker: MarkerName.Hidden,           // or just 'hidden'
+});
+
+parameter({
+    match: { name: 'AsInteger', on: 'parameter' },
+    apply: (_ctx, draft) => {
+        draft.validators.isInt = { value: 'int' };
+    },
+    marker: { numeric: NumericKind.Int }, // or { numeric: 'int' }
+});
+```
+
+The marker tells the type resolver "this handler represents the *concept* of hidden/numeric/etc." — preset authors are free to use any decorator name and the resolver still finds it. JSDoc handlers can carry markers too (`marker: 'deprecated'` on a JSDoc handler matching `tag: 'gone'` makes the resolver treat `@gone` as deprecated).
+
+## JSDoc Handlers
+
+JSDoc tags can drive metadata too. Register handlers under `methodJsDoc` / `controllerJsDoc` / `parameterJsDoc`:
+
+```typescript
+import { methodJsDoc } from '@trapi/metadata';
+
+const summaryJsDocHandler = methodJsDoc({
+    match: { tag: 'summary' },
+    apply: (ctx, draft) => {
+        if (ctx.source.text) draft.summary = ctx.source.text;
+    },
+});
+```
+
+Decorator handlers run before JSDoc handlers on the same node, so JSDoc acts as an override layer.
 
 ## Package Setup
 
@@ -64,7 +174,7 @@ TRAPI concatenates this preset's `items` first, then the entries loaded from eac
         }
     },
     "peerDependencies": {
-        "@trapi/metadata": "^1.3.0"
+        "@trapi/metadata": "^2.0.0"
     }
 }
 ```
@@ -86,53 +196,11 @@ await generateMetadata({
 });
 ```
 
-That's it — TRAPI resolves `@my-org/trapi-preset`, imports its `schema`, and uses the `items` list.
-
-## Property Configuration
-
-`properties` is a map keyed by logical property name — the valid keys depend on the `DecoratorID` (see [Property Names by DecoratorID](/guide/metadata-decorators#property-names-by-decoratorid)). Each value says where on the decorator call to read that property from:
-
-```typescript
-type DecoratorPropertyConfigInput = Partial<{
-    isType: boolean;       // argument carries a type reference
-    index: number;         // positional argument index (default: 0)
-    amount?: number;       // number of arguments to consume (-1 = all remaining)
-    strategy?: 'merge' | ((...items: any[]) => any);
-}>;
-```
-
-### Positional
-
-```typescript
-{
-    id: DecoratorID.DESCRIPTION,
-    name: 'Response',
-    properties: {
-        statusCode: { index: 0 },
-        description: { index: 1 },
-        payload: { index: 2 },
-        type: { isType: true },
-    },
-}
-```
-
-### Variadic with Merge
-
-```typescript
-{
-    id: DecoratorID.ACCEPT,
-    name: 'Accept',
-    properties: {
-        value: { amount: -1, strategy: 'merge' },
-    },
-}
-```
-
-See the [API Reference](/guide/metadata-api-reference#decoratorconfig) for the full property schema and [Decorators & Presets](/guide/metadata-decorators#property-names-by-decoratorid) for the per-`DecoratorID` property name table.
+The string is resolved by the loader (named export `preset`, then default export) and validated against the v2 `Preset` schema before any handler runs. Misshapen presets fail loud at load time with a path to the offending field.
 
 ## Worked Example: typescript-rest
 
-For inspiration, the [`@trapi/preset-typescript-rest`](https://github.com/tada5hi/trapi/tree/master/packages/preset-typescript-rest) source is short and readable. It maps `@Path`, `@GET`, `@POST`, `@FormParam`, `@FileParam`, etc. to the corresponding `DecoratorID` values.
+For inspiration, the [`@trapi/preset-typescript-rest`](https://github.com/tada5hi/trapi/tree/master/packages/preset-typescript-rest) source is short and readable. It maps `@Path`, `@GET`, `@POST`, `@QueryParam`, `@FileParam`, etc. to handler functions.
 
 ## Testing a Preset
 
@@ -140,27 +208,28 @@ The simplest test harness is to feed `generateMetadata()` a fixture controller t
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
-import schema from '../src';
+import preset from '../src';
 
 const metadata = await generateMetadata({
     entryPoint: ['test/fixtures/**/*.ts'],
-    decorators: schema.items,
+    preset: preset.name,    // resolved via npm; or use absolute path during local dev
 });
 
 expect(metadata.controllers).toHaveLength(1);
 expect(metadata.controllers[0].path).toBe('/users');
 ```
 
-Using `decorators` directly (rather than `preset`) side-steps the module-resolution lookup during tests.
+For lower-level unit testing, you can call `validatePreset(preset)` to verify the shape, and `loadRegistry(preset, { resolver })` to materialise a `Registry` directly without going through `generateMetadata`.
 
 ## Publishing Checklist
 
-- [ ] `schema.extends` is present (pass `[]` if you do not inherit from another preset)
+- [ ] `name` is unique and matches the package name
 - [ ] All decorators your library exports are mapped
+- [ ] `marker` is set on handlers for `@Hidden`/`@Deprecated`/`@Extension`/`@IsInt`/etc. if you rename them
 - [ ] `@trapi/metadata` is a peer dependency, not a direct dependency
 - [ ] Package is ESM (`"type": "module"`)
 - [ ] `exports` field points to both the JS bundle and the type declarations
-- [ ] The default export is the schema (TRAPI checks for a plain export and for a `.default` on the module)
+- [ ] The default export is the `Preset` (TRAPI checks named export `preset`, then default export, then the module itself)
 - [ ] A fixture test covers a realistic controller
 
 Once published, consider opening a pull request against the TRAPI monorepo to add a link from the documentation — it helps other users find framework support.

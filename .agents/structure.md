@@ -43,7 +43,6 @@ packages/metadata/src/
 │   ├── controller/         # Controller domain type + IControllerGenerator port
 │   ├── method/             # Method domain type + MethodType
 │   ├── parameter/          # Parameter domain type + IParameterGenerator port
-│   ├── decorator/          # DecoratorID enum, DecoratorConfig, PresetSchema, decorator sets
 │   ├── resolver/           # Type union (StringType, ObjectType, RefObjectType, ...), TypeName
 │   ├── metadata/           # Metadata, IMetadataGenerator, IGeneratorContext
 │   ├── generator/          # Shared generator types (Response, Security, Example, Extension)
@@ -58,7 +57,14 @@ packages/metadata/src/
 │   │   ├── js-doc/         # JSDoc tag extraction
 │   │   ├── initializer.ts  # Literal-value extraction from initializers
 │   │   └── validator.ts    # Validator decorator parsing
-│   ├── decorator/          # DecoratorResolver, DecoratorPropertyManager, preset loader
+│   ├── decorator/v2/       # The decorator system (handlers, drafts, registry, orchestrator)
+│   │   ├── types.ts        # DecoratorSource, drafts, handlers, contexts, Preset, Registry, ResolverMarker
+│   │   ├── constants.ts    # ParamKind, CollectionKind, MarkerName, NumericKind, DecoratorTargetKind
+│   │   ├── module.ts       # loadRegistry, loadRegistryByName, resolvePresetByName
+│   │   ├── utils.ts        # matches/matchesJsDoc, draft factories, into/append/flag, marker helpers
+│   │   ├── orchestrator/   # applyDecoratorHandlers, applyJsDocHandlers, buildHandlerContext
+│   │   ├── typescript/     # TS-specific source extraction (buildDecoratorSources, readNodeDecorators)
+│   │   └── validation/     # validatePreset (zod schemas + validup container)
 │   ├── filesystem/         # scanSourceFiles, tsconfig loader
 │   └── cache/              # CacheClient, buildCacheOptions, generateFileHash
 │
@@ -68,6 +74,8 @@ packages/metadata/src/
 │
 └── index.ts                # Public exports (re-exports from core/, adapters/, app/)
 ```
+
+> The `v2/` namespace is transitional — it disambiguates against the deleted v1 layer. After `@trapi/metadata` 2.0 is published, `v2/` may be flattened into `adapters/decorator/`.
 
 ## Package: `@trapi/swagger`
 
@@ -102,13 +110,13 @@ packages/swagger/src/
 
 ```
 packages/decorators/src/
-├── decorators/     # Decorator builder functions (Controller, Get, Body, Path, ...) and their schema definitions
-├── module.ts       # Aggregated PresetSchema (extends: [], items: [...])
-└── index.ts        # Re-exports decorators and the schema as default export
+├── decorators/     # Runtime decorator functions (Controller, Get, Body, Path, ...) — used by user code at runtime
+├── preset.ts       # Aggregated v2 Preset (handlers grouped by controller/method/parameter + JSDoc)
+└── index.ts        # Re-exports decorator functions and `preset`; default export is the Preset
 ```
 
-Publishes as `@trapi/decorators`. Acts both as a runnable decorator library and as a TRAPI preset — `preset: '@trapi/decorators'` loads this package's default export.
+Publishes as `@trapi/decorators`. Acts both as a runtime decorator library and as a TRAPI v2 `Preset` — `preset: '@trapi/decorators'` loads this package and finds the `preset` named export (or default).
 
 ## Package: Presets
 
-`preset-typescript-rest` and `preset-decorators-express` map framework-specific decorators to TRAPI's internal `DecoratorID` enum. They allow TRAPI to work with existing decorator libraries without requiring code changes. Each preset is a small package with a single default-exported `PresetSchema`.
+`preset-typescript-rest` and `preset-decorators-express` map framework-specific decorator names to v2 handlers. Each preset exports a `Preset` object as the default export. `preset-decorators-express` extends `@trapi/decorators` (most decorator names overlap); `preset-typescript-rest` is standalone (its naming conventions diverge — `@Path` for routes, `@QueryParam`, `ContextRequest` family, etc.).

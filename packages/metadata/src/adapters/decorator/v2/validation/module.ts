@@ -29,8 +29,18 @@ export const jsDocMatchSchema = z.object({
     on: decoratorTargetSchema.optional(),
 });
 
+const numericMarkerSchema = z.object({ numeric: z.enum(['int', 'long', 'float', 'double']) });
+
+const resolverMarkerSchema = z.union([
+    z.literal('hidden'),
+    z.literal('deprecated'),
+    z.literal('extension'),
+    numericMarkerSchema,
+]);
+
 const handlerBaseShape = {
     replaces: replacesPolicySchema.optional(),
+    marker: resolverMarkerSchema.optional(),
     apply: z.custom<(...args: unknown[]) => unknown>(
         (value) => typeof value === 'function',
         { message: 'apply must be a function' },

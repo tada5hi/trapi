@@ -1,142 +1,183 @@
 /*
- * Copyright (c) 2021-2023.
+ * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { PresetSchema } from '@trapi/metadata';
-import { DecoratorID } from '@trapi/metadata';
+import {
+    type ControllerHandler,
+    type MethodHandler,
+    ParamKind,
+    type Preset,
+    controller,
+    method,
+    parameter,
+} from '@trapi/metadata';
 
-// TODO: missing mappings — tags, extension, produces, consumes, hidden, deprecated, isInt/isLong/isFloat/isDouble
-export default {
-    extends: [],
-    items: [
-        {
-            id: DecoratorID.CONTROLLER,
-            name: 'Path',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.DESCRIPTION,
-            name: 'Description',
-            properties: {
-                type: { isType: true },
-                payload: { index: 2 },
-                statusCode: { index: 0 },
-                description: { index: 1 },
-            },
-        },
-        {
-            id: DecoratorID.EXAMPLE,
-            name: 'Example',
-            properties: {
-                type: { isType: true },
-                payload: {},
-            },
-        },
-        {
-            id: DecoratorID.SECURITY,
-            name: 'Security',
-            properties: {
-                key: { index: 1 },
-                value: { index: 0 },
-            },
-        },
+// `@Path('users')` on a class is the controller-route declaration in
+// typescript-rest. We map it to two handlers (one for class, one for method)
+// because the same decorator name is reused for `@Path('/:id')` on methods.
 
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Path',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.ALL,
-            name: 'ALL',
-        },
-        {
-            id: DecoratorID.DELETE,
-            name: 'DELETE',
-        },
-        {
-            id: DecoratorID.GET,
-            name: 'GET',
-        },
-        {
-            id: DecoratorID.HEAD,
-            name: 'HEAD',
-        },
-        {
-            id: DecoratorID.OPTIONS,
-            name: 'OPTIONS',
-        },
-        {
-            id: DecoratorID.PATCH,
-            name: 'PATCH',
-        },
-        {
-            id: DecoratorID.POST,
-            name: 'POST',
-        },
-        {
-            id: DecoratorID.PUT,
-            name: 'PUT',
-        },
+function readStringArg(ctx: Parameters<ControllerHandler['apply']>[0]): string | undefined {
+    const arg = ctx.argument(0);
+    if (!arg) return undefined;
+    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
+    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
+    return undefined;
+}
 
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'ContextRequest',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'ContextResponse',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'ContextNext',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'ContextLanguage',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'ContextAccept',
-        },
+const controllerPathHandler = controller({
+    match: { name: 'Path', on: 'class' },
+    apply: (ctx, draft) => {
+        draft.path = readStringArg(ctx) ?? '';
+    },
+});
 
-        {
-            id: DecoratorID.QUERY,
-            name: 'QueryParam',
-            properties: { value: {} },
+const methodPathHandler = method({
+    match: { name: 'Path', on: 'method' },
+    apply: (ctx, draft) => {
+        const path = readStringArg(ctx);
+        if (path !== undefined) {
+            draft.path = path;
+        }
+    },
+});
+
+function verb(verbValue: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'): MethodHandler['apply'] {
+    return (_ctx, draft) => { draft.verb = verbValue; };
+}
+
+const methodGet = method({ match: { name: 'GET', on: 'method' }, apply: verb('get') });
+const methodPost = method({ match: { name: 'POST', on: 'method' }, apply: verb('post') });
+const methodPut = method({ match: { name: 'PUT', on: 'method' }, apply: verb('put') });
+const methodDelete = method({ match: { name: 'DELETE', on: 'method' }, apply: verb('delete') });
+const methodPatch = method({ match: { name: 'PATCH', on: 'method' }, apply: verb('patch') });
+const methodOptions = method({ match: { name: 'OPTIONS', on: 'method' }, apply: verb('options') });
+const methodHead = method({ match: { name: 'HEAD', on: 'method' }, apply: verb('head') });
+// typescript-rest's `@ALL` maps to `get` for OpenAPI emission (closest analogue).
+const methodAll = method({ match: { name: 'ALL', on: 'method' }, apply: verb('get') });
+
+// Context-style parameters from typescript-rest.
+const contextNames = [
+    'ContextRequest',
+    'ContextResponse',
+    'ContextNext',
+    'ContextLanguage',
+    'ContextAccept',
+];
+const contextHandlers = contextNames.map((name) => parameter({
+    match: { name, on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+}));
+
+function paramHandler(name: string, kind: typeof ParamKind[keyof typeof ParamKind]) {
+    return parameter({
+        match: { name, on: 'parameter' },
+        apply: (ctx, draft) => {
+            draft.in = kind;
+            const argName = readStringArg(ctx);
+            if (argName) draft.name = argName;
         },
-        {
-            id: DecoratorID.HEADER,
-            name: 'HeaderParam',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.COOKIE,
-            name: 'CookieParam',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PARAM,
-            name: 'Param',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PATH,
-            name: 'PathParam',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.FILE,
-            name: 'FileParam',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.FILES,
-            name: 'FilesParam',
-            properties: { value: {} },
-        },
+    });
+}
+
+const queryParamHandler = paramHandler('QueryParam', ParamKind.QueryProp);
+const headerParamHandler = paramHandler('HeaderParam', ParamKind.Header);
+const cookieParamHandler = paramHandler('CookieParam', ParamKind.Cookie);
+const pathParamHandler = paramHandler('PathParam', ParamKind.Path);
+const fileParamHandler = paramHandler('FileParam', ParamKind.FormData);
+const filesParamHandler = paramHandler('FilesParam', ParamKind.FormData);
+const paramHandlerEntry = paramHandler('Param', ParamKind.Path);
+
+// `@Description<Type>(status, description, payload)` — same shape as @trapi/decorators.
+const methodDescription = method({
+    match: { name: 'Description', on: 'method' },
+    apply: (ctx, draft) => {
+        const statusArg = ctx.argument(0);
+        let status = '200';
+        if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'string') {
+            status = statusArg.raw;
+        } else if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'number') {
+            status = String(statusArg.raw);
+        }
+        const descriptionArg = ctx.argument(1);
+        const description = descriptionArg?.kind === 'literal' && typeof descriptionArg.raw === 'string' ?
+            descriptionArg.raw :
+            'Ok';
+        const payload = ctx.argument(2);
+        const examples = payload && payload.kind !== 'unresolvable' ?
+            [{ value: payload.raw }] :
+            [];
+        const typeArg = ctx.typeArgument(0);
+        draft.responses.push({
+            name: status,
+            status,
+            description,
+            examples,
+            schema: typeArg ? typeArg.resolve() : undefined,
+        });
+    },
+});
+
+const methodExample = method({
+    match: { name: 'Example', on: 'method' },
+    apply: (ctx, draft) => {
+        const payload = ctx.argument(0);
+        if (!payload || payload.kind === 'unresolvable') return;
+        draft.defaultResponseExamples.push({ value: payload.raw });
+    },
+});
+
+const methodSecurity = method({
+    match: { name: 'Security', on: 'method' },
+    apply: (ctx, draft) => {
+        const scopesArg = ctx.argument(0);
+        const nameArg = ctx.argument(1);
+        const name = nameArg?.kind === 'literal' && typeof nameArg.raw === 'string' ?
+            nameArg.raw :
+            'default';
+        const scopes: string[] = [];
+        if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
+            for (const item of scopesArg.raw) {
+                if (typeof item === 'string') scopes.push(item);
+            }
+        } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
+            scopes.push(scopesArg.raw);
+        }
+        draft.security ??= [];
+        draft.security.push({ [name]: scopes });
+    },
+});
+
+const preset: Preset = {
+    name: '@trapi/preset-typescript-rest',
+    controllers: [controllerPathHandler],
+    methods: [
+        methodPathHandler,
+        methodGet,
+        methodPost,
+        methodPut,
+        methodDelete,
+        methodPatch,
+        methodOptions,
+        methodHead,
+        methodAll,
+        methodDescription,
+        methodExample,
+        methodSecurity,
     ],
-} satisfies PresetSchema;
+    parameters: [
+        ...contextHandlers,
+        queryParamHandler,
+        headerParamHandler,
+        cookieParamHandler,
+        pathParamHandler,
+        fileParamHandler,
+        filesParamHandler,
+        paramHandlerEntry,
+    ],
+};
+
+export { preset };
+export default preset;

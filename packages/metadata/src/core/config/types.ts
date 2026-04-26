@@ -6,7 +6,6 @@
  */
 
 import type { CacheOptions } from '../../adapters/cache';
-import type { DecoratorConfig } from '../types/decorator';
 import type { TsConfig } from '../../adapters/filesystem/tsconfig';
 
 export type EntryPointOptions = {
@@ -39,11 +38,6 @@ export interface MetadataGeneratorOptions {
      * Default: false
      */
     cache?: string | boolean | Partial<CacheOptions>;
-
-    /**
-     * Manual decorator properties configuration.
-     */
-    decorators?: DecoratorConfig[],
 
     /**
      * Load a specific preset configuration.

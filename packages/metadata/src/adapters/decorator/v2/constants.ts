@@ -17,7 +17,7 @@ export const ParamKind = {
     Path: 'path',
 } as const;
 
-export type ParamKindValue = typeof ParamKind[keyof typeof ParamKind];
+export type ParamKindValue = `${typeof ParamKind[keyof typeof ParamKind]}`;
 
 export const CollectionKind = {
     Csv: 'csv',
@@ -27,4 +27,40 @@ export const CollectionKind = {
     Multi: 'multi',
 } as const;
 
-export type CollectionKindValue = typeof CollectionKind[keyof typeof CollectionKind];
+export type CollectionKindValue = `${typeof CollectionKind[keyof typeof CollectionKind]}`;
+
+export const DecoratorTargetKind = {
+    Class: 'class',
+    Method: 'method',
+    Parameter: 'parameter',
+    Property: 'property',
+} as const;
+
+export type DecoratorTargetValue = `${typeof DecoratorTargetKind[keyof typeof DecoratorTargetKind]}`;
+
+export const DecoratorArgumentKindName = {
+    Literal: 'literal',
+    Object: 'object',
+    Array: 'array',
+    Identifier: 'identifier',
+    Unresolvable: 'unresolvable',
+} as const;
+
+export type DecoratorArgumentKindValue = `${typeof DecoratorArgumentKindName[keyof typeof DecoratorArgumentKindName]}`;
+
+export const MarkerName = {
+    Hidden: 'hidden',
+    Deprecated: 'deprecated',
+    Extension: 'extension',
+} as const;
+
+export type MarkerNameValue = `${typeof MarkerName[keyof typeof MarkerName]}`;
+
+export const NumericKind = {
+    Int: 'int',
+    Long: 'long',
+    Float: 'float',
+    Double: 'double',
+} as const;
+
+export type NumericKindValue = `${typeof NumericKind[keyof typeof NumericKind]}`;

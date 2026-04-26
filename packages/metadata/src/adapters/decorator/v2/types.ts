@@ -10,15 +10,22 @@ import type { Extension } from '../../../core/resolver/extension';
 import type { BaseType, Type } from '../../../core/resolver/types';
 import type { MethodType } from '../../../core/method/types';
 import type { Validator } from '../../../core/validator/types';
-import type { CollectionKindValue, ParamKindValue } from './constants';
+import type {
+    CollectionKindValue,
+    DecoratorArgumentKindValue,
+    DecoratorTargetValue,
+    MarkerNameValue,
+    NumericKindValue,
+    ParamKindValue,
+} from './constants';
 
 // -----------------------------------------------------------------------------
 // Source (Layer 1)
 // -----------------------------------------------------------------------------
 
-export type DecoratorTarget = 'class' | 'method' | 'parameter' | 'property';
+export type DecoratorTarget = DecoratorTargetValue;
 
-export type DecoratorArgumentKind = 'literal' | 'object' | 'array' | 'identifier' | 'unresolvable';
+export type DecoratorArgumentKind = DecoratorArgumentKindValue;
 
 export type DecoratorArgument = {
     raw: unknown;
@@ -149,9 +156,19 @@ export type JsDocMatch = {
 
 export type ReplacesPolicy = true | string;
 
+/**
+ * Tags a handler with a semantic concept that the type resolver consults.
+ *
+ * Allows preset authors to rename a decorator (via `match.name`) without
+ * breaking type-resolver behaviour: the resolver looks up handlers by marker
+ * and reads the canonical decorator name from each handler's `match.name`.
+ */
+export type ResolverMarker = MarkerNameValue | { numeric: NumericKindValue };
+
 type HandlerBase = {
     match: Match;
     replaces?: ReplacesPolicy;
+    marker?: ResolverMarker;
 };
 
 export type ControllerHandler = HandlerBase & {
@@ -169,6 +186,7 @@ export type ParameterHandler = HandlerBase & {
 type JsDocHandlerBase = {
     match: JsDocMatch;
     replaces?: ReplacesPolicy;
+    marker?: ResolverMarker;
 };
 
 export type ControllerJsDocHandler = JsDocHandlerBase & {

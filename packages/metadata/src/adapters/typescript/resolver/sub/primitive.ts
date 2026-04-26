@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
@@ -7,17 +7,31 @@
 
 import type { Node, TypeNode } from 'typescript';
 import { SyntaxKind } from 'typescript';
-import type { IDecoratorResolver } from '../../../decorator';
-import { DecoratorID } from '../../../../core/types/decorator-id';
+import {
+    NumericKind,
+    type Registry,
+    type ResolverMarker,
+    hasDecoratorNamed,
+    namesForMarker,
+    numericMarkerKind,
+    tagsForMarker,
+} from '../../../decorator/v2';
 import { getJSDocTagNames } from '../../js-doc';
 import { TypeName } from '../../../../core/types/type-name';
 import type { NeverType, PrimitiveType, VoidType } from '../types';
 
-export class PrimitiveResolver {
-    protected decoratorResolver : IDecoratorResolver;
+const NUMERIC_KIND_TO_TYPE_NAME: Record<string, string> = {
+    [NumericKind.Int]: TypeName.INTEGER,
+    [NumericKind.Long]: TypeName.LONG,
+    [NumericKind.Float]: TypeName.FLOAT,
+    [NumericKind.Double]: TypeName.DOUBLE,
+};
 
-    constructor(decoratorResolver: IDecoratorResolver) {
-        this.decoratorResolver = decoratorResolver;
+export class PrimitiveResolver {
+    protected registry: Registry;
+
+    constructor(registry: Registry) {
+        this.registry = registry;
     }
 
     resolve(node: TypeNode, parentNode?: Node) : PrimitiveType | NeverType | VoidType | undefined {
@@ -57,54 +71,31 @@ export class PrimitiveResolver {
                     return { typeName: TypeName.DOUBLE };
                 }
 
-                const lookupTags = [
-                    'isInt',
-                    'isLong',
-                    'isFloat',
-                    'isDouble',
-                ];
+                // For each numeric kind: check decorator handlers first (preset
+                // may rename `@IsInt`), then JSDoc handlers (preset may rename
+                // `@isInt`). Both lookups use the registry markers.
+                const presentJsDocTags = new Set(
+                    getJSDocTagNames(parentNode).map((tag) => tag.toLowerCase()),
+                );
+                for (const kind of [NumericKind.Int, NumericKind.Long, NumericKind.Float, NumericKind.Double] as const) {
+                    const matchKind = (m: ResolverMarker) => numericMarkerKind(m) === kind;
 
-                const tags = getJSDocTagNames(parentNode)
-                    .filter((name) => lookupTags.some((m) => m.toLowerCase() === name.toLowerCase()))
-                    .map((name) => name.toLowerCase());
+                    const decoratorNames = namesForMarker(this.registry, matchKind);
+                    for (const name of decoratorNames) {
+                        if (hasDecoratorNamed(parentNode, name)) {
+                            return { typeName: NUMERIC_KIND_TO_TYPE_NAME[kind] } as PrimitiveType;
+                        }
+                    }
 
-                const decoratorIds = [
-                    DecoratorID.IS_INT,
-                    DecoratorID.IS_LONG,
-                    DecoratorID.IS_FLOAT,
-                    DecoratorID.IS_DOUBLE,
-                ];
-
-                let decoratorID : DecoratorID | undefined;
-
-                for (const decoratorId of decoratorIds) {
-                    const decorator = this.decoratorResolver.match(decoratorId, parentNode);
-                    if (decorator) {
-                        decoratorID = decoratorId;
-                        break;
+                    const jsDocTags = tagsForMarker(this.registry, matchKind);
+                    for (const tag of jsDocTags) {
+                        if (presentJsDocTags.has(tag.toLowerCase())) {
+                            return { typeName: NUMERIC_KIND_TO_TYPE_NAME[kind] } as PrimitiveType;
+                        }
                     }
                 }
 
-                if (!decoratorID && tags.length === 0) {
-                    return { typeName: TypeName.DOUBLE };
-                }
-
-                switch (decoratorID || tags[0]) {
-                    case DecoratorID.IS_INT:
-                    case 'isint':
-                        return { typeName: TypeName.INTEGER };
-                    case DecoratorID.IS_LONG:
-                    case 'islong':
-                        return { typeName: TypeName.LONG };
-                    case DecoratorID.IS_FLOAT:
-                    case 'isfloat':
-                        return { typeName: TypeName.FLOAT };
-                    case DecoratorID.IS_DOUBLE:
-                    case 'isdouble':
-                        return { typeName: TypeName.DOUBLE };
-                    default:
-                        return { typeName: TypeName.DOUBLE };
-                }
+                return { typeName: TypeName.DOUBLE };
             }
         }
 

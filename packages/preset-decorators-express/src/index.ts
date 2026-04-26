@@ -1,128 +1,59 @@
 /*
- * Copyright (c) 2021-2023.
+ * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { PresetSchema } from '@trapi/metadata';
-import { DecoratorID } from '@trapi/metadata';
+import {
+    ParamKind,
+    type Preset,
+    parameter,
+} from '@trapi/metadata';
 
-export default {
-    extends: [],
-    items: [
-        {
-            id: DecoratorID.CONTROLLER,
-            name: 'Controller',
-            properties: { value: {} },
-        },
+const requestContextHandler = parameter({
+    match: { name: 'Request', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
 
-        {
-            id: DecoratorID.ALL,
-            name: 'All',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'All',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.DELETE,
-            name: 'Delete',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Delete',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.GET,
-            name: 'Get',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Get',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.HEAD,
-            name: 'Head',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Head',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.OPTIONS,
-            name: 'Options',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Options',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PATCH,
-            name: 'Patch',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Patch',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.POST,
-            name: 'Post',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Post',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.PUT,
-            name: 'Put',
-        },
-        {
-            id: DecoratorID.MOUNT,
-            name: 'Put',
-            properties: { value: {} },
-        },
+const responseContextHandler = parameter({
+    match: { name: 'Response', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
 
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'Request',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'Response',
-        },
-        {
-            id: DecoratorID.CONTEXT,
-            name: 'Next',
-        },
+const nextContextHandler = parameter({
+    match: { name: 'Next', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
 
-        {
-            id: DecoratorID.QUERY,
-            name: 'Query',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.HEADERS,
-            name: 'Headers',
-            properties: { value: {} },
-        },
-        {
-            id: DecoratorID.COOKIES,
-            name: 'Cookies',
-            properties: { value: {} },
-        },
-        // `@Params()` in @decorators/express reads `req.params` (Express path params), so it maps to PATHS
-        {
-            id: DecoratorID.PATHS,
-            name: 'Params',
-            properties: { value: {} },
-        },
+const headersBulkHandler = parameter({
+    match: { name: 'Headers', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Header; },
+});
+
+const cookiesBulkHandler = parameter({
+    match: { name: 'Cookies', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Cookie; },
+});
+
+// `@Params()` in @decorators/express reads `req.params` (Express path params).
+const paramsBulkHandler = parameter({
+    match: { name: 'Params', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Path; },
+});
+
+const preset: Preset = {
+    name: '@trapi/preset-decorators-express',
+    extends: ['@trapi/decorators'],
+    parameters: [
+        requestContextHandler,
+        responseContextHandler,
+        nextContextHandler,
+        headersBulkHandler,
+        cookiesBulkHandler,
+        paramsBulkHandler,
     ],
-} satisfies PresetSchema;
+};
+
+export { preset };
+export default preset;

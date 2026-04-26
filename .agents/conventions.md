@@ -59,6 +59,24 @@ This enables testability (mock implementations), decoupling (no circular class i
 
 > **Migration note**: Many existing data shapes (e.g., `Controller`, `Method`, `Parameter`, `BaseType`) still use `interface`. These should be converted to `type` incrementally.
 
+## String Literals vs Const Objects
+
+Prefer `as const` objects over bare string literal unions for any closed set of named values (decorator targets, parameter kinds, marker names, etc.). Pair the const with a derived template-literal type so consumers can pass *either* the const reference *or* the bare string — both check against the same union.
+
+```ts
+export const ParamKind = {
+    Body: 'body',
+    BodyProp: 'bodyProp',
+    Query: 'query',
+    // ...
+} as const;
+export type ParamKindValue = `${typeof ParamKind[keyof typeof ParamKind]}`;
+```
+
+- **Public API consumers can use either form.** `ParamKind.Body` is more discoverable and survives renames; the literal `'body'` is more concise. The type accepts both.
+- **Inside this codebase, prefer the const reference** — it's discoverable in IDE autocomplete and shows up in find-all-references. Bare literals are reserved for places where the value is genuinely incidental (e.g. JSDoc tag matching against arbitrary user input).
+- **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums (`ParameterSource`, `MethodName`) are kept for now and may be migrated incrementally.
+
 ## File Organization
 
 - **`types.ts`** — Only types and interfaces. No functions, no classes, no constants. Every directory that has types uses `types.ts` (not `type.ts`).

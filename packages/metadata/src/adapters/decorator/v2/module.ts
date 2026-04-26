@@ -20,9 +20,8 @@ import type {
     Registry,
     ReplacesPolicy,
 } from './types';
-import { createRegistry } from './utils';
+import { createRegistry, generatePresetLookupPaths } from './utils';
 import { validatePreset } from './validation';
-import { generatePresetLookupPaths } from '../preset/utils/normalize';
 import { ConfigError } from '../../../core/error/config';
 import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { MetadataError } from '../../../core/error/base';

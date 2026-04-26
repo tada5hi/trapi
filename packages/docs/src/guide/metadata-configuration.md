@@ -129,22 +129,19 @@ await generateMetadata({
 });
 ```
 
-### Custom Decorators with a Cache
+### Custom Preset with a Cache
+
+For non-standard decorator names, author a v2 `Preset` (see [Custom Presets](/guide/advanced-custom-presets)) and load it by package name:
 
 ```typescript
-import { DecoratorID } from '@trapi/metadata';
-
 await generateMetadata({
     entryPoint: 'src/api/**/*.ts',
-    decorators: [
-        { id: DecoratorID.CONTROLLER, name: 'Route' },
-        { id: DecoratorID.GET,        name: 'HttpGet' },
-        { id: DecoratorID.POST,       name: 'HttpPost' },
-        { id: DecoratorID.BODY,       name: 'FromBody' },
-    ],
+    preset: '@my-org/trapi-preset',
     cache: { enabled: true, directoryPath: '.cache/trapi' },
 });
 ```
+
+During local development you can also pass an absolute or relative path (`./presets/my-preset.ts`) instead of a package name — useful before the preset is published.
 
 ## The Output
 

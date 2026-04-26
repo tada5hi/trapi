@@ -88,7 +88,11 @@ const cookieParamHandler = paramHandler('CookieParam', ParamKind.Cookie);
 const pathParamHandler = paramHandler('PathParam', ParamKind.Path);
 const fileParamHandler = paramHandler('FileParam', ParamKind.FormData);
 const filesParamHandler = paramHandler('FilesParam', ParamKind.FormData);
-const paramHandlerEntry = paramHandler('Param', ParamKind.Path);
+// typescript-rest's `@Param` reads from query string OR form. OpenAPI can only
+// represent one source per parameter, so we map it to `QueryProp` — the more
+// common case. Form-only usage is not faithfully represented; users wanting
+// form binding should switch to `@FormParam`.
+const paramHandlerEntry = paramHandler('Param', ParamKind.QueryProp);
 
 // `@Description<Type>(status, description, payload)` — same shape as @trapi/decorators.
 const methodDescription = method({

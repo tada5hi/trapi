@@ -6,7 +6,7 @@ Before diving in, it helps to have a mental model of the pieces involved.
 
 TRAPI reads the decorators already present in your source (`@Controller`, `@Get`, `@Body`, …). It never executes them — they stay as compile-time markers that the TypeScript compiler API can introspect.
 
-Because decorator *names* differ from framework to framework, TRAPI normalises them via a **decorator mapping**.
+Because decorator *names* differ from framework to framework, TRAPI normalises them via **handlers** declared in a **preset** (see below).
 
 ## Handlers
 

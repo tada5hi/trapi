@@ -117,12 +117,12 @@ export function createRegistry(): Registry {
 // -----------------------------------------------------------------------------
 
 export function generatePresetLookupPaths(input: string) : string[] {
-    if (path.isAbsolute(input) || input.startsWith('./')) {
+    if (path.isAbsolute(input) || input.startsWith('./') || input.startsWith('../')) {
         return [input];
     }
 
     if (input.startsWith('module:')) {
-        return [input.substring(0, 'module:'.length)];
+        return [input.substring('module:'.length)];
     }
 
     if (!input.startsWith('@')) {

@@ -127,8 +127,22 @@ Examples:
 
 ## Caching
 
-The metadata package includes an optional cache layer keyed on a hash of the **total byte size of all non-ignored source files** loaded through the TypeScript program (each source file contributes its end position). On a hit, the previously computed `Metadata` is returned directly and AST analysis is skipped.
+The metadata package includes an optional cache layer keyed on a composite SHA-256 over **five contributors**:
 
-Most meaningful edits change the total (adding lines, renaming identifiers to different lengths, adding files), so the cache invalidates automatically. The edge case is a **same-length edit** — e.g. swapping two identifiers of equal length — where the sum is preserved and the cache can serve stale data. In that situation the cache must be cleared manually or disabled.
+1. **`CACHE_SCHEMA_VERSION`** — manually bumped whenever the on-disk shape changes (`Controller`/`Method`/`Parameter`/resolver type nodes/cache wrapper).
+2. **Source files** — file path + full text of every non-ignored source file in the TypeScript program. Catches any edit including same-length identifier renames.
+3. **Compiler options** — stable JSON of `program.getCompilerOptions()`. Catches `tsconfig.json` changes (`target`, `strict`, `paths`, `jsx`, …).
+4. **Resolved registry** — handler `match` / `marker` / `replaces` / `apply.toString()` for every kind. Catches local preset edits, preset upgrades, `extends`-chain changes.
+5. **Preset name** — included verbatim for fast attribution.
 
-`CacheOptions` fields: `enabled`, `directoryPath` (defaults to `os.tmpdir()`), `fileName?`, `clearAtRandom` (defaults to `true` outside `NODE_ENV=test`; randomly prunes the directory on ~10% of successful runs).
+The five parts are null-separated and folded into one sha256 hex digest (`composeCacheKey`). On a hit, the previously computed `Metadata` is returned directly and AST analysis is skipped. The preset is loaded **upfront on every run** (even before the cache check) so its registry can contribute to the key — this is intentional and adds one `require` of cost.
+
+**On-disk format.** Files live at `<directoryPath>/.trapi-metadata-<cacheKey>.json` (default `directoryPath`: `os.tmpdir()`). Each file embeds both `cacheKey` and `schemaVersion`; the reader cross-checks both, so collisions or schema drift fail closed.
+
+**Atomicity.** Writes go to `<file>.<pid>.<rand>.tmp` and `rename` into place — concurrent generators see either the previous file or the new one, never a half-written truncation.
+
+**Eviction.** `maxAgeMs` (default 7 days) is the only knob. After every successful save, files older than the cutoff are pruned opportunistically. Setting `maxAgeMs: 0` disables eviction.
+
+**Bypass.** `strict` mode and `onUnmatchedDecorator` callbacks bypass the cache (read AND write) — strict reporting requires the handler dispatch to actually run, which a cache hit would skip.
+
+`CacheOptions` fields: `enabled`, `directoryPath` (auto-created), `fileName?` (when set, collapses to a single-slot cache at that exact name), `maxAgeMs`.

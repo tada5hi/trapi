@@ -15,36 +15,47 @@ export interface CacheOptions {
      * */
     enabled: boolean,
     /**
-     * Directory relative or absolute path.
+     * Directory relative or absolute path. Auto-created on first save.
      *
      * Default: tmpDir()
      */
     directoryPath: string,
     /**
-     * Specify the cache file name.
+     * Specify the cache file name. When set, the cache becomes a single-slot
+     * store at this exact name (instead of one file per cache key). The
+     * in-file `cacheKey` check still rejects mismatches; you just lose
+     * multi-key caching.
      *
-     * Default: metadata-{hash}.json
+     * Default: .trapi-metadata-{cacheKey}.json
      */
     fileName?: string,
 
     /**
-     * The cache file(s) will be cleared at a 10% percent change
-     * each time.
+     * Files older than this many milliseconds are pruned opportunistically
+     * after each successful save. Set to `0` to disable eviction.
      *
-     * Default: true
+     * Default: 7 days
      */
-    clearAtRandom: boolean
+    maxAgeMs: number,
 }
 
 export type CacheOptionsInput = Partial<CacheOptions>;
 
 export type CacheData = {
-    sourceFilesSize: number;
-    preset?: string;
+    /**
+     * Opaque composite key — sha256 over (schema version, source files content,
+     * compiler options, resolved registry shape, preset name). The reader
+     * cross-checks this against the expected key to defend against collisions
+     * or schema drift.
+     */
+    cacheKey: string;
+    /** Stamped at write time; rejected on read if not equal to the current value. */
+    schemaVersion: string;
 } & Metadata;
 
 export interface ICacheClient {
     save(data: CacheData): Promise<string | undefined>;
-    get(sourceFilesSize: number, preset?: string): Promise<CacheData | undefined>;
-    clear(): Promise<void>;
+    get(cacheKey: string): Promise<CacheData | undefined>;
+    /** Prune cache files older than `maxAgeMs`. Safe to call concurrently. */
+    evict(): Promise<void>;
 }

@@ -5,19 +5,29 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { buildFilePath, isObject, locateMany } from 'locter';
+import { parse as parseFlatted, stringify as stringifyFlatted } from 'flatted';
+import { buildFilePath as joinFilePath, locateMany } from 'locter';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildCacheOptions, generateFileHash } from './utils';
-import type { 
-    CacheData, 
-    CacheOptions, 
-    CacheOptionsInput, 
-    ICacheClient, 
+import process from 'node:process';
+import {
+    CACHE_FILE_PREFIX,
+    CACHE_FILE_SUFFIX,
+    CACHE_SCHEMA_VERSION,
+} from './constants';
+import { buildCacheOptions } from './utils';
+import type {
+    CacheData,
+    CacheOptions,
+    CacheOptionsInput,
+    ICacheClient,
 } from './types';
 
 export class CacheClient implements ICacheClient {
     private readonly options: CacheOptions;
+
+    private directoryEnsured = false;
 
     constructor(input?: string | boolean | CacheOptionsInput) {
         this.options = buildCacheOptions(input);
@@ -30,94 +40,124 @@ export class CacheClient implements ICacheClient {
             return undefined;
         }
 
-        const filePath = this.buildFilePath(undefined, data.sourceFilesSize, data.preset);
+        await this.ensureDirectory();
 
-        await fs.promises.writeFile(filePath, this.serialize(data));
+        const filePath = this.resolveFilePath(data.cacheKey);
+        // `flatted` is cycle-safe — it encodes self-references and back-edges
+        // as integer indices into a flat array. Well-formed metadata uses
+        // `refName` strings for cross-references and contains no cycles, but
+        // we use `flatted` defensively so a future regression cannot crash
+        // serialization or silently corrupt the cached graph.
+        const payload = stringifyFlatted(data);
+
+        // Atomic write: rename is atomic on POSIX, so concurrent generators
+        // either see the previous file or the new one — never a half-written
+        // truncation.
+        const tmpPath = `${filePath}.${process.pid}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+
+        try {
+            await fs.promises.writeFile(tmpPath, payload);
+            await fs.promises.rename(tmpPath, filePath);
+        } catch (err) {
+            // Best-effort cleanup of the temp file if rename failed.
+            try {
+                await fs.promises.unlink(tmpPath);
+            } catch {
+                // ignore
+            }
+            throw err;
+        }
+
+        // Opportunistic eviction. Errors are ignored — eviction is a
+        // housekeeping concern, not a correctness one.
+        this.evict().catch(() => undefined);
 
         return filePath;
     }
 
-    async get(sourceFilesSize: number, preset?: string): Promise<CacheData | undefined> {
+    async get(cacheKey: string): Promise<CacheData | undefined> {
         if (!this.options.enabled) {
             return undefined;
         }
 
-        await this.clear();
+        const filePath = this.resolveFilePath(cacheKey);
 
-        const filePath: string = this.buildFilePath(undefined, sourceFilesSize, preset);
-
+        let content: string;
         try {
-            const content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
-
-            // todo: maybe add shape validation here :)
-            const cache: CacheData | undefined = JSON.parse(content) as CacheData;
-
-            if (!cache || cache.sourceFilesSize !== sourceFilesSize || cache.preset !== preset) {
-                return undefined;
-            }
-
-            return cache;
+            content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
         } catch {
-            /* istanbul ignore next */
             return undefined;
         }
+
+        let cache: CacheData;
+        try {
+            cache = parseFlatted(content) as CacheData;
+        } catch {
+            // Corrupt file — drop it so the next save can replace cleanly.
+            await fs.promises.unlink(filePath).catch(() => undefined);
+            return undefined;
+        }
+
+        if (
+            !cache ||
+            cache.cacheKey !== cacheKey ||
+            cache.schemaVersion !== CACHE_SCHEMA_VERSION
+        ) {
+            return undefined;
+        }
+
+        return cache;
     }
 
     // -------------------------------------------------------------------------
 
     /**
-     * At a 10% chance, clear all cache files :)
+     * Prune cache files older than `maxAgeMs`. No-op when disabled or when
+     * `maxAgeMs <= 0`. Each unlink is best-effort — a concurrent generator
+     * may have already removed the file.
      */
-
-    /* istanbul ignore next */
-    async clear(): Promise<void> {
-        if (!this.options.enabled || !this.options.clearAtRandom) {
+    async evict(): Promise<void> {
+        if (!this.options.enabled || this.options.maxAgeMs <= 0) {
             return;
         }
 
-        const rand: number = Math.floor(Math.random() * 100) + 1;
-        if (rand > 10) {
+        const pattern = this.options.fileName ?? `${CACHE_FILE_PREFIX}*${CACHE_FILE_SUFFIX}`;
+
+        let entries: Awaited<ReturnType<typeof locateMany>>;
+        try {
+            entries = await locateMany(pattern, { path: this.options.directoryPath });
+        } catch {
             return;
         }
 
-        const files = await locateMany(this.buildFileName('**'), { path: this.options.directoryPath });
+        const cutoff = Date.now() - this.options.maxAgeMs;
 
-        const unlinkPromises : Promise<void>[] = [];
-        for (const file of files) {
-            unlinkPromises.push(fs.promises.unlink(buildFilePath(file)));
-        }
-
-        await Promise.all(unlinkPromises);
+        await Promise.all(entries.map(async (entry) => {
+            const filePath = joinFilePath(entry);
+            try {
+                const stat = await fs.promises.stat(filePath);
+                if (stat.mtimeMs < cutoff) {
+                    await fs.promises.unlink(filePath);
+                }
+            } catch {
+                // ignore — file may have been removed by another process
+            }
+        }));
     }
 
     // -------------------------------------------------------------------------
 
-    private buildFilePath(hash?: string, sourceFilesSize?: number, preset?: string): string {
-        return path.join(this.options.directoryPath, this.buildFileName(hash, sourceFilesSize, preset));
+    private resolveFilePath(cacheKey: string): string {
+        const fileName = this.options.fileName ??
+            `${CACHE_FILE_PREFIX}${cacheKey}${CACHE_FILE_SUFFIX}`;
+        return path.join(this.options.directoryPath, fileName);
     }
 
-    private buildFileName(hash?: string, sourceFilesSize?: number, preset?: string): string {
-        if (typeof this.options.fileName === 'string') {
-            return this.options.fileName;
+    private async ensureDirectory(): Promise<void> {
+        if (this.directoryEnsured) {
+            return;
         }
-        return `.swagger-${hash ?? generateFileHash(sourceFilesSize, preset)}.json`;
-    }
-
-    protected serialize(input: unknown) : string {
-        let cache = [];
-        const str = JSON.stringify(input, (key, value) => {
-            if (isObject(value) || Array.isArray(value)) {
-                if (cache.includes(value)) {
-                    return undefined;
-                }
-
-                cache.push(value);
-            }
-
-            return value;
-        });
-
-        cache = undefined;
-        return str;
+        await fs.promises.mkdir(this.options.directoryPath, { recursive: true });
+        this.directoryEnsured = true;
     }
 }

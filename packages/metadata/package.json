@@ -54,6 +54,7 @@
     "dependencies": {
         "@ebec/core": "^1.0.1",
         "@validup/adapter-zod": "^0.2.4",
+        "flatted": "^3.3.3",
         "locter": "^2.1.6",
         "minimatch": "^10.0.3",
         "validup": "^0.2.2",

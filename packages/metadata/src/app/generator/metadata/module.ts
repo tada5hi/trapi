@@ -5,6 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import crypto from 'node:crypto';
 import { minimatch } from 'minimatch';
 import type {
     Node,
@@ -20,7 +21,13 @@ import {
     isModuleBlock,
     isModuleDeclaration,
 } from 'typescript';
-import { CacheClient } from '../../../adapters/cache';
+import {
+    CACHE_SCHEMA_VERSION,
+    CacheClient,
+    composeCacheKey,
+    hashCompilerOptions,
+    hashRegistry,
+} from '../../../adapters/cache';
 import type { MetadataGeneratorOptions } from '../../../core/config';
 import type { Registry, UnmatchedDecoratorReport } from '../../../adapters/decorator';
 import { createRegistry, loadRegistryByName } from '../../../adapters/decorator';
@@ -82,7 +89,22 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     // -------------------------------------------------------------------------
 
     async generate(): Promise<Metadata> {
-        const sourceFileSize : number = this.buildNodesFromSourceFiles();
+        const sourceFilesHash : string = this.buildNodesFromSourceFiles();
+
+        // Load the preset upfront so its resolved registry can contribute to
+        // the cache key. Otherwise edits to a local preset (or upgrades that
+        // share a name) would silently serve stale metadata.
+        if (this.config.preset) {
+            this.registry = await loadRegistryByName(this.config.preset);
+        }
+
+        const cacheKey = composeCacheKey({
+            schemaVersion: CACHE_SCHEMA_VERSION,
+            sourceFilesHash,
+            compilerOptionsHash: hashCompilerOptions(this.program.getCompilerOptions()),
+            registryHash: hashRegistry(this.registry),
+            presetName: this.config.preset,
+        });
 
         // Strict reporting requires handler dispatch to actually run. A cache hit
         // would skip it and silently swallow unmatched-decorator reports.
@@ -90,13 +112,9 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
         let cache = bypassCache ?
             undefined :
-            await this.cache.get(sourceFileSize, this.config.preset);
+            await this.cache.get(cacheKey);
 
         if (!cache) {
-            if (this.config.preset) {
-                this.registry = await loadRegistryByName(this.config.preset);
-            }
-
             this.buildControllers();
 
             this.assertPresetProducedControllers();
@@ -106,8 +124,8 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             cache = {
                 controllers: this.controllers,
                 referenceTypes: this.referenceTypes,
-                sourceFilesSize: sourceFileSize,
-                preset: this.config.preset,
+                cacheKey,
+                schemaVersion: CACHE_SCHEMA_VERSION,
             };
 
             if (!bypassCache) {
@@ -194,8 +212,8 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         return lines.join('\n');
     }
 
-    protected buildNodesFromSourceFiles() : number {
-        let endSize = 0;
+    protected buildNodesFromSourceFiles() : string {
+        const hash = crypto.createHash('sha256');
 
         this.program.getSourceFiles().forEach((sf: SourceFile) => {
             if (
@@ -205,7 +223,13 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                 return;
             }
 
-            endSize += sf.end;
+            // Hash the file path alongside its contents so that renames or
+            // reordered identical files invalidate the cache. The null byte is
+            // a safe separator since it cannot appear in a path or source.
+            hash.update(sf.fileName);
+            hash.update('\0');
+            hash.update(sf.text);
+            hash.update('\0');
 
             forEachChild(sf, (node: any) => {
                 if (isModuleDeclaration(node)) {
@@ -228,7 +252,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             });
         });
 
-        return endSize;
+        return hash.digest('hex');
     }
 
     // -------------------------------------------------------------------------

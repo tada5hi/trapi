@@ -27,8 +27,6 @@ import type {
 export class CacheClient implements ICacheClient {
     private readonly options: CacheOptions;
 
-    private directoryEnsured = false;
-
     constructor(input?: string | boolean | CacheOptionsInput) {
         this.options = buildCacheOptions(input);
     }
@@ -148,16 +146,28 @@ export class CacheClient implements ICacheClient {
     // -------------------------------------------------------------------------
 
     private resolveFilePath(cacheKey: string): string {
+        // The internal pipeline always passes a sha256 hex digest, but the
+        // public `ICacheClient` accepts any string. Reject anything that
+        // could break out of `directoryPath` via `path.join`'s normalization
+        // (`../`, absolute paths, embedded separators, NUL bytes).
+        if (!CACHE_KEY_PATTERN.test(cacheKey)) {
+            throw new Error(`Invalid cacheKey: must match ${CACHE_KEY_PATTERN}`);
+        }
         const fileName = this.options.fileName ??
             `${CACHE_FILE_PREFIX}${cacheKey}${CACHE_FILE_SUFFIX}`;
         return path.join(this.options.directoryPath, fileName);
     }
 
     private async ensureDirectory(): Promise<void> {
-        if (this.directoryEnsured) {
-            return;
-        }
+        // Don't memoize — the directory may be removed externally (temp
+        // cleanup, another process) at any time. `mkdir(recursive: true)`
+        // is a no-op when the directory already exists, so re-running it
+        // on every save is cheap and self-healing.
         await fs.promises.mkdir(this.options.directoryPath, { recursive: true });
-        this.directoryEnsured = true;
     }
 }
+
+// Hex digest from sha256 (64 chars) is the canonical caller, but allow
+// any printable ASCII without separators / dots up to a sane length so
+// custom callers (and the suffix-bearing tmp path) keep working.
+const CACHE_KEY_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;

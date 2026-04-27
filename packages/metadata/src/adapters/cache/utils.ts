@@ -39,8 +39,17 @@ export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) 
         fileName: input.fileName,
         directoryPath,
         enabled: input.enabled ?? true,
-        maxAgeMs: input.maxAgeMs ?? CACHE_DEFAULT_MAX_AGE_MS,
+        maxAgeMs: normalizeMaxAgeMs(input.maxAgeMs),
     };
+}
+
+function normalizeMaxAgeMs(input: number | undefined): number {
+    if (typeof input !== 'number' || !Number.isFinite(input) || input < 0) {
+        // NaN, Infinity, negative, or absent → fall back to the default.
+        // Only `0` (explicit disable) and positive finite values are honored.
+        return CACHE_DEFAULT_MAX_AGE_MS;
+    }
+    return input;
 }
 
 // -----------------------------------------------------------------------------

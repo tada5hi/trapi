@@ -44,12 +44,17 @@ async function listCacheFiles(dir: string): Promise<string[]> {
     }
 }
 
+// These tests run real `generateMetadata()` passes against the decorators
+// fixture, which dwarfs the default 5s vitest timeout on slower CI runners.
+// 30s gives comfortable headroom while still failing loudly on a true hang.
+const ENDPOINT_TEST_TIMEOUT_MS = 30_000;
+
 describe('cache invalidation — end-to-end through MetadataGenerator', () => {
     let dir: string;
     beforeEach(() => { dir = uniqueDir('inv'); });
     afterEach(async () => { await rmrf(dir); });
 
-    it('hits the cache on a second run with identical inputs', async () => {
+    it('hits the cache on a second run with identical inputs', { timeout: ENDPOINT_TEST_TIMEOUT_MS }, async () => {
         const opts = {
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
@@ -78,7 +83,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         expect(second.controllers.length).toEqual(first.controllers.length);
     });
 
-    it('writes a new entry when the preset name changes', async () => {
+    it('writes a new entry when the preset name changes', { timeout: ENDPOINT_TEST_TIMEOUT_MS }, async () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
@@ -98,7 +103,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         expect(afterSecond).toHaveLength(2);
     });
 
-    it('writes a new entry when compilerOptions change', async () => {
+    it('writes a new entry when compilerOptions change', { timeout: ENDPOINT_TEST_TIMEOUT_MS }, async () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },

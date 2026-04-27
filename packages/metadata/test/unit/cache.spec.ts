@@ -159,6 +159,53 @@ describe('src/cache', () => {
         });
     });
 
+    describe('cacheKey validation (path-traversal hardening)', () => {
+        let dir: string;
+        beforeEach(() => { dir = uniqueDir('traverse'); });
+        afterEach(async () => { await rmrf(dir); });
+
+        const malicious = [
+            '../escape',
+            '..',
+            '/abs/path',
+            'foo/bar',
+            'foo\\bar',
+            'foo.bar',
+            'foo\0bar',
+            '',
+            // Over the 128-char ceiling
+            'a'.repeat(129),
+        ];
+
+        for (const key of malicious) {
+            it(`rejects malicious cacheKey on save: ${JSON.stringify(key)}`, async () => {
+                const cache = new CacheClient({ enabled: true, directoryPath: dir });
+                await expect(cache.save({
+                    controllers: [],
+                    referenceTypes: {},
+                    cacheKey: key,
+                    schemaVersion: CACHE_SCHEMA_VERSION,
+                })).rejects.toThrow(/cacheKey/);
+            });
+
+            it(`rejects malicious cacheKey on get: ${JSON.stringify(key)}`, async () => {
+                const cache = new CacheClient({ enabled: true, directoryPath: dir });
+                await expect(cache.get(key)).rejects.toThrow(/cacheKey/);
+            });
+        }
+
+        it('accepts a sha256 hex digest (the canonical caller)', async () => {
+            const cache = new CacheClient({ enabled: true, directoryPath: dir });
+            const hexKey = 'a'.repeat(64);
+            await expect(cache.save({
+                controllers: [],
+                referenceTypes: {},
+                cacheKey: hexKey,
+                schemaVersion: CACHE_SCHEMA_VERSION,
+            })).resolves.toBeDefined();
+        });
+    });
+
     describe('cache miss', () => {
         let dir: string;
         beforeEach(() => { dir = uniqueDir('miss'); });

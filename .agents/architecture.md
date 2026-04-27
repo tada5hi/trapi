@@ -135,7 +135,7 @@ The metadata package includes an optional cache layer keyed on a composite SHA-2
 4. **Resolved registry** — handler `match` / `marker` / `replaces` / `apply.toString()` for every kind. Catches local preset edits, preset upgrades, `extends`-chain changes.
 5. **Preset name** — included verbatim for fast attribution.
 
-The five parts are null-separated and folded into one sha256 hex digest (`composeCacheKey`). On a hit, the previously computed `Metadata` is returned directly and AST analysis is skipped. The preset is loaded **upfront on every run** (even before the cache check) so its registry can contribute to the key — this is intentional and adds one `require` of cost.
+The five parts are null-separated and folded into one sha256 hex digest (`composeCacheKey`). On a hit, controller and type-resolution work is skipped; the source-file walk that feeds the source-files hash still runs (it has to, to compute the key). Preset loading also runs on every call (even before the cache check) so its registry can contribute to the key — intentional, one `require` of cost.
 
 **On-disk format.** Files live at `<directoryPath>/.trapi-metadata-<cacheKey>.json` (default `directoryPath`: `os.tmpdir()`). Each file embeds both `cacheKey` and `schemaVersion`; the reader cross-checks both, so collisions or schema drift fail closed.
 

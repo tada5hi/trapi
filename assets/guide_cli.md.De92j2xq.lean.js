@@ -1,0 +1,1 @@
+import{_ as a,o as i,c as e,ae as t}from"./chunks/framework.RRduUuAx.js";const k=JSON.parse('{"title":"CLI","description":"","frontmatter":{},"headers":[],"relativePath":"guide/cli.md","filePath":"guide/cli.md"}'),n={name:"guide/cli.md"};function o(d,s,p,h,l,r){return i(),e("div",null,[...s[0]||(s[0]=[t("",32)])])}const g=a(n,[["render",o]]);export{k as __pageData,g as default};

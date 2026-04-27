@@ -81,7 +81,7 @@ trapi generate \
   --entry-point 'src/api/**/*.ts' \
   --preset @trapi/decorators \
   --output docs/openapi.yaml \
-  --version 3.0
+  --version 3
 ```
 
 Override the API metadata directly from the command line:

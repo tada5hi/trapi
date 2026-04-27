@@ -107,7 +107,7 @@ export default {
 };
 ```
 
-Presets can `extends` other presets to inherit and override handlers — `@trapi/preset-decorators-express` extends `@trapi/decorators` and only overrides the names that diverge. JSDoc tags use the same model through dedicated `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc` handler arrays.
+Presets can `extend` other presets to inherit and override handlers — `@trapi/preset-decorators-express` extends `@trapi/decorators` and only overrides the names that diverge. JSDoc tags use the same model through dedicated `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc` handler arrays.
 
 This means any HTTP framework built on TypeScript decorators can get metadata extraction and OpenAPI generation for free — without changing application code.
 

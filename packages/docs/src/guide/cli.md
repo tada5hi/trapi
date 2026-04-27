@@ -63,7 +63,7 @@ trapi generate \
   --entry-point 'src/api/**/*.ts' \
   --preset @trapi/decorators \
   --output docs/openapi.yaml \
-  --version 3.0
+  --version 3
 ```
 
 The `.yaml` suffix selects the YAML emitter; `--format` is unnecessary here.

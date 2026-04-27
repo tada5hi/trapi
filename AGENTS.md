@@ -32,6 +32,7 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 | `packages/decorators` | `@trapi/decorators` | Reference decorator set + default preset |
 | `packages/preset-typescript-rest` | `@trapi/preset-typescript-rest` | Decorator mapping for typescript-rest |
 | `packages/preset-decorators-express` | `@trapi/preset-decorators-express` | Decorator mapping for @decorators/express |
+| `packages/cli` | `@trapi/cli` | `trapi` CLI wrapping `generateMetadata` + `generateSwagger` + `saveSwagger` |
 | `packages/docs` | _(private)_ | VitePress documentation site |
 
 ### Linked Versioning

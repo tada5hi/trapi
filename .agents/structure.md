@@ -10,6 +10,7 @@ trapi/
 │   ├── decorators/        # Reference decorator preset (HTTP methods, params, etc.)
 │   ├── preset-typescript-rest/    # typescript-rest adapter
 │   ├── preset-decorators-express/ # @decorators/express adapter
+│   ├── cli/               # `trapi` CLI (citty) wrapping the metadata + swagger pipeline
 │   └── docs/              # VitePress documentation site
 ├── nx.json                # NX workspace config (build/test/lint caching)
 ├── tsconfig.json          # Base TS config (noEmit, baseUrl)
@@ -22,7 +23,7 @@ trapi/
 Build order flows bottom-to-top:
 
 ```
-Layer 3 (consumers):  preset-typescript-rest, preset-decorators-express, docs
+Layer 3 (consumers):  preset-typescript-rest, preset-decorators-express, cli, docs
 Layer 2 (generation): swagger, decorators
 Layer 1 (core):       metadata
 ```
@@ -118,3 +119,20 @@ Publishes as `@trapi/decorators`. Acts both as a runtime decorator library and a
 ## Package: Presets
 
 `preset-typescript-rest` and `preset-decorators-express` map framework-specific decorator names to v2 handlers. Each preset exports a `Preset` object as the default export. `preset-decorators-express` extends `@trapi/decorators` (most decorator names overlap); `preset-typescript-rest` is standalone (its naming conventions diverge — `@Path` for routes, `@QueryParam`, `ContextRequest` family, etc.).
+
+## Package: `@trapi/cli`
+
+Thin [citty](https://github.com/unjs/citty)-based CLI that wraps `generateSwagger` + `saveSwagger`. The bin entry follows the authup pattern: an async factory `createCLIEntryPointCommand()` builds the root command, and `runMain()` dispatches subcommands.
+
+```
+packages/cli/src/
+├── bin.ts             # Bin entry (#!/usr/bin/env node + runMain)
+├── module.ts          # createCLIEntryPointCommand() — root command factory
+├── commands/
+│   ├── generate.ts    # `trapi generate` subcommand
+│   └── index.ts
+├── utils.ts           # readPackageJson() for meta
+└── index.ts           # Re-exports the factory + commands
+```
+
+Bin name: `trapi`. Depends on `@trapi/metadata` and `@trapi/swagger`. Publishes its bin via the `bin` field in `package.json` (`"trapi": "dist/bin.mjs"`).

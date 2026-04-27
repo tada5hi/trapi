@@ -1,0 +1,9 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "@trapi/metadata": ["./packages/metadata/src"],
+            "@trapi/swagger": ["./packages/swagger/src"]
+        }
+    }
+}

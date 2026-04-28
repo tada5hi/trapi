@@ -234,9 +234,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const output = this.buildOperation(method);
         output.consumes = this.buildMethodConsumes(method);
 
-        // Disambiguate operationId across multi-mount controllers (same method
+        // Prefer an explicit operationId from metadata (matches V3 behaviour),
+        // then disambiguate across multi-mount controllers (the same method
         // emitted at multiple paths must not share an operationId).
-        output.operationId = uniqueOperationId(output.operationId, usedOperationIds);
+        const baseOperationId = method.operationId || output.operationId;
+        output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
 
         output.description = method.description;
         if (method.summary) {

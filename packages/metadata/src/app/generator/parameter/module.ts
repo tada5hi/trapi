@@ -281,8 +281,15 @@ export class ParameterGenerator implements IParameterGenerator {
     }
 
     private pathContainsParam(name: string): boolean {
+        // Match `{name}` literally — curly braces are their own boundaries.
+        // For `:name`, require a word boundary after the name so `:id` doesn't
+        // match `:id2` (substring), but it still matches when path-to-regexp
+        // modifiers/constraints follow the name (`:id?`, `:id*`, `:id(\\d+)`).
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const colonPattern = new RegExp(`:${escaped}\\b`);
+        const bracePattern = `{${name}}`;
         for (const p of this.paths) {
-            if (p.includes(`{${name}}`) || p.includes(`:${name}`)) {
+            if (p.includes(bracePattern) || colonPattern.test(p)) {
                 return true;
             }
         }

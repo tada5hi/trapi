@@ -27,6 +27,28 @@ export function readNumber(arg: DecoratorArgument | undefined): number | undefin
     return undefined;
 }
 
+/**
+ * Read a positional argument that may be either a single string or an array
+ * of strings. Returns `undefined` when the argument is missing or otherwise
+ * unresolvable; returns an empty array when the argument is an empty array.
+ */
+export function readStringOrStringArray(
+    arg: DecoratorArgument | undefined,
+): string[] | undefined {
+    const single = readString(arg);
+    if (single !== undefined) {
+        return [single];
+    }
+    if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+        const out: string[] = [];
+        for (const item of arg.raw) {
+            if (typeof item === 'string') out.push(item);
+        }
+        return out;
+    }
+    return undefined;
+}
+
 export const setHidden = (_ctx: HandlerContext, draft: { hidden: boolean }) => {
     draft.hidden = true;
 };

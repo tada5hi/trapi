@@ -56,14 +56,14 @@ describe('applyDecoratorHandlers', () => {
                 apply: (ctx, d) => {
                     const arg = ctx.argument(0);
                     if (arg && arg.kind === 'literal') {
-                        d.path = arg.raw as string;
+                        d.paths = [arg.raw as string];
                     }
                 },
             },
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('UsersController'));
-        expect(draft.path).toEqual('/users');
+        expect(draft.paths).toEqual(['/users']);
     });
 
     it('skips when no handler matches', () => {
@@ -75,7 +75,7 @@ describe('applyDecoratorHandlers', () => {
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
-        expect(draft.path).toBeUndefined();
+        expect(draft.paths).toBeUndefined();
     });
 
     it('runs all matching handlers in registry order (additive)', () => {
@@ -147,7 +147,7 @@ describe('applyDecoratorHandlers', () => {
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
 
         applyDecoratorHandlers(node, [], draft, options('C'));
-        expect(draft.path).toBeUndefined();
+        expect(draft.paths).toBeUndefined();
     });
 
     it('does nothing when node has no decorators', () => {
@@ -159,7 +159,7 @@ describe('applyDecoratorHandlers', () => {
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
-        expect(draft.path).toBeUndefined();
+        expect(draft.paths).toBeUndefined();
     });
 });
 

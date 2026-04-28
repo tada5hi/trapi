@@ -37,7 +37,7 @@ describe('generateSwagger', () => {
     const metadata = createMetadata([
         createController({
             name: 'UserController',
-            path: '/users',
+            paths: ['/users'],
             methods: [
                 createMethod({
                     name: 'getUser',

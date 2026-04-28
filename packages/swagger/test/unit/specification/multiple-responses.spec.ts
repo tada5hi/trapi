@@ -46,7 +46,7 @@ describe('multiple response status codes', () => {
         [
             createController({
                 name: 'UserController',
-                path: 'users',
+                paths: ['users'],
                 methods: [
                     createMethod({
                         name: 'getUser',

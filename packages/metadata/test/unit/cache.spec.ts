@@ -69,7 +69,7 @@ describe('src/cache', () => {
                     location: '/test.ts',
                     methods: [],
                     name: 'TestController',
-                    path: 'test',
+                    paths: ['test'],
                     produces: [],
                     responses: [],
                     security: [],
@@ -111,7 +111,7 @@ describe('src/cache', () => {
                     location: '/a.ts',
                     methods: [],
                     name: 'A',
-                    path: 'a',
+                    paths: ['a'],
                     produces: [],
                     responses: [],
                     security: [],
@@ -612,14 +612,14 @@ describe('src/cache', () => {
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: (_ctx: any, draft: any) => { draft.path = 'a'; },
+                    apply: (_ctx: any, draft: any) => { draft.paths = ['a']; },
                 } as any],
             });
             const b = hashRegistry({
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: (_ctx: any, draft: any) => { draft.path = 'b'; },
+                    apply: (_ctx: any, draft: any) => { draft.paths = ['b']; },
                 } as any],
             });
             expect(a).not.toEqual(b);

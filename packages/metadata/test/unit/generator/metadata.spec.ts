@@ -90,8 +90,8 @@ describe('src/generator/metadata', () => {
         expect(controller).toHaveProperty('name');
         expect(controller.name).toEqual('TestUnionType');
 
-        expect(controller).toHaveProperty('path');
-        expect(controller.path).toEqual('unionTypes');
+        expect(controller).toHaveProperty('paths');
+        expect(controller.paths).toEqual(['unionTypes']);
 
         expect(controller).toHaveProperty('produces');
         expect(controller.produces.length).toEqual(0);

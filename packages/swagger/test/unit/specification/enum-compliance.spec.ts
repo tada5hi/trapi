@@ -50,7 +50,7 @@ describe('enum spec compliance', () => {
         [
             createController({
                 name: 'EnumController',
-                path: 'enums',
+                paths: ['enums'],
                 methods: [
                     createMethod({
                         name: 'get',

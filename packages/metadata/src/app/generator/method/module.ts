@@ -52,7 +52,7 @@ export class MethodGenerator {
         return identifier.text;
     }
 
-    public generate(controllerPath: string): Method | null {
+    public generate(controllerPaths: string[]): Method | null {
         const name = this.getMethodName();
         const draft = newMethodDraft({ name });
 
@@ -79,7 +79,7 @@ export class MethodGenerator {
         const responses = mergeDefaultResponse(draft.responses, defaultResponse);
 
         // Walk parameters.
-        const parameters = this.buildParameters(controllerPath, draft.path, draft.verb);
+        const parameters = this.buildParameters(controllerPaths, draft.path, draft.verb);
 
         // Description from leading JSDoc comment (no v2 handler covers this since it
         // isn't a tagged value).
@@ -130,13 +130,17 @@ export class MethodGenerator {
     }
 
     private buildParameters(
-        controllerPath: string,
+        controllerPaths: string[],
         methodPath: string,
         verb: string,
     ): Parameter[] {
         const controllerId = (this.node.parent as ClassDeclaration).name as Identifier;
         const methodId = this.node.name as Identifier;
-        const fullPath = path.posix.join('/', controllerPath, methodPath);
+        // Build the union of every (controllerPath × methodPath) combination so
+        // path-parameter validation accepts a parameter that's present in any
+        // mount (a controller can mount at /roles AND /realms/:id/roles).
+        const fullPaths = (controllerPaths.length === 0 ? [''] : controllerPaths)
+            .map((cp) => path.posix.join('/', cp, methodPath));
 
         const output: Parameter[] = [];
         let bodyParameterCount = 0;
@@ -147,7 +151,7 @@ export class MethodGenerator {
                 const generator = new ParameterGenerator(
                     this.node.parameters[i],
                     verb,
-                    fullPath,
+                    fullPaths,
                     this.current,
                 );
 

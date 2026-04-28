@@ -61,7 +61,7 @@ describe('edge cases and spec compliance', () => {
         [
             createController({
                 name: 'EdgeCaseController',
-                path: 'edge',
+                paths: ['edge'],
                 methods: [
                     createMethod({
                         name: 'voidResponse',

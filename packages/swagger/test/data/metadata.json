@@ -5,7 +5,6 @@
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/union-type.ts",
       "name": "TestUnionType",
-      "path": "unionTypes",
       "produces": [],
       "responses": [],
       "security": [],
@@ -185,14 +184,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "unionTypes"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/type.ts",
       "name": "TypeEndpoint",
-      "path": "type",
       "produces": [],
       "responses": [],
       "security": [],
@@ -541,14 +542,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "type"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/security.ts",
       "name": "SecureEndpoint",
-      "path": "secure",
       "produces": [],
       "responses": [],
       "security": [
@@ -620,14 +623,16 @@
           "parameters": []
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "secure"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/security-multiple.ts",
       "name": "SuperSecureEndpoint",
-      "path": "supersecure",
       "produces": [],
       "responses": [],
       "security": [],
@@ -661,14 +666,16 @@
           "parameters": []
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "supersecure"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/response-description.ts",
       "name": "ResponseController",
-      "path": "response",
       "produces": [],
       "responses": [
         {
@@ -766,14 +773,16 @@
           "parameters": []
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "response"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/promise-service.ts",
       "name": "PromiseService",
-      "path": "promise",
       "produces": [],
       "responses": [],
       "security": [],
@@ -1523,14 +1532,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "promise"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/primitives.ts",
       "name": "PrimitiveEndpoint",
-      "path": "primitives",
       "produces": [],
       "responses": [],
       "security": [],
@@ -1934,14 +1945,16 @@
           "parameters": []
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "primitives"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/parameterized.ts",
       "name": "ParameterizedEndpoint",
-      "path": "parameterized/:objectId",
       "produces": [],
       "responses": [],
       "security": [],
@@ -2079,14 +2092,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "parameterized/:objectId"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/my-service.ts",
       "name": "MyService",
-      "path": "mypath",
       "produces": [],
       "responses": [],
       "security": [],
@@ -2943,14 +2958,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "mypath"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/generic-return.ts",
       "name": "DerivedEndpoint2",
-      "path": "generics2",
       "produces": [],
       "responses": [],
       "security": [],
@@ -3046,14 +3063,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "generics2"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/derived-endpoint.ts",
       "name": "DerivedEndpoint",
-      "path": "generics1",
       "produces": [],
       "responses": [],
       "security": [],
@@ -3101,14 +3120,16 @@
           ]
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "generics1"
+      ]
     },
     {
       "consumes": [],
       "hidden": false,
       "location": "C:/Data/Projects/tada5hi/repositories/trapi/packages/decorators/test/data/controllers/abstract.ts",
       "name": "AbstractEntityEndpoint",
-      "path": "abstract",
       "produces": [],
       "responses": [],
       "security": [],
@@ -3214,7 +3235,10 @@
           "parameters": []
         }
       ],
-      "extensions": []
+      "extensions": [],
+      "paths": [
+        "abstract"
+      ]
     }
   ],
   "referenceTypes": {

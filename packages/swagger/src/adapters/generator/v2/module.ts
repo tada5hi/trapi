@@ -48,6 +48,20 @@ import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
 import { normalizePathParameters } from '../../../core/utils';
 import { AbstractSpecGenerator } from '../abstract';
 
+function uniqueOperationId(base: string, used: Set<string>): string {
+    if (!used.has(base)) {
+        used.add(base);
+        return base;
+    }
+    let counter = 2;
+    while (used.has(`${base}_${counter}`)) {
+        counter += 1;
+    }
+    const candidate = `${base}_${counter}`;
+    used.add(candidate);
+    return candidate;
+}
+
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     async build() : Promise<SpecV2> {
         if (typeof this.spec !== 'undefined') {
@@ -176,6 +190,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
     private buildPaths() {
         const output: Record<string, Path<OperationV2, ResponseV2>> = {};
+        const usedOperationIds = new Set<string>();
 
         const unique = <T extends unknown[]>(input: T) : T => [...new Set(input)] as T;
 
@@ -184,13 +199,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 return;
             }
 
+            const controllerPaths = controller.paths.length === 0 ? [''] : controller.paths;
+
             controller.methods.forEach((method) => {
                 if (method.hidden) {
                     return;
                 }
-
-                let fullPath = path.posix.join('/', (controller.path ? controller.path : ''), method.path);
-                fullPath = normalizePathParameters(fullPath);
 
                 method.consumes = unique([...controller.consumes, ...method.consumes]);
                 method.produces = unique([...controller.produces, ...method.produces]);
@@ -199,17 +213,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 // todo: unique for objects
                 method.responses = unique([...controller.responses, ...method.responses]);
 
-                output[fullPath] = output[fullPath] || {};
-                output[fullPath][method.method] = this.buildMethod(method);
+                for (const controllerPath of controllerPaths) {
+                    let fullPath = path.posix.join('/', controllerPath, method.path);
+                    fullPath = normalizePathParameters(fullPath);
+
+                    output[fullPath] = output[fullPath] || {};
+                    output[fullPath][method.method] = this.buildMethod(method, fullPath, usedOperationIds);
+                }
             });
         });
 
         return output;
     }
 
-    private buildMethod(method: Method) : OperationV2 {
+    private buildMethod(
+        method: Method,
+        emittedPath: string,
+        usedOperationIds: Set<string>,
+    ) : OperationV2 {
         const output = this.buildOperation(method);
         output.consumes = this.buildMethodConsumes(method);
+
+        // Disambiguate operationId across multi-mount controllers (same method
+        // emitted at multiple paths must not share an operationId).
+        output.operationId = uniqueOperationId(output.operationId, usedOperationIds);
 
         output.description = method.description;
         if (method.summary) {
@@ -224,8 +251,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const parameters = this.groupParameters(method.parameters);
 
+        // Filter path-bound params not present in this specific URL template.
+        const pathParams = (parameters[ParameterSource.PATH] || [])
+            .filter((p) => emittedPath.includes(`{${p.name}}`));
+
         output.parameters = [
-            ...(parameters[ParameterSource.PATH] || []),
+            ...pathParams,
             ...(parameters[ParameterSource.QUERY_PROP] || []),
             ...(parameters[ParameterSource.HEADER] || []),
             ...(parameters[ParameterSource.FORM_DATA] || []),

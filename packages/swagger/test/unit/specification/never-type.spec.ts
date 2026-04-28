@@ -41,7 +41,7 @@ describe('never type in swagger output (#778)', () => {
         [
             createController({
                 name: 'NeverController',
-                path: 'never',
+                paths: ['never'],
                 methods: [
                     createMethod({
                         name: 'alwaysThrows',

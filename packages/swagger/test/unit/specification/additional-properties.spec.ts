@@ -41,7 +41,7 @@ describe('additionalProperties', () => {
         [
             createController({
                 name: 'MapController',
-                path: 'maps',
+                paths: ['maps'],
                 methods: [
                     createMethod({
                         name: 'getStringMap',

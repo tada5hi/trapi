@@ -111,7 +111,7 @@ describe('config variations', () => {
         const metadata = createMetadata([
             createController({
                 name: 'ArrayController',
-                path: 'arrays',
+                paths: ['arrays'],
                 methods: [
                     createMethod({
                         name: 'getWithArray',

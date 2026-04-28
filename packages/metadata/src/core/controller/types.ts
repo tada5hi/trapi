@@ -38,9 +38,13 @@ export type Controller = {
     methods: Method[];
     name: string;
     /**
-     * The relative URL Path, i.e /users
+     * Relative URL paths the controller mounts at, e.g. ['/users'] or
+     * ['/roles', '/realms/:id/roles'] for multi-mounting.
+     *
+     * Always non-empty; a controller declared with no path argument has
+     * `paths: ['']`.
      */
-    path: string;
+    paths: string[];
 
     /**
      * Possible Content-Types to receive

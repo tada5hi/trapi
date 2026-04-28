@@ -27,7 +27,7 @@ describe('error paths', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'BadController',
-                    path: 'bad',
+                    paths: ['bad'],
                     methods: [
                         createMethod({
                             name: 'twoBody',
@@ -63,7 +63,7 @@ describe('error paths', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'BadController',
-                    path: 'bad',
+                    paths: ['bad'],
                     methods: [
                         createMethod({
                             name: 'twoBody',
@@ -99,7 +99,7 @@ describe('error paths', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'ConflictController',
-                    path: 'conflict',
+                    paths: ['conflict'],
                     methods: [
                         createMethod({
                             name: 'bodyAndForm',
@@ -135,7 +135,7 @@ describe('error paths', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'CookieController',
-                    path: 'cookie',
+                    paths: ['cookie'],
                     methods: [
                         createMethod({
                             name: 'getCookie',
@@ -178,7 +178,7 @@ describe('error paths', () => {
                 [
                     createController({
                         name: 'EnumController',
-                        path: 'enum',
+                        paths: ['enum'],
                         methods: [
                             createMethod({
                                 name: 'get',
@@ -219,7 +219,7 @@ describe('error paths', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'HiddenController',
-                    path: 'hidden',
+                    paths: ['hidden'],
                     methods: [
                         createMethod({
                             name: 'visible',

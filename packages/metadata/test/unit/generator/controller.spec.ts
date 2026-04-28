@@ -85,7 +85,7 @@ describe('controller metadata extraction', () => {
                     (c) => c.name === name,
                 );
                 expect(controller, `controller ${name} should exist`).toBeDefined();
-                expect(controller!.path).toEqual(expectedPath);
+                expect(controller!.paths).toEqual([expectedPath]);
             }
         });
 
@@ -94,8 +94,9 @@ describe('controller metadata extraction', () => {
                 (c) => c.name === 'ParameterizedEndpoint',
             )!;
             expect(controller).toBeDefined();
-            expect(controller.path).toContain('parameterized');
-            expect(controller.path).toContain(':objectId');
+            expect(controller.paths).toHaveLength(1);
+            expect(controller.paths[0]).toContain('parameterized');
+            expect(controller.paths[0]).toContain(':objectId');
         });
     });
 
@@ -210,7 +211,7 @@ describe('controller metadata extraction', () => {
                 (c) => c.name === 'AbstractEntityEndpoint',
             )!;
             expect(abstractEndpoint).toBeDefined();
-            expect(abstractEndpoint.path).toEqual('abstract');
+            expect(abstractEndpoint.paths).toEqual(['abstract']);
         });
     });
 

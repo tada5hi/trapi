@@ -57,7 +57,7 @@ describe('intersection types', () => {
         [
             createController({
                 name: 'IntersectionController',
-                path: 'intersection',
+                paths: ['intersection'],
                 methods: [
                     createMethod({
                         name: 'get',

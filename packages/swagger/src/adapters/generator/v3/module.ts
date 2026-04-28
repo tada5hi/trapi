@@ -71,6 +71,20 @@ const OPENAPI_VERSION_MAP: Partial<Record<`${Version}`, string>> = {
     'v3.2': '3.2.0',
 };
 
+function uniqueOperationId(base: string, used: Set<string>): string {
+    if (!used.has(base)) {
+        used.add(base);
+        return base;
+    }
+    let counter = 2;
+    while (used.has(`${base}_${counter}`)) {
+        counter += 1;
+    }
+    const candidate = `${base}_${counter}`;
+    used.add(candidate);
+    return candidate;
+}
+
 export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private readonly openApiVersion: string;
 
@@ -155,6 +169,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildPaths() {
         const output: Record<string, Path<OperationV3, ParameterV3>> = {};
+        const usedOperationIds = new Set<string>();
 
         for (let i = 0; i < this.metadata.controllers.length; i++) {
             const controller = this.metadata.controllers[i];
@@ -162,32 +177,48 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 continue;
             }
 
+            const controllerPaths = controller.paths.length === 0 ? [''] : controller.paths;
+
             for (let j = 0; j < controller.methods.length; j++) {
                 const method = controller.methods[j];
                 if (method.hidden) {
                     continue;
                 }
 
-                let path = removeFinalCharacter(removeDuplicateSlashes(`/${controller.path}/${method.path}`), '/');
-                path = normalizePathParameters(path);
+                for (const controllerPath of controllerPaths) {
+                    let path = removeFinalCharacter(
+                        removeDuplicateSlashes(`/${controllerPath}/${method.path}`),
+                        '/',
+                    );
+                    path = normalizePathParameters(path);
 
-                output[path] = output[path] || {};
-                output[path][method.method] = this.buildMethod(controller.name, method);
+                    output[path] = output[path] || {};
+                    output[path][method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
+                }
             }
         }
 
         return output;
     }
 
-    private buildMethod(controllerName: string, method: Method) : OperationV3 {
+    private buildMethod(
+        controllerName: string,
+        method: Method,
+        emittedPath: string,
+        usedOperationIds: Set<string>,
+    ) : OperationV3 {
         const output = this.buildOperation(controllerName, method);
 
         output.description = method.description;
         output.summary = method.summary;
         output.tags = method.tags;
 
-        // Use operationId tag otherwise fallback to generate. Warning: This doesn't check uniqueness.
-        output.operationId = method.operationId || output.operationId;
+        // Use the explicit operationId tag if provided, otherwise the generated
+        // one. When the same method is mounted at multiple controller paths the
+        // operationIds collide — disambiguate by suffixing _2, _3, ... so the
+        // emitted spec stays OpenAPI-valid.
+        const baseOperationId = method.operationId || output.operationId;
+        output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
 
         if (method.deprecated) {
             output.deprecated = method.deprecated;
@@ -199,10 +230,16 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const parameters = this.groupParameters(method.parameters);
 
+        // Path parameters declared on the method may not all appear in every
+        // controller mount (e.g. /roles vs /realms/:id/roles). Only emit
+        // path-bound params that are present in `emittedPath`.
+        const pathParams = (parameters[ParameterSource.PATH] || [])
+            .filter((p) => emittedPath.includes(`{${p.name}}`));
+
         output.parameters = [
             ...(parameters[ParameterSource.QUERY_PROP] || []),
             ...(parameters[ParameterSource.HEADER] || []),
-            ...(parameters[ParameterSource.PATH] || []),
+            ...pathParams,
             ...(parameters[ParameterSource.COOKIE] || []),
         ]
             .map((p) => this.buildParameter(p));

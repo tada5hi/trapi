@@ -14,24 +14,24 @@ import {
     appendSecurityToDraft,
     appendTags,
     applyDescriptionToDraft,
-    readString,
+    readStringOrStringArray,
     setHidden,
 } from './shared';
 
 const controllerControllerHandler = controller({
     match: { name: 'Controller', on: 'class' },
     apply: (ctx, draft) => {
-        const path = readString(ctx.argument(0));
-        draft.path = path ?? '';
+        const paths = readStringOrStringArray(ctx.argument(0));
+        draft.paths = paths ?? [''];
     },
 });
 
 const controllerMountHandler = controller({
     match: { name: 'Mount', on: 'class' },
     apply: (ctx, draft) => {
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
+        const paths = readStringOrStringArray(ctx.argument(0));
+        if (paths !== undefined) {
+            draft.paths = paths;
         }
     },
 });

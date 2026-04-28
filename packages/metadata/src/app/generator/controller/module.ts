@@ -77,13 +77,17 @@ export class ControllerGenerator implements IControllerGenerator {
         applyJsDocHandlers(this.node, this.current.registry.controllerJsDoc, draft, options);
 
         // A class is a controller iff a controller-target handler claimed it
-        // (convention: the Controller handler sets `draft.path` to '' or a value).
-        if (draft.path === undefined) {
+        // (convention: the Controller handler sets `draft.paths` to a non-undefined value).
+        if (draft.paths === undefined) {
             return null;
         }
 
-        const path = normalizePath(draft.path);
-        const methods = this.buildMethods(path);
+        // Normalize and dedupe — a user passing `@Controller(['/roles', '/roles'])`
+        // (or paths that collide after normalization) shouldn't produce duplicate
+        // OpenAPI path keys downstream.
+        const normalized = (draft.paths.length === 0 ? [''] : draft.paths).map(normalizePath);
+        const paths = [...new Set(normalized)];
+        const methods = this.buildMethods(paths);
 
         return {
             consumes: draft.consumes,
@@ -91,7 +95,7 @@ export class ControllerGenerator implements IControllerGenerator {
             hidden: draft.hidden,
             location: draft.location,
             name: draft.name,
-            path,
+            paths,
             produces: draft.produces,
             responses: draft.responses,
             security: draft.security,
@@ -112,7 +116,7 @@ export class ControllerGenerator implements IControllerGenerator {
         };
     }
 
-    protected buildMethods(controllerPath: string): Method[] {
+    protected buildMethods(controllerPaths: string[]): Method[] {
         const set = new Set<string>();
         const output: Method[] = [];
 
@@ -128,7 +132,7 @@ export class ControllerGenerator implements IControllerGenerator {
                 continue;
             }
 
-            const method = generator.generate(controllerPath);
+            const method = generator.generate(controllerPaths);
             if (!method) {
                 continue;
             }
@@ -146,7 +150,7 @@ export class ControllerGenerator implements IControllerGenerator {
             }
 
             try {
-                const method = generator.generate(controllerPath);
+                const method = generator.generate(controllerPaths);
                 if (!method) {
                     continue;
                 }

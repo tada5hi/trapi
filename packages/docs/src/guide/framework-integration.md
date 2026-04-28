@@ -68,9 +68,13 @@ const preset: Preset = {
             match: { name: 'Route', on: 'class' },
             apply: (ctx, draft) => {
                 const arg = ctx.argument(0);
-                draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
-                    ? arg.raw
-                    : '';
+                if (arg?.kind === 'literal' && typeof arg.raw === 'string') {
+                    draft.paths = [arg.raw];
+                } else if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+                    draft.paths = arg.raw.filter((v): v is string => typeof v === 'string');
+                } else {
+                    draft.paths = [''];
+                }
             },
         }),
     ],
@@ -131,7 +135,7 @@ const preset: Preset = {
             match: { name: 'Route', on: 'class' },
             apply: (ctx, draft) => {
                 const arg = ctx.argument(0);
-                draft.path = arg?.kind === 'literal' && typeof arg.raw === 'string' ? arg.raw : '';
+                draft.paths = arg?.kind === 'literal' && typeof arg.raw === 'string' ? [arg.raw] : [''];
             },
         }),
     ],

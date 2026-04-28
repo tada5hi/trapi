@@ -36,6 +36,8 @@ The metadata generator modules in `@trapi/metadata`:
 
 Each generator builds a draft via `applyDecoratorHandlers` + `applyJsDocHandlers` from the v2 orchestrator, then finalises the draft into `Controller`/`Method`/`Parameter`. The controller generator walks `heritageClauses` to include decorated methods from base classes, using the type checker to resolve import aliases. Inherited methods from generic base classes with unresolvable type parameters are skipped gracefully.
 
+**Multi-mount controllers.** `Controller.paths: string[]` (always non-empty) holds every URL prefix the controller is mounted at — `@Controller(['/roles', '/realms/:id/roles'])` produces two entries, `@Controller('/roles')` produces one. Method paths stay scalar; the swagger emitter expands the cross product (see "Swagger Generator" below). Path-parameter validation in the parameter generator accepts a name if it appears in **any** `(controllerPath × methodPath)` combination, so `@Path('id')` is valid as long as `:id` shows up in at least one mount.
+
 ## Type Resolution
 
 The resolver handles TypeScript type constructs:
@@ -58,8 +60,14 @@ Presets declare **handlers** that match against a decorator name and mutate a **
 const controllerHandler = controller({
     match: { name: 'Controller', on: 'class' },
     apply: (ctx, draft) => {
-        const path = readString(ctx.argument(0));
-        draft.path = path ?? '';
+        const arg = ctx.argument(0);
+        if (arg?.kind === 'literal' && typeof arg.raw === 'string') {
+            draft.paths = [arg.raw];
+        } else if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+            draft.paths = arg.raw.filter((v): v is string => typeof v === 'string');
+        } else {
+            draft.paths = [''];
+        }
     },
 });
 ```
@@ -112,6 +120,8 @@ The abstract generator handles shared logic: schema building, reference resoluti
 - `getSchemaForUnionType()` — `x-anyOf`-style workaround (V2) vs `anyOf` (V3)
 
 Version-specific generators also handle structural format differences (e.g., `requestBody` in V3 vs `in: body` parameters in V2). `V3Generator` covers 3.0, 3.1, and 3.2 via a single class; its `isV31OrLater()` check toggles behaviour like `$ref`-sibling stripping (OpenAPI 3.1 relaxed that restriction, so v3.1/v3.2 keep siblings while v3.0 strips them).
+
+**Path emission for multi-mount controllers.** Both emitters iterate `controller.paths × method.path` and emit one OpenAPI path entry per combination. `operationId` collisions across mounts are disambiguated with a numeric suffix (`list`, `list_2`, …) — V2 and V3 share a `uniqueOperationId(base, used)` helper for this. Path-bound parameters declared on the method are filtered per emitted URL: a parameter only appears on operations whose URL template actually contains `{name}` (so `:id` doesn't pollute the `/roles` operation when only `/realms/{realmId}/roles` declared it). Both V2 and V3 honour an explicit `method.operationId` override (preserved via `method.operationId || output.operationId` before disambiguation).
 
 ## Metadata Fidelity Principle
 

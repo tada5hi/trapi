@@ -67,7 +67,7 @@ describe('security schemes', () => {
         [
             createController({
                 name: 'SecureController',
-                path: 'secure',
+                paths: ['secure'],
                 security: [{ bearerAuth: [] }],
                 methods: [
                     createMethod({

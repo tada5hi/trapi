@@ -33,7 +33,7 @@ describe('file upload / multipart form data', () => {
         [
             createController({
                 name: 'UploadController',
-                path: 'upload',
+                paths: ['upload'],
                 methods: [
                     createMethod({
                         name: 'singleFile',

@@ -77,7 +77,7 @@ export type JsDocSource = {
 export type ControllerDraft = {
     name: string;
     location: string;
-    path?: string;
+    paths?: string[];
     hidden: boolean;
     consumes: string[];
     produces: string[];

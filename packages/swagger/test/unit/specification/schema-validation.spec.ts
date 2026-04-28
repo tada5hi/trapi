@@ -66,7 +66,7 @@ describe('OAI schema validation', () => {
             [
                 createController({
                     name: 'UserController',
-                    path: 'users',
+                    paths: ['users'],
                     methods: [
                         createMethod({
                             name: 'getUsers',
@@ -175,7 +175,7 @@ describe('OAI schema validation', () => {
             [
                 createController({
                     name: 'ComplexController',
-                    path: 'complex',
+                    paths: ['complex'],
                     methods: [
                         createMethod({
                             name: 'getWithEnum',
@@ -292,7 +292,7 @@ describe('OAI schema validation', () => {
                 [
                     createController({
                         name: 'ItemController',
-                        path: 'items',
+                        paths: ['items'],
                         methods: [
                             createMethod({
                                 name: 'getItems',
@@ -373,7 +373,7 @@ describe('OAI schema validation', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'SecureController',
-                    path: 'secure',
+                    paths: ['secure'],
                     security: [{ bearerAuth: [] }],
                     methods: [
                         createMethod({
@@ -404,7 +404,7 @@ describe('OAI schema validation', () => {
             const metadata = createMetadata([
                 createController({
                     name: 'SecureController',
-                    path: 'secure',
+                    paths: ['secure'],
                     security: [{ bearerAuth: [] }],
                     methods: [
                         createMethod({

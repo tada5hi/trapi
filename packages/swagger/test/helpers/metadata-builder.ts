@@ -36,7 +36,7 @@ export function createMetadata(
 }
 
 export function createController(
-    overrides: Partial<Controller> & Pick<Controller, 'name' | 'path' | 'methods'>,
+    overrides: Partial<Controller> & Pick<Controller, 'name' | 'paths' | 'methods'>,
 ): Controller {
     return {
         consumes: [],

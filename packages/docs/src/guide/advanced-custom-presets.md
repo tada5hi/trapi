@@ -44,9 +44,13 @@ const routeControllerHandler = controller({
     match: { name: 'Route', on: 'class' },
     apply: (ctx, draft) => {
         const arg = ctx.argument(0);
-        draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
-            ? arg.raw
-            : '';
+        if (arg?.kind === 'literal' && typeof arg.raw === 'string') {
+            draft.paths = [arg.raw];
+        } else if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+            draft.paths = arg.raw.filter((v): v is string => typeof v === 'string');
+        } else {
+            draft.paths = [''];
+        }
     },
 });
 
@@ -218,7 +222,7 @@ const metadata = await generateMetadata({
 });
 
 expect(metadata.controllers).toHaveLength(1);
-expect(metadata.controllers[0].path).toBe('/users');
+expect(metadata.controllers[0].paths).toEqual(['/users']);
 ```
 
 For lower-level unit testing, you can call `validatePreset(preset)` to verify the shape, and `loadRegistry(preset, { resolver })` to materialise a `Registry` directly without going through `generateMetadata`.

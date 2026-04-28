@@ -33,30 +33,30 @@ function makeContext(args: DecoratorArgument[], typeArgs: DecoratorTypeArgument[
 describe('into', () => {
     it('positional(i) writes literal arg into draft key', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
-        const apply = into('path').positional(0);
-        apply(makeContext([{ raw: '/users', kind: 'literal' }]), draft);
-        expect(draft.path).toEqual('/users');
+        const apply = into('name').positional(0);
+        apply(makeContext([{ raw: 'Renamed', kind: 'literal' }]), draft);
+        expect(draft.name).toEqual('Renamed');
     });
 
     it('positional(i) writes identifier arg into draft key', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
-        const apply = into('path').positional(0);
-        apply(makeContext([{ raw: '/x', kind: 'identifier' }]), draft);
-        expect(draft.path).toEqual('/x');
+        const apply = into('name').positional(0);
+        apply(makeContext([{ raw: 'Ident', kind: 'identifier' }]), draft);
+        expect(draft.name).toEqual('Ident');
     });
 
     it('positional(i) skips when arg is unresolvable', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
-        const apply = into('path').positional(0);
+        const apply = into('name').positional(0);
         apply(makeContext([{ raw: undefined, kind: 'unresolvable' }]), draft);
-        expect(draft.path).toBeUndefined();
+        expect(draft.name).toEqual('C');
     });
 
     it('positional(i) does nothing when arg is missing', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
-        const apply = into('path').positional(0);
+        const apply = into('name').positional(0);
         apply(makeContext([]), draft);
-        expect(draft.path).toBeUndefined();
+        expect(draft.name).toEqual('C');
     });
 
     it('typeArgument writes resolved type into draft key', () => {
@@ -118,8 +118,8 @@ describe('append', () => {
 
     it('throws when existing key holds a non-array value', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
-        (draft as Record<string, unknown>).path = '/scalar';
-        const apply = append('path').positional(0);
+        (draft as Record<string, unknown>).name = 'scalar';
+        const apply = append('name').positional(0);
         expect(() => apply(makeContext([{ raw: 'x', kind: 'literal' }]), draft))
             .toThrow(/not an array/);
     });

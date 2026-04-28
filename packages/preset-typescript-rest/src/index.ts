@@ -27,10 +27,24 @@ function readStringArg(ctx: Parameters<ControllerHandler['apply']>[0]): string |
     return undefined;
 }
 
+function readStringOrArrayArg(ctx: Parameters<ControllerHandler['apply']>[0]): string[] | undefined {
+    const single = readStringArg(ctx);
+    if (single !== undefined) return [single];
+    const arg = ctx.argument(0);
+    if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+        const out: string[] = [];
+        for (const item of arg.raw) {
+            if (typeof item === 'string') out.push(item);
+        }
+        return out;
+    }
+    return undefined;
+}
+
 const controllerPathHandler = controller({
     match: { name: 'Path', on: 'class' },
     apply: (ctx, draft) => {
-        draft.path = readStringArg(ctx) ?? '';
+        draft.paths = readStringOrArrayArg(ctx) ?? [''];
     },
 });
 

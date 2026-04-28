@@ -28,9 +28,13 @@ const controllerControllerHandler = controller({
     match: { name: 'Controller', on: 'class' },
     apply: (ctx, draft) => {
         const arg = ctx.argument(0);
-        draft.path = arg && arg.kind === 'literal' && typeof arg.raw === 'string'
-            ? arg.raw
-            : '';
+        if (arg?.kind === 'literal' && typeof arg.raw === 'string') {
+            draft.paths = [arg.raw];
+        } else if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
+            draft.paths = arg.raw.filter((v): v is string => typeof v === 'string');
+        } else {
+            draft.paths = [''];
+        }
     },
 });
 
@@ -96,6 +100,39 @@ controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden'), mark
 - `into(key).positional(i)` writes the literal at argument index `i` into `draft[key]`. Object/array/unresolvable kinds are intentionally ignored — use `append` for arrays.
 - `append(key).positional(i)` / `.positionalAll()` push values onto an array on the draft. Array arguments are flattened.
 - `flag(key, value = true)` unconditionally sets a flag. The second argument is optional — pass it for shorthand non-boolean assignments (e.g. `flag('verb', 'get')` for a verb-only HTTP method handler that doesn't read a path argument).
+
+## Multi-Mount Controllers
+
+`@Controller` and `@Mount` accept either a single path or an array of paths, letting one controller serve the same set of endpoints under multiple URL prefixes:
+
+```typescript
+import { Controller, Get, Path } from '@trapi/decorators';
+
+@Controller(['/roles', '/realms/:realmId/roles'])
+export class RolesController {
+    @Get()
+    list(): Role[] { /* ... */ }
+
+    @Get('/:id')
+    detail(@Path('id') id: string): Role { /* ... */ }
+}
+```
+
+The metadata exposes every mount as `Controller.paths: string[]` (always non-empty). The swagger emitter expands the cross product:
+
+```text
+GET  /roles
+GET  /roles/{id}
+GET  /realms/{realmId}/roles
+GET  /realms/{realmId}/roles/{id}
+```
+
+A few details worth knowing:
+
+- **OperationId disambiguation** — OpenAPI requires `operationId` to be unique. When the same method is emitted at multiple paths, the first keeps its base id and subsequent emissions get a numeric suffix (`list`, `list_2`, …). Set `operationId` explicitly via your preset's metadata if you want stable, predictable identifiers.
+- **Per-path parameter filtering** — path parameters declared on the method appear only on operations whose URL template actually contains them. `@Path('realmId')` only shows up under `/realms/{realmId}/roles*`, not under `/roles*`.
+- **Validation across mounts** — `@Path('name')` is valid as long as `:name` (or `{name}`) appears in **at least one** `(controllerPath × methodPath)` combination.
+- **Method paths stay scalar** — only controller-level paths support multiple values; method paths (`@Get('/:id')`) take a single string.
 
 ## Presets
 

@@ -55,7 +55,7 @@ describe('union composition (oneOf / discriminator)', () => {
         [
             createController({
                 name: 'CompositionController',
-                path: 'composition',
+                paths: ['composition'],
                 methods: [
                     createMethod({
                         name: 'getResult',
@@ -289,7 +289,7 @@ describe('discriminator with refAlias members (#783)', () => {
         [
             createController({
                 name: 'AliasController',
-                path: 'alias',
+                paths: ['alias'],
                 methods: [
                     createMethod({
                         name: 'getShape',
@@ -362,7 +362,7 @@ describe('discriminator with refAlias wrapping nestedObjectLiteral (#783)', () =
         [
             createController({
                 name: 'InlineController',
-                path: 'inline',
+                paths: ['inline'],
                 methods: [
                     createMethod({
                         name: 'getShape',
@@ -430,7 +430,7 @@ describe('discriminator with mixed refObject + refAlias members (#783)', () => {
         [
             createController({
                 name: 'MixedController',
-                path: 'mixed',
+                paths: ['mixed'],
                 methods: [
                     createMethod({
                         name: 'getShape',

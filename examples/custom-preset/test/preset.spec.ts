@@ -18,7 +18,7 @@ describe('@trapi/example-custom-preset', () => {
         const [controller] = metadata.controllers;
         expect(controller.name).toBe('UsersController');
         // normalizePath strips the leading slash
-        expect(controller.path).toBe('users');
+        expect(controller.paths).toEqual(['users']);
         expect(controller.tags).toEqual(['users']);
 
         const verbs = controller.methods.map((m) => m.method).sort();

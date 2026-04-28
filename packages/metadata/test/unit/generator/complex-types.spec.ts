@@ -201,7 +201,7 @@ describe('complex type metadata extraction', () => {
                 (c) => c.name === 'ComplexTypesController',
             )!;
             expect(controller).toBeDefined();
-            expect(controller.path).toEqual('complex');
+            expect(controller.paths).toEqual(['complex']);
 
             const methodNames = controller.methods.map((m) => m.name);
             expect(methodNames).toContain('getTree');

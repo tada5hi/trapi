@@ -67,19 +67,19 @@ export class ParameterGenerator implements IParameterGenerator {
 
     private readonly method: string;
 
-    private readonly path: string;
+    private readonly paths: string[];
 
     private readonly current: IGeneratorContext;
 
     constructor(
         parameter: ts.ParameterDeclaration,
         method: string,
-        path: string,
+        paths: string[],
         current: IGeneratorContext,
     ) {
         this.parameter = parameter;
         this.method = method;
-        this.path = path;
+        this.paths = paths.length === 0 ? [''] : paths;
         this.current = current;
     }
 
@@ -280,16 +280,29 @@ export class ParameterGenerator implements IParameterGenerator {
         return output;
     }
 
+    private pathContainsParam(name: string): boolean {
+        // Match `{name}` literally — curly braces are their own boundaries.
+        // For `:name`, require a word boundary after the name so `:id` doesn't
+        // match `:id2` (substring), but it still matches when path-to-regexp
+        // modifiers/constraints follow the name (`:id?`, `:id*`, `:id(\\d+)`).
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const colonPattern = new RegExp(`:${escaped}\\b`);
+        const bracePattern = `{${name}}`;
+        for (const p of this.paths) {
+            if (p.includes(bracePattern) || colonPattern.test(p)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private validatePathDecomposition(decomposed: Parameter[]): void {
         for (const element of decomposed) {
-            if (
-                !this.path.includes(`{${element.name}}`) &&
-                !this.path.includes(`:${element.name}`)
-            ) {
+            if (!this.pathContainsParam(element.name)) {
                 throw ParameterError.invalidPathMatch({
                     decoratorName: 'Path',
                     propertyName: element.name,
-                    path: this.path,
+                    path: this.paths.join(' | '),
                     node: this.parameter,
                 });
             }
@@ -298,14 +311,11 @@ export class ParameterGenerator implements IParameterGenerator {
 
     private validatePathName(name: string, parameterName: string): void {
         const candidate = name || parameterName;
-        if (
-            !this.path.includes(`{${candidate}}`) &&
-            !this.path.includes(`:${candidate}`)
-        ) {
+        if (!this.pathContainsParam(candidate)) {
             throw ParameterError.invalidPathMatch({
                 decoratorName: 'Path',
                 propertyName: candidate,
-                path: this.path,
+                path: this.paths.join(' | '),
                 node: this.parameter,
             });
         }

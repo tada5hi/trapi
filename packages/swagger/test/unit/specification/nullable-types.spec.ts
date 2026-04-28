@@ -74,7 +74,7 @@ describe('nullable types', () => {
         [
             createController({
                 name: 'NullableController',
-                path: 'nullable',
+                paths: ['nullable'],
                 methods: [
                     createMethod({
                         name: 'get',

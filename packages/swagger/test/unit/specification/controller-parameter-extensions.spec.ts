@@ -35,7 +35,7 @@ describe('controller and parameter extensions', () => {
     const metadata = createMetadata([
         createController({
             name: 'TaggedController',
-            path: 'tagged',
+            paths: ['tagged'],
             tags: ['tagged', 'shared'],
             extensions: [
                 { key: 'x-controller', value: 'controller-value' },
@@ -61,7 +61,7 @@ describe('controller and parameter extensions', () => {
         }),
         createController({
             name: 'SharedController',
-            path: 'shared',
+            paths: ['shared'],
             tags: ['shared'],
             extensions: [{ key: 'x-controller', value: 'shared-value' }],
             methods: [
@@ -76,7 +76,7 @@ describe('controller and parameter extensions', () => {
         }),
         createController({
             name: 'PlainController',
-            path: 'plain',
+            paths: ['plain'],
             tags: ['plain'],
             methods: [
                 createMethod({
@@ -175,7 +175,7 @@ describe('controller extensions without declared tags', () => {
     const metadata = createMetadata([
         createController({
             name: 'UntaggedController',
-            path: 'untagged',
+            paths: ['untagged'],
             tags: [],
             extensions: [{ key: 'x-fallback', value: 'value' }],
             methods: [
@@ -216,7 +216,7 @@ describe('hidden controllers and methods', () => {
     const metadata = createMetadata([
         createController({
             name: 'HiddenController',
-            path: 'hidden-controller',
+            paths: ['hidden-controller'],
             hidden: true,
             tags: ['hidden-tag'],
             extensions: [{ key: 'x-hidden', value: 'should-not-appear' }],
@@ -231,7 +231,7 @@ describe('hidden controllers and methods', () => {
         }),
         createController({
             name: 'PartiallyHiddenController',
-            path: 'partial',
+            paths: ['partial'],
             tags: ['partial'],
             methods: [
                 createMethod({
@@ -314,7 +314,7 @@ describe('extensions never overwrite reserved fields', () => {
     const metadata = createMetadata([
         createController({
             name: 'GuardedController',
-            path: 'guarded',
+            paths: ['guarded'],
             tags: ['guarded'],
             // 'name' would collide with Tag.name without the x- prefix guard
             extensions: [{ key: 'name', value: 'should-not-overwrite' }],

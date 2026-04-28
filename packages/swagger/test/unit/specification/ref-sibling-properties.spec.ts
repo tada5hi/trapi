@@ -70,7 +70,7 @@ describe('$ref sibling properties', () => {
         [
             createController({
                 name: 'PersonController',
-                path: 'person',
+                paths: ['person'],
                 methods: [
                     createMethod({
                         name: 'get',

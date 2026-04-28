@@ -29,15 +29,15 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 |---------|----------|-------------|
 | `packages/metadata` | `@trapi/metadata` | Core: extracts API metadata from TypeScript decorators |
 | `packages/swagger` | `@trapi/swagger` | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specs |
-| `packages/decorators` | `@trapi/decorators` | Reference decorator set + default preset |
-| `packages/preset-typescript-rest` | `@trapi/preset-typescript-rest` | Decorator mapping for typescript-rest |
-| `packages/preset-decorators-express` | `@trapi/preset-decorators-express` | Decorator mapping for @decorators/express |
+| `packages/preset-decorators-express` | `@trapi/preset-decorators-express` | Decorator mapping for @decorators/express (self-contained: routing + TRAPI markers + JSDoc) |
+| `packages/preset-typescript-rest` | `@trapi/preset-typescript-rest` | Decorator mapping for typescript-rest (self-contained: routing + TRAPI markers + JSDoc) |
 | `packages/cli` | `@trapi/cli` | `trapi` CLI wrapping `generateMetadata` + `generateSwagger` + `saveSwagger` |
 | `packages/docs` | _(private)_ | VitePress documentation site |
+| `examples/decorators` | _(private)_ | Worked example: a custom decorator runtime + matching v2 `Preset` (routing + markers + JSDoc) |
 
 ### Linked Versioning
 
-`@trapi/metadata`, `@trapi/swagger`, and `@trapi/decorators` share a linked version (currently 1.3.0). The preset packages version independently.
+`@trapi/metadata` and `@trapi/swagger` share a linked version (currently 1.3.0). The preset packages version independently.
 
 ## Detailed Guides
 

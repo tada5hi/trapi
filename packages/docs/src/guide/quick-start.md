@@ -5,16 +5,18 @@ A minimal end-to-end example: install the packages, decorate a controller, gener
 ## 1. Install
 
 ```bash
-npm install --save @trapi/metadata @trapi/swagger @trapi/decorators
+npm install --save @trapi/metadata @trapi/swagger @trapi/preset-decorators-express @decorators/express
+# Optional: TRAPI-specific markers (@Hidden, @Tags, @Description, @IsInt, …)
+npm install --save @trapi/decorators
 ```
 
-`@trapi/decorators` ships the reference decorator set. If you already use a different library, swap it for a [preset](/guide/metadata-decorators#presets) or [define a custom mapping](/guide/advanced-custom-presets).
+`@decorators/express` provides the runtime decorators (`@Controller`, `@Get`, `@Post`, …); `@trapi/preset-decorators-express` is the preset that teaches TRAPI how to read them. If your application already uses `typescript-rest`, install `@trapi/preset-typescript-rest` instead. For any other library, [define a custom preset](/guide/advanced-custom-presets).
 
 ## 2. Write a Controller
 
 ```typescript
 // src/controllers/user.controller.ts
-import { Controller, Get, Post, Body, Path } from '@trapi/decorators';
+import { Controller, Get, Post, Body, Params } from '@decorators/express';
 
 type User = {
     id: string;
@@ -30,7 +32,7 @@ type CreateUserInput = {
 @Controller('/users')
 export class UserController {
     @Get('/:id')
-    async findOne(@Path('id') id: string): Promise<User> {
+    async findOne(@Params('id') id: string): Promise<User> {
         // implementation not visible to TRAPI — this is build-time analysis only
         return {} as User;
     }
@@ -54,7 +56,7 @@ const spec = await generateSwagger({
     version: 'v3',
     metadata: {
         entryPoint: ['src/controllers/**/*.ts'],
-        preset: '@trapi/decorators',
+        preset: '@trapi/preset-decorators-express',
     },
     data: {
         name: 'Example API',
@@ -84,7 +86,7 @@ import { generateSwagger, saveSwagger } from '@trapi/swagger';
 
 const metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
     cache: true,
 });
 

@@ -95,9 +95,12 @@ A `Preset` has `name`, optional `extends: string[]`, and arrays of handlers per 
 
 **Presets ship with the core repo:**
 
-- `@trapi/decorators` — canonical reference preset (default export is the v2 `Preset`).
-- `@trapi/preset-typescript-rest` — typescript-rest naming conventions.
-- `@trapi/preset-decorators-express` — extends `@trapi/decorators`, adds Express-specific names (`@Request`/`@Response`/`@Next`, `@Headers`/`@Cookies`/`@Params` bulk handlers).
+- `@trapi/preset-decorators-express` — self-contained: `@decorators/express` routing decorators (`@Controller`, `@Get`, `@Post`, `@Body`, `@Path`, …) plus Express-specific `@Headers`/`@Cookies`/`@Params`/`@Request`/`@Response`/`@Next`, plus all TRAPI markers and JSDoc handlers.
+- `@trapi/preset-typescript-rest` — self-contained: typescript-rest naming (`@Path`, `@GET`, `@QueryParam`, `ContextRequest` family, …) with its own `@Description`/`@Example`/`@Security` shapes, plus the same TRAPI markers and JSDoc handlers as the express preset.
+
+Neither preset `extends` the other. The repo deliberately ships no shared base preset — each framework preset is the single source of truth for its decorator vocabulary, so a user preset that extends one of them never picks up duplicate handlers from a transitive base.
+
+`examples/decorators/` (private, unpublished) is a worked example of authoring a custom decorator runtime + matching `Preset` from scratch — it covers the same handler families as the framework presets.
 
 ## Swagger Generator
 

@@ -55,7 +55,7 @@ The pipeline is split into independent, composable packages:
 |-------|---------|----------------|
 | Core | `@trapi/metadata` | Extract metadata from TypeScript source |
 | Output | `@trapi/swagger` | Transform metadata into OpenAPI specs |
-| Mapping | `@trapi/decorators` | Default decorator set and mapping |
+| Markers | `@trapi/decorators` | TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) |
 | Presets | `@trapi/preset-*` | Framework-specific decorator mappings |
 
 Each layer can be used independently. You can use `@trapi/metadata` alone to power custom code generators, route validators, or documentation tools — the metadata representation is not tied to OpenAPI.

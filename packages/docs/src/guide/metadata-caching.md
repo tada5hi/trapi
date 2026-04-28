@@ -9,7 +9,7 @@ The simplest form is a boolean:
 ```typescript
 await generateMetadata({
     entryPoint: 'src/controllers/**/*.ts',
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
     cache: true,
 });
 ```

@@ -77,7 +77,7 @@ cache: { enabled: true, directoryPath: '.cache/trapi' }  // full options object
 Name of a published preset package. Loaded dynamically via `import()` and validated against the v2 `Preset` schema before use.
 
 ```typescript
-preset: '@trapi/decorators'
+preset: '@trapi/preset-decorators-express'
 ```
 
 `generateMetadata` resolves the package, looks for a named export `preset` (then the default export, then the module itself), validates the shape, and materialises a `Registry` of handlers via `loadRegistry`. `extends` chains in the resolved preset are loaded recursively through the same lookup.
@@ -111,7 +111,7 @@ If omitted, TRAPI uses a permissive default that accepts most projects. For cons
 ```typescript
 await generateMetadata({
     entryPoint: 'src/controllers/**/*.ts',
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 ```
 
@@ -124,7 +124,7 @@ await generateMetadata({
         'src/resources/**/*.controller.ts',
     ],
     ignore: ['**/*.spec.ts', '**/*.test.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
     tsconfig: './tsconfig.build.json',
 });
 ```

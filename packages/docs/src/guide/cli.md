@@ -10,23 +10,23 @@ The CLI is built on [citty](https://github.com/unjs/citty) — `--help` is wired
 npm install --save-dev @trapi/cli
 ```
 
-`@trapi/metadata` and `@trapi/swagger` are pulled in transitively. You'll typically also install the preset you want to use (e.g. `@trapi/decorators`).
+`@trapi/metadata` and `@trapi/swagger` are pulled in transitively. You'll typically also install the preset you want to use (e.g. `@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`).
 
 ```bash
-npm install --save-dev @trapi/decorators
+npm install --save-dev @trapi/preset-decorators-express
 ```
 
 ## Quick Start
 
 ```bash
 npx trapi generate \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --entry-point 'src/**/*.ts' \
   --output docs/openapi.json \
   --version 3.1
 ```
 
-This loads the [`@trapi/decorators`](/guide/metadata-decorators) preset, scans every `.ts` file under `src/` for decorated controllers, and writes an OpenAPI 3.1 document to `docs/openapi.json`. Both `--version 3.1` and `--version v3.1` are accepted; the `.json` suffix on `--output` picks the format automatically.
+This loads the [`@trapi/preset-decorators-express`](/guide/metadata-decorators) preset, scans every `.ts` file under `src/` for decorated controllers, and writes an OpenAPI 3.1 document to `docs/openapi.json`. Both `--version 3.1` and `--version v3.1` are accepted; the `.json` suffix on `--output` picks the format automatically.
 
 ## Commands
 
@@ -61,7 +61,7 @@ Run `trapi generate --help` to render the same list against the installed versio
 ```bash
 trapi generate \
   --entry-point 'src/api/**/*.ts' \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --output docs/openapi.yaml \
   --version 3
 ```
@@ -87,7 +87,7 @@ When the `info` flags are omitted, values fall back to the nearest `package.json
 trapi generate \
   --entry-point 'src/**/*.ts' \
   --tsconfig tsconfig.api.json \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --strict
 ```
 

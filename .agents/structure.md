@@ -7,11 +7,12 @@ trapi/
 ├── packages/
 │   ├── metadata/          # Core metadata extraction from TS decorators
 │   ├── swagger/           # OpenAPI spec generation from metadata
-│   ├── decorators/        # Reference decorator preset (HTTP methods, params, etc.)
-│   ├── preset-typescript-rest/    # typescript-rest adapter
-│   ├── preset-decorators-express/ # @decorators/express adapter
+│   ├── preset-decorators-express/ # Self-contained preset for @decorators/express
+│   ├── preset-typescript-rest/    # Self-contained preset for typescript-rest
 │   ├── cli/               # `trapi` CLI (citty) wrapping the metadata + swagger pipeline
 │   └── docs/              # VitePress documentation site
+├── examples/
+│   └── decorators/        # Worked example: custom runtime + matching v2 Preset
 ├── nx.json                # NX workspace config (build/test/lint caching)
 ├── tsconfig.json          # Base TS config (noEmit, baseUrl)
 ├── tsconfig.build.json    # Build config (ES2022, ESNext, ESM, declarations)
@@ -24,13 +25,12 @@ Build order flows bottom-to-top:
 
 ```
 Layer 3 (consumers):  preset-typescript-rest, preset-decorators-express, cli, docs
-Layer 2 (generation): swagger, decorators
+Layer 2 (generation): swagger
 Layer 1 (core):       metadata
 ```
 
 - `@trapi/swagger` depends directly on `@trapi/metadata`
-- `@trapi/decorators` peer-depends on `@trapi/metadata`
-- Both presets depend on `@trapi/decorators`
+- Both framework presets peer-depend on `@trapi/metadata` and are otherwise self-contained — no cross-preset `extends` chain.
 
 ## Package: `@trapi/metadata`
 
@@ -105,20 +105,17 @@ packages/swagger/src/
 └── index.ts                # Public exports
 ```
 
-## Package: `@trapi/decorators`
-
-```
-packages/decorators/src/
-├── decorators/     # Runtime decorator functions (Controller, Get, Body, Path, ...) — used by user code at runtime
-├── preset.ts       # Aggregated v2 Preset (handlers grouped by controller/method/parameter + JSDoc)
-└── index.ts        # Re-exports decorator functions and `preset`; default export is the Preset
-```
-
-Publishes as `@trapi/decorators`. Acts both as a runtime decorator library and as a TRAPI v2 `Preset` — `preset: '@trapi/decorators'` loads this package and finds the `preset` named export (or default).
-
 ## Package: Presets
 
-`preset-typescript-rest` and `preset-decorators-express` map framework-specific decorator names to v2 handlers. Each preset exports a `Preset` object as the default export. `preset-decorators-express` extends `@trapi/decorators` (most decorator names overlap); `preset-typescript-rest` is standalone (its naming conventions diverge — `@Path` for routes, `@QueryParam`, `ContextRequest` family, etc.).
+`preset-decorators-express` and `preset-typescript-rest` map framework-specific decorator names to v2 handlers. Each preset exports a `Preset` object as the default export. Both are **self-contained** — neither extends the other; each ships its own:
+
+- HTTP routing handlers (matching the framework's decorator vocabulary).
+- TRAPI markers (`@Hidden`, `@Tags`, `@Description`, `@Example`, `@Extension`, `@Security`, `@Produces`, `@Consumes`, `@Accept`, `@Deprecated`, `@IsInt`/`@IsLong`/`@IsFloat`/`@IsDouble`).
+- JSDoc tag handlers (`/** @hidden */`, `/** @deprecated */`, `/** @summary */`, numeric narrowing tags).
+
+Both preset packages organise handlers under `src/handlers/{controller,method,parameter,jsdoc,shared}.ts` and assemble the `Preset` in `src/index.ts`.
+
+`preset-decorators-express` keys off `@decorators/express` decorator names (`@Controller`, `@Get`, `@Body`, …) plus Express-specific overrides for `@Headers`/`@Cookies`/`@Params`/`@Request`/`@Response`/`@Next`. `preset-typescript-rest` keys off typescript-rest's naming (`@Path`, `@GET`, `@QueryParam`, `ContextRequest` family, …) and ships its own `@Description`/`@Example`/`@Security` shapes that diverge from the marker defaults.
 
 ## Package: `@trapi/cli`
 

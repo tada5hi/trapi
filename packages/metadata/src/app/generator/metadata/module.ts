@@ -154,7 +154,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             return;
         }
         throw new ConfigError({
-            message: 'No preset configured and no controllers detected. Provide `preset: \'@trapi/decorators\'` (or another preset) so handlers can match your decorators.',
+            message: 'No preset configured and no controllers detected. Provide `preset: \'@trapi/preset-decorators-express\'` (or another preset) so handlers can match your decorators.',
             code: ConfigErrorCode.PRESET_MISSING,
         });
     }

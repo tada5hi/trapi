@@ -129,7 +129,7 @@ const metadata : Metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
     ignore: ['**/node_modules/**'],
     cache: true,
-    preset: '@trapi/decorators'
+    preset: '@trapi/preset-decorators-express'
 });
 
 console.log(metadata);

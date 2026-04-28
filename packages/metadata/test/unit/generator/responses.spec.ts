@@ -25,11 +25,11 @@ describe('response metadata extraction', () => {
     beforeAll(async () => {
         metadata = await generateMetadata({
             entryPoint: [{
-                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../decorators'),
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),
                 pattern: './test/data/controllers/**/*.ts',
             }],
             cache: false,
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
         });
 
         responseController = metadata.controllers.find(

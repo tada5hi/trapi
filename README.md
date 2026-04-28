@@ -22,7 +22,7 @@ Most tools that generate OpenAPI from decorators force you to adopt their own de
 |---------|-------------|
 | [@trapi/metadata](./packages/metadata) | Core: extracts API metadata from TypeScript decorators |
 | [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
-| [@trapi/decorators](./packages/decorators) | Default decorator set and mapping |
+| [@trapi/decorators](./packages/decorators) | TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) — base preset both framework presets extend |
 | [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Preset for typescript-rest |
 | [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Preset for @decorators/express |
 | [@trapi/cli](./packages/cli) | `trapi` CLI — generate OpenAPI specs straight from the shell |
@@ -40,7 +40,7 @@ import { generateSwagger, saveSwagger } from '@trapi/swagger';
 // Extract metadata from your decorated TypeScript source
 const metadata = await generateMetadata({
     entryPoint: './src/controllers/**/*.ts',
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 
 // Generate OpenAPI spec
@@ -58,7 +58,7 @@ Or skip the script entirely and run it from the shell with [`@trapi/cli`](./pack
 
 ```bash
 npx trapi generate \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --entry-point 'src/**/*.ts' \
   --output docs/openapi.json \
   --version 3.1

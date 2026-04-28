@@ -32,19 +32,16 @@ await generateMetadata({
 });
 ```
 
-### @trapi/decorators (reference set)
+### TRAPI-specific markers
 
-If you are starting fresh and do not need a specific framework's decorators, use the reference set that TRAPI ships:
+Both framework presets above already extend `@trapi/decorators`, so decorators like `@Hidden`, `@Tags`, `@Description`, `@IsInt`, `@Extension`, and `@Security` are available out of the box. You only need to install it explicitly if you want to import the runtime stubs in your code:
 
 ```bash
 npm install --save @trapi/decorators
 ```
 
 ```typescript
-await generateMetadata({
-    entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
-});
+import { Hidden, Tags } from '@trapi/decorators';
 ```
 
 ## Using a Custom Decorator Set

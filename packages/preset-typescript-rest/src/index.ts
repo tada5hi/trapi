@@ -14,6 +14,16 @@ import {
     method,
     parameter,
 } from '@trapi/metadata';
+import {
+    controllerMarkerHandlers,
+    methodMarkerHandlers,
+    parameterMarkerHandlers,
+} from './handlers/markers';
+import {
+    controllerJsDocHandlers,
+    methodJsDocHandlers,
+    parameterJsDocHandlers,
+} from './handlers/jsdoc';
 
 // `@Path('users')` on a class is the controller-route declaration in
 // typescript-rest. We map it to two handlers (one for class, one for method)
@@ -108,7 +118,7 @@ const filesParamHandler = paramHandler('FilesParam', ParamKind.FormData);
 // form binding should switch to `@FormParam`.
 const paramHandlerEntry = paramHandler('Param', ParamKind.QueryProp);
 
-// `@Description<Type>(status, description, payload)` — same shape as @trapi/decorators.
+// `@Description<Type>(status, description, payload)` — typescript-rest shape.
 const methodDescription = method({
     match: { name: 'Description', on: 'method' },
     apply: (ctx, draft) => {
@@ -170,7 +180,10 @@ const methodSecurity = method({
 
 const preset: Preset = {
     name: '@trapi/preset-typescript-rest',
-    controllers: [controllerPathHandler],
+    controllers: [
+        controllerPathHandler,
+        ...controllerMarkerHandlers,
+    ],
     methods: [
         methodPathHandler,
         methodGet,
@@ -184,6 +197,7 @@ const preset: Preset = {
         methodDescription,
         methodExample,
         methodSecurity,
+        ...methodMarkerHandlers,
     ],
     parameters: [
         ...contextHandlers,
@@ -194,7 +208,11 @@ const preset: Preset = {
         fileParamHandler,
         filesParamHandler,
         paramHandlerEntry,
+        ...parameterMarkerHandlers,
     ],
+    controllerJsDoc: controllerJsDocHandlers,
+    methodJsDoc: methodJsDocHandlers,
+    parameterJsDoc: parameterJsDocHandlers,
 };
 
 export { preset };

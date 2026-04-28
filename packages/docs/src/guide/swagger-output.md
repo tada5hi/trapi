@@ -71,7 +71,7 @@ Emitting multiple versions usually means distinct filenames per version:
 import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
 
-const metadata = await generateMetadata({ entryPoint: 'src/**/*.controller.ts', preset: '@trapi/decorators' });
+const metadata = await generateMetadata({ entryPoint: 'src/**/*.controller.ts', preset: '@trapi/preset-decorators-express' });
 
 for (const version of ['v2', 'v3'] as const) {
     const spec = await generateSwagger({ version, metadata, data: { name: 'API', version: '1.0.0' } });

@@ -46,7 +46,7 @@ const spec = await generateSwagger({
     version: 'v3',
     metadata: {
         entryPoint: ['src/controllers/**/*.ts'],
-        preset: '@trapi/decorators',
+        preset: '@trapi/preset-decorators-express',
     },
     data: {
         name: 'My API',
@@ -67,7 +67,7 @@ import { generateSwagger } from '@trapi/swagger';
 
 const metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 
 const spec = await generateSwagger({

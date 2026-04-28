@@ -25,13 +25,13 @@ Built on [citty](https://github.com/unjs/citty), so `--help` is wired up automat
 npm install --save-dev @trapi/cli
 ```
 
-The CLI ships a `trapi` bin. Install it in the project that owns the controllers — `@trapi/metadata` and `@trapi/swagger` are pulled in transitively, but you'll typically also install the preset you want to use (e.g. `@trapi/decorators`).
+The CLI ships a `trapi` bin. Install it in the project that owns the controllers — `@trapi/metadata` and `@trapi/swagger` are pulled in transitively, but you'll typically also install the preset you want to use (e.g. `@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`).
 
 ## Quick Start
 
 ```bash
 npx trapi generate \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --entry-point 'src/**/*.ts' \
   --output docs/openapi.json \
   --version 3.1
@@ -39,7 +39,7 @@ npx trapi generate \
 
 The example above:
 
-1. Loads the [`@trapi/decorators`](../decorators) preset.
+1. Loads the [`@trapi/preset-decorators-express`](../preset-decorators-express) preset.
 2. Scans every `.ts` file under `src/` for decorated controllers.
 3. Generates an OpenAPI **3.1** document.
 4. Writes it to `docs/openapi.json` (the `.json` extension picks the format automatically).
@@ -79,7 +79,7 @@ Generate a YAML 3.0 spec from controllers under `src/api/`:
 ```bash
 trapi generate \
   --entry-point 'src/api/**/*.ts' \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --output docs/openapi.yaml \
   --version 3
 ```
@@ -101,7 +101,7 @@ Use a custom `tsconfig.json` and surface decorator typos as warnings:
 trapi generate \
   --entry-point 'src/**/*.ts' \
   --tsconfig tsconfig.api.json \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --strict
 ```
 
@@ -126,7 +126,7 @@ const spec = await generateSwagger({
     version: 'v3.1',
     metadata: {
         entryPoint: 'src/**/*.ts',
-        preset: '@trapi/decorators',
+        preset: '@trapi/preset-decorators-express',
     },
 });
 

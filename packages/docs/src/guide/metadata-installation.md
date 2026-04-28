@@ -23,11 +23,13 @@ You normally install it alongside either `@trapi/swagger` (if you want OpenAPI o
 
 ```bash
 # Typical setup
-npm install --save @trapi/metadata @trapi/swagger @trapi/decorators
+npm install --save @trapi/metadata @trapi/swagger @trapi/preset-decorators-express @decorators/express
 ```
 
-- `@trapi/decorators` — reference decorator set (or use a [preset](/guide/metadata-decorators#presets))
+- `@decorators/express` — runtime decorator library (or [`typescript-rest`](https://github.com/thiagobustamante/typescript-rest), or [your own](/guide/advanced-custom-presets))
+- `@trapi/preset-decorators-express` — preset that interprets the chosen decorator vocabulary
 - `@trapi/swagger` — OpenAPI emitter
+- `@trapi/decorators` _(optional)_ — TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) that the framework presets extend
 
 ## Verify
 
@@ -38,7 +40,7 @@ import { generateMetadata } from '@trapi/metadata';
 
 const metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 
 console.log(metadata.controllers.length, 'controller(s) discovered');

@@ -1,6 +1,6 @@
 /*
  * Strict-mode end-to-end fixture: deliberately introduces a typo (`@Hiden`)
- * that has no matching handler in the @trapi/decorators preset.
+ * that has no matching handler in the @trapi/preset-decorators-express preset.
  */
 
 const Controller = (_path: string): ClassDecorator => () => { /* no-op */ };

@@ -54,11 +54,11 @@ function readStringOrStringArray(arg: DecoratorArgument | undefined): string[] |
     const single = readString(arg);
     if (single !== undefined) return [single];
     if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        const out: string[] = [];
-        for (const item of arg.raw) {
-            if (typeof item === 'string') out.push(item);
+        // All-or-nothing — never silently drop non-string items.
+        if (arg.raw.every((item) => typeof item === 'string')) {
+            return arg.raw;
         }
-        return out;
+        return undefined;
     }
     return undefined;
 }
@@ -91,9 +91,12 @@ function appendSecurityToDraft(
     const name = readString(nameArg) ?? 'default';
     const scopes: string[] = [];
     if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-        for (const item of scopesArg.raw) {
-            if (typeof item === 'string') scopes.push(item);
+        // Reject malformed scope lists rather than silently dropping
+        // non-string items — partial scopes underreport security.
+        if (!scopesArg.raw.every((item) => typeof item === 'string')) {
+            return;
         }
+        scopes.push(...scopesArg.raw);
     }
     draft.security ??= [];
     draft.security.push({ [name]: scopes });
@@ -105,7 +108,7 @@ function applyDescriptionToDraft(
 ): void {
     const statusArg = ctx.argument(0);
     const status = readString(statusArg) ?? String(readNumber(statusArg) ?? '200');
-    const description = readString(ctx.argument(1)) ?? 'Ok';
+    const description = readString(ctx.argument(1)) ?? 'Response';
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ? [{ value: payload.raw }] : [];
     const typeArg = ctx.typeArgument(0);

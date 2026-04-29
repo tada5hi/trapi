@@ -157,9 +157,8 @@ Shipped presets:
 
 | Preset | Framework |
 | --- | --- |
-| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) (extends `@trapi/decorators`) |
-| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/decorators` | Base preset of TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) — extended by the framework presets above |
+| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) — self-contained (routing + TRAPI markers + JSDoc handlers) |
+| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) — self-contained (routing + TRAPI markers + JSDoc handlers) |
 
 Use one by name:
 

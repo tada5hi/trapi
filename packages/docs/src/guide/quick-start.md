@@ -6,11 +6,9 @@ A minimal end-to-end example: install the packages, decorate a controller, gener
 
 ```bash
 npm install --save @trapi/metadata @trapi/swagger @trapi/preset-decorators-express @decorators/express
-# Optional: TRAPI-specific markers (@Hidden, @Tags, @Description, @IsInt, …)
-npm install --save @trapi/decorators
 ```
 
-`@decorators/express` provides the runtime decorators (`@Controller`, `@Get`, `@Post`, …); `@trapi/preset-decorators-express` is the preset that teaches TRAPI how to read them. If your application already uses `typescript-rest`, install `@trapi/preset-typescript-rest` instead. For any other library, [define a custom preset](/guide/advanced-custom-presets).
+`@decorators/express` provides the runtime decorators (`@Controller`, `@Get`, `@Post`, …); `@trapi/preset-decorators-express` is the self-contained preset that teaches TRAPI how to read them and also handles TRAPI marker decorators (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …). If your application already uses `typescript-rest`, install `@trapi/preset-typescript-rest` instead. For any other library, [define a custom preset](/guide/advanced-custom-presets).
 
 ## 2. Write a Controller
 

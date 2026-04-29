@@ -21,6 +21,12 @@ export function readString(arg: DecoratorArgument | undefined): string | undefin
     return undefined;
 }
 
+/**
+ * Read a positional argument that may be either a single string or an array
+ * of strings. Returns `undefined` when the argument is missing, when any
+ * array element is non-string, or otherwise unresolvable. All-or-nothing:
+ * never returns a partial array with non-string items silently dropped.
+ */
 export function readStringOrStringArray(
     arg: DecoratorArgument | undefined,
 ): string[] | undefined {
@@ -29,11 +35,10 @@ export function readStringOrStringArray(
         return [single];
     }
     if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        const out: string[] = [];
-        for (const item of arg.raw) {
-            if (typeof item === 'string') out.push(item);
+        if (arg.raw.every((item) => typeof item === 'string')) {
+            return arg.raw;
         }
-        return out;
+        return undefined;
     }
     return undefined;
 }

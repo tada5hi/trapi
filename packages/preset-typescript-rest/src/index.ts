@@ -132,7 +132,7 @@ const methodDescription = method({
         const descriptionArg = ctx.argument(1);
         const description = descriptionArg?.kind === 'literal' && typeof descriptionArg.raw === 'string' ?
             descriptionArg.raw :
-            'Ok';
+            'Response';
         const payload = ctx.argument(2);
         const examples = payload && payload.kind !== 'unresolvable' ?
             [{ value: payload.raw }] :
@@ -167,9 +167,12 @@ const methodSecurity = method({
             'default';
         const scopes: string[] = [];
         if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-            for (const item of scopesArg.raw) {
-                if (typeof item === 'string') scopes.push(item);
+            // Reject malformed scope lists rather than silently dropping
+            // non-string items — partial scopes underreport security.
+            if (!scopesArg.raw.every((item) => typeof item === 'string')) {
+                return;
             }
+            scopes.push(...scopesArg.raw);
         } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
             scopes.push(scopesArg.raw);
         }

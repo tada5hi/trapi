@@ -34,13 +34,12 @@ await generateMetadata({
 });
 ```
 
-The monorepo ships three:
+The monorepo ships two:
 
 | Preset | For |
 | --- | --- |
-| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) |
-| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/decorators` | TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) — the base both framework presets above extend |
+| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) — self-contained (routing + TRAPI markers + JSDoc handlers) |
+| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) — self-contained (routing + TRAPI markers + JSDoc handlers) |
 
 You can also publish your own. See [Custom Presets](/guide/advanced-custom-presets).
 

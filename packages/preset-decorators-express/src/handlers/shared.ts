@@ -29,8 +29,9 @@ export function readNumber(arg: DecoratorArgument | undefined): number | undefin
 
 /**
  * Read a positional argument that may be either a single string or an array
- * of strings. Returns `undefined` when the argument is missing or otherwise
- * unresolvable; returns an empty array when the argument is an empty array.
+ * of strings. Returns `undefined` when the argument is missing, when any
+ * array element is non-string, or otherwise unresolvable. All-or-nothing:
+ * never returns a partial array with non-string items silently dropped.
  */
 export function readStringOrStringArray(
     arg: DecoratorArgument | undefined,
@@ -40,11 +41,10 @@ export function readStringOrStringArray(
         return [single];
     }
     if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        const out: string[] = [];
-        for (const item of arg.raw) {
-            if (typeof item === 'string') out.push(item);
+        if (arg.raw.every((item) => typeof item === 'string')) {
+            return arg.raw;
         }
-        return out;
+        return undefined;
     }
     return undefined;
 }
@@ -67,7 +67,7 @@ export function applyDescriptionToDraft(
 ): void {
     const statusArg = ctx.argument(0);
     const status = readString(statusArg) ?? String(readNumber(statusArg) ?? '200');
-    const description = readString(ctx.argument(1)) ?? 'Ok';
+    const description = readString(ctx.argument(1)) ?? 'Response';
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ?
         [{ value: payload.raw }] :
@@ -111,9 +111,13 @@ export function appendSecurityToDraft(
 
     const scopes: string[] = [];
     if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-        for (const item of scopesArg.raw) {
-            if (typeof item === 'string') scopes.push(item);
+        // All-or-nothing: a malformed scope list (e.g. `[null, 'admin']`)
+        // would silently underreport required scopes if filtered, so reject
+        // the whole entry instead.
+        if (!scopesArg.raw.every((item) => typeof item === 'string')) {
+            return;
         }
+        scopes.push(...scopesArg.raw);
     } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
         scopes.push(scopesArg.raw);
     }

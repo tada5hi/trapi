@@ -29,7 +29,7 @@ npm install --save @trapi/metadata @trapi/swagger @trapi/preset-decorators-expre
 - `@decorators/express` — runtime decorator library (or [`typescript-rest`](https://github.com/thiagobustamante/typescript-rest), or [your own](/guide/advanced-custom-presets))
 - `@trapi/preset-decorators-express` — preset that interprets the chosen decorator vocabulary
 - `@trapi/swagger` — OpenAPI emitter
-- `@trapi/decorators` _(optional)_ — TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) that the framework presets extend
+- The TRAPI marker decorators (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …) are recognised out of the box by both framework presets — no extra package is needed. Write the marker decorators inline yourself or copy from [`examples/decorators`](https://github.com/tada5hi/trapi/tree/master/examples/decorators)
 
 ## Verify
 

@@ -32,20 +32,11 @@ await generateMetadata({
 });
 ```
 
-### @trapi/decorators (reference set)
+### TRAPI-specific markers
 
-If you are starting fresh and do not need a specific framework's decorators, use the reference set that TRAPI ships:
+Both framework presets above ship handlers for the TRAPI marker decorators (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, `@Extension`, `@Security`, `@Produces`, `@Consumes`, `@Accept`, `@Deprecated`) and JSDoc tags (`/** @hidden */`, `/** @deprecated */`, `/** @summary */`, …). Each preset is **self-contained** — there is no extends-chain, so no risk of duplicate handler invocations when you author a user preset on top.
 
-```bash
-npm install --save @trapi/decorators
-```
-
-```typescript
-await generateMetadata({
-    entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
-});
-```
+You can write the marker decorators inline yourself (they are no-op runtime functions) or copy them from [`examples/decorators/src/decorators.ts`](https://github.com/tada5hi/trapi/tree/master/examples/decorators).
 
 ## Using a Custom Decorator Set
 
@@ -128,7 +119,7 @@ To add your own decorators on top of a published preset, declare an `extends` ch
 ```typescript
 const preset: Preset = {
     name: 'my-app/preset',
-    extends: ['@trapi/decorators'],
+    extends: ['@trapi/preset-decorators-express'],
     controllers: [
         // Recognise @Route(...) in addition to the inherited @Controller(...)
         controller({

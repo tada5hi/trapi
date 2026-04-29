@@ -19,7 +19,7 @@ import { generateMetadata } from '../../../src';
 import { ConfigErrorCode } from '../../../src/core/error/config-codes';
 
 const entryPoint = [{
-    cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../decorators'),
+    cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),
     pattern: './test/data/controllers/**/*.ts',
 }];
 
@@ -28,7 +28,7 @@ describe('generateMetadata', () => {
         const metadata = await generateMetadata({
             entryPoint,
             cache: false,
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
             tsconfig: undefined,
         });
 
@@ -41,7 +41,7 @@ describe('generateMetadata', () => {
         const metadata = await generateMetadata({
             entryPoint,
             cache: false,
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
         });
 
         expect(metadata).toHaveProperty('controllers');
@@ -75,7 +75,7 @@ describe('generateMetadata', () => {
             await generateMetadata({
                 entryPoint,
                 cache: false,
-                preset: '@trapi/decorators',
+                preset: '@trapi/preset-decorators-express',
                 strict: true,
             });
             expect(warnSpy).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('generateMetadata', () => {
                     pattern: '**/*.ts',
                 }],
                 cache: false,
-                preset: '@trapi/decorators',
+                preset: '@trapi/preset-decorators-express',
                 strict: true,
             });
 
@@ -110,7 +110,7 @@ describe('generateMetadata', () => {
                 generateMetadata({
                     entryPoint: typoEntry,
                     cache: false,
-                    preset: '@trapi/decorators',
+                    preset: '@trapi/preset-decorators-express',
                     strict: 'throw',
                 }),
             ).rejects.toMatchObject({ code: 'GENERATOR_STRICT_UNMATCHED_DECORATORS' });
@@ -126,7 +126,7 @@ describe('generateMetadata', () => {
                     pattern: '**/*.ts',
                 }],
                 cache: false,
-                preset: '@trapi/decorators',
+                preset: '@trapi/preset-decorators-express',
                 onUnmatchedDecorator: (received) => {
                     for (const r of received) {
                         reports.push({ name: r.name, line: r.line });
@@ -149,7 +149,7 @@ describe('generateMetadata', () => {
                     pattern: '**/*.ts',
                 }],
                 cache: false,
-                preset: '@trapi/decorators',
+                preset: '@trapi/preset-decorators-express',
                 strict: 'throw',
                 onUnmatchedDecorator: (received) => {
                     for (const r of received) reports.push(r.name);

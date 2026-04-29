@@ -36,7 +36,7 @@ export function defineCLIGenerateCommand() {
             preset: {
                 type: 'string',
                 description: 'Preset to load (npm package name or local path).',
-                valueHint: '@trapi/decorators',
+                valueHint: '@trapi/preset-decorators-express',
             },
             tsconfig: {
                 type: 'string',

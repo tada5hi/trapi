@@ -30,17 +30,16 @@ A **preset** is a published package whose default export is a `Preset` — a nam
 ```typescript
 await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 ```
 
-The monorepo ships three:
+The monorepo ships two:
 
 | Preset | For |
 | --- | --- |
-| `@trapi/decorators` | The reference decorator set TRAPI itself defines |
-| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) |
+| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) — self-contained (routing + TRAPI markers + JSDoc handlers) |
+| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) — self-contained (routing + TRAPI markers + JSDoc handlers) |
 
 You can also publish your own. See [Custom Presets](/guide/advanced-custom-presets).
 

@@ -14,6 +14,16 @@ import {
     method,
     parameter,
 } from '@trapi/metadata';
+import {
+    controllerMarkerHandlers,
+    methodMarkerHandlers,
+    parameterMarkerHandlers,
+} from './handlers/markers';
+import {
+    controllerJsDocHandlers,
+    methodJsDocHandlers,
+    parameterJsDocHandlers,
+} from './handlers/jsdoc';
 
 // `@Path('users')` on a class is the controller-route declaration in
 // typescript-rest. We map it to two handlers (one for class, one for method)
@@ -108,7 +118,7 @@ const filesParamHandler = paramHandler('FilesParam', ParamKind.FormData);
 // form binding should switch to `@FormParam`.
 const paramHandlerEntry = paramHandler('Param', ParamKind.QueryProp);
 
-// `@Description<Type>(status, description, payload)` — same shape as @trapi/decorators.
+// `@Description<Type>(status, description, payload)` — typescript-rest shape.
 const methodDescription = method({
     match: { name: 'Description', on: 'method' },
     apply: (ctx, draft) => {
@@ -122,7 +132,7 @@ const methodDescription = method({
         const descriptionArg = ctx.argument(1);
         const description = descriptionArg?.kind === 'literal' && typeof descriptionArg.raw === 'string' ?
             descriptionArg.raw :
-            'Ok';
+            'Response';
         const payload = ctx.argument(2);
         const examples = payload && payload.kind !== 'unresolvable' ?
             [{ value: payload.raw }] :
@@ -157,8 +167,11 @@ const methodSecurity = method({
             'default';
         const scopes: string[] = [];
         if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-            for (const item of scopesArg.raw) {
-                if (typeof item === 'string') scopes.push(item);
+            // Malformed array: keep the security entry so the endpoint stays
+            // secured, but drop ALL scopes rather than emit partial. Returning
+            // early would leave the endpoint appearing unsecured.
+            if (scopesArg.raw.every((item) => typeof item === 'string')) {
+                scopes.push(...scopesArg.raw);
             }
         } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
             scopes.push(scopesArg.raw);
@@ -170,7 +183,10 @@ const methodSecurity = method({
 
 const preset: Preset = {
     name: '@trapi/preset-typescript-rest',
-    controllers: [controllerPathHandler],
+    controllers: [
+        controllerPathHandler,
+        ...controllerMarkerHandlers,
+    ],
     methods: [
         methodPathHandler,
         methodGet,
@@ -184,6 +200,7 @@ const preset: Preset = {
         methodDescription,
         methodExample,
         methodSecurity,
+        ...methodMarkerHandlers,
     ],
     parameters: [
         ...contextHandlers,
@@ -194,7 +211,11 @@ const preset: Preset = {
         fileParamHandler,
         filesParamHandler,
         paramHandlerEntry,
+        ...parameterMarkerHandlers,
     ],
+    controllerJsDoc: controllerJsDocHandlers,
+    methodJsDoc: methodJsDocHandlers,
+    parameterJsDoc: parameterJsDocHandlers,
 };
 
 export { preset };

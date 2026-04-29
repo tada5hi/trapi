@@ -17,10 +17,10 @@ npm install --save @trapi/swagger
 npm install --save @trapi/metadata
 ```
 
-If you want `@trapi/swagger` to run metadata extraction itself (by passing `MetadataGenerateOptions` to `generateSwagger`), you also need a decorator mapping installed — either `@trapi/decorators`, a shipped preset, or your own:
+If you want `@trapi/swagger` to run metadata extraction itself (by passing `MetadataGenerateOptions` to `generateSwagger`), you also need a decorator mapping installed — a shipped preset (`@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`), or your own:
 
 ```bash
-npm install --save @trapi/decorators
+npm install --save @trapi/preset-decorators-express @decorators/express
 ```
 
 ## Module Format
@@ -36,7 +36,7 @@ const spec = await generateSwagger({
     version: 'v3',
     metadata: {
         entryPoint: 'src/controllers/**/*.ts',
-        preset: '@trapi/decorators',
+        preset: '@trapi/preset-decorators-express',
     },
     data: { name: 'My API', version: '1.0.0' },
 });

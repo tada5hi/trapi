@@ -106,7 +106,7 @@ controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden'), mark
 `@Controller` and `@Mount` accept either a single path or an array of paths, letting one controller serve the same set of endpoints under multiple URL prefixes:
 
 ```typescript
-import { Controller, Get, Path } from '@trapi/decorators';
+import { Controller, Get, Params } from '@decorators/express';
 
 @Controller(['/roles', '/realms/:realmId/roles'])
 export class RolesController {
@@ -114,7 +114,7 @@ export class RolesController {
     list(): Role[] { /* ... */ }
 
     @Get('/:id')
-    detail(@Path('id') id: string): Role { /* ... */ }
+    detail(@Params('id') id: string): Role { /* ... */ }
 }
 ```
 
@@ -157,9 +157,8 @@ Shipped presets:
 
 | Preset | Framework |
 | --- | --- |
-| `@trapi/decorators` | Reference decorator set (also a runnable decorator library) |
-| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) (extends `@trapi/decorators`) |
+| `@trapi/preset-decorators-express` | [@decorators/express](https://github.com/serhiisol/node-decorators) — self-contained (routing + TRAPI markers + JSDoc handlers) |
+| `@trapi/preset-typescript-rest` | [typescript-rest](https://github.com/thiagobustamante/typescript-rest) — self-contained (routing + TRAPI markers + JSDoc handlers) |
 
 Use one by name:
 

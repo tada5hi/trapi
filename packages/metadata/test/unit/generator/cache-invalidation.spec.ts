@@ -20,7 +20,7 @@ import { MetadataGenerator, generateMetadata } from '../../../src';
 import { CACHE_FILE_PREFIX } from '../../../src/adapters/cache/constants';
 
 const decoratorEntry = [{
-    cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../decorators'),
+    cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),
     pattern: './test/data/controllers/**/*.ts',
 }];
 
@@ -58,7 +58,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         const opts = {
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
         };
 
         const first = await generateMetadata(opts);
@@ -87,7 +87,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
         });
         const afterFirst = await listCacheFiles(dir);
         expect(afterFirst).toHaveLength(1);
@@ -97,7 +97,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
-            preset: '@trapi/preset-decorators-express',
+            preset: '@trapi/preset-typescript-rest',
         });
         const afterSecond = await listCacheFiles(dir);
         expect(afterSecond).toHaveLength(2);
@@ -107,7 +107,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
             tsconfig: { compilerOptions: { strict: true } },
         });
         expect(await listCacheFiles(dir)).toHaveLength(1);
@@ -115,7 +115,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         await generateMetadata({
             entryPoint: decoratorEntry,
             cache: { enabled: true, directoryPath: dir },
-            preset: '@trapi/decorators',
+            preset: '@trapi/preset-decorators-express',
             tsconfig: { compilerOptions: { strict: false } },
         });
         expect(await listCacheFiles(dir)).toHaveLength(2);

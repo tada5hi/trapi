@@ -22,15 +22,14 @@ Most tools that generate OpenAPI from decorators force you to adopt their own de
 |---------|-------------|
 | [@trapi/metadata](./packages/metadata) | Core: extracts API metadata from TypeScript decorators |
 | [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
-| [@trapi/decorators](./packages/decorators) | Default decorator set and mapping |
-| [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Preset for typescript-rest |
-| [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Preset for @decorators/express |
+| [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Self-contained preset for @decorators/express (routing + TRAPI markers + JSDoc) |
+| [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Self-contained preset for typescript-rest (routing + TRAPI markers + JSDoc) |
 | [@trapi/cli](./packages/cli) | `trapi` CLI — generate OpenAPI specs straight from the shell |
 
 ## Quick Start
 
 ```bash
-npm install @trapi/metadata @trapi/swagger
+npm install @trapi/metadata @trapi/swagger @trapi/preset-decorators-express @decorators/express
 ```
 
 ```typescript
@@ -40,7 +39,7 @@ import { generateSwagger, saveSwagger } from '@trapi/swagger';
 // Extract metadata from your decorated TypeScript source
 const metadata = await generateMetadata({
     entryPoint: './src/controllers/**/*.ts',
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 
 // Generate OpenAPI spec
@@ -58,7 +57,7 @@ Or skip the script entirely and run it from the shell with [`@trapi/cli`](./pack
 
 ```bash
 npx trapi generate \
-  --preset @trapi/decorators \
+  --preset @trapi/preset-decorators-express \
   --entry-point 'src/**/*.ts' \
   --output docs/openapi.json \
   --version 3.1
@@ -107,7 +106,7 @@ export default {
 };
 ```
 
-Presets can `extend` other presets to inherit and override handlers — `@trapi/preset-decorators-express` extends `@trapi/decorators` and only overrides the names that diverge. JSDoc tags use the same model through dedicated `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc` handler arrays.
+Presets can `extend` other presets to inherit and override handlers. The shipped framework presets (`@trapi/preset-decorators-express`, `@trapi/preset-typescript-rest`) are self-contained — each ships its own routing handlers, TRAPI markers, and JSDoc handlers — but a user-authored preset can extend either by name. JSDoc tags use the same model through dedicated `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc` handler arrays.
 
 This means any HTTP framework built on TypeScript decorators can get metadata extraction and OpenAPI generation for free — without changing application code.
 

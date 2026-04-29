@@ -2,7 +2,7 @@
 
 TRAPI 2.0 replaces the 1.x decorator configuration system (`DecoratorConfig[]` + `DecoratorID` enum) with a v2 **preset** system: declarative handlers that mutate drafts, with explicit support for marker-based discovery, `extends` / `replaces`, and JSDoc tag handlers.
 
-If your application only consumes the high-level entry points and the bundled preset (`@trapi/decorators`), the migration is small. If you author **custom decorator mappings** or reach into 1.x internals (`DecoratorResolver`, `DecoratorConfig`, ...), there are concrete code changes to make.
+If your application only consumes the high-level entry points and a bundled preset (`@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`), the migration is small. If you author **custom decorator mappings** or reach into 1.x internals (`DecoratorResolver`, `DecoratorConfig`, ...), there are concrete code changes to make.
 
 ## At a glance
 

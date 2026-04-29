@@ -83,7 +83,7 @@ Use `extends` to inherit handlers from another preset:
 ```typescript
 const preset: Preset = {
     name: '@my-org/trapi-preset',
-    extends: ['@trapi/decorators'],
+    extends: ['@trapi/preset-decorators-express'],
     controllers: [
         // Recognise @Route(...) in addition to inherited @Controller(...)
         routeControllerHandler,
@@ -204,9 +204,9 @@ The string is resolved by the loader (named export `preset`, then default export
 
 ## Worked Examples
 
-- [`examples/custom-preset`](https://github.com/tada5hi/trapi/tree/master/examples/custom-preset) — minimal end-to-end example: a `Preset`, a fixture controller, and a Vitest spec that asserts `generateMetadata` resolves the expected shape.
+- [`examples/decorators`](https://github.com/tada5hi/trapi/tree/master/examples/decorators) — minimal end-to-end example: a runtime decorator library + a `Preset`, a fixture controller, and a Vitest spec that asserts `generateMetadata` resolves the expected shape.
 - [`@trapi/preset-typescript-rest`](https://github.com/tada5hi/trapi/tree/master/packages/preset-typescript-rest) — maps `@Path`, `@GET`, `@POST`, `@QueryParam`, `@FileParam`, etc. to handler functions; published as a real npm package.
-- [`@trapi/decorators`](https://github.com/tada5hi/trapi/tree/master/packages/decorators) — the canonical reference preset (the default `@trapi/decorators`); split into `src/handlers/{controller,method,parameter,jsdoc}.ts` for readability.
+- [`@trapi/preset-decorators-express`](https://github.com/tada5hi/trapi/tree/master/packages/preset-decorators-express) — maps the `@decorators/express` decorator set; self-contained (routing + TRAPI markers + JSDoc handlers).
 
 ## Testing a Preset
 

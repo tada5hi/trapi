@@ -35,6 +35,12 @@ npm install --save @trapi/swagger
 npm install --save @trapi/metadata
 ```
 
+You also need a preset matching the decorator library used by your controllers (or your own custom preset). The examples below use [@decorators/express](https://github.com/serhiisol/node-decorators) via [`@trapi/preset-decorators-express`](../preset-decorators-express); install both:
+
+```bash
+npm install --save @trapi/preset-decorators-express @decorators/express
+```
+
 ## Usage
 
 `generateSwagger()` accepts either pre-built metadata or metadata generation options — when options are supplied, it runs `generateMetadata()` internally first.
@@ -46,7 +52,7 @@ const spec = await generateSwagger({
     version: 'v3',
     metadata: {
         entryPoint: ['src/controllers/**/*.ts'],
-        preset: '@trapi/decorators',
+        preset: '@trapi/preset-decorators-express',
     },
     data: {
         name: 'My API',
@@ -67,7 +73,7 @@ import { generateSwagger } from '@trapi/swagger';
 
 const metadata = await generateMetadata({
     entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/decorators',
+    preset: '@trapi/preset-decorators-express',
 });
 
 const spec = await generateSwagger({

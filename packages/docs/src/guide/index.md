@@ -27,9 +27,8 @@ The metadata model is a first-class output. Other consumers — route generators
 | --- | --- |
 | [`@trapi/metadata`](/guide/metadata-installation) | Extracts metadata from decorated TypeScript source |
 | [`@trapi/swagger`](/guide/swagger-installation) | Emits OpenAPI 2.0, 3.0, 3.1 & 3.2 specs from metadata |
-| `@trapi/decorators` | Reference decorator set and mapping schema |
-| `@trapi/preset-typescript-rest` | Preset for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) |
-| `@trapi/preset-decorators-express` | Preset for [@decorators/express](https://github.com/serhiisol/node-decorators) |
+| `@trapi/preset-decorators-express` | Self-contained preset for [@decorators/express](https://github.com/serhiisol/node-decorators) (routing + TRAPI markers + JSDoc handlers) |
+| `@trapi/preset-typescript-rest` | Self-contained preset for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) (routing + TRAPI markers + JSDoc handlers) |
 
 ## Where to Next
 

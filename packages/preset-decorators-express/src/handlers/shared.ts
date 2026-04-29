@@ -103,21 +103,26 @@ export function appendSecurityToDraft(
             if (Object.keys(security).length > 0) {
                 draft.security ??= [];
                 draft.security.push(security);
-                return;
             }
+            // Object form attempted: don't fall through to array-form handling.
+            // If no valid entries were extracted, reject rather than emit a
+            // phantom `{ default: [] }` requirement on a scheme name the user
+            // never typed.
+            return;
         }
         name = 'default';
     }
 
     const scopes: string[] = [];
     if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-        // All-or-nothing: a malformed scope list (e.g. `[null, 'admin']`)
-        // would silently underreport required scopes if filtered, so reject
-        // the whole entry instead.
-        if (!scopesArg.raw.every((item) => typeof item === 'string')) {
-            return;
+        // Malformed array (e.g. `[null, 'admin']`): keep the security entry
+        // so the endpoint stays secured under `name`, but drop ALL scopes
+        // rather than emit a partial list — silently under-reporting scopes
+        // is the more dangerous failure mode. Returning early would be worse
+        // still, since it would leave the endpoint appearing unsecured.
+        if (scopesArg.raw.every((item) => typeof item === 'string')) {
+            scopes.push(...scopesArg.raw);
         }
-        scopes.push(...scopesArg.raw);
     } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
         scopes.push(scopesArg.raw);
     }

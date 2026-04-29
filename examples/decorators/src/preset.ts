@@ -91,12 +91,12 @@ function appendSecurityToDraft(
     const name = readString(nameArg) ?? 'default';
     const scopes: string[] = [];
     if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
-        // Reject malformed scope lists rather than silently dropping
-        // non-string items — partial scopes underreport security.
-        if (!scopesArg.raw.every((item) => typeof item === 'string')) {
-            return;
+        // Malformed array: keep the security entry so the endpoint stays
+        // secured, but drop ALL scopes rather than emit partial. Returning
+        // early would leave the endpoint appearing unsecured.
+        if (scopesArg.raw.every((item) => typeof item === 'string')) {
+            scopes.push(...scopesArg.raw);
         }
-        scopes.push(...scopesArg.raw);
     }
     draft.security ??= [];
     draft.security.push({ [name]: scopes });

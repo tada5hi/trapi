@@ -4,6 +4,10 @@ TRAPI 2.0 replaces the 1.x decorator configuration system (`DecoratorConfig[]` +
 
 If your application only consumes the high-level entry points and a bundled preset (`@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`), the migration is small. If you author **custom decorator mappings** or reach into 1.x internals (`DecoratorResolver`, `DecoratorConfig`, ...), there are concrete code changes to make.
 
+::: tip `@trapi/decorators` was removed
+The 1.x reference package `@trapi/decorators` no longer exists. Its handlers were inlined into each framework preset (`@trapi/preset-decorators-express`, `@trapi/preset-typescript-rest`) so every preset is now self-contained. If you depended on `@trapi/decorators` directly, switch to one of the framework presets — most user code didn't import from it directly. See the [`examples/decorators`](https://github.com/tada5hi/trapi/tree/master/examples/decorators) bundle for a worked decorator+preset reference.
+:::
+
 ## At a glance
 
 | Area | 1.x | 2.0 |
@@ -13,7 +17,7 @@ If your application only consumes the high-level entry points and a bundled pres
 | Decorator identity | `DecoratorID` enum (`DecoratorID.CONTROLLER`, `DecoratorID.GET`, ...) | Removed — handlers match by `name` string with optional `on` target filter |
 | Argument mapping | `properties: { value: { index: 0 } }` config | `apply(ctx, draft)` — read via `ctx.argument(i)` |
 | Resolver-side concepts | Hardcoded names in the resolver | `marker: ResolverMarker` on each handler |
-| Default export of `@trapi/decorators` | `PresetSchema` | `Preset` |
+| Reference decorator package | `@trapi/decorators` (preset + runtime stubs) | Removed — handlers inlined into each framework preset; see [`examples/decorators`](https://github.com/tada5hi/trapi/tree/master/examples/decorators) for a worked reference |
 | `Version.V3` | `openapi: '3.1.0'` | `openapi: '3.0.0'` (use `Version.V3_1` for the 3.1.0 default) |
 | File output from `generateSwagger()` | `output: false` / `outputDirectory` / `yaml` options | Removed — call `saveSwagger(spec, ...)` separately |
 
@@ -82,12 +86,12 @@ await generateMetadata({
 });
 ```
 
-If you only need to *extend* the canonical preset, declare it via `extends`:
+If you only need to *extend* a framework preset, declare it via `extends`:
 
 ```typescript
 const preset: Preset = {
     name: 'my-app/preset',
-    extends: ['@trapi/decorators'],
+    extends: ['@trapi/preset-decorators-express'],
     controllers: [
         controller({
             match: { name: 'Route', on: 'class' },
@@ -142,19 +146,21 @@ parameter({
 
 Markers: `'hidden' | 'deprecated' | 'extension' | { numeric: 'int' | 'long' | 'float' | 'double' }`. JSDoc handlers can carry markers too — see [Custom Presets — Resolver Markers](/guide/advanced-custom-presets#resolver-markers).
 
-### 4. Default export of `@trapi/decorators`
+### 4. `@trapi/decorators` was removed
+
+The 1.x reference package no longer exists. Its handlers were inlined into the two framework presets so each preset is self-contained:
 
 ```typescript
-// 1.x — the default export was a PresetSchema
+// 1.x / early 2.0
 import preset from '@trapi/decorators';
-// preset.items: DecoratorConfig[]
+// preset.items: DecoratorConfig[] (1.x) or preset.controllers/methods/... (early 2.0)
 
-// 2.0 — the default export is a v2 Preset
-import preset from '@trapi/decorators';
-// preset.controllers, preset.methods, preset.parameters, ...
+// Current 2.x — install one of the framework presets and reference it by name
+import preset from '@trapi/preset-decorators-express';
+// preset.controllers, preset.methods, preset.parameters, controllerJsDoc, methodJsDoc, parameterJsDoc
 ```
 
-If you previously read `preset.items` to enumerate or modify entries, that field no longer exists. Use the kind-specific arrays instead.
+If you imported runtime decorators (`@Controller`, `@Get`, …) from `@trapi/decorators`, switch the import source to your routing library — `@decorators/express` for the Express preset, `typescript-rest` for the typescript-rest preset. If you imported TRAPI-specific markers (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, …), define your own no-op stubs locally or copy from [`examples/decorators/src/decorators.ts`](https://github.com/tada5hi/trapi/tree/master/examples/decorators/src/decorators.ts).
 
 ### 5. Removed types and runtime symbols
 
@@ -216,7 +222,7 @@ If you call `generateMetadata({ entryPoint })` without a `preset` and source fil
 - [ ] If you renamed `@Hidden` / `@Deprecated` / `@Extension` / `@IsInt` etc. — add `marker:` on those handlers.
 - [ ] If you used `Version.V3` and emitted `openapi: '3.1.0'`, switch to `Version.V3_1`.
 - [ ] If you relied on `output` / `outputDirectory` / `yaml` from `generate()`, replace with a separate `saveSwagger()` call.
-- [ ] If you imported the default of `@trapi/decorators` and read `.items`, switch to `.controllers` / `.methods` / `.parameters` etc.
+- [ ] If you imported `@trapi/decorators` directly, replace it with a framework preset (`@trapi/preset-decorators-express` or `@trapi/preset-typescript-rest`) and update runtime decorator imports to come from your routing library.
 - [ ] Run `generateMetadata` against your project — controllers should be discovered identically. If not, `strict: true` will surface unmatched decorators.
 
 ## See also
@@ -224,4 +230,4 @@ If you call `generateMetadata({ entryPoint })` without a `preset` and source fil
 - [Custom Presets](/guide/advanced-custom-presets) — full reference for authoring a v2 preset
 - [Decorators & Presets](/guide/metadata-decorators) — handler API, drafts, `into` / `append` / `flag` helpers
 - [Configuration](/guide/metadata-configuration) — current `MetadataGenerateOptions` surface
-- [examples/custom-preset](https://github.com/tada5hi/trapi/tree/master/examples/custom-preset) — runnable worked example of a v2 `Preset` for a custom decorator library
+- [examples/decorators](https://github.com/tada5hi/trapi/tree/master/examples/decorators) — runnable worked example of a custom decorator runtime + matching v2 `Preset`

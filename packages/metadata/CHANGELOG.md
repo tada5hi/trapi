@@ -151,6 +151,47 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0-beta.0](https://github.com/tada5hi/trapi/compare/metadata-v1.3.0...metadata-v2.0.0-beta.0) (2026-04-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **presets:** multi path support
+* **metadata,swagger,decorators:** multi path support
+* all packages now output ESM only (.mjs)
+
+### Features
+
+* drain decorator-v2 follow-ups (strict mode, namespace flatten, … ([#799](https://github.com/tada5hi/trapi/issues/799)) ([bd86d60](https://github.com/tada5hi/trapi/commit/bd86d6057cf63b9a9e991cdbee19bc787579f830))
+* extensions on controller and parameter ([#794](https://github.com/tada5hi/trapi/issues/794)) ([90b0342](https://github.com/tada5hi/trapi/commit/90b0342a9032b3069ec4771bc38d8e243fe75f8a))
+* **metadata,decorators:** v2 orchestrator and @trapi/decorators preset ([#796](https://github.com/tada5hi/trapi/issues/796)) ([84d9853](https://github.com/tada5hi/trapi/commit/84d9853365aa898ecde8e015ac4987c36c614191))
+* **metadata,swagger,decorators:** support multiple mount paths per c… ([#803](https://github.com/tada5hi/trapi/issues/803)) ([cd6546f](https://github.com/tada5hi/trapi/commit/cd6546fdf48044846fc5e8549c252d05fac7f840))
+* **metadata,swagger:** add dedicated never type support ([#785](https://github.com/tada5hi/trapi/issues/785)) ([45f0691](https://github.com/tada5hi/trapi/commit/45f0691e85a56f23d65674b04fb2cf763f4bd87c))
+* **metadata,swagger:** add generateSwagger, saveSwagger, and unified… ([#786](https://github.com/tada5hi/trapi/issues/786)) ([15f6591](https://github.com/tada5hi/trapi/commit/15f65913aa0e5c150e3c88269ad6bc6585da57ce))
+* **metadata,swagger:** add Validator.meta extension point for OpenAPI hints ([05bde31](https://github.com/tada5hi/trapi/commit/05bde31e24bdcaae7308bb2ad3220e587565b721))
+* **metadata,swagger:** oneOf composition, conditional types, and gen… ([#779](https://github.com/tada5hi/trapi/issues/779)) ([c679a52](https://github.com/tada5hi/trapi/commit/c679a5212cc8a74d18373f7ea4d2729a951fc151))
+* **metadata:** add extended utility type support and unify resolution ([#775](https://github.com/tada5hi/trapi/issues/775)) ([e1ac93d](https://github.com/tada5hi/trapi/commit/e1ac93da207baab08b498de2d9d726d5a07a6f4b))
+* **metadata:** composite cache key, atomic writes, mtime eviction, c… ([#801](https://github.com/tada5hi/trapi/issues/801)) ([6fd4c72](https://github.com/tada5hi/trapi/commit/6fd4c7291c6e4dbf6caa0a73f7f33d36f94ebd83))
+* **metadata:** decorator system v2 foundations ([#795](https://github.com/tada5hi/trapi/issues/795)) ([6e3f26b](https://github.com/tada5hi/trapi/commit/6e3f26b650876356d6a270d1bfd1bc537d384be1))
+* **metadata:** migrate type resolver to v2, delete v1, migrate presets ([#798](https://github.com/tada5hi/trapi/issues/798)) ([7c40649](https://github.com/tada5hi/trapi/commit/7c40649e13c685928bd80039be56ecb60842a931))
+* **metadata:** wire generators to v2 registry ([#797](https://github.com/tada5hi/trapi/issues/797)) ([f77fbbc](https://github.com/tada5hi/trapi/commit/f77fbbc6e6e32ef5e9307c320aaee6a6f31427ee))
+* **swagger:** schema validation & multi-version OpenAPI support (V2, V3.0, V3.1, V3.2) ([#774](https://github.com/tada5hi/trapi/issues/774)) ([c331cc2](https://github.com/tada5hi/trapi/commit/c331cc2983b197eeca76c1c89c53b2e98bc961e3))
+
+
+### Bug Fixes
+
+* **metadata,swagger:** generic conditional resolution and refAlias di… ([#784](https://github.com/tada5hi/trapi/issues/784)) ([68596dd](https://github.com/tada5hi/trapi/commit/68596dd76f7a4ad2d3c62b3e8ab5fcfaca1f610f))
+
+
+### Code Refactoring
+
+* **presets:** make framework presets self-contained ([#804](https://github.com/tada5hi/trapi/issues/804)) ([dc896b4](https://github.com/tada5hi/trapi/commit/dc896b4caefbba51bc6a3df24a2e709abd7946c9))
+
+
+### Build System
+
+* modernize tooling to ESM, tsdown, vitest, and eslint v10 ([24e1f58](https://github.com/tada5hi/trapi/commit/24e1f587cfd66890b91f58f78d3b6434f12f577d))
+
 ## [1.3.0](https://github.com/tada5hi/trapi/compare/metadata-v1.2.3...metadata-v1.3.0) (2025-07-29)
 
 

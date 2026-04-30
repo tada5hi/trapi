@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0-beta.1](https://github.com/tada5hi/trapi/compare/swagger-v2.0.0-beta.0...swagger-v2.0.0-beta.1) (2026-04-30)
+
+
+### Features
+
+* **metadata,swagger,presets:** preset-author helpers + controller deprecation ([#807](https://github.com/tada5hi/trapi/issues/807)) ([1002973](https://github.com/tada5hi/trapi/commit/1002973144f03ed3ab0d9823f8e74340e75f0ae4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.0-beta.0 to ^2.0.0-beta.1
+
 ## [2.0.0-beta.0](https://github.com/tada5hi/trapi/compare/swagger-v1.3.0...swagger-v2.0.0-beta.0) (2026-04-30)
 
 

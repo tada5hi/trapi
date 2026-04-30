@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/tada5hi/trapi/compare/docs-v2.0.0...docs-v2.1.0) (2026-04-30)
+
+
+### Features
+
+* **metadata,swagger,presets:** preset-author helpers + controller deprecation ([#807](https://github.com/tada5hi/trapi/issues/807)) ([1002973](https://github.com/tada5hi/trapi/commit/1002973144f03ed3ab0d9823f8e74340e75f0ae4))
+
 ## [2.0.0](https://github.com/tada5hi/trapi/compare/docs-v1.0.0...docs-v2.0.0) (2026-04-30)
 
 

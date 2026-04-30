@@ -18,6 +18,14 @@ export type Controller = {
     consumes: string[];
 
     /**
+     * Whether every operation under this controller should be considered
+     * deprecated. OpenAPI has no controller-level `deprecated` field — emitters
+     * should cascade this flag to each emitted operation (combined with the
+     * method's own `deprecated`).
+     */
+    deprecated?: boolean;
+
+    /**
      * Vendor extensions (x-* keys) declared on the controller class.
      */
     extensions: Extension[];

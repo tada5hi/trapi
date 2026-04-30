@@ -81,6 +81,20 @@ export type ParamKind = typeof ParamKind[keyof typeof ParamKind];
 - **Inside this codebase, prefer the const reference** — it's discoverable in IDE autocomplete and shows up in find-all-references. Bare literals are reserved for places where the value is genuinely incidental (e.g. JSDoc tag matching against arbitrary user input).
 - **Don't use TypeScript `enum`s** for new code. They're heavier (compile to JS objects with reverse mappings), don't pattern-match like `as const`, and often mismatch the template-literal type ergonomics. Existing enums have been migrated to the same-name pattern above; `` `${ParameterSource}` ``, `` `${MethodName}` ``, and `` `${CollectionFormat}` `` continue to work unchanged.
 
+### Pitfall: value access inside template-literal types
+
+Property access like `Version.V2` only works in **value** position. Inside template-literal types (`` `${...}` ``), the `Version` identifier resolves to the **type** alias — which is a string-literal union with no `.V2` member. The compiler reports `'Version' only refers to a type, but is being used as a namespace here.`
+
+```ts
+// ❌ Doesn't compile — `Version.V2` is value access in type position.
+type Out<V extends `${Version}`> = V extends `${Version.V2}` ? SpecV2 : SpecV3;
+
+// ✅ Use `typeof Const.MEMBER` to get the literal type.
+type Out<V extends `${Version}`> = V extends typeof Version.V2 ? SpecV2 : SpecV3;
+```
+
+For reusable wrappers, prefer the type helpers exported alongside the const (e.g. `OutputForVersion<V>` for `Version`) over re-deriving the conditional.
+
 ## File Organization
 
 - **`types.ts`** — Only types and interfaces. No functions, no classes, no constants. Every directory that has types uses `types.ts` (not `type.ts`).

@@ -7,47 +7,17 @@
 
 import type {
     ControllerDraft,
-    DecoratorArgument,
     HandlerContext,
     MethodDraft,
     ParameterDraft,
 } from '@trapi/metadata';
-import { append } from '@trapi/metadata';
+import { append, readNumber, readString } from '@trapi/metadata';
 
-export function readString(arg: DecoratorArgument | undefined): string | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
-    return undefined;
-}
-
-export function readNumber(arg: DecoratorArgument | undefined): number | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'number') return arg.raw;
-    return undefined;
-}
-
-/**
- * Read a positional argument that may be either a single string or an array
- * of strings. Returns `undefined` when the argument is missing, when any
- * array element is non-string, or otherwise unresolvable. All-or-nothing:
- * never returns a partial array with non-string items silently dropped.
- */
-export function readStringOrStringArray(
-    arg: DecoratorArgument | undefined,
-): string[] | undefined {
-    const single = readString(arg);
-    if (single !== undefined) {
-        return [single];
-    }
-    if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        if (arg.raw.every((item) => typeof item === 'string')) {
-            return arg.raw;
-        }
-        return undefined;
-    }
-    return undefined;
-}
+export {
+    readNumber,
+    readString,
+    readStringOrStringArray,
+} from '@trapi/metadata';
 
 export const setHidden = (_ctx: HandlerContext, draft: { hidden: boolean }) => {
     draft.hidden = true;

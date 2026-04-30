@@ -9,12 +9,8 @@ import type { Metadata } from '@trapi/metadata';
 import { generateMetadata, isMetadata } from '@trapi/metadata';
 import type { SpecGeneratorOptionsInput, SwaggerGenerateOptions } from '../core/config';
 import { Version } from '../core/constants';
-import type { SpecV2, SpecV3 } from '../core/schema';
+import type { OutputForVersion } from '../core/types';
 import { V2Generator, V3Generator  } from '../adapters/index.ts';
-
-type OutputSpec<V extends `${Version}`> = V extends typeof Version.V2 ?
-    SpecV2 :
-    SpecV3;
 
 function toSpecGeneratorOptionsInput(options: SwaggerGenerateOptions): SpecGeneratorOptionsInput {
     const { data } = options;
@@ -47,7 +43,7 @@ async function resolveMetadata(options: SwaggerGenerateOptions): Promise<Metadat
 
 export async function generateSwagger<V extends `${Version}`>(
     options: Omit<SwaggerGenerateOptions, 'version'> & { version: V },
-): Promise<OutputSpec<V>> {
+): Promise<OutputForVersion<V>> {
     const metadata = await resolveMetadata(options);
     const specGeneratorOptionsInput = toSpecGeneratorOptionsInput(options);
 
@@ -57,12 +53,12 @@ export async function generateSwagger<V extends `${Version}`>(
         case Version.V3_2: {
             const generator = new V3Generator(metadata, specGeneratorOptionsInput, options.version);
 
-            return await generator.build() as OutputSpec<V>;
+            return await generator.build() as OutputForVersion<V>;
         }
         default: {
             const generator = new V2Generator(metadata, specGeneratorOptionsInput);
 
-            return await generator.build() as OutputSpec<V>;
+            return await generator.build() as OutputForVersion<V>;
         }
     }
 }

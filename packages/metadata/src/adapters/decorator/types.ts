@@ -79,6 +79,7 @@ export type ControllerDraft = {
     location: string;
     paths?: string[];
     hidden: boolean;
+    deprecated?: boolean;
     consumes: string[];
     produces: string[];
     tags: string[];

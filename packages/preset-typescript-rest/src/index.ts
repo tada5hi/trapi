@@ -6,13 +6,15 @@
  */
 
 import {
-    type ControllerHandler,
     type MethodHandler,
     ParamKind,
     type Preset,
     controller,
     method,
     parameter,
+    readString,
+    setControllerPaths,
+    setMethodPath,
 } from '@trapi/metadata';
 import {
     controllerMarkerHandlers,
@@ -29,42 +31,17 @@ import {
 // typescript-rest. We map it to two handlers (one for class, one for method)
 // because the same decorator name is reused for `@Path('/:id')` on methods.
 
-function readStringArg(ctx: Parameters<ControllerHandler['apply']>[0]): string | undefined {
-    const arg = ctx.argument(0);
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
-    return undefined;
-}
-
-function readStringOrArrayArg(ctx: Parameters<ControllerHandler['apply']>[0]): string[] | undefined {
-    const single = readStringArg(ctx);
-    if (single !== undefined) return [single];
-    const arg = ctx.argument(0);
-    if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        const out: string[] = [];
-        for (const item of arg.raw) {
-            if (typeof item === 'string') out.push(item);
-        }
-        return out;
-    }
-    return undefined;
-}
-
 const controllerPathHandler = controller({
     match: { name: 'Path', on: 'class' },
     apply: (ctx, draft) => {
-        draft.paths = readStringOrArrayArg(ctx) ?? [''];
+        setControllerPaths(draft, ctx.argument(0));
     },
 });
 
 const methodPathHandler = method({
     match: { name: 'Path', on: 'method' },
     apply: (ctx, draft) => {
-        const path = readStringArg(ctx);
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     },
 });
 
@@ -100,7 +77,7 @@ function paramHandler(name: string, kind: typeof ParamKind[keyof typeof ParamKin
         match: { name, on: 'parameter' },
         apply: (ctx, draft) => {
             draft.in = kind;
-            const argName = readStringArg(ctx);
+            const argName = readString(ctx.argument(0));
             if (argName) draft.name = argName;
         },
     });

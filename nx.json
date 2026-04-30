@@ -1,20 +1,28 @@
 {
-    "$schema": "./node_modules/nx/schemas/nx-schema.json",
-    "targetDefaults": {
-        "build": {
-            "dependsOn": ["^build"],
-            "cache": true
-        },
-        "test": {
-            "cache": true
-        },
-        "lint": {
-            "cache": true
-        }
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": true
     },
-    "namedInputs": {
-        "default": ["{projectRoot}/**/*", "sharedGlobals"],
-        "sharedGlobals": [],
-        "production": ["default"]
+    "test": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
     }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "sharedGlobals": [],
+    "production": [
+      "default"
+    ]
+  },
+  "analytics": false
 }

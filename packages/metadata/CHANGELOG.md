@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0-beta.1](https://github.com/tada5hi/trapi/compare/metadata-v2.0.0-beta.0...metadata-v2.0.0-beta.1) (2026-04-30)
+
+
+### Features
+
+* **metadata,swagger,presets:** preset-author helpers + controller deprecation ([#807](https://github.com/tada5hi/trapi/issues/807)) ([1002973](https://github.com/tada5hi/trapi/commit/1002973144f03ed3ab0d9823f8e74340e75f0ae4))
+
 ## [2.0.0-beta.0](https://github.com/tada5hi/trapi/compare/metadata-v1.3.0...metadata-v2.0.0-beta.0) (2026-04-30)
 
 

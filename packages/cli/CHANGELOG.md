@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.1-beta.0](https://github.com/tada5hi/trapi/compare/cli-v0.1.0-beta.0...cli-v0.1.1-beta.0) (2026-04-30)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.0-beta.0 to ^2.0.0-beta.1
+    * @trapi/swagger bumped from ^2.0.0-beta.0 to ^2.0.0-beta.1
+
 ## 0.1.0-beta.0 (2026-04-30)
 
 

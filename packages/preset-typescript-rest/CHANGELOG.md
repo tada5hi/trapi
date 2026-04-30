@@ -55,6 +55,22 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [2.0.0-beta.1](https://github.com/tada5hi/trapi/compare/preset-typescript-rest-v2.0.0-beta.0...preset-typescript-rest-v2.0.0-beta.1) (2026-04-30)
+
+
+### Features
+
+* **metadata,swagger,presets:** preset-author helpers + controller deprecation ([#807](https://github.com/tada5hi/trapi/issues/807)) ([1002973](https://github.com/tada5hi/trapi/commit/1002973144f03ed3ab0d9823f8e74340e75f0ae4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/metadata bumped from ^2.0.0-beta.0 to ^2.0.0-beta.1
+  * peerDependencies
+    * @trapi/metadata bumped from 2.0.0-beta.0 to 2.0.0-beta.1
+
 ## [2.0.0-beta.0](https://github.com/tada5hi/trapi/compare/preset-typescript-rest-v1.0.8...preset-typescript-rest-v2.0.0-beta.0) (2026-04-30)
 
 

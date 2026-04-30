@@ -5,7 +5,7 @@
     "bump-minor-pre-major": true,
     "bump-patch-for-minor-pre-major": true,
     "packages": {
-        "packages/cli": { "component": "cli", "release-as": "0.1.0-beta.1" },
+        "packages/cli": { "component": "cli", "release-as": "0.1.1-beta.0" },
         "packages/docs": { "component": "docs" },
         "packages/metadata": { "component": "metadata", "release-as": "2.0.0-beta.1" },
         "packages/preset-decorators-express": { "component": "preset-decorators-express", "release-as": "0.2.0-beta.1" },

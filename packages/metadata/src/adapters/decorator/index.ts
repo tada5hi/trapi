@@ -6,7 +6,9 @@
  */
 
 export * from './constants';
+export * from './helpers';
 export * from './module';
+export * from './test-helpers';
 export * from './orchestrator';
 export * from './types';
 export * from './typescript';

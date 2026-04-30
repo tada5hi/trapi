@@ -16,13 +16,13 @@ import {
     controller,
     method,
     parameter,
+    setMethodPath,
 } from '@trapi/metadata';
 import {
     appendConsumes,
     appendExtensionToDraft,
     appendProduces,
     appendTags,
-    readString,
     setDeprecated,
     setHidden,
 } from './shared';
@@ -33,6 +33,12 @@ const controllerHiddenHandler = controller({
     match: { name: 'Hidden', on: 'class' },
     apply: setHidden,
     marker: MarkerName.Hidden,
+});
+
+const controllerDeprecatedHandler = controller({
+    match: { name: 'Deprecated', on: 'class' },
+    apply: setDeprecated,
+    marker: MarkerName.Deprecated,
 });
 
 const controllerTagsHandler = controller({
@@ -63,6 +69,7 @@ const controllerExtensionHandler = controller({
 
 export const controllerMarkerHandlers: ControllerHandler[] = [
     controllerHiddenHandler,
+    controllerDeprecatedHandler,
     controllerTagsHandler,
     controllerProducesHandler,
     controllerConsumesHandler,
@@ -75,10 +82,7 @@ export const controllerMarkerHandlers: ControllerHandler[] = [
 const methodMountHandler = method({
     match: { name: 'Mount', on: 'method' },
     apply: (ctx, draft) => {
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     },
 });
 

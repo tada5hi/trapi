@@ -5,11 +5,29 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { SecurityType } from './constants';
+import type { SecurityType, Version } from './constants';
+import type { SpecV2, SpecV3 } from './schema';
 
 export type ValidatorOpenApiMeta = { kind: 'keyword'; key: string } |
     { kind: 'format'; format: string } |
     { kind: 'ignore' };
+
+/**
+ * Resolves the OpenAPI specification output type for a given `Version`.
+ *
+ * Use this to type wrapper functions around `generateSwagger()` whose return
+ * type depends on the requested `Version`:
+ *
+ * ```ts
+ * type GeneratorOutput<V extends `${Version}`> = OutputForVersion<V>;
+ * ```
+ *
+ * Internally `Version.V2` resolves to `SpecV2`; everything else resolves to
+ * `SpecV3` (which models OpenAPI 3.0, 3.1, and 3.2 — they share a schema).
+ */
+export type OutputForVersion<V extends `${Version}`> = V extends typeof Version.V2 ?
+    SpecV2 :
+    SpecV3;
 
 declare module '@trapi/metadata' {
     interface ValidatorMeta {

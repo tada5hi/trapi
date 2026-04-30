@@ -91,6 +91,7 @@ export class ControllerGenerator implements IControllerGenerator {
 
         return {
             consumes: draft.consumes,
+            deprecated: draft.deprecated,
             extensions: draft.extensions,
             hidden: draft.hidden,
             location: draft.location,

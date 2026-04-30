@@ -6,7 +6,12 @@
  */
 
 import type { MethodDraft, MethodHandler } from '@trapi/metadata';
-import { MarkerName, method } from '@trapi/metadata';
+import {
+    MarkerName,
+    method,
+    readString,
+    setMethodPath,
+} from '@trapi/metadata';
 import {
     appendConsumes,
     appendExtensionToDraft,
@@ -14,7 +19,6 @@ import {
     appendSecurityToDraft,
     appendTags,
     applyDescriptionToDraft,
-    readString,
     setDeprecated,
     setHidden,
 } from './shared';
@@ -24,10 +28,7 @@ import {
 function setVerbAndPath(verb: MethodDraft['verb']): MethodHandler['apply'] {
     return (ctx, draft) => {
         draft.verb = verb;
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     };
 }
 
@@ -43,20 +44,14 @@ const methodAllHandler = method({
     match: { name: 'All', on: 'method' },
     apply: (ctx, draft) => {
         draft.verb = 'get';
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     },
 });
 
 const methodMountHandler = method({
     match: { name: 'Mount', on: 'method' },
     apply: (ctx, draft) => {
-        const path = readString(ctx.argument(0));
-        if (path !== undefined) {
-            draft.path = path;
-        }
+        setMethodPath(draft, ctx.argument(0));
     },
 });
 

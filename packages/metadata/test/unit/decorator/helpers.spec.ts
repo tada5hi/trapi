@@ -9,8 +9,8 @@ import { describe, expect, it } from 'vitest';
 import {
     type DecoratorArgument,
     type DecoratorTypeArgument,
-    type HandlerContext,
     append,
+    createHandlerContext,
     flag,
     into,
     newControllerDraft,
@@ -19,15 +19,8 @@ import {
 } from '../../../src/adapters/decorator';
 import type { Type } from '../../../src/core/resolver/types';
 
-function makeContext(args: DecoratorArgument[], typeArgs: DecoratorTypeArgument[] = []): HandlerContext {
-    return {
-        host: { name: 'TestHost' },
-        argument: (i) => args[i],
-        arguments: () => args,
-        typeArgument: (i) => typeArgs[i],
-        typeArguments: () => typeArgs,
-        parameterType: () => undefined,
-    };
+function makeContext(args: DecoratorArgument[], typeArgs: DecoratorTypeArgument[] = []) {
+    return createHandlerContext({ args, typeArgs });
 }
 
 describe('into', () => {

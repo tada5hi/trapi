@@ -6,7 +6,12 @@
  */
 
 import type { ControllerHandler } from '@trapi/metadata';
-import { MarkerName, controller } from '@trapi/metadata';
+import {
+    MarkerName,
+    controller,
+    readStringOrStringArray,
+    setControllerPaths,
+} from '@trapi/metadata';
 import {
     appendConsumes,
     appendExtensionToDraft,
@@ -14,7 +19,7 @@ import {
     appendSecurityToDraft,
     appendTags,
     applyDescriptionToDraft,
-    readStringOrStringArray,
+    setDeprecated,
     setHidden,
 } from './shared';
 
@@ -23,8 +28,7 @@ import {
 const controllerControllerHandler = controller({
     match: { name: 'Controller', on: 'class' },
     apply: (ctx, draft) => {
-        const paths = readStringOrStringArray(ctx.argument(0));
-        draft.paths = paths ?? [''];
+        setControllerPaths(draft, ctx.argument(0));
     },
 });
 
@@ -44,6 +48,12 @@ const controllerHiddenHandler = controller({
     match: { name: 'Hidden', on: 'class' },
     apply: setHidden,
     marker: MarkerName.Hidden,
+});
+
+const controllerDeprecatedHandler = controller({
+    match: { name: 'Deprecated', on: 'class' },
+    apply: setDeprecated,
+    marker: MarkerName.Deprecated,
 });
 
 const controllerTagsHandler = controller({
@@ -86,6 +96,7 @@ export const controllerHandlers: ControllerHandler[] = [
     controllerControllerHandler,
     controllerMountHandler,
     controllerHiddenHandler,
+    controllerDeprecatedHandler,
     controllerTagsHandler,
     controllerProducesHandler,
     controllerConsumesHandler,

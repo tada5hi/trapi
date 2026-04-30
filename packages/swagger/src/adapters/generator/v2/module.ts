@@ -210,6 +210,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 method.produces = unique([...controller.produces, ...method.produces]);
                 method.tags = unique([...controller.tags, ...method.tags]);
                 method.security = method.security || controller.security;
+                // OpenAPI has no controller-level `deprecated` — cascade
+                // controller deprecation to every emitted operation.
+                method.deprecated = method.deprecated || controller.deprecated;
                 // todo: unique for objects
                 method.responses = unique([...controller.responses, ...method.responses]);
 

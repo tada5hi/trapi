@@ -154,3 +154,30 @@ The typical pattern is to run metadata generation in a build step, commit the ge
 ```
 
 Pair with [caching](/guide/metadata-caching) to keep repeated runs fast during local development.
+
+## Type ownership reference
+
+Wrapper packages typically need to forward types from `@trapi/metadata` and `@trapi/swagger` through their public API. The split is by lifecycle stage — types describing source extraction live in `@trapi/metadata`; types describing OpenAPI emission live in `@trapi/swagger`.
+
+| Type | Package | What it describes |
+|---|---|---|
+| `Metadata` | `@trapi/metadata` | The full metadata document — controllers, methods, parameters, type references. The output of `generateMetadata()`. |
+| `MetadataGenerateOptions` | `@trapi/metadata` | Input options for `generateMetadata()` — entry point, preset, tsconfig, cache, strict mode. |
+| `Controller`, `Method`, `Parameter` | `@trapi/metadata` | The public, post-orchestrator metadata shapes (mutable drafts have `Draft` suffix and live in the same package). |
+| `Preset`, `Registry` | `@trapi/metadata` | Preset declaration and the flattened post-`extends` form. |
+| `ControllerHandler`, `MethodHandler`, `ParameterHandler` | `@trapi/metadata` | Handler signatures and the `controller(...)` / `method(...)` / `parameter(...)` builders. |
+| `HandlerContext`, `JsDocHandlerContext` | `@trapi/metadata` | What a handler's `apply` callback receives — `argument(i)`, `typeArgument(i)`, `parameterType()`. |
+| `DecoratorArgument`, `DecoratorTypeArgument`, `DecoratorSource` | `@trapi/metadata` | The AST-extraction shape handlers consume. |
+| `MarkerName`, `NumericKind`, `ParamKind`, `CollectionKind` | `@trapi/metadata` | Const objects + same-name type aliases for closed enumerations. |
+| `TsConfig`, `TsCompilerOptions` | `@trapi/metadata` | Wrapper around the typescript compiler-options shape. |
+| `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray` | `@trapi/metadata` | Argument readers shared across presets. |
+| `setControllerPaths`, `setMethodPath` | `@trapi/metadata` | Path-assignment helpers covering the singular-vs-plural asymmetry. |
+| `createHandlerContext`, `literalArg`, `arrayArg`, `objectArg`, `identifierArg`, `unresolvableArg`, `typeArg` | `@trapi/metadata` | Test helpers for unit-testing handlers without spinning up the compiler. |
+| `SwaggerGenerateOptions`, `SwaggerGenerateData` | `@trapi/swagger` | Input options for `generateSwagger()` — version, metadata, document data. |
+| `SpecV2`, `SpecV3` | `@trapi/swagger` | Output OpenAPI specification shapes (`SpecV3` covers 3.0 / 3.1 / 3.2). |
+| `Version` | `@trapi/swagger` | Const + same-name type for the supported OpenAPI versions. Use `typeof Version.V2` (not `` `${Version.V2}` ``) inside template-literal types. |
+| `OutputForVersion<V>` | `@trapi/swagger` | Type helper — resolves to `SpecV2` for `V2`, `SpecV3` otherwise. Use it to type wrapper return values that depend on the requested version. |
+| `DocumentFormat`, `SecurityType` | `@trapi/swagger` | Const objects for output formats and security scheme kinds. |
+| `saveSwagger` | `@trapi/swagger` | Optional file-writer separate from `generateSwagger()`. |
+
+Rule of thumb: if the type describes something *before* the spec exists (source files, decorator handlers, type resolution), it lives in `@trapi/metadata`. If it describes the OpenAPI document itself or how it's emitted, it lives in `@trapi/swagger`.

@@ -185,6 +185,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     continue;
                 }
 
+                // OpenAPI has no controller-level `deprecated` — cascade
+                // controller deprecation to every emitted operation.
+                method.deprecated = method.deprecated || controller.deprecated;
+
                 for (const controllerPath of controllerPaths) {
                     let path = removeFinalCharacter(
                         removeDuplicateSlashes(`/${controllerPath}/${method.path}`),

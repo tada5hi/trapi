@@ -55,6 +55,38 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [0.2.0-beta.0](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.1.8...preset-decorators-express-v0.2.0-beta.0) (2026-04-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **presets:** multi path support
+* all packages now output ESM only (.mjs)
+
+### Features
+
+* **metadata,swagger:** add generateSwagger, saveSwagger, and unified… ([#786](https://github.com/tada5hi/trapi/issues/786)) ([15f6591](https://github.com/tada5hi/trapi/commit/15f65913aa0e5c150e3c88269ad6bc6585da57ce))
+* **metadata:** migrate type resolver to v2, delete v1, migrate presets ([#798](https://github.com/tada5hi/trapi/issues/798)) ([7c40649](https://github.com/tada5hi/trapi/commit/7c40649e13c685928bd80039be56ecb60842a931))
+
+
+### Code Refactoring
+
+* **presets:** make framework presets self-contained ([#804](https://github.com/tada5hi/trapi/issues/804)) ([dc896b4](https://github.com/tada5hi/trapi/commit/dc896b4caefbba51bc6a3df24a2e709abd7946c9))
+
+
+### Build System
+
+* modernize tooling to ESM, tsdown, vitest, and eslint v10 ([24e1f58](https://github.com/tada5hi/trapi/commit/24e1f587cfd66890b91f58f78d3b6434f12f577d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/metadata bumped from ^1.3.0 to ^2.0.0-beta.0
+  * peerDependencies
+    * @trapi/metadata bumped from 1.3.0 to 2.0.0-beta.0
+
 ## [0.1.8](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.1.7...preset-decorators-express-v0.1.8) (2025-07-29)
 
 

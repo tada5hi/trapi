@@ -6,18 +6,19 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import * as ts from 'typescript';
+import { ScriptTarget, createSourceFile } from 'typescript';
+import type { CallExpression, Expression, ExpressionStatement } from 'typescript';
 import { buildDecoratorArgument } from '../../../src/adapters/decorator/typescript/utils';
 
-function parseFirstArgument(decoratorCallSource: string): ts.Expression {
-    const sf = ts.createSourceFile(
+function parseFirstArgument(decoratorCallSource: string): Expression {
+    const sf = createSourceFile(
         'sample.ts',
         decoratorCallSource,
-        ts.ScriptTarget.Latest,
+        ScriptTarget.Latest,
         true,
     );
-    const stmt = sf.statements[0] as ts.ExpressionStatement;
-    const call = stmt.expression as ts.CallExpression;
+    const stmt = sf.statements[0] as ExpressionStatement;
+    const call = stmt.expression as CallExpression;
     return call.arguments[0];
 }
 

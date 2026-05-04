@@ -5,7 +5,22 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type * as ts from 'typescript';
+import type {
+    ClassDeclaration,
+    EnumDeclaration,
+    EnumMember,
+    InterfaceDeclaration,
+    Node,
+    ParameterDeclaration,
+    PropertyDeclaration,
+    PropertySignature,
+    SyntaxKind,
+    Token,
+    TypeAliasDeclaration,
+    TypeChecker,
+    TypeNode,
+    TypeReferenceNode,
+} from 'typescript';
 import type {
     Extension,
     IReferenceTypeRegistry,
@@ -14,54 +29,54 @@ import type {
     Type,
 } from '../../../core';
 
-export type OverrideToken = ts.Token<ts.SyntaxKind.QuestionToken> |
-ts.Token<ts.SyntaxKind.PlusToken> |
-ts.Token<ts.SyntaxKind.MinusToken>;
+export type OverrideToken = Token<SyntaxKind.QuestionToken> |
+Token<SyntaxKind.PlusToken> |
+Token<SyntaxKind.MinusToken>;
 
-export type UsableDeclaration = ts.InterfaceDeclaration |
-ts.ClassDeclaration |
-ts.PropertySignature |
-ts.TypeAliasDeclaration |
-ts.EnumMember;
+export type UsableDeclaration = InterfaceDeclaration |
+ClassDeclaration |
+PropertySignature |
+TypeAliasDeclaration |
+EnumMember;
 
 export type TypeNodeResolverContext = {
-    [name: string]: ts.TypeReferenceNode | ts.TypeNode;
+    [name: string]: TypeReferenceNode | TypeNode;
 };
 
 export type SubResolverContext = {
-    readonly typeChecker: ts.TypeChecker;
+    readonly typeChecker: TypeChecker;
     readonly current: IResolverContext & IReferenceTypeRegistry;
-    readonly parentNode?: ts.Node;
+    readonly parentNode?: Node;
     readonly context: TypeNodeResolverContext;
-    readonly referencer?: ts.TypeNode;
+    readonly referencer?: TypeNode;
 
     resolveType(
-        typeNode: ts.TypeNode,
-        parentNode?: ts.Node,
+        typeNode: TypeNode,
+        parentNode?: Node,
         context?: TypeNodeResolverContext,
-        referencer?: ts.TypeNode,
+        referencer?: TypeNode,
     ): Type;
 
     propertyFromSignature(
-        sig: ts.PropertySignature,
+        sig: PropertySignature,
         overrideToken?: OverrideToken,
     ): ResolverProperty;
 
     propertyFromDeclaration(
-        decl: ts.PropertyDeclaration | ts.ParameterDeclaration,
+        decl: PropertyDeclaration | ParameterDeclaration,
         overrideToken?: OverrideToken,
     ): ResolverProperty;
 
     getNodeDescription(
-        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+        node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,
     ): string;
 
     getNodeExample(
-        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+        node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,
     ): unknown;
 
     getNodeExtensions(
-        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+        node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,
     ): Extension[];
 };
 

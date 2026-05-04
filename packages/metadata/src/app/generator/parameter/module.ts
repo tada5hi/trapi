@@ -6,7 +6,8 @@
  */
 
 import { isObject } from 'locter';
-import * as ts from 'typescript';
+import { NodeBuilderFlags, displayPartsToString, isIdentifier } from 'typescript';
+import type { ParameterDeclaration } from 'typescript';
 import {
     type ApplyHandlersOptions,
     ParamKind,
@@ -63,7 +64,7 @@ const SUPPORTED_LEAF_TYPES = new Set<string>([
 ]);
 
 export class ParameterGenerator implements IParameterGenerator {
-    private readonly parameter: ts.ParameterDeclaration;
+    private readonly parameter: ParameterDeclaration;
 
     private readonly method: string;
 
@@ -72,7 +73,7 @@ export class ParameterGenerator implements IParameterGenerator {
     private readonly current: IGeneratorContext;
 
     constructor(
-        parameter: ts.ParameterDeclaration,
+        parameter: ParameterDeclaration,
         method: string,
         paths: string[],
         current: IGeneratorContext,
@@ -338,7 +339,7 @@ export class ParameterGenerator implements IParameterGenerator {
             typeNode = this.current.typeChecker.typeToTypeNode(
                 t,
                 undefined,
-                ts.NodeBuilderFlags.NoTruncation,
+                NodeBuilderFlags.NoTruncation,
             );
         }
         if (!typeNode) {
@@ -348,7 +349,7 @@ export class ParameterGenerator implements IParameterGenerator {
     }
 
     private getParameterName(): string {
-        if (!ts.isIdentifier(this.parameter.name)) {
+        if (!isIdentifier(this.parameter.name)) {
             throw new ParameterError({ message: 'Destructured parameters are not supported. Use a simple identifier name.' });
         }
         return this.parameter.name.text;
@@ -359,7 +360,7 @@ export class ParameterGenerator implements IParameterGenerator {
         if (symbol) {
             const comments = symbol.getDocumentationComment(this.current.typeChecker);
             if (comments.length > 0) {
-                return ts.displayPartsToString(comments);
+                return displayPartsToString(comments);
             }
         }
         return '';

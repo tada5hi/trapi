@@ -5,12 +5,25 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import {
+    SyntaxKind,
+    canHaveDecorators,
+    getDecorators,
+    isArrayLiteralExpression,
+    isCallExpression,
+    isIdentifier,
+    isNoSubstitutionTemplateLiteral,
+    isNumericLiteral,
+    isObjectLiteralExpression,
+    isPrefixUnaryExpression,
+    isPropertyAccessExpression,
+    isStringLiteral,
+} from 'typescript';
 import type {
-    Expression, 
-    Node, 
+    Expression,
+    Node,
     TypeChecker,
 } from 'typescript';
-import * as ts from 'typescript';
 import { getInitializerValue } from '../../typescript/initializer';
 import type { DecoratorArgument } from '../types';
 
@@ -25,10 +38,10 @@ export type RawDecorator = {
  * extension extraction) that only need decorator names + argument values.
  */
 export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDecorator[] {
-    if (!ts.canHaveDecorators(node)) {
+    if (!canHaveDecorators(node)) {
         return [];
     }
-    const decorators = ts.getDecorators(node);
+    const decorators = getDecorators(node);
     if (!decorators || decorators.length === 0) {
         return [];
     }
@@ -37,9 +50,9 @@ export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDe
     for (const decorator of decorators) {
         const { expression } = decorator;
         let name: string | undefined;
-        let argumentExpressions: readonly ts.Expression[] = [];
+        let argumentExpressions: readonly Expression[] = [];
 
-        if (ts.isCallExpression(expression)) {
+        if (isCallExpression(expression)) {
             argumentExpressions = expression.arguments;
             name = readDecoratorName(expression.expression);
         } else {
@@ -78,11 +91,11 @@ export function hasDecoratorNamed(node: Node, name: string, typeChecker?: TypeCh
     return readNodeDecorators(node, typeChecker).some((d) => d.name === name);
 }
 
-function readDecoratorName(expression: ts.Node): string | undefined {
-    if (ts.isIdentifier(expression)) {
+function readDecoratorName(expression: Node): string | undefined {
+    if (isIdentifier(expression)) {
         return expression.text;
     }
-    if (ts.isPropertyAccessExpression(expression)) {
+    if (isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
     return undefined;
@@ -93,42 +106,42 @@ export function buildDecoratorArgument(
     typeChecker?: TypeChecker,
 ): DecoratorArgument {
     if (
-        ts.isStringLiteral(expr) ||
-        ts.isNumericLiteral(expr) ||
-        ts.isNoSubstitutionTemplateLiteral(expr)
+        isStringLiteral(expr) ||
+        isNumericLiteral(expr) ||
+        isNoSubstitutionTemplateLiteral(expr)
     ) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'literal' };
     }
 
-    if (expr.kind === ts.SyntaxKind.TrueKeyword) {
+    if (expr.kind === SyntaxKind.TrueKeyword) {
         return { raw: true, kind: 'literal' };
     }
 
-    if (expr.kind === ts.SyntaxKind.FalseKeyword) {
+    if (expr.kind === SyntaxKind.FalseKeyword) {
         return { raw: false, kind: 'literal' };
     }
 
-    if (expr.kind === ts.SyntaxKind.NullKeyword) {
+    if (expr.kind === SyntaxKind.NullKeyword) {
         return { raw: null, kind: 'literal' };
     }
 
     if (
-        ts.isPrefixUnaryExpression(expr) &&
-        (expr.operator === ts.SyntaxKind.PlusToken || expr.operator === ts.SyntaxKind.MinusToken) &&
-        ts.isNumericLiteral(expr.operand)
+        isPrefixUnaryExpression(expr) &&
+        (expr.operator === SyntaxKind.PlusToken || expr.operator === SyntaxKind.MinusToken) &&
+        isNumericLiteral(expr.operand)
     ) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'literal' };
     }
 
-    if (ts.isObjectLiteralExpression(expr)) {
+    if (isObjectLiteralExpression(expr)) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'object' };
     }
 
-    if (ts.isArrayLiteralExpression(expr)) {
+    if (isArrayLiteralExpression(expr)) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'array' };
     }
 
-    if (ts.isIdentifier(expr) || ts.isPropertyAccessExpression(expr)) {
+    if (isIdentifier(expr) || isPropertyAccessExpression(expr)) {
         const value = getInitializerValue(expr, typeChecker);
         if (typeof value !== 'undefined') {
             return { raw: value, kind: 'identifier' };

@@ -5,8 +5,27 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { JSDocTag, Node, TypeNode } from 'typescript';
-import * as ts from 'typescript';
+import {
+    canHaveDecorators,
+    getDecorators,
+    isCallExpression,
+    isIdentifier,
+    isJSDocParameterTag,
+    isJSDocPropertyTag,
+    isJSDocReturnTag,
+    isJSDocThisTag,
+    isJSDocTypeTag,
+    isPropertyAccessExpression,
+    isQualifiedName,
+} from 'typescript';
+import type {
+    Decorator,
+    EntityName,
+    Expression,
+    JSDocTag,
+    Node,
+    TypeNode,
+} from 'typescript';
 import { getJSDocTags } from '../../typescript/js-doc';
 import { transformJSDocComment } from '../../typescript/js-doc/utils';
 import type {
@@ -26,11 +45,11 @@ export function buildDecoratorSources(
     node: Node,
     options: DecoratorSourceBuilderOptions,
 ): DecoratorSource[] {
-    if (!ts.canHaveDecorators(node)) {
+    if (!canHaveDecorators(node)) {
         return [];
     }
 
-    const decorators = ts.getDecorators(node);
+    const decorators = getDecorators(node);
     if (!decorators || decorators.length === 0) {
         return [];
     }
@@ -46,16 +65,16 @@ export function buildDecoratorSources(
 }
 
 function buildDecoratorSource(
-    decorator: ts.Decorator,
+    decorator: Decorator,
     options: DecoratorSourceBuilderOptions,
 ): DecoratorSource | undefined {
     const { expression } = decorator;
 
     let name: string | undefined;
-    let argumentExpressions: readonly ts.Expression[] = [];
-    let typeArgumentNodes: readonly ts.TypeNode[] = [];
+    let argumentExpressions: readonly Expression[] = [];
+    let typeArgumentNodes: readonly TypeNode[] = [];
 
-    if (ts.isCallExpression(expression)) {
+    if (isCallExpression(expression)) {
         argumentExpressions = expression.arguments;
         typeArgumentNodes = expression.typeArguments ?? [];
         name = readDecoratorName(expression.expression);
@@ -91,11 +110,11 @@ function buildDecoratorSource(
     };
 }
 
-function readDecoratorName(expression: ts.Node): string | undefined {
-    if (ts.isIdentifier(expression)) {
+function readDecoratorName(expression: Node): string | undefined {
+    if (isIdentifier(expression)) {
         return expression.text;
     }
-    if (ts.isPropertyAccessExpression(expression)) {
+    if (isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
     return undefined;
@@ -131,15 +150,15 @@ function buildJsDocSource(
     let parameterName: string | undefined;
     let typeNode: TypeNode | undefined;
 
-    if (ts.isJSDocParameterTag(tag) || ts.isJSDocPropertyTag(tag)) {
+    if (isJSDocParameterTag(tag) || isJSDocPropertyTag(tag)) {
         if (tag.name) {
             parameterName = readEntityName(tag.name);
         }
         typeNode = tag.typeExpression?.type;
     } else if (
-        ts.isJSDocReturnTag(tag) ||
-        ts.isJSDocTypeTag(tag) ||
-        ts.isJSDocThisTag(tag)
+        isJSDocReturnTag(tag) ||
+        isJSDocTypeTag(tag) ||
+        isJSDocThisTag(tag)
     ) {
         typeNode = tag.typeExpression?.type;
     }
@@ -166,11 +185,11 @@ function buildJsDocSource(
     return source;
 }
 
-function readEntityName(name: ts.EntityName): string | undefined {
-    if (ts.isIdentifier(name)) {
+function readEntityName(name: EntityName): string | undefined {
+    if (isIdentifier(name)) {
         return name.text;
     }
-    if (ts.isQualifiedName(name)) {
+    if (isQualifiedName(name)) {
         const left = readEntityName(name.left);
         return left ? `${left}.${name.right.text}` : name.right.text;
     }

@@ -5,15 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import { isUnionTypeNode } from 'typescript';
+import type { TypeNode } from 'typescript';
 import { TypeName } from '../../../../core/types/type-name';
 import type { SubResolverContext, Type, UnionType } from '../types';
 
 export function resolveUnionType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isUnionTypeNode(typeNode)) {
+    if (!isUnionTypeNode(typeNode)) {
         return undefined;
     }
 

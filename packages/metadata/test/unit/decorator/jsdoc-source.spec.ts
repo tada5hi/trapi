@@ -6,25 +6,26 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import * as ts from 'typescript';
+import { ScriptTarget, createSourceFile, isClassDeclaration } from 'typescript';
+import type { ClassDeclaration, MethodDeclaration, SourceFile } from 'typescript';
 import type { Type } from '../../../src/core/resolver/types';
 import {
     buildJsDocSources,
 } from '../../../src/adapters/decorator/typescript/module';
 
-function compileSource(source: string): ts.SourceFile {
-    return ts.createSourceFile(
+function compileSource(source: string): SourceFile {
+    return createSourceFile(
         'sample.ts',
         source,
-        ts.ScriptTarget.Latest,
+        ScriptTarget.Latest,
         true,
     );
 }
 
-function findClass(sf: ts.SourceFile, name: string): ts.ClassDeclaration {
+function findClass(sf: SourceFile, name: string): ClassDeclaration {
     const found = sf.statements.find(
-        (s): s is ts.ClassDeclaration =>
-            ts.isClassDeclaration(s) && s.name?.text === name,
+        (s): s is ClassDeclaration =>
+            isClassDeclaration(s) && s.name?.text === name,
     );
     if (!found) {
         throw new Error(`class ${name} not found`);
@@ -67,7 +68,7 @@ describe('buildJsDocSources', () => {
             }
         `);
         const cls = findClass(sf, 'C');
-        const method = cls.members[0] as ts.MethodDeclaration;
+        const method = cls.members[0] as MethodDeclaration;
         const sources = buildJsDocSources(method, {
             target: 'method',
             host: { name: 'find', parentName: 'C' },
@@ -90,7 +91,7 @@ describe('buildJsDocSources', () => {
             }
         `);
         const cls = findClass(sf, 'C');
-        const method = cls.members[0] as ts.MethodDeclaration;
+        const method = cls.members[0] as MethodDeclaration;
         const sources = buildJsDocSources(method, {
             target: 'method',
             host: { name: 'find', parentName: 'C' },
@@ -112,7 +113,7 @@ describe('buildJsDocSources', () => {
             }
         `);
         const cls = findClass(sf, 'C');
-        const method = cls.members[0] as ts.MethodDeclaration;
+        const method = cls.members[0] as MethodDeclaration;
         const calls: string[] = [];
         const sources = buildJsDocSources(method, {
             target: 'method',

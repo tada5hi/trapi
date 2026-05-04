@@ -5,8 +5,47 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isEnumDeclaration, isEnumMember } from 'typescript';
-import * as ts from 'typescript';
+import {
+    NodeBuilderFlags,
+    SymbolFlags,
+    SyntaxKind,
+    isConditionalTypeNode,
+    isConstructorDeclaration,
+    isEnumDeclaration,
+    isEnumMember,
+    isExpressionWithTypeArguments,
+    isIdentifier,
+    isInterfaceDeclaration,
+    isLiteralTypeNode,
+    isMethodDeclaration,
+    isMethodSignature,
+    isPropertySignature,
+    isTypeAliasDeclaration,
+    isTypeReferenceNode,
+} from 'typescript';
+import type {
+    ClassDeclaration,
+    ClassElement,
+    ConstructorDeclaration,
+    Declaration,
+    EntityName,
+    EnumDeclaration,
+    EnumMember,
+    ExpressionWithTypeArguments,
+    Identifier,
+    IndexSignatureDeclaration,
+    InterfaceDeclaration,
+    Node,
+    ParameterDeclaration,
+    PropertyDeclaration,
+    PropertySignature,
+    Symbol as TsSymbol,
+    TypeAliasDeclaration,
+    TypeElement,
+    TypeNode,
+    TypeReferenceNode,
+    TypeReferenceType,
+} from 'typescript';
 import {
     hasDecoratorNamed,
     isDeprecatedMarker,
@@ -65,15 +104,15 @@ import { getNodeDescription } from './utils';
 export class TypeNodeResolver extends ResolverBase {
     private static readonly MAX_DEPTH = 50;
 
-    private readonly typeNode : ts.TypeNode;
+    private readonly typeNode : TypeNode;
 
     private readonly current: IResolverContext & IReferenceTypeRegistry;
 
-    private readonly parentNode?: ts.Node;
+    private readonly parentNode?: Node;
 
     private context: TypeNodeResolverContext;
 
-    private readonly referencer : ts.TypeNode | undefined;
+    private readonly referencer : TypeNode | undefined;
 
     private readonly depth: number;
 
@@ -82,11 +121,11 @@ export class TypeNodeResolver extends ResolverBase {
     private readonly referenceResolver : ReferenceResolver;
 
     constructor(
-        typeNode: ts.TypeNode,
+        typeNode: TypeNode,
         current: IResolverContext & IReferenceTypeRegistry,
-        parentNode?: ts.Node,
+        parentNode?: Node,
         context?: TypeNodeResolverContext,
-        referencer?: ts.TypeNode,
+        referencer?: TypeNode,
         depth?: number,
     ) {
         super();
@@ -162,10 +201,10 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private resolveNestedType(
-        typeNode: ts.TypeNode,
-        parentNode?: ts.Node,
+        typeNode: TypeNode,
+        parentNode?: Node,
         context?: TypeNodeResolverContext,
-        referencer?: ts.TypeNode,
+        referencer?: TypeNode,
     ): Type {
         return new TypeNodeResolver(
             typeNode,
@@ -178,7 +217,7 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private throwUnknownType(): never {
-        throw new ResolverError(`Unknown type: ${ts.SyntaxKind[this.typeNode.kind]}`, this.typeNode);
+        throw new ResolverError(`Unknown type: ${SyntaxKind[this.typeNode.kind]}`, this.typeNode);
     }
 
     // ------------------------------------------------------------------
@@ -186,7 +225,7 @@ export class TypeNodeResolver extends ResolverBase {
     // ------------------------------------------------------------------
 
     private resolveConditionalType(): Type | undefined {
-        if (!ts.isConditionalTypeNode(this.typeNode)) {
+        if (!isConditionalTypeNode(this.typeNode)) {
             return undefined;
         }
 
@@ -209,13 +248,13 @@ export class TypeNodeResolver extends ResolverBase {
     // ------------------------------------------------------------------
 
     private resolveTypeReference(): Type | undefined {
-        if (this.typeNode.kind !== ts.SyntaxKind.TypeReference) {
+        if (this.typeNode.kind !== SyntaxKind.TypeReference) {
             return undefined;
         }
 
-        const typeReference = this.typeNode as ts.TypeReferenceNode;
+        const typeReference = this.typeNode as TypeReferenceNode;
 
-        if (typeReference.typeName.kind === ts.SyntaxKind.Identifier) {
+        if (typeReference.typeName.kind === SyntaxKind.Identifier) {
             if (
                 typeReference.typeName.text === 'Record' &&
                 typeReference.typeArguments
@@ -333,7 +372,7 @@ export class TypeNodeResolver extends ResolverBase {
         return TypeNodeResolver.CHECKER_RESOLVABLE_UTILITY_TYPES.has(name);
     }
 
-    private resolveUtilityTypeViaChecker(typeReference: ts.TypeReferenceNode): Type {
+    private resolveUtilityTypeViaChecker(typeReference: TypeReferenceNode): Type {
         // When type arguments reference unbound type parameters from our
         // context (e.g. `Awaited<T>` inside `type Box<T> = Awaited<T>`),
         // the checker can't resolve them from the declaration-site node.
@@ -351,7 +390,7 @@ export class TypeNodeResolver extends ResolverBase {
      * type checker evaluate it, converting back to a TypeNode, and
      * recursively resolving the result.
      */
-    private resolveTypeViaChecker(typeNode: ts.TypeNode): Type {
+    private resolveTypeViaChecker(typeNode: TypeNode): Type {
         const type = this.current.typeChecker.getTypeFromTypeNode(typeNode);
         // InTypeAlias prevents the node builder from emitting type alias
         // references (which could cause circular resolution when the utility
@@ -359,7 +398,7 @@ export class TypeNodeResolver extends ResolverBase {
         const resolvedTypeNode = this.current.typeChecker.typeToTypeNode(
             type,
             undefined,
-            ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+            NodeBuilderFlags.NoTruncation | NodeBuilderFlags.InTypeAlias,
         );
 
         // typeToTypeNode returns undefined for some edge cases (e.g. empty
@@ -381,18 +420,18 @@ export class TypeNodeResolver extends ResolverBase {
      * type parameters from this.context (e.g. `Awaited<T>` where T is a
      * generic parameter mapped in context).
      */
-    private hasUnboundContextArgs(typeReference: ts.TypeReferenceNode): boolean {
+    private hasUnboundContextArgs(typeReference: TypeReferenceNode): boolean {
         if (!typeReference.typeArguments || Object.keys(this.context).length === 0) {
             return false;
         }
 
         return typeReference.typeArguments.some((arg) =>
-            ts.isTypeReferenceNode(arg) &&
-            ts.isIdentifier(arg.typeName) &&
+            isTypeReferenceNode(arg) &&
+            isIdentifier(arg.typeName) &&
             arg.typeName.text in this.context);
     }
 
-    private static resolveSpecialReference(node: ts.Identifier) : Type | undefined {
+    private static resolveSpecialReference(node: Identifier) : Type | undefined {
         switch (node.text) {
             case 'Buffer':
             case 'DownloadBinaryData':
@@ -403,7 +442,7 @@ export class TypeNodeResolver extends ResolverBase {
         }
     }
 
-    private getDateType(parentNode?: ts.Node): DateType | DateTimeType {
+    private getDateType(parentNode?: Node): DateType | DateTimeType {
         if (!parentNode) {
             return { typeName: TypeName.DATETIME };
         }
@@ -422,14 +461,14 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    private static getDesignatedModels<T extends ts.Node>(nodes: T[], _typeName: string): T[] {
+    private static getDesignatedModels<T extends Node>(nodes: T[], _typeName: string): T[] {
         return nodes;
     }
 
-    private getEnumerateType(typeName: ts.EntityName): RefEnumType | undefined {
-        const enumName = (typeName as ts.Identifier).text;
+    private getEnumerateType(typeName: EntityName): RefEnumType | undefined {
+        const enumName = (typeName as Identifier).text;
         let enumNodes = this.current.nodes.filter(
-            (node) => node.kind === ts.SyntaxKind.EnumDeclaration && (node as any).name.text === enumName,
+            (node) => node.kind === SyntaxKind.EnumDeclaration && (node as any).name.text === enumName,
         );
 
         if (!enumNodes.length) {
@@ -442,7 +481,7 @@ export class TypeNodeResolver extends ResolverBase {
             throw new ResolverError(`Multiple matching enum found for enum ${enumName}; please make enum names unique.`);
         }
 
-        const enumDeclaration = enumNodes[0] as ts.EnumDeclaration;
+        const enumDeclaration = enumNodes[0] as EnumDeclaration;
 
         const isNotUndefined = <T>(item: T): item is Exclude<T, undefined> => item !== undefined;
 
@@ -459,23 +498,23 @@ export class TypeNodeResolver extends ResolverBase {
         };
     }
 
-    private getReferenceType(node: ts.TypeReferenceType): ReferenceType {
-        let type: ts.EntityName;
-        if (ts.isTypeReferenceNode(node)) {
+    private getReferenceType(node: TypeReferenceType): ReferenceType {
+        let type: EntityName;
+        if (isTypeReferenceNode(node)) {
             type = node.typeName;
-        } else if (ts.isExpressionWithTypeArguments(node)) {
-            type = node.expression as ts.EntityName;
+        } else if (isExpressionWithTypeArguments(node)) {
+            type = node.expression as EntityName;
         } else {
             throw new ResolverError('Can\'t resolve reference type.');
         }
 
         // Can't invoke getText on Synthetic Nodes
-        let resolvableName = node.pos !== -1 ? node.getText() : (type as ts.Identifier).text;
+        let resolvableName = node.pos !== -1 ? node.getText() : (type as Identifier).text;
         if (node.pos === -1 && 'typeArguments' in node && Array.isArray(node.typeArguments)) {
             // Add typeArguments for Synthetic nodes (e.g. Record<> in TestClassModel.indexedResponse)
             const argumentsString = node.typeArguments
                 .map((arg) => {
-                    if (ts.isLiteralTypeNode(arg)) {
+                    if (isLiteralTypeNode(arg)) {
                         return `'${String(getLiteralValue(arg))}'`;
                     }
                     const resolvedType = this.primitiveResolver.resolveSyntaxKind(arg.kind);
@@ -509,7 +548,7 @@ export class TypeNodeResolver extends ResolverBase {
                 const declarations = this.getModelTypeDeclarations(type);
                 const referenceTypes: ReferenceType[] = [];
                 for (const declaration of declarations) {
-                    if (ts.isTypeAliasDeclaration(declaration)) {
+                    if (isTypeAliasDeclaration(declaration)) {
                         referenceTypes.push(
                             this.getTypeAliasReference(
                                 declaration,
@@ -525,7 +564,7 @@ export class TypeNodeResolver extends ResolverBase {
                         // todo: dont cast handle property-signature
                         referenceTypes.push(
                             this.getModelReference(
-                                declaration as ts.InterfaceDeclaration,
+                                declaration as InterfaceDeclaration,
                                 name,
                             ),
                         );
@@ -549,18 +588,18 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private getTypeAliasReference(
-        declaration: ts.TypeAliasDeclaration,
+        declaration: TypeAliasDeclaration,
         name: string,
-        referencer: ts.TypeReferenceType,
+        referencer: TypeReferenceType,
     ): ReferenceType {
         const refName = TypeNodeResolver.getRefTypeName(name);
 
-        if (declaration.type.kind === ts.SyntaxKind.TypeReference) {
-            const innerRef = declaration.type as ts.TypeReferenceNode;
+        if (declaration.type.kind === SyntaxKind.TypeReference) {
+            const innerRef = declaration.type as TypeReferenceNode;
             // Record<K,V> and checker-resolvable utility types (Pick, Omit, etc.)
             // should not go through getReferenceType — resolveNestedType handles
             // them correctly via resolveTypeReference.
-            const innerName = ts.isIdentifier(innerRef.typeName) ? innerRef.typeName.text : undefined;
+            const innerName = isIdentifier(innerRef.typeName) ? innerRef.typeName.text : undefined;
             const skipReferenceType = innerName === UtilityTypeName.RECORD ||
                 (innerName !== undefined && TypeNodeResolver.isCheckerResolvableUtilityType(innerName));
 
@@ -595,7 +634,7 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private getModelReference(
-        modelType: ts.InterfaceDeclaration | ts.ClassDeclaration,
+        modelType: InterfaceDeclaration | ClassDeclaration,
         name: string,
     ) : ReferenceType {
         const example = this.getNodeExample(modelType);
@@ -615,8 +654,8 @@ export class TypeNodeResolver extends ResolverBase {
             toJSON &&
             toJSON.valueDeclaration &&
             (
-                ts.isMethodDeclaration(toJSON.valueDeclaration) ||
-                ts.isMethodSignature(toJSON.valueDeclaration)
+                isMethodDeclaration(toJSON.valueDeclaration) ||
+                isMethodSignature(toJSON.valueDeclaration)
             )
         ) {
             let nodeType = toJSON.valueDeclaration.type;
@@ -624,7 +663,7 @@ export class TypeNodeResolver extends ResolverBase {
                 const signature = this.current.typeChecker.getSignatureFromDeclaration(toJSON.valueDeclaration);
                 if (signature) {
                     const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature);
-                    nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as ts.TypeNode;
+                    nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
                 } else {
                     throw new ResolverError('Can\'t get signature from toJson value declaration', modelType);
                 }
@@ -750,24 +789,24 @@ export class TypeNodeResolver extends ResolverBase {
         return referenceType;
     }
 
-    private static nodeIsUsable(node: ts.Node) : node is UsableDeclaration {
+    private static nodeIsUsable(node: Node) : node is UsableDeclaration {
         switch (node.kind) {
-            case ts.SyntaxKind.InterfaceDeclaration:
-            case ts.SyntaxKind.ClassDeclaration:
-            case ts.SyntaxKind.TypeAliasDeclaration:
-            case ts.SyntaxKind.EnumDeclaration:
-            case ts.SyntaxKind.EnumMember:
+            case SyntaxKind.InterfaceDeclaration:
+            case SyntaxKind.ClassDeclaration:
+            case SyntaxKind.TypeAliasDeclaration:
+            case SyntaxKind.EnumDeclaration:
+            case SyntaxKind.EnumMember:
                 return true;
             default:
                 return false;
         }
     }
 
-    private getModelTypeDeclarations(type: ts.EntityName) {
-        let typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
+    private getModelTypeDeclarations(type: EntityName) {
+        let typeName = type.kind === SyntaxKind.Identifier ? type.text : type.right.text;
 
-        let symbol : ts.Symbol | undefined = this.getSymbolAtLocation(type);
-        if (!symbol && type.kind === ts.SyntaxKind.QualifiedName) {
+        let symbol : TsSymbol | undefined = this.getSymbolAtLocation(type);
+        if (!symbol && type.kind === SyntaxKind.QualifiedName) {
             const fullEnumSymbol = this.getSymbolAtLocation(type.left);
             symbol = fullEnumSymbol.exports?.get(typeName as any);
         }
@@ -795,7 +834,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const modelTypeDeclaration = node as UsableDeclaration;
-            return (modelTypeDeclaration.name as ts.Identifier)?.text === typeName;
+            return (modelTypeDeclaration.name as Identifier)?.text === typeName;
         });
 
         if (!modelTypes.length) {
@@ -815,8 +854,8 @@ export class TypeNodeResolver extends ResolverBase {
         return modelTypes;
     }
 
-    private getModelTypeDeclaration(type: ts.EntityName) : UsableDeclaration {
-        let typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
+    private getModelTypeDeclaration(type: EntityName) : UsableDeclaration {
+        let typeName = type.kind === SyntaxKind.Identifier ? type.text : type.right.text;
 
         const symbol = this.getSymbolAtLocation(type);
         const declarations = symbol.getDeclarations();
@@ -836,7 +875,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const modelTypeDeclaration = node as UsableDeclaration;
-            return (modelTypeDeclaration.name as ts.Identifier)?.text === typeName;
+            return (modelTypeDeclaration.name as Identifier)?.text === typeName;
         });
 
         if (!modelTypes.length) {
@@ -862,47 +901,47 @@ export class TypeNodeResolver extends ResolverBase {
         return modelTypes[0] as UsableDeclaration;
     }
 
-    private hasFlag(type: ts.Symbol | ts.Declaration, flag: number) {
+    private hasFlag(type: TsSymbol | Declaration, flag: number) {
         return (type.flags & flag) === flag;
     }
 
-    private getSymbolAtLocation(type: ts.Node) : ts.Symbol {
-        const symbol = this.current.typeChecker.getSymbolAtLocation(type) || ((type as any).symbol as ts.Symbol);
+    private getSymbolAtLocation(type: Node) : TsSymbol {
+        const symbol = this.current.typeChecker.getSymbolAtLocation(type) || ((type as any).symbol as TsSymbol);
         // resolve alias if it is an alias, otherwise take symbol directly
         return (
             symbol &&
-            this.hasFlag(symbol, ts.SymbolFlags.Alias) &&
+            this.hasFlag(symbol, SymbolFlags.Alias) &&
             this.current.typeChecker.getAliasedSymbol(symbol)
         ) || symbol;
     }
 
     private getModelProperties(
-        node: ts.InterfaceDeclaration | ts.ClassDeclaration,
+        node: InterfaceDeclaration | ClassDeclaration,
         overrideToken?: OverrideToken,
     ) : ResolverProperty[] {
-        const isIgnored = (e: ts.TypeElement | ts.ClassElement) => hasJSDocTag(e, JSDocTagName.IGNORE);
+        const isIgnored = (e: TypeElement | ClassElement) => hasJSDocTag(e, JSDocTagName.IGNORE);
 
         // Interface model
-        if (ts.isInterfaceDeclaration(node)) {
+        if (isInterfaceDeclaration(node)) {
             return node.members
                 .filter(
                     (member) => !isIgnored(member) &&
-                    ts.isPropertySignature(member),
+                    isPropertySignature(member),
                 ).map(
-                    (member) => this.propertyFromSignature(member as ts.PropertySignature, overrideToken),
+                    (member) => this.propertyFromSignature(member as PropertySignature, overrideToken),
                 );
         }
 
         // Class model
         const properties = node.members
             .filter((member) => !isIgnored(member) &&
-                    member.kind === ts.SyntaxKind.PropertyDeclaration &&
+                    member.kind === SyntaxKind.PropertyDeclaration &&
                 !this.hasStaticModifier(member) &&
-                this.hasPublicModifier(member)) as Array<ts.PropertyDeclaration | ts.ParameterDeclaration>;
+                this.hasPublicModifier(member)) as Array<PropertyDeclaration | ParameterDeclaration>;
 
         const classConstructor = node.members.find(
-            (member) => ts.isConstructorDeclaration(member),
-        ) as ts.ConstructorDeclaration;
+            (member) => isConstructorDeclaration(member),
+        ) as ConstructorDeclaration;
 
         if (classConstructor && classConstructor.parameters) {
             const constructorProperties = classConstructor.parameters.filter((parameter) => this.isAccessibleParameter(parameter));
@@ -913,17 +952,17 @@ export class TypeNodeResolver extends ResolverBase {
         return properties.map((property) => this.propertyFromDeclaration(property, overrideToken));
     }
 
-    private propertyFromSignature(propertySignature: ts.PropertySignature, overrideToken?: OverrideToken) {
-        const identifier = propertySignature.name as ts.Identifier;
+    private propertyFromSignature(propertySignature: PropertySignature, overrideToken?: OverrideToken) {
+        const identifier = propertySignature.name as Identifier;
 
         if (!propertySignature.type) {
             throw new ResolverError('No valid type found for property declaration.');
         }
 
         let required = !propertySignature.questionToken;
-        if (overrideToken && overrideToken.kind === ts.SyntaxKind.MinusToken) {
+        if (overrideToken && overrideToken.kind === SyntaxKind.MinusToken) {
             required = true;
-        } else if (overrideToken && overrideToken.kind === ts.SyntaxKind.QuestionToken) {
+        } else if (overrideToken && overrideToken.kind === SyntaxKind.QuestionToken) {
             required = false;
         }
 
@@ -948,15 +987,15 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private propertyFromDeclaration(
-        propertyDeclaration: ts.PropertyDeclaration | ts.ParameterDeclaration,
+        propertyDeclaration: PropertyDeclaration | ParameterDeclaration,
         overrideToken?: OverrideToken,
     ) {
-        const identifier = propertyDeclaration.name as ts.Identifier;
+        const identifier = propertyDeclaration.name as Identifier;
         let typeNode = propertyDeclaration.type;
 
         if (!typeNode) {
             const tsType = this.current.typeChecker.getTypeAtLocation(propertyDeclaration);
-            typeNode = this.current.typeChecker.typeToTypeNode(tsType, undefined, ts.NodeBuilderFlags.NoTruncation);
+            typeNode = this.current.typeChecker.typeToTypeNode(tsType, undefined, NodeBuilderFlags.NoTruncation);
         }
 
         if (!typeNode) {
@@ -966,9 +1005,9 @@ export class TypeNodeResolver extends ResolverBase {
         const type = this.resolveNestedType(typeNode, propertyDeclaration, this.context, typeNode);
 
         let required = !propertyDeclaration.questionToken && !propertyDeclaration.initializer;
-        if (overrideToken && overrideToken.kind === ts.SyntaxKind.MinusToken) {
+        if (overrideToken && overrideToken.kind === SyntaxKind.MinusToken) {
             required = true;
-        } else if (overrideToken && overrideToken.kind === ts.SyntaxKind.QuestionToken) {
+        } else if (overrideToken && overrideToken.kind === SyntaxKind.QuestionToken) {
             required = false;
         }
 
@@ -988,15 +1027,15 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private getModelAdditionalProperties(node: UsableDeclaration) {
-        if (node.kind === ts.SyntaxKind.InterfaceDeclaration) {
-            const indexMember = node.members.find((member) => member.kind === ts.SyntaxKind.IndexSignature);
+        if (node.kind === SyntaxKind.InterfaceDeclaration) {
+            const indexMember = node.members.find((member) => member.kind === SyntaxKind.IndexSignature);
             if (!indexMember) {
                 return undefined;
             }
 
-            const indexSignatureDeclaration = indexMember as ts.IndexSignatureDeclaration;
+            const indexSignatureDeclaration = indexMember as IndexSignatureDeclaration;
             const indexType = this.resolveNestedType(
-                indexSignatureDeclaration.parameters[0].type as ts.TypeNode,
+                indexSignatureDeclaration.parameters[0].type as TypeNode,
                 this.parentNode,
                 this.context,
             );
@@ -1012,8 +1051,8 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private typeArgumentsToContext(
-        type: ts.TypeReferenceNode | ts.ExpressionWithTypeArguments,
-        targetEntity: ts.EntityName,
+        type: TypeReferenceNode | ExpressionWithTypeArguments,
+        targetEntity: EntityName,
         context: TypeNodeResolverContext,
     ): TypeNodeResolverContext {
         // this.context = {};
@@ -1028,10 +1067,10 @@ export class TypeNodeResolver extends ResolverBase {
         if (typeParameters) {
             for (const [index, typeParameter] of typeParameters.entries()) {
                 const typeArg = type.typeArguments && type.typeArguments[index];
-                let resolvedType: ts.TypeNode;
+                let resolvedType: TypeNode;
 
                 // Argument may be a forward reference from context
-                if (typeArg && ts.isTypeReferenceNode(typeArg) && ts.isIdentifier(typeArg.typeName) && context[typeArg.typeName.text]) {
+                if (typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) && context[typeArg.typeName.text]) {
                     resolvedType = context[typeArg.typeName.text];
                 } else if (typeArg) {
                     resolvedType = typeArg;
@@ -1051,7 +1090,7 @@ export class TypeNodeResolver extends ResolverBase {
     }
 
     private getModelInheritedProperties(
-        modelTypeDeclaration: Exclude<UsableDeclaration, ts.PropertySignature | ts.TypeAliasDeclaration | ts.EnumMember>,
+        modelTypeDeclaration: Exclude<UsableDeclaration, PropertySignature | TypeAliasDeclaration | EnumMember>,
     ): ResolverProperty[] {
         let properties: ResolverProperty[] = [];
 
@@ -1066,7 +1105,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             clause.types.forEach((t) => {
-                const baseEntityName = t.expression as ts.EntityName;
+                const baseEntityName = t.expression as EntityName;
 
                 // create subContext
                 const resetCtx = this.typeArgumentsToContext(t, baseEntityName, this.context);
@@ -1099,17 +1138,17 @@ export class TypeNodeResolver extends ResolverBase {
         return properties;
     }
 
-    private getNodeDescription(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
+    private getNodeDescription(node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration) {
         return getNodeDescription(node, this.current.typeChecker);
     }
 
     private static getNodeFormat(
-        node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration,
+        node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,
     ) {
         return getJSDocTagComment(node, JSDocTagName.FORMAT);
     }
 
-    private getNodeExample(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) {
+    private getNodeExample(node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration) {
         const example = getJSDocTagComment(node, JSDocTagName.EXAMPLE);
 
         if (example) {
@@ -1123,7 +1162,7 @@ export class TypeNodeResolver extends ResolverBase {
         return undefined;
     }
 
-    protected getNodeExtensions(node: UsableDeclaration | ts.PropertyDeclaration | ts.ParameterDeclaration | ts.EnumDeclaration) : Extension[] {
+    protected getNodeExtensions(node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration) : Extension[] {
         return getNodeExtensions(node, this.current.registry);
     }
 }

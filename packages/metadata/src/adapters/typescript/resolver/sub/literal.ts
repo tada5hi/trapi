@@ -5,7 +5,18 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import {
+    SyntaxKind,
+    isFunctionTypeNode,
+    isLiteralTypeNode,
+    isParenthesizedTypeNode,
+} from 'typescript';
+import type {
+    LiteralExpression,
+    LiteralTypeNode,
+    StringLiteralType,
+    TypeNode,
+} from 'typescript';
 import { TypeName } from '../../../../core/types/type-name';
 import { ResolverError } from '../../../../core/error/resolver';
 import type { 
@@ -16,10 +27,10 @@ import type {
 } from '../types';
 
 export function resolveLiteralType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (typeNode.kind === ts.SyntaxKind.NullKeyword) {
+    if (typeNode.kind === SyntaxKind.NullKeyword) {
         return {
             typeName: TypeName.ENUM,
             members: [null],
@@ -27,26 +38,26 @@ export function resolveLiteralType(
     }
 
     if (
-        typeNode.kind === ts.SyntaxKind.AnyKeyword ||
-        typeNode.kind === ts.SyntaxKind.UnknownKeyword
+        typeNode.kind === SyntaxKind.AnyKeyword ||
+        typeNode.kind === SyntaxKind.UnknownKeyword
     ) {
         return { typeName: TypeName.ANY } as AnyType;
     }
 
-    if (ts.isLiteralTypeNode(typeNode)) {
+    if (isLiteralTypeNode(typeNode)) {
         return {
             typeName: TypeName.ENUM,
             members: [getLiteralValue(typeNode)],
         } as EnumType;
     }
 
-    if (typeNode.kind === ts.SyntaxKind.TemplateLiteralType) {
+    if (typeNode.kind === SyntaxKind.TemplateLiteralType) {
         const type = ctx.typeChecker.getTypeFromTypeNode(ctx.referencer || typeNode);
         if (type.isUnion() && type.types.every((t) => t.isStringLiteral())) {
             return {
                 typeName: TypeName.ENUM,
                 members: type.types.map(
-                    (t: ts.StringLiteralType) => t.value,
+                    (t: StringLiteralType) => t.value,
                 ),
             } as EnumType;
         }
@@ -57,7 +68,7 @@ export function resolveLiteralType(
         );
     }
 
-    if (ts.isParenthesizedTypeNode(typeNode)) {
+    if (isParenthesizedTypeNode(typeNode)) {
         return ctx.resolveType(
             typeNode.type,
             typeNode,
@@ -67,8 +78,8 @@ export function resolveLiteralType(
     }
 
     if (
-        typeNode.kind === ts.SyntaxKind.ObjectKeyword ||
-        ts.isFunctionTypeNode(typeNode)
+        typeNode.kind === SyntaxKind.ObjectKeyword ||
+        isFunctionTypeNode(typeNode)
     ) {
         return { typeName: TypeName.OBJECT };
     }
@@ -76,27 +87,27 @@ export function resolveLiteralType(
     return undefined;
 }
 
-export function getLiteralValue(typeNode: ts.LiteralTypeNode): string | number | boolean | null {
+export function getLiteralValue(typeNode: LiteralTypeNode): string | number | boolean | null {
     let value: boolean | number | string | null;
     switch (typeNode.literal.kind) {
-        case ts.SyntaxKind.TrueKeyword:
+        case SyntaxKind.TrueKeyword:
             value = true;
             break;
-        case ts.SyntaxKind.FalseKeyword:
+        case SyntaxKind.FalseKeyword:
             value = false;
             break;
-        case ts.SyntaxKind.StringLiteral:
+        case SyntaxKind.StringLiteral:
             value = typeNode.literal.text;
             break;
-        case ts.SyntaxKind.NumericLiteral:
+        case SyntaxKind.NumericLiteral:
             value = Number.parseFloat(typeNode.literal.text);
             break;
-        case ts.SyntaxKind.NullKeyword:
+        case SyntaxKind.NullKeyword:
             value = null;
             break;
         default:
             if (Object.prototype.hasOwnProperty.call(typeNode.literal, 'text')) {
-                value = (typeNode.literal as ts.LiteralExpression).text;
+                value = (typeNode.literal as LiteralExpression).text;
             } else {
                 throw new ResolverError(
                     `Couldn't resolve literal node: ${typeNode.literal.getText()}`,

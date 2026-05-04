@@ -5,25 +5,32 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import {
+    SyntaxKind,
+    isIndexedAccessTypeNode,
+    isLiteralTypeNode,
+    isNumericLiteral,
+    isStringLiteral,
+} from 'typescript';
+import type { HasType, Node, TypeNode } from 'typescript';
 import { ResolverError } from '../../../../core/error/resolver';
 import type { SubResolverContext, Type } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveIndexedAccessType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isIndexedAccessTypeNode(typeNode)) {
+    if (!isIndexedAccessTypeNode(typeNode)) {
         return undefined;
     }
 
     // Variant 1: T[number] or T[string]
     if (
-        typeNode.indexType.kind === ts.SyntaxKind.NumberKeyword ||
-        typeNode.indexType.kind === ts.SyntaxKind.StringKeyword
+        typeNode.indexType.kind === SyntaxKind.NumberKeyword ||
+        typeNode.indexType.kind === SyntaxKind.StringKeyword
     ) {
-        const numberIndexType = typeNode.indexType.kind === ts.SyntaxKind.NumberKeyword;
+        const numberIndexType = typeNode.indexType.kind === SyntaxKind.NumberKeyword;
         const objectType = ctx.typeChecker.getTypeFromTypeNode(typeNode.objectType);
         const type = numberIndexType ? objectType.getNumberIndexType() : objectType.getStringIndexType();
         if (type === undefined) {
@@ -42,13 +49,13 @@ export function resolveIndexedAccessType(
 
     // Variant 2: T['key'] or T[0]
     if (
-        ts.isLiteralTypeNode(typeNode.indexType) &&
+        isLiteralTypeNode(typeNode.indexType) &&
         (
-            ts.isStringLiteral(typeNode.indexType.literal) ||
-            ts.isNumericLiteral(typeNode.indexType.literal)
+            isStringLiteral(typeNode.indexType.literal) ||
+            isNumericLiteral(typeNode.indexType.literal)
         )
     ) {
-        const hasType = (node: ts.Node | undefined): node is ts.HasType => node !== undefined &&
+        const hasType = (node: Node | undefined): node is HasType => node !== undefined &&
             Object.prototype.hasOwnProperty.call(node, 'type');
 
         const symbol = ctx.typeChecker.getPropertyOfType(

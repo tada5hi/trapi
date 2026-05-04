@@ -5,17 +5,34 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import {
+    NodeBuilderFlags,
+    SymbolFlags,
+    SyntaxKind,
+    factory,
+    isMappedTypeNode,
+    isParameter,
+    isPropertyDeclaration,
+    isPropertySignature,
+} from 'typescript';
+import type {
+    Declaration,
+    ParameterDeclaration,
+    PropertyDeclaration,
+    PropertySignature,
+    Symbol as TsSymbol,
+    TypeNode,
+} from 'typescript';
 import { JSDocTagName } from '../../js-doc';
 import { TypeName } from '../../../../core/types/type-name';
 import type { ResolverProperty, SubResolverContext, Type } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveMappedType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isMappedTypeNode(typeNode) || !ctx.referencer) {
+    if (!isMappedTypeNode(typeNode) || !ctx.referencer) {
         return undefined;
     }
 
@@ -23,9 +40,9 @@ export function resolveMappedType(
     const mappedTypeNode = typeNode;
     const { typeChecker } = ctx;
 
-    const getDeclaration = (prop: ts.Symbol) => prop.declarations && (prop.declarations[0] as ts.Declaration | undefined);
+    const getDeclaration = (prop: TsSymbol) => prop.declarations && (prop.declarations[0] as Declaration | undefined);
 
-    const isIgnored = (prop: ts.Symbol) => {
+    const isIgnored = (prop: TsSymbol) => {
         const declaration = getDeclaration(prop);
         const tagNames = prop.getJsDocTags();
         const tagNameIndex = tagNames.findIndex((tag) => tag.name === JSDocTagName.IGNORE);
@@ -34,9 +51,9 @@ export function resolveMappedType(
         }
         return (
             !!declaration &&
-            !ts.isPropertyDeclaration(declaration) &&
-            !ts.isPropertySignature(declaration) &&
-            !ts.isParameter(declaration)
+            !isPropertyDeclaration(declaration) &&
+            !isPropertySignature(declaration) &&
+            !isParameter(declaration)
         );
     };
 
@@ -45,38 +62,38 @@ export function resolveMappedType(
         .filter((property) => !isIgnored(property))
         .map((property) => {
             const declaration = getDeclaration(property) as
-                ts.PropertySignature |
-                ts.PropertyDeclaration |
-                ts.ParameterDeclaration |
+                PropertySignature |
+                PropertyDeclaration |
+                ParameterDeclaration |
                 undefined;
 
             // Normalize +? (PlusToken) to ? (QuestionToken) so property helpers treat it as optional
-            const overrideToken = mappedTypeNode.questionToken?.kind === ts.SyntaxKind.PlusToken ?
-                ts.factory.createToken(ts.SyntaxKind.QuestionToken) :
+            const overrideToken = mappedTypeNode.questionToken?.kind === SyntaxKind.PlusToken ?
+                factory.createToken(SyntaxKind.QuestionToken) :
                 mappedTypeNode.questionToken;
 
-            if (declaration && ts.isPropertySignature(declaration)) {
+            if (declaration && isPropertySignature(declaration)) {
                 return { ...ctx.propertyFromSignature(declaration, overrideToken), name: property.getName() };
             }
-            if (declaration && (ts.isPropertyDeclaration(declaration) || ts.isParameter(declaration))) {
+            if (declaration && (isPropertyDeclaration(declaration) || isParameter(declaration))) {
                 return { ...ctx.propertyFromDeclaration(declaration, overrideToken), name: property.getName() };
             }
 
-            let required = (property.flags & ts.SymbolFlags.Optional) === 0;
+            let required = (property.flags & SymbolFlags.Optional) === 0;
 
             const typeNode2 = toTypeNodeOrFail(
                 typeChecker,
                 typeChecker.getTypeOfSymbolAtLocation(property, typeNode),
                 undefined,
-                ts.NodeBuilderFlags.NoTruncation,
+                NodeBuilderFlags.NoTruncation,
             );
-            if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.MinusToken) {
+            if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === SyntaxKind.MinusToken) {
                 required = true;
             } else if (
                 mappedTypeNode.questionToken &&
                 (
-                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.QuestionToken ||
-                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.PlusToken
+                    mappedTypeNode.questionToken.kind === SyntaxKind.QuestionToken ||
+                    mappedTypeNode.questionToken.kind === SyntaxKind.PlusToken
                 )
             ) {
                 required = false;

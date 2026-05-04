@@ -5,14 +5,30 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import { SyntaxKind, isImportSpecifier } from 'typescript';
+import type {
+    ArrayLiteralExpression,
+    Declaration,
+    Expression,
+    HasInitializer,
+    Identifier,
+    ImportSpecifier,
+    NewExpression,
+    Node,
+    NumericLiteral,
+    ObjectLiteralExpression,
+    PrefixUnaryExpression,
+    StringLiteral,
+    Symbol as TsSymbol,
+    TypeChecker,
+} from 'typescript';
 import { MetadataError } from '../../core/error';
 import type { Type } from '../../core/types/resolver';
 import { hasOwnProperty } from '../../core/utils/object';
 
 export function getInitializerValue(
-    initializer?: ts.Expression,
-    typeChecker?: ts.TypeChecker,
+    initializer?: Expression,
+    typeChecker?: TypeChecker,
     type?: Type,
 ) : unknown {
     if (!initializer) {
@@ -20,34 +36,34 @@ export function getInitializerValue(
     }
 
     switch (initializer.kind) {
-        case ts.SyntaxKind.ArrayLiteralExpression: {
-            const arrayLiteral = initializer as ts.ArrayLiteralExpression;
+        case SyntaxKind.ArrayLiteralExpression: {
+            const arrayLiteral = initializer as ArrayLiteralExpression;
             return arrayLiteral.elements.map((element) => getInitializerValue(element, typeChecker));
         }
-        case ts.SyntaxKind.StringLiteral:
-        case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
-            return (initializer as ts.StringLiteral).text;
-        case ts.SyntaxKind.TrueKeyword:
+        case SyntaxKind.StringLiteral:
+        case SyntaxKind.NoSubstitutionTemplateLiteral:
+            return (initializer as StringLiteral).text;
+        case SyntaxKind.TrueKeyword:
             return true;
-        case ts.SyntaxKind.FalseKeyword:
+        case SyntaxKind.FalseKeyword:
             return false;
-        case ts.SyntaxKind.PrefixUnaryExpression: {
-            const prefixUnary = initializer as ts.PrefixUnaryExpression;
+        case SyntaxKind.PrefixUnaryExpression: {
+            const prefixUnary = initializer as PrefixUnaryExpression;
             switch (prefixUnary.operator) {
-                case ts.SyntaxKind.PlusToken:
-                    return Number((prefixUnary.operand as ts.NumericLiteral).text);
-                case ts.SyntaxKind.MinusToken:
-                    return Number(`-${(prefixUnary.operand as ts.NumericLiteral).text}`);
+                case SyntaxKind.PlusToken:
+                    return Number((prefixUnary.operand as NumericLiteral).text);
+                case SyntaxKind.MinusToken:
+                    return Number(`-${(prefixUnary.operand as NumericLiteral).text}`);
                 default:
                     throw new MetadataError(`Unsupported prefix operator token: ${prefixUnary.operator}`);
             }
         }
-        case ts.SyntaxKind.NumberKeyword:
-        case ts.SyntaxKind.FirstLiteralToken:
-            return Number((initializer as ts.NumericLiteral).text);
-        case ts.SyntaxKind.NewExpression: {
-            const newExpression = initializer as ts.NewExpression;
-            const ident = newExpression.expression as ts.Identifier;
+        case SyntaxKind.NumberKeyword:
+        case SyntaxKind.FirstLiteralToken:
+            return Number((initializer as NumericLiteral).text);
+        case SyntaxKind.NewExpression: {
+            const newExpression = initializer as NewExpression;
+            const ident = newExpression.expression as Identifier;
 
             if (ident.text === 'Date') {
                 let date = new Date();
@@ -68,23 +84,23 @@ export function getInitializerValue(
 
             return undefined;
         }
-        case ts.SyntaxKind.NullKeyword: {
+        case SyntaxKind.NullKeyword: {
             return null;
         }
-        case ts.SyntaxKind.ObjectLiteralExpression: {
-            const objectLiteral = initializer as ts.ObjectLiteralExpression;
+        case SyntaxKind.ObjectLiteralExpression: {
+            const objectLiteral = initializer as ObjectLiteralExpression;
             const nestedObject: any = {};
             objectLiteral.properties.forEach((p: any) => {
                 nestedObject[p.name.text] = getInitializerValue(p.initializer, typeChecker);
             });
             return nestedObject;
         }
-        case ts.SyntaxKind.ImportSpecifier: {
+        case SyntaxKind.ImportSpecifier: {
             if (typeof typeChecker === 'undefined') {
                 return undefined;
             }
 
-            const importSpecifier = (initializer as any) as ts.ImportSpecifier;
+            const importSpecifier = (initializer as any) as ImportSpecifier;
             const importSymbol = typeChecker.getSymbolAtLocation(importSpecifier.name);
             if (!importSymbol) {
                 return undefined;
@@ -120,11 +136,11 @@ export function getInitializerValue(
 }
 
 export const hasInitializer = (
-    node: ts.Node,
-): node is ts.HasInitializer => Object.prototype.hasOwnProperty.call(node, 'initializer');
+    node: Node,
+): node is HasInitializer => Object.prototype.hasOwnProperty.call(node, 'initializer');
 const extractInitializer = (
-    valueDeclaration?: ts.Declaration,
-) => (valueDeclaration && hasInitializer(valueDeclaration) && (valueDeclaration.initializer as ts.Expression)) || undefined;
+    valueDeclaration?: Declaration,
+) => (valueDeclaration && hasInitializer(valueDeclaration) && (valueDeclaration.initializer as Expression)) || undefined;
 const extractImportSpecifier = (
-    symbol?: ts.Symbol,
-) => (symbol?.declarations && symbol.declarations.length > 0 && ts.isImportSpecifier(symbol.declarations[0]) && symbol.declarations[0]) || undefined;
+    symbol?: TsSymbol,
+) => (symbol?.declarations && symbol.declarations.length > 0 && isImportSpecifier(symbol.declarations[0]) && symbol.declarations[0]) || undefined;

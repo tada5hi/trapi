@@ -5,7 +5,21 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import {
+    isIdentifier,
+    isIndexSignatureDeclaration,
+    isNumericLiteral,
+    isPropertySignature,
+    isStringLiteral,
+    isTypeLiteralNode,
+} from 'typescript';
+import type {
+    IndexSignatureDeclaration,
+    ParameterDeclaration,
+    PropertyDeclaration,
+    PropertySignature,
+    TypeNode,
+} from 'typescript';
 import {
     JSDocTagName,
     getJSDocTagComment,
@@ -23,16 +37,16 @@ import type {
 } from '../types';
 
 export function resolveObjectLiteralType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isTypeLiteralNode(typeNode)) {
+    if (!isTypeLiteralNode(typeNode)) {
         return undefined;
     }
 
     const properties: ResolverProperty[] = typeNode.members
-        .filter((member) => ts.isPropertySignature(member))
-        .reduce((res, propertySignature: ts.PropertySignature) => {
+        .filter((member) => isPropertySignature(member))
+        .reduce((res, propertySignature: PropertySignature) => {
             if (!propertySignature.type) {
                 throw new ResolverError('No valid type found for property declaration.', propertySignature);
             }
@@ -60,14 +74,14 @@ export function resolveObjectLiteralType(
         }, [] as ResolverProperty[]);
 
     const indexMember = typeNode.members.find(
-        (member) => ts.isIndexSignatureDeclaration(member),
+        (member) => isIndexSignatureDeclaration(member),
     );
     let additionalType: Type | undefined;
 
     if (indexMember) {
-        const indexSignatureDeclaration = indexMember as ts.IndexSignatureDeclaration;
+        const indexSignatureDeclaration = indexMember as IndexSignatureDeclaration;
         const indexType = ctx.resolveType(
-            indexSignatureDeclaration.parameters[0].type as ts.TypeNode,
+            indexSignatureDeclaration.parameters[0].type as TypeNode,
             ctx.parentNode,
             ctx.context,
         );
@@ -91,17 +105,17 @@ export function resolveObjectLiteralType(
 }
 
 function getNodeFormat(
-    node: ts.PropertySignature | ts.PropertyDeclaration | ts.ParameterDeclaration,
+    node: PropertySignature | PropertyDeclaration | ParameterDeclaration,
 ) {
     return getJSDocTagComment(node, JSDocTagName.FORMAT);
 }
 
-function getPropertyName(node: ts.PropertySignature): string {
-    if (ts.isIdentifier(node.name)) {
+function getPropertyName(node: PropertySignature): string {
+    if (isIdentifier(node.name)) {
         return node.name.text;
     }
 
-    if (ts.isStringLiteral(node.name) || ts.isNumericLiteral(node.name)) {
+    if (isStringLiteral(node.name) || isNumericLiteral(node.name)) {
         return node.name.text;
     }
 

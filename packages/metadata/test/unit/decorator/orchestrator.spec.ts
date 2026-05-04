@@ -6,7 +6,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import * as ts from 'typescript';
+import { ScriptTarget, createSourceFile, isClassDeclaration } from 'typescript';
+import type { ClassDeclaration, MethodDeclaration, SourceFile } from 'typescript';
 import {
     type ApplyHandlersOptions,
     type ControllerDraft,
@@ -20,13 +21,13 @@ import {
 } from '../../../src/adapters/decorator';
 import type { Type } from '../../../src/core/resolver/types';
 
-function compile(source: string): ts.SourceFile {
-    return ts.createSourceFile('sample.ts', source, ts.ScriptTarget.Latest, true);
+function compile(source: string): SourceFile {
+    return createSourceFile('sample.ts', source, ScriptTarget.Latest, true);
 }
 
-function findClass(sf: ts.SourceFile, name: string): ts.ClassDeclaration {
+function findClass(sf: SourceFile, name: string): ClassDeclaration {
     const found = sf.statements.find(
-        (s): s is ts.ClassDeclaration => ts.isClassDeclaration(s) && s.name?.text === name,
+        (s): s is ClassDeclaration => isClassDeclaration(s) && s.name?.text === name,
     );
     if (!found) throw new Error(`class ${name} not found`);
     return found;
@@ -114,7 +115,7 @@ describe('applyDecoratorHandlers', () => {
             }
         `);
         const cls = findClass(sf, 'C');
-        const method = cls.members[0] as ts.MethodDeclaration;
+        const method = cls.members[0] as MethodDeclaration;
         const draft = newMethodDraft({ name: 'list' });
         const handlers: MethodHandler[] = [
             {
@@ -336,7 +337,7 @@ describe('applyDecoratorHandlers — parameterType wiring', () => {
             }
         `);
         const cls = findClass(sf, 'C');
-        const method = cls.members[0] as ts.MethodDeclaration;
+        const method = cls.members[0] as MethodDeclaration;
         const draft = newMethodDraft({ name: 'list' });
         let observed: Type | undefined;
         const handlers: MethodHandler[] = [

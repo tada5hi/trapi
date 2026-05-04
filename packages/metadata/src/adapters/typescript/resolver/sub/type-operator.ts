@@ -5,24 +5,25 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import { NodeBuilderFlags, SyntaxKind, isTypeOperatorNode } from 'typescript';
+import type { TypeNode } from 'typescript';
 import { ResolverError } from '../../../../core/error/resolver';
 import type { SubResolverContext, Type } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveTypeOperatorType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isTypeOperatorNode(typeNode)) {
+    if (!isTypeOperatorNode(typeNode)) {
         return undefined;
     }
 
-    if (typeNode.operator === ts.SyntaxKind.KeyOfKeyword) {
+    if (typeNode.operator === SyntaxKind.KeyOfKeyword) {
         const type = ctx.typeChecker.getTypeFromTypeNode(typeNode);
         try {
             return ctx.resolveType(
-                toTypeNodeOrFail(ctx.typeChecker, type, undefined, ts.NodeBuilderFlags.NoTruncation),
+                toTypeNodeOrFail(ctx.typeChecker, type, undefined, NodeBuilderFlags.NoTruncation),
                 typeNode,
                 ctx.context,
                 ctx.referencer,
@@ -39,7 +40,7 @@ export function resolveTypeOperatorType(
         }
     }
 
-    if (typeNode.operator === ts.SyntaxKind.ReadonlyKeyword) {
+    if (typeNode.operator === SyntaxKind.ReadonlyKeyword) {
         return ctx.resolveType(typeNode.type, typeNode, ctx.context, ctx.referencer);
     }
 

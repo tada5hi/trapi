@@ -5,15 +5,16 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import * as ts from 'typescript';
+import { isArrayTypeNode } from 'typescript';
+import type { TypeNode } from 'typescript';
 import { TypeName } from '../../../../core/types/type-name';
 import type { ArrayType, SubResolverContext, Type } from '../types';
 
 export function resolveArrayType(
-    typeNode: ts.TypeNode,
+    typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!ts.isArrayTypeNode(typeNode)) {
+    if (!isArrayTypeNode(typeNode)) {
         return undefined;
     }
 

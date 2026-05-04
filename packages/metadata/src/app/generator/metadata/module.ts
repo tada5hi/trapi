@@ -30,7 +30,13 @@ import {
 } from '../../../adapters/cache';
 import type { MetadataGeneratorOptions } from '../../../core/config';
 import type { Registry, UnmatchedDecoratorReport } from '../../../adapters/decorator';
-import { createRegistry, loadRegistryByName } from '../../../adapters/decorator';
+import {
+    createRegistry,
+    loadRegistry,
+    loadRegistryByName,
+    mergeRegistries,
+    resolvePresetByName,
+} from '../../../adapters/decorator';
 import { ConfigError } from '../../../core/error/config';
 import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { GeneratorError } from '../../../core/error/generator';
@@ -94,8 +100,22 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         // Load the preset upfront so its resolved registry can contribute to
         // the cache key. Otherwise edits to a local preset (or upgrades that
         // share a name) would silently serve stale metadata.
-        if (this.config.preset) {
-            this.registry = await loadRegistryByName(this.config.preset);
+        let presetRegistry: Registry | undefined;
+        let presetName: string | undefined;
+        if (typeof this.config.preset === 'string') {
+            presetName = this.config.preset;
+            presetRegistry = await loadRegistryByName(this.config.preset);
+        } else if (this.config.preset) {
+            presetName = this.config.preset.name;
+            presetRegistry = await loadRegistry(this.config.preset, { resolver: resolvePresetByName });
+        }
+
+        if (presetRegistry && this.config.registry) {
+            this.registry = mergeRegistries(presetRegistry, this.config.registry);
+        } else if (presetRegistry) {
+            this.registry = presetRegistry;
+        } else if (this.config.registry) {
+            this.registry = this.config.registry;
         }
 
         const cacheKey = composeCacheKey({
@@ -103,7 +123,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             sourceFilesHash,
             compilerOptionsHash: hashCompilerOptions(this.program.getCompilerOptions()),
             registryHash: hashRegistry(this.registry),
-            presetName: this.config.preset,
+            presetName,
         });
 
         // Strict reporting requires handler dispatch to actually run. A cache hit
@@ -144,7 +164,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     }
 
     private assertPresetProducedControllers(): void {
-        if (this.config.preset || this.controllers.length > 0) {
+        if (this.config.preset || this.config.registry || this.controllers.length > 0) {
             return;
         }
         // Only fault a missing preset when we actually scanned source files —
@@ -154,7 +174,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             return;
         }
         throw new ConfigError({
-            message: 'No preset configured and no controllers detected. Provide `preset: \'@trapi/preset-decorators-express\'` (or another preset) so handlers can match your decorators.',
+            message: 'No preset or registry configured and no controllers detected. Provide `preset: \'@trapi/preset-decorators-express\'` (or another preset), or pass an inline `registry`, so handlers can match your decorators.',
             code: ConfigErrorCode.PRESET_MISSING,
         });
     }

@@ -6,7 +6,7 @@
  */
 
 import type { CacheOptions } from '../../adapters/cache';
-import type { UnmatchedDecoratorReport } from '../../adapters/decorator';
+import type { Preset, Registry, UnmatchedDecoratorReport } from '../../adapters/decorator';
 import type { TsConfig } from '../../adapters/filesystem/tsconfig';
 
 export type EntryPointOptions = {
@@ -41,9 +41,30 @@ export type MetadataGeneratorOptions = {
     cache?: string | boolean | Partial<CacheOptions>;
 
     /**
-     * Load a specific preset configuration.
+     * Decorator preset to load. Either:
+     * - a string identifier resolved via {@link resolvePresetByName}
+     *   (npm package, relative path, or `module:` specifier), or
+     * - an inline {@link Preset} object (still walked through `loadRegistry`,
+     *   so its `extends` chain — if any — is resolved by name).
+     *
+     * If both `preset` and `registry` are provided, the resolved preset
+     * registry comes first and the inline `registry` is appended after.
+     * Inline handlers therefore run last (winning on scalar mutations like
+     * `into('path')`) and additively contribute on `append`-style fields.
      */
-    preset?: string;
+    preset?: string | Preset;
+
+    /**
+     * An already-resolved decorator {@link Registry}. Use this to wire
+     * decorator handlers manually without authoring a full {@link Preset}.
+     *
+     * If provided alongside `preset`, the registry is appended to the
+     * preset-derived registry (preset first, registry second). Inline
+     * handlers cannot carry `replaces` semantics — those are enforced at
+     * preset-load time. To remove a preset handler, author a `Preset` with
+     * `replaces` and pass it via `preset` instead.
+     */
+    registry?: Registry;
 
     /**
      * Controls how unmatched decorators (decorators with no matching handler

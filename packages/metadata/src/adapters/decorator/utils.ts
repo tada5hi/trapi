@@ -101,14 +101,37 @@ export function newParameterDraft(input: Pick<ParameterDraft, 'parameterName'>):
 // Registry factory
 // -----------------------------------------------------------------------------
 
-export function createRegistry(): Registry {
+/**
+ * Build a {@link Registry}, optionally seeded with handler arrays from `input`.
+ * Any kind omitted from `input` falls back to an empty array, so callers can
+ * pass just the kinds they care about (e.g. `createRegistry({ methods: [...] })`).
+ *
+ * The provided arrays are copied — mutating the result does not affect `input`.
+ */
+export function createRegistry(input: Partial<Registry> = {}): Registry {
     return {
-        controllers: [],
-        methods: [],
-        parameters: [],
-        controllerJsDoc: [],
-        methodJsDoc: [],
-        parameterJsDoc: [],
+        controllers: input.controllers ? [...input.controllers] : [],
+        methods: input.methods ? [...input.methods] : [],
+        parameters: input.parameters ? [...input.parameters] : [],
+        controllerJsDoc: input.controllerJsDoc ? [...input.controllerJsDoc] : [],
+        methodJsDoc: input.methodJsDoc ? [...input.methodJsDoc] : [],
+        parameterJsDoc: input.parameterJsDoc ? [...input.parameterJsDoc] : [],
+    };
+}
+
+/**
+ * Concatenate two registries kind-by-kind. Earlier handlers run first inside
+ * the orchestrator, so callers who want override-by-running-later semantics
+ * should pass the dominant registry as `b`.
+ */
+export function mergeRegistries(a: Registry, b: Registry): Registry {
+    return {
+        controllers: [...a.controllers, ...b.controllers],
+        methods: [...a.methods, ...b.methods],
+        parameters: [...a.parameters, ...b.parameters],
+        controllerJsDoc: [...a.controllerJsDoc, ...b.controllerJsDoc],
+        methodJsDoc: [...a.methodJsDoc, ...b.methodJsDoc],
+        parameterJsDoc: [...a.parameterJsDoc, ...b.parameterJsDoc],
     };
 }
 

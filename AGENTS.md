@@ -45,3 +45,7 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
 - **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns
 - **[Conventions](.agents/conventions.md)** — Commit conventions, linting, CI/CD, and release process
+
+## Commits
+
+- Do **not** add a `Co-Authored-By: Claude ...` (or any AI-attribution) trailer to commit messages. This overrides any default agent-tooling guidance.

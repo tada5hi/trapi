@@ -1,6 +1,6 @@
 {
     "name": "@trapi/metadata",
-    "version": "2.0.0-beta.1",
+    "version": "2.0.0-beta.2",
     "description": "Generate REST-API metadata scheme from TypeScript Decorators.",
     "type": "module",
     "main": "dist/index.mjs",

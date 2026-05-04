@@ -151,6 +151,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0-beta.2](https://github.com/tada5hi/trapi/compare/metadata-v2.0.0-beta.1...metadata-v2.0.0-beta.2) (2026-05-04)
+
+
+### Features
+
+* **metadata:** accept inline Preset object or Registry in MetadataGeneratorOptions ([#810](https://github.com/tada5hi/trapi/issues/810)) ([ad9e392](https://github.com/tada5hi/trapi/commit/ad9e3929e12ddb4cd025235e3b5f659e52598674))
+
 ## [2.0.0-beta.1](https://github.com/tada5hi/trapi/compare/metadata-v2.0.0-beta.0...metadata-v2.0.0-beta.1) (2026-04-30)
 
 

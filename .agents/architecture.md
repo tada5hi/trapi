@@ -102,6 +102,14 @@ Neither preset `extends` the other. The repo deliberately ships no shared base p
 
 `examples/decorators/` (private, unpublished) is a worked example of authoring a custom decorator runtime + matching `Preset` from scratch — it covers the same handler families as the framework presets.
 
+**Configuring decorator handlers.** `MetadataGeneratorOptions` accepts handler configuration in three shapes:
+
+- `preset?: string | Preset` — string identifier resolved via `resolvePresetByName` (npm package, relative path, or `module:` specifier), or an inline `Preset` object (still walked through `loadRegistry`, so its `extends` chain — if any — is resolved by name).
+- `registry?: Registry` — already-resolved flat registry; useful for one-off custom handlers without authoring a full `Preset`. Build it with `createRegistry({ controllers: [...], methods: [...] })` — every kind is optional and defaults to `[]`.
+- Both — they merge. The preset-derived registry comes first, the inline `registry` is appended after, so inline handlers run last in the orchestrator (winning on scalar mutations like `into('path')`, additively contributing on `append`-style fields).
+
+Inline `registry` handlers cannot carry `replaces` semantics — those are enforced at preset-load time. To remove a preset handler, author a `Preset` with `replaces` and pass it via `preset` instead. The cache key folds in `preset.name` (when present) and `hashRegistry(merged)`, so toggling either contributor invalidates the cache.
+
 ## Swagger Generator
 
 The swagger emitters live under `adapters/generator/` and share an abstract base:

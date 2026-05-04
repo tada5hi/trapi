@@ -17,6 +17,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateMetadata } from '../../../src';
 import { ConfigErrorCode } from '../../../src/core/error/config-codes';
+import type { Preset, Registry } from '../../../src/adapters/decorator';
+import { createRegistry } from '../../../src/adapters/decorator';
 
 const entryPoint = [{
     cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),
@@ -46,6 +48,79 @@ describe('generateMetadata', () => {
 
         expect(metadata).toHaveProperty('controllers');
         expect(metadata.controllers.length).toBeGreaterThan(0);
+    });
+
+    it('should accept an inline Preset object', async () => {
+        const inline: Preset = {
+            name: 'inline-fixture',
+            extends: ['@trapi/preset-decorators-express'],
+        };
+        const metadata = await generateMetadata({
+            entryPoint,
+            cache: false,
+            preset: inline,
+        });
+
+        expect(metadata.controllers.length).toBeGreaterThan(0);
+    });
+
+    it('should accept an inline Registry without any preset', async () => {
+        // Minimal registry that only knows @Controller + @Get. We point at a
+        // dedicated fixture with no parameter decorators so body-inference
+        // doesn't conflict with the bare-bones registry.
+        const registry: Registry = createRegistry({
+            controllers: [{
+                match: { name: 'Controller', on: 'class' },
+                apply: (ctx, draft) => {
+                    const arg = ctx.argument(0);
+                    draft.paths = arg && arg.kind === 'literal' && typeof arg.raw === 'string' ?
+                        [arg.raw] :
+                        [''];
+                },
+            }],
+            methods: [{
+                match: { name: 'Get', on: 'method' },
+                apply: (_ctx, draft) => { draft.verb = 'get'; },
+            }],
+        });
+
+        const metadata = await generateMetadata({
+            entryPoint: [{
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/inline-registry'),
+                pattern: '**/*.ts',
+            }],
+            cache: false,
+            registry,
+        });
+
+        expect(metadata.controllers.length).toBe(1);
+        expect(metadata.controllers[0].paths).toEqual(['widgets']);
+        expect(metadata.controllers[0].methods.length).toBe(1);
+        expect(metadata.controllers[0].methods[0].method).toBe('get');
+    });
+
+    it('should merge an inline registry on top of a preset (registry wins on scalar fields)', async () => {
+        // Inline parameter handler that overrides @Path to set a marker
+        // description so we can detect that it ran after the preset's handler.
+        const registry: Registry = createRegistry({
+            parameters: [{
+                match: { name: 'Path', on: 'parameter' },
+                apply: (_ctx, draft) => { draft.description = 'inline-override'; },
+            }],
+        });
+
+        const metadata = await generateMetadata({
+            entryPoint,
+            cache: false,
+            preset: '@trapi/preset-decorators-express',
+            registry,
+        });
+
+        const overridden = metadata.controllers
+            .flatMap((c) => c.methods)
+            .flatMap((m) => m.parameters)
+            .filter((p) => p.description === 'inline-override');
+        expect(overridden.length).toBeGreaterThan(0);
     });
 
     it('should throw when preset is omitted but source files contain decorators', async () => {

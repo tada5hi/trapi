@@ -55,6 +55,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [0.2.0-beta.2](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.1-beta.1...preset-decorators-express-v0.2.0-beta.2) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** `@trapi/metadata` no longer exports the framework-neutral domain types or decorator machinery. Import them from `@trapi/core` instead. Preset packages must declare `@trapi/core` as a `peerDependency` (not `@trapi/metadata`). Preset loading errors now throw `CoreError` (with codes from `CoreErrorCode`) rather than `MetadataError` / `ConfigError`.
+
+### Features
+
+* **core:** extract @trapi/core for framework-neutral types and decorator machinery ([#814](https://github.com/tada5hi/trapi/issues/814)) ([d37facf](https://github.com/tada5hi/trapi/commit/d37facfd040876cee16c58688047a2a2d8262751))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/core bumped from ^1.0.0-beta.1 to ^2.0.0-beta.2
+  * peerDependencies
+    * @trapi/core bumped from 1.0.0-beta.1 to 2.0.0-beta.2
+
 ## [0.2.1-beta.1](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.0-beta.1...preset-decorators-express-v0.2.1-beta.1) (2026-05-04)
 
 

@@ -1,6 +1,6 @@
 {
     "name": "@trapi/cli",
-    "version": "0.1.2-beta.0",
+    "version": "0.1.1-beta.1",
     "description": "CLI for generating REST-API metadata and OpenAPI / Swagger specifications.",
     "type": "module",
     "main": "dist/index.mjs",

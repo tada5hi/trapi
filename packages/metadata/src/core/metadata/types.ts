@@ -7,11 +7,10 @@
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
 import type { MetadataGeneratorOptions } from '../config';
 import type {
-    Controller,
     DependencyResolver,
     IResolverCache,
+    Metadata,
     ReferenceType,
-    ReferenceTypes,
     Registry,
     UnmatchedDecoratorReport,
 } from '@trapi/core';
@@ -25,22 +24,6 @@ export type MetadataGeneratorContext = {
 export interface IMetadataGenerator {
     generate(): Promise<Metadata>;
 }
-
-/**
- * The output specification for metadata generation.
- */
-export type Metadata = {
-    /**
-     * A Controller is a collection of grouped methods (GET, POST, ...)
-     * for a common URL path (i.e /users) or an more explicit URL path (i.e. /users/:id).
-     */
-    controllers: Controller[];
-    /**
-     * ReferenceTypes is an object of found types (interfaces, type, ...),
-     * and classes which were detected during code analysis.
-     */
-    referenceTypes: ReferenceTypes;
-};
 
 /**
  * Narrow context interface for the type resolver.

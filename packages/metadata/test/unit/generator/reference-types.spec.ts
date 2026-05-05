@@ -17,14 +17,14 @@ import { fileURLToPath } from 'node:url';
 import { generateMetadata } from '../../../src';
 import type {
     ArrayType,
+    Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefEnumType,
     RefObjectType,
-    ResolverProperty,
-    UnionType,
+    ResolverProperty, 
+    UnionType, 
 } from '@trapi/core';
-import type { Metadata } from '../../../src';
 
 describe('check referenceTypes', () => {
     let metadata : Metadata;

@@ -12,7 +12,7 @@ async function generateSwagger<V extends `${Version}`>(
 ): Promise<V extends 'v2' ? SpecV2 : SpecV3>;
 ```
 
-Produces an OpenAPI document from either pre-built metadata or metadata generation options.
+Produces an OpenAPI document from a pre-built `Metadata` value. `@trapi/swagger` does not depend on `@trapi/metadata` or the TypeScript compiler — produce the metadata however you like (e.g. by calling `generateMetadata` from `@trapi/metadata`, by reading a cached JSON file, or from an alternative extractor) and pass the result in.
 
 - Returns `SpecV2` when `version` is `'v2'`.
 - Returns `SpecV3` when `version` is `'v3'`, `'v3.1'`, or `'v3.2'`.
@@ -48,16 +48,16 @@ See [Saving Output](/guide/swagger-output) for usage patterns.
 ### `SwaggerGenerateOptions`
 
 ```typescript
-import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 
 type SwaggerGenerateOptions = {
     version: 'v2' | 'v3' | 'v3.1' | 'v3.2';
-    metadata: MetadataGenerateOptions | Metadata;
+    metadata: Metadata;
     data?: SwaggerGenerateData;
 };
 ```
 
-When `metadata` is `MetadataGenerateOptions`, `generateSwagger` runs `generateMetadata` internally before emitting.
+`Metadata` lives in `@trapi/core` (not `@trapi/metadata`) — `@trapi/swagger` has no dependency on the TypeScript compiler.
 
 ### `SwaggerGenerateData`
 
@@ -138,7 +138,7 @@ For canonical OpenAPI keyword names (`maxLength`, `minLength`, `pattern`, `maxim
 
 ## Errors
 
-The swagger package throws `SwaggerError` for spec-level problems (duplicate operation IDs, body parameter conflicts, etc.). `MetadataError` subclasses surface through `generateSwagger` when extraction fails.
+The swagger package throws `SwaggerError` for spec-level problems (duplicate operation IDs, body parameter conflicts, etc.). Errors raised during metadata extraction (`MetadataError`, `CoreError`, …) surface from your `generateMetadata` call — they reach `generateSwagger` only if you propagate them.
 
 There is no dedicated type guard — use `instanceof`:
 
@@ -157,10 +157,10 @@ try {
 
 ## Working with Metadata Types
 
-`@trapi/swagger` consumes types from `@trapi/metadata` — `Metadata` and `MetadataGenerateOptions` — but does not re-export them. Import them from `@trapi/metadata` directly:
+`@trapi/swagger` accepts a pre-built `Metadata` value (the framework-neutral type from `@trapi/core`). Import it from `@trapi/core` directly — there is no `Metadata` re-export from `@trapi/swagger`:
 
 ```typescript
-import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 import { generateSwagger } from '@trapi/swagger';
 ```
 

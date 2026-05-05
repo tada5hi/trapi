@@ -13,7 +13,7 @@ import {
 } from 'vitest';
 import { load } from 'locter';
 import jsonata from 'jsonata';
-import type { Metadata } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 import type { SpecV2, SpecV3 } from '../../../src';
 import { Version, generateSwagger } from '../../../src';
 

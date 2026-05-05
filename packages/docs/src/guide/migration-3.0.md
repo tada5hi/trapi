@@ -11,12 +11,15 @@ If you only call `generateMetadata` / `generateSwagger` and use a bundled preset
 | Where IR + handler types live | `@trapi/metadata` (re-exported) | `@trapi/core` (no re-export from metadata) |
 | Where authoring helpers live (`controller`, `into`, `append`, `flag`, `readString`, …) | `@trapi/metadata` | `@trapi/core` |
 | Where the preset loader lives (`loadRegistry`, `resolvePresetByName`, `validatePreset`) | `@trapi/metadata` | `@trapi/core` |
+| Where `Metadata` + `isMetadata` live | `@trapi/metadata` | `@trapi/core` |
 | Preset error type | `MetadataError` (subclass `ConfigError` with code `PRESET_NOT_FOUND`) | `CoreError` with `CoreErrorCode.PRESET_NOT_FOUND` / `PRESET_INVALID` / `PRESET_CYCLE` / `PRESET_REPLACES_NO_MATCH` |
 | Preset package `peerDependencies` | `@trapi/metadata` | `@trapi/core` |
 | `@trapi/metadata` re-exports the contract surface | yes | **no** — clean break, install `@trapi/core` directly |
 | `ConfigErrorCode.PRESET_NOT_FOUND` | yes | removed (replaced by `CoreErrorCode.PRESET_NOT_FOUND`) |
+| `generateSwagger({ metadata: MetadataGenerateOptions \| Metadata })` | accepted both | **only `Metadata`** — call `generateMetadata` yourself first |
+| `@trapi/swagger` runtime dep on `@trapi/metadata` | yes (and transitively on `typescript`) | **removed** — `@trapi/swagger` no longer depends on either |
 
-The `@trapi/metadata` public surface for `generateMetadata`, `Metadata`, `MetadataGenerateOptions`, `CacheClient`, the TS-coupled errors (`ConfigError`, `GeneratorError`, `ParameterError`, `ResolverError`, `ValidatorError`), and the orchestrator (`applyDecoratorHandlers`, `applyJsDocHandlers`, `buildHandlerContext`) is **unchanged**.
+The `@trapi/metadata` public surface for `generateMetadata`, `MetadataGenerateOptions`, `CacheClient`, the TS-coupled errors (`ConfigError`, `GeneratorError`, `ParameterError`, `ResolverError`, `ValidatorError`), and the orchestrator (`applyDecoratorHandlers`, `applyJsDocHandlers`, `buildHandlerContext`) is **unchanged**.
 
 ## What you may need to change
 
@@ -25,6 +28,7 @@ The `@trapi/metadata` public surface for `generateMetadata`, `Metadata`, `Metada
 If you imported any of the following from `@trapi/metadata`, switch the import source to `@trapi/core`:
 
 - IR types: `Type`, `Controller`, `Method`, `Parameter`, `Validator`, `Extension`, `Example`, `Response`, `Security`, `BaseType`, `RefObjectType`, `RefAliasType`, `NeverType`, `VoidType`, `PrimitiveType`, … and the `is*Type` guards.
+- The metadata wrapper: `Metadata`, `isMetadata`.
 - Constants: `TypeName`, `ParameterSource`, `CollectionFormat`, `MethodName`, `MarkerName`, `ParamKind`, `DecoratorTargetKind`, `NumericKind`.
 - Handler/preset types: `Preset`, `Registry`, `ControllerHandler`, `MethodHandler`, `ParameterHandler` (and JsDoc variants), `HandlerContext`, `JsDocHandlerContext`, `DecoratorSource`, `JsDocSource`, `ResolverMarker`, `UnmatchedDecoratorReport`.
 - Authoring helpers: `controller(...)`, `method(...)`, `parameter(...)`, `controllerJsDoc(...)`, `methodJsDoc(...)`, `parameterJsDoc(...)`, `into`, `append`, `flag`, `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray`, `setControllerPaths`, `setMethodPath`.
@@ -130,7 +134,39 @@ if (e instanceof CoreError && e.code === CoreErrorCode.PRESET_NOT_FOUND) { /* ..
 
 `PRESET_INVALID` is new in 3.0 — surfaces module-evaluation errors (syntax errors, throws at import time, schema validation failures) that 2.x silently misreported as `PRESET_NOT_FOUND`.
 
-### 5. New: `@trapi/core/test-helpers` for preset unit tests
+### 5. `generateSwagger` no longer accepts `MetadataGenerateOptions`
+
+`@trapi/swagger` 3.0 only consumes a pre-built `Metadata` value. It has been fully decoupled from `@trapi/metadata` — no runtime dependency, no transitive `typescript` install. Call `generateMetadata` yourself and pass the result in:
+
+```typescript
+// 2.x — generateSwagger ran extraction internally when given options
+const spec = await generateSwagger({
+    version: 'v3',
+    metadata: {
+        entryPoint: 'src/controllers/**/*.ts',
+        preset: '@trapi/preset-decorators-express',
+    },
+});
+
+// 3.0 — extract first, emit second
+import { generateMetadata } from '@trapi/metadata';
+import { generateSwagger } from '@trapi/swagger';
+
+const metadata = await generateMetadata({
+    entryPoint: 'src/controllers/**/*.ts',
+    preset: '@trapi/preset-decorators-express',
+});
+
+const spec = await generateSwagger({ version: 'v3', metadata });
+```
+
+If you re-emit the same metadata in multiple shapes (V2 + V3, JSON + YAML), this also avoids the redundant TypeScript walk that the 2.x convenience signature did each time.
+
+`SwaggerGenerateOptions.metadata` now has type `Metadata` (from `@trapi/core`) rather than `Metadata | MetadataGenerateOptions`. The `Metadata` type itself moved to `@trapi/core` (see section 1) — re-target imports accordingly.
+
+The CLI flow is unchanged from a user perspective; `@trapi/cli` does the composition internally.
+
+### 6. New: `@trapi/core/test-helpers` for preset unit tests
 
 Preset authors who unit-test handlers in isolation (without invoking `generateMetadata`) can import synthetic decorator inputs and a context factory from `@trapi/core`:
 
@@ -159,7 +195,8 @@ These were previously available from `@trapi/metadata` under the same names; the
 ## Migration checklist
 
 - [ ] `npm install @trapi/core` if you author a custom preset, catch preset-load errors, or read IR types directly.
-- [ ] Update every import of an IR type, handler/preset type, authoring helper, loader, or validator to come from `@trapi/core` instead of `@trapi/metadata`.
+- [ ] Update every import of an IR type, handler/preset type, authoring helper, loader, validator, `Metadata`, or `isMetadata` to come from `@trapi/core` instead of `@trapi/metadata`.
+- [ ] If you call `generateSwagger`, switch from the union `metadata: options | Metadata` to extracting metadata first via `generateMetadata` and passing the result. The CLI flow is unchanged.
 - [ ] If you publish a preset package, swap `@trapi/metadata` for `@trapi/core` in `peerDependencies` (and `devDependencies` if applicable).
 - [ ] Replace `MetadataError` checks for preset-load failures with `CoreError` + `CoreErrorCode` checks.
 - [ ] Replace `ConfigErrorCode.PRESET_NOT_FOUND` with `CoreErrorCode.PRESET_NOT_FOUND`.

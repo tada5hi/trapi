@@ -1,26 +1,8 @@
 # Generating a Spec
 
-`generateSwagger()` is the entry point. It takes a single options object and returns an in-memory OpenAPI document.
+`generateSwagger()` is the entry point. It takes a single options object — including a pre-built `Metadata` value — and returns an in-memory OpenAPI document. `@trapi/swagger` does not depend on `@trapi/metadata` or the TypeScript compiler; produce the metadata however you like.
 
 ## Minimal Call
-
-```typescript
-import { generateSwagger } from '@trapi/swagger';
-
-const spec = await generateSwagger({
-    version: 'v3',
-    metadata: {
-        entryPoint: 'src/controllers/**/*.ts',
-        preset: '@trapi/preset-decorators-express',
-    },
-});
-```
-
-`metadata` accepts either `MetadataGenerateOptions` (in which case `generateSwagger` runs extraction itself) or a pre-built `Metadata` object.
-
-## Reusing Metadata
-
-For anything beyond a single emitter call, extract once and pass the result:
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
@@ -31,11 +13,28 @@ const metadata = await generateMetadata({
     preset: '@trapi/preset-decorators-express',
 });
 
+const spec = await generateSwagger({ version: 'v3', metadata });
+```
+
+`generateMetadata` (TypeScript-based extractor) and `generateSwagger` (OpenAPI emitter) compose. Reuse the same `metadata` for multiple emit targets so the TypeScript walk runs once:
+
+```typescript
 const specV3 = await generateSwagger({ version: 'v3', metadata });
 const specV2 = await generateSwagger({ version: 'v2', metadata });
 ```
 
-This matters when you want to emit multiple versions, feed the metadata into a custom generator, or cache it across build steps.
+## Bringing Your Own Metadata
+
+`generateSwagger` only requires a value matching the framework-neutral [`Metadata`](https://www.npmjs.com/package/@trapi/core) shape (`{ controllers, referenceTypes }`). You can supply one from any source — a JSON cache file, a Babel-based extractor, or a hand-rolled fixture for testing — without installing `@trapi/metadata`:
+
+```typescript
+import type { Metadata } from '@trapi/core';
+import { generateSwagger } from '@trapi/swagger';
+
+const metadata: Metadata = JSON.parse(await fs.readFile('cache/metadata.json', 'utf8'));
+
+const spec = await generateSwagger({ version: 'v3', metadata });
+```
 
 ## Choosing a Version
 

@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
 
 import { hasOwnProperty, isObject } from 'locter';
-import type { Metadata } from '../../../core/index.ts';
+import type { Metadata } from './types';
 
-export function isMetadata(input: unknown) : input is Metadata {
+export function isMetadata(input: unknown): input is Metadata {
     return isObject(input) &&
         hasOwnProperty(input, 'controllers') &&
         Array.isArray(input.controllers) &&

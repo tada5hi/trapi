@@ -13,8 +13,7 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { RefAliasType, UnionType } from '@trapi/core';
-import type { Metadata } from '../../../src';
+import type { Metadata, RefAliasType, UnionType  } from '@trapi/core';
 import { generateMetadata } from '../../../src';
 
 describe('never type metadata extraction (#778)', () => {

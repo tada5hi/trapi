@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Metadata } from '../../core/metadata/types';
+import type { Metadata } from '@trapi/core';
 
 export interface CacheOptions {
     /**

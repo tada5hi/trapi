@@ -5,8 +5,6 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Metadata } from '@trapi/metadata';
-import { generateMetadata, isMetadata } from '@trapi/metadata';
 import type { SpecGeneratorOptionsInput, SwaggerGenerateOptions } from '../core/config';
 import { Version } from '../core/constants';
 import type { OutputForVersion } from '../core/types';
@@ -33,18 +31,10 @@ function toSpecGeneratorOptionsInput(options: SwaggerGenerateOptions): SpecGener
     };
 }
 
-async function resolveMetadata(options: SwaggerGenerateOptions): Promise<Metadata> {
-    if (isMetadata(options.metadata)) {
-        return options.metadata;
-    }
-
-    return generateMetadata(options.metadata);
-}
-
 export async function generateSwagger<V extends `${Version}`>(
     options: Omit<SwaggerGenerateOptions, 'version'> & { version: V },
 ): Promise<OutputForVersion<V>> {
-    const metadata = await resolveMetadata(options);
+    const { metadata } = options;
     const specGeneratorOptionsInput = toSpecGeneratorOptionsInput(options);
 
     switch (options.version) {

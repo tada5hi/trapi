@@ -79,8 +79,8 @@ export function isLongType(param: BaseType): param is LongType {
     return param.typeName === TypeName.LONG;
 }
 
-export function isVoidType(param: BaseType | undefined): param is VoidType {
-    return typeof param === 'undefined' || param.typeName === TypeName.VOID;
+export function isVoidType(param: BaseType): param is VoidType {
+    return param.typeName === TypeName.VOID;
 }
 
 export function isNeverType(param: BaseType): param is NeverType {

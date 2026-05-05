@@ -39,7 +39,7 @@ Layer 1 (contract):   core
 
 Framework-neutral contract surface used by `@trapi/metadata`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/adapter-zod`, `locter`.
 
-```
+```text
 packages/core/src/
 ├── controller/             # Controller domain type + IControllerGenerator port
 ├── method/                 # Method, MethodType, MethodName
@@ -64,7 +64,7 @@ packages/core/src/
 
 Adds the TypeScript compiler integration on top of `@trapi/core`. Internal layout still follows hexagonal layering — `core/` (TS-coupled config + errors + ports), `adapters/` (TS compiler, filesystem, cache, decorator orchestrator), `app/` (generator wiring + `generateMetadata` entry point).
 
-```
+```text
 packages/metadata/src/
 ├── core/                   # TS-coupled contracts (everything framework-neutral lives in @trapi/core)
 │   ├── config/             # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint (uses CacheOptions)

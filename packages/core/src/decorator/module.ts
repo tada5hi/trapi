@@ -64,7 +64,19 @@ async function loadTaggedRegistry(
     options: LoadRegistryOptions,
     visited: ReadonlySet<string>,
 ): Promise<TaggedRegistry> {
-    const validated = await validatePreset(preset);
+    let validated: Preset;
+    try {
+        validated = await validatePreset(preset);
+    } catch (e) {
+        if (e instanceof CoreError) {
+            throw e;
+        }
+        throw new CoreError({
+            message: e instanceof Error ? e.message : 'Preset validation failed',
+            code: CoreErrorCode.PRESET_INVALID,
+            cause: e,
+        });
+    }
 
     if (visited.has(validated.name)) {
         throw new CoreError({
@@ -241,8 +253,15 @@ export async function resolvePresetByName(input: string): Promise<Preset> {
                 }
             }
         } catch (e) {
-            // Module-not-found errors are expected when iterating lookup paths;
-            // capture the last error so we can surface it if every path fails.
+            if (!isModuleNotFoundError(e)) {
+                throw new CoreError({
+                    message: e instanceof Error ?
+                        `Preset '${input}' failed to load: ${e.message}` :
+                        `Preset '${input}' failed to load.`,
+                    code: CoreErrorCode.PRESET_INVALID,
+                    cause: e,
+                });
+            }
             lastError = e;
         }
     }
@@ -252,6 +271,20 @@ export async function resolvePresetByName(input: string): Promise<Preset> {
         code: CoreErrorCode.PRESET_NOT_FOUND,
         cause: lastError,
     });
+}
+
+const MODULE_NOT_FOUND_CODES = new Set([
+    'ERR_MODULE_NOT_FOUND',
+    'MODULE_NOT_FOUND',
+    'ENOENT',
+]);
+
+function isModuleNotFoundError(error: unknown): boolean {
+    if (typeof error !== 'object' || error === null) {
+        return false;
+    }
+    const { code } = (error as { code?: unknown });
+    return typeof code === 'string' && MODULE_NOT_FOUND_CODES.has(code);
 }
 
 /**

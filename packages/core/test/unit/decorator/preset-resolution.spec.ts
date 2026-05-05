@@ -37,19 +37,19 @@ describe('resolvePresetByName', () => {
     });
 
     it('uses the PRESET_NOT_FOUND error code', async () => {
-        const promise = resolvePresetByName(fixturePath('does-not-exist.ts'));
-        await promise.catch((err) => {
-            expect(err).toBeInstanceOf(CoreError);
-            expect((err as CoreError & { code?: string }).code).toEqual(CoreErrorCode.PRESET_NOT_FOUND);
-        });
+        await expect(resolvePresetByName(fixturePath('does-not-exist.ts')))
+            .rejects.toMatchObject({ code: CoreErrorCode.PRESET_NOT_FOUND });
     });
 
     it('attaches the underlying error as `cause`', async () => {
-        const promise = resolvePresetByName(fixturePath('does-not-exist.ts'));
-        await promise.catch((err) => {
-            expect(err).toBeInstanceOf(CoreError);
-            expect((err as Error & { cause?: unknown }).cause).toBeDefined();
-        });
+        await expect(resolvePresetByName(fixturePath('does-not-exist.ts')))
+            .rejects.toSatisfy((err) => err instanceof CoreError &&
+                (err as Error & { cause?: unknown }).cause !== undefined);
+    });
+
+    it('surfaces module-evaluation failures as PRESET_INVALID, not PRESET_NOT_FOUND', async () => {
+        await expect(resolvePresetByName(fixturePath('preset-syntax-error.ts')))
+            .rejects.toMatchObject({ code: CoreErrorCode.PRESET_INVALID });
     });
 });
 

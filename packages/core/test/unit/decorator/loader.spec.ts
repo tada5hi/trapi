@@ -248,6 +248,14 @@ describe('loadRegistry', () => {
         expect(registry.controllers[0].replaces).toBe(true);
     });
 
+    it('wraps preset-validation failures as CoreError(PRESET_INVALID)', async () => {
+        // Missing `name` is a zod schema violation that surfaces from validup.
+        const invalid = { methods: [] } as unknown as Preset;
+        await expect(
+            loadRegistry(invalid, { resolver: makeResolver([]) }),
+        ).rejects.toMatchObject({ code: 'CORE_PRESET_INVALID' });
+    });
+
     it('supports JSDoc handlers in extends/replaces flow', async () => {
         const parent: Preset = {
             name: 'parent',

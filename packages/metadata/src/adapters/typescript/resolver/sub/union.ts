@@ -7,8 +7,9 @@
 
 import { isUnionTypeNode } from 'typescript';
 import type { TypeNode } from 'typescript';
-import { TypeName } from '../../../../core/types/type-name';
-import type { SubResolverContext, Type, UnionType } from '../types';
+import { TypeName } from '@trapi/core';
+import type { Type, UnionType } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveUnionType(
     typeNode: TypeNode,

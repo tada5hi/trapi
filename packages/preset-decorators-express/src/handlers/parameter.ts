@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ParameterHandler } from '@trapi/metadata';
+import type { ParameterHandler } from '@trapi/core';
 import {
     MarkerName,
     NumericKind,
     ParamKind,
     parameter,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import { appendExtensionToDraft, readString } from './shared';
 
 function claimParameter(

@@ -5,24 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export enum ValidatorName {
-    UNIQUE_ITEMS = 'uniqueItems',
-
-    MINIMUM = 'minimum',
-    MAXIMUM = 'maximum',
-    MIN_ITEMS = 'minItems',
-    MAX_ITEMS = 'maxItems',
-    MIN_LENGTH = 'minLength',
-    MAX_LENGTH = 'maxLength',
-
-    MIN_DATE = 'minDate',
-    MAX_DATE = 'maxDate',
-
-    PATTERN = 'pattern',
-}
-
 export const ValidatorErrorCode = {
     EXPECTED_NUMBER: 'VALIDATOR_EXPECTED_NUMBER',
     EXPECTED_DATE: 'VALIDATOR_EXPECTED_DATE',
     EXPECTED_STRING: 'VALIDATOR_EXPECTED_STRING',
 } as const;
+export type ValidatorErrorCode = typeof ValidatorErrorCode[keyof typeof ValidatorErrorCode];

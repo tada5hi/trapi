@@ -23,7 +23,7 @@ import type {
     TypeChecker,
 } from 'typescript';
 import { MetadataError } from '../../core/error';
-import type { Type } from '../../core/types/resolver';
+import type { Type } from '@trapi/core';
 import { hasOwnProperty } from '../../core/utils/object';
 
 export function getInitializerValue(

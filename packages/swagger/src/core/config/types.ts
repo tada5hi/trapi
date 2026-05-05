@@ -5,11 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type {
-    CollectionFormat,
-    Metadata,
-    MetadataGenerateOptions,
-} from '@trapi/metadata';
+import type { CollectionFormat } from '@trapi/core';
+import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
 import type { DocumentFormat, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 

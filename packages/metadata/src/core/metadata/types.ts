@@ -6,14 +6,15 @@
  */
 import type { CompilerOptions, Node, TypeChecker } from 'typescript';
 import type { MetadataGeneratorOptions } from '../config';
-import type { Registry, UnmatchedDecoratorReport } from '../../adapters/decorator';
 import type {
+    Controller,
     DependencyResolver,
     IResolverCache,
     ReferenceType,
     ReferenceTypes,
-} from '../resolver/types';
-import type { Controller } from '../controller/types';
+    Registry,
+    UnmatchedDecoratorReport,
+} from '@trapi/core';
 
 export type MetadataGeneratorContext = {
     options: MetadataGeneratorOptions,

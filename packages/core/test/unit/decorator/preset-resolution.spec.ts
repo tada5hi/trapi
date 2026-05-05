@@ -8,11 +8,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ConfigError } from '../../../src/core/error/config';
+import { CoreError } from '../../../src/error/base';
+import { CoreErrorCode } from '../../../src/error/codes';
 import {
     loadRegistryByName,
     resolvePresetByName,
-} from '../../../src/adapters/decorator';
+} from '../../../src/decorator';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = (name: string) => path.resolve(here, './data', name);
@@ -30,15 +31,23 @@ describe('resolvePresetByName', () => {
         expect(preset.methods?.[0].match.name).toEqual('Post');
     });
 
-    it('throws ConfigError when the lookup path cannot be resolved', async () => {
+    it('throws CoreError when the lookup path cannot be resolved', async () => {
         await expect(resolvePresetByName(fixturePath('does-not-exist.ts')))
-            .rejects.toBeInstanceOf(ConfigError);
+            .rejects.toBeInstanceOf(CoreError);
+    });
+
+    it('uses the PRESET_NOT_FOUND error code', async () => {
+        const promise = resolvePresetByName(fixturePath('does-not-exist.ts'));
+        await promise.catch((err) => {
+            expect(err).toBeInstanceOf(CoreError);
+            expect((err as CoreError & { code?: string }).code).toEqual(CoreErrorCode.PRESET_NOT_FOUND);
+        });
     });
 
     it('attaches the underlying error as `cause`', async () => {
         const promise = resolvePresetByName(fixturePath('does-not-exist.ts'));
         await promise.catch((err) => {
-            expect(err).toBeInstanceOf(ConfigError);
+            expect(err).toBeInstanceOf(CoreError);
             expect((err as Error & { cause?: unknown }).cause).toBeDefined();
         });
     });

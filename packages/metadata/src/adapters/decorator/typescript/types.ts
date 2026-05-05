@@ -6,8 +6,7 @@
  */
 
 import type { TypeChecker, TypeNode } from 'typescript';
-import type { Type } from '../../../core/resolver/types';
-import type { DecoratorHost, DecoratorTarget } from '../types';
+import type { DecoratorHost, DecoratorTarget, Type } from '@trapi/core';
 
 export type DecoratorSourceBuilderOptions = {
     target: DecoratorTarget;

@@ -17,14 +17,14 @@ import type {
     StringLiteralType,
     TypeNode,
 } from 'typescript';
-import { TypeName } from '../../../../core/types/type-name';
+import { TypeName } from '@trapi/core';
 import { ResolverError } from '../../../../core/error/resolver';
-import type { 
-    AnyType, 
-    EnumType, 
-    SubResolverContext, 
-    Type, 
-} from '../types';
+import type {
+    AnyType,
+    EnumType,
+    Type,
+} from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveLiteralType(
     typeNode: TypeNode,

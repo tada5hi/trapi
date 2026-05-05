@@ -7,12 +7,9 @@
 
 import { isNamedTupleMember, isTupleTypeNode } from 'typescript';
 import type { TypeNode } from 'typescript';
-import { TypeName } from '../../../../core/types/type-name';
-import type {
-    SubResolverContext,
-    TupleType,
-    Type,
-} from '../types';
+import { TypeName } from '@trapi/core';
+import type { TupleType, Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveTupleType(
     typeNode: TypeNode,

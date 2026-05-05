@@ -6,7 +6,7 @@
  */
 
 import type { CacheOptions } from '../../adapters/cache';
-import type { Preset, Registry, UnmatchedDecoratorReport } from '../../adapters/decorator';
+import type { Preset, Registry, UnmatchedDecoratorReport } from '@trapi/core';
 import type { TsConfig } from '../../adapters/filesystem/tsconfig';
 
 export type EntryPointOptions = {

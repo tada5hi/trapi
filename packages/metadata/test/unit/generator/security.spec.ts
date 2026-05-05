@@ -13,7 +13,8 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Controller, Metadata } from '../../../src';
+import type { Controller } from '@trapi/core';
+import type { Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('security metadata extraction', () => {

@@ -24,8 +24,9 @@ import type {
     TypeNode,
 } from 'typescript';
 import { JSDocTagName } from '../../js-doc';
-import { TypeName } from '../../../../core/types/type-name';
-import type { ResolverProperty, SubResolverContext, Type } from '../types';
+import { TypeName } from '@trapi/core';
+import type { ResolverProperty, Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveMappedType(

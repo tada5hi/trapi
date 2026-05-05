@@ -8,6 +8,7 @@
         "test": "vitest --config ./test/vitest.config.ts --run"
     },
     "dependencies": {
+        "@trapi/core": "*",
         "@trapi/metadata": "*"
     },
     "devDependencies": {

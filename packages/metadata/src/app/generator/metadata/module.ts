@@ -29,28 +29,33 @@ import {
     hashRegistry,
 } from '../../../adapters/cache';
 import type { MetadataGeneratorOptions } from '../../../core/config';
-import type { Registry, UnmatchedDecoratorReport } from '../../../adapters/decorator';
+import type {
+    Controller,
+    DependencyResolver,
+    ReferenceType,
+    ReferenceTypes,
+    Registry,
+    UnmatchedDecoratorReport,
+} from '@trapi/core';
 import {
     createRegistry,
     loadRegistry,
     loadRegistryByName,
     mergeRegistries,
     resolvePresetByName,
-} from '../../../adapters/decorator';
+} from '@trapi/core';
 import { ConfigError } from '../../../core/error/config';
 import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { GeneratorError } from '../../../core/error/generator';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
-import type { DependencyResolver, ReferenceType, ReferenceTypes } from '../../../core/types/resolver';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
-import type { Controller } from '../../../core/types/controller';
 import { ControllerGenerator } from '../controller';
 import type {
     IGeneratorContext,
     IMetadataGenerator,
     Metadata,
     MetadataGeneratorContext,
-} from '../../../core/types/metadata';
+} from '../../../core/metadata/types';
 
 export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator {
     public readonly nodes : Node[];

@@ -16,12 +16,12 @@ import { fileURLToPath } from 'node:url';
 import type {
     ArrayType,
     IntersectionType,
-    Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefObjectType,
     UnionType,
-} from '../../../src';
+} from '@trapi/core';
+import type { Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('complex type metadata extraction', () => {

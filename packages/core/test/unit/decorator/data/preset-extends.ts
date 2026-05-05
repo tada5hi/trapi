@@ -7,7 +7,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Preset } from '../../../../src/adapters/decorator';
+import type { Preset } from '../../../../src/decorator';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 

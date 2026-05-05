@@ -9,7 +9,6 @@ import type {
     BaseType,
     EnumType,
     IntersectionType,
-    Metadata,
     Method,
     NestedObjectLiteralType,
     Parameter,
@@ -20,7 +19,8 @@ import type {
     Response,
     Type,
     UnionType,
-} from '@trapi/metadata';
+} from '@trapi/core';
+import type { Metadata } from '@trapi/metadata';
 import {
     ParameterSource,
     TypeName,
@@ -33,7 +33,7 @@ import {
     isRefObjectType,
     isUndefinedType,
     isVoidType,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import { URL } from 'node:url';
 import { merge } from 'smob';
 import type {

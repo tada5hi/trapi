@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Preset } from '@trapi/metadata';
+import type { Preset } from '@trapi/core';
 import {
     controllerHandlers,
     controllerJsDocHandlers,

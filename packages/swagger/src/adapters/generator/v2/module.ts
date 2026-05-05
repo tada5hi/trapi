@@ -15,7 +15,7 @@ import type {
     Response,
     Type,
     UnionType,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     ParameterSource,
     TypeName,
@@ -27,7 +27,7 @@ import {
     isRefObjectType,
     isUndefinedType,
     isVoidType,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import path from 'node:path';
 import { URL } from 'node:url';
 import { merge } from 'smob';

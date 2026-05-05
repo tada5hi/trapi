@@ -14,28 +14,33 @@ import type {
     TypeNode,
 } from 'typescript';
 import {
+    ParameterSource,
+    isVoidType,
+    newMethodDraft,
+} from '@trapi/core';
+import type {
+    BaseType,
+    Example,
+    Method,
+    Parameter,
+    Response,
+} from '@trapi/core';
+import {
     type ApplyHandlersOptions,
     applyDecoratorHandlers,
     applyJsDocHandlers,
-    newMethodDraft,
 } from '../../../adapters/decorator';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { GeneratorError } from '../../../core/error/generator';
-import type { BaseType } from '../../../core/types/resolver';
 import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
-import { isVoidType } from '../../../core/types/type-guards';
 import {
     JSDocTagName,
     getJSDocDescription,
     getJSDocTagComment,
 } from '../../../adapters/typescript/js-doc';
 import { normalizePath } from '../../../core/utils';
-import type { IGeneratorContext } from '../../../core/types/metadata';
-import type { Parameter } from '../../../core/types/parameter';
+import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
-import { ParameterSource } from '../../../core/types/parameter-source';
-import type { Example, Response } from '../../../core/types/generator';
-import type { Method } from '../../../core/types/method';
 
 export class MethodGenerator {
     protected readonly node: MethodDeclaration;

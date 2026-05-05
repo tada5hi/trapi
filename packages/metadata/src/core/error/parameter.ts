@@ -6,8 +6,8 @@
  */
 import { isClassDeclaration, isMethodDeclaration } from 'typescript';
 import type { Node } from 'typescript';
-import type { BaseType } from '../types/resolver';
-import { ParameterErrorCode } from '../types/index.ts';
+import type { BaseType } from '@trapi/core';
+import { ParameterErrorCode } from './parameter-codes';
 import { MetadataError } from './base';
 
 type UnsupportedTypeContext = {

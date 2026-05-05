@@ -15,7 +15,7 @@ import type {
     RefEnumType,
     RefObjectType,
     UnionType,
-} from '../../../src';
+} from '@trapi/core';
 import {
     isArrayType,
     isNestedObjectLiteralType,
@@ -25,7 +25,7 @@ import {
     isReferenceType,
     isUnionType,
     isVoidType,
-} from '../../../src';
+} from '@trapi/core';
 
 describe('type.ts', () => {
     it('check void type', () => {

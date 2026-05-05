@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { ScriptTarget, createSourceFile, isClassDeclaration } from 'typescript';
 import type { ClassDeclaration, MethodDeclaration, SourceFile } from 'typescript';
-import type { Type } from '../../../src/core/resolver/types';
+import type { Type } from '@trapi/core';
 import {
     buildDecoratorSources,
 } from '../../../src/adapters/decorator/typescript/module';

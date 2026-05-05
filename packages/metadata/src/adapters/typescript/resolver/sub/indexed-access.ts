@@ -14,7 +14,8 @@ import {
 } from 'typescript';
 import type { HasType, Node, TypeNode } from 'typescript';
 import { ResolverError } from '../../../../core/error/resolver';
-import type { SubResolverContext, Type } from '../types';
+import type { Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveIndexedAccessType(

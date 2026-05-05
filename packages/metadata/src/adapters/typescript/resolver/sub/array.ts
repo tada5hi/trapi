@@ -7,8 +7,9 @@
 
 import { isArrayTypeNode } from 'typescript';
 import type { TypeNode } from 'typescript';
-import { TypeName } from '../../../../core/types/type-name';
-import type { ArrayType, SubResolverContext, Type } from '../types';
+import { TypeName } from '@trapi/core';
+import type { ArrayType, Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveArrayType(
     typeNode: TypeNode,

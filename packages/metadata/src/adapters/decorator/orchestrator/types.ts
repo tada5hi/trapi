@@ -6,21 +6,13 @@
  */
 
 import type { TypeChecker, TypeNode } from 'typescript';
-import type { Type } from '../../../core/resolver/types';
-import type { DecoratorHost, DecoratorSource, DecoratorTarget } from '../types';
-
-/**
- * Reported when a decorator on a node has no matching handler in the
- * supplied registry. The orchestrator computes file/line from the host node
- * (1-based line number).
- */
-export type UnmatchedDecoratorReport = {
-    name: string;
-    target: DecoratorTarget;
-    host: DecoratorHost;
-    file: string;
-    line: number;
-};
+import type {
+    DecoratorHost,
+    DecoratorSource,
+    DecoratorTarget,
+    Type,
+    UnmatchedDecoratorReport,
+} from '@trapi/core';
 
 export type ApplyHandlersOptions = {
     target: DecoratorTarget;

@@ -11,7 +11,7 @@ import {
     expect, 
     it, 
 } from 'vitest';
-import { CollectionFormat } from '@trapi/metadata';
+import { CollectionFormat } from '@trapi/core';
 import type { Metadata } from '@trapi/metadata';
 import jsonata from 'jsonata';
 import { load } from 'locter';

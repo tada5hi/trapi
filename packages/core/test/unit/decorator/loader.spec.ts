@@ -10,7 +10,7 @@ import {
     type Preset,
     type PresetResolver,
     loadRegistry,
-} from '../../../src/adapters/decorator';
+} from '../../../src/decorator';
 
 const noopApply = () => {
     /* no-op */

@@ -5,7 +5,8 @@
 ```
 trapi/
 ├── packages/
-│   ├── metadata/          # Core metadata extraction from TS decorators
+│   ├── core/              # Framework-neutral domain types + decorator/preset machinery (no `typescript` dep)
+│   ├── metadata/          # TS-coupled metadata extraction (depends on @trapi/core)
 │   ├── swagger/           # OpenAPI spec generation from metadata
 │   ├── preset-decorators-express/ # Self-contained preset for @decorators/express
 │   ├── preset-typescript-rest/    # Self-contained preset for typescript-rest
@@ -25,31 +26,50 @@ Build order flows bottom-to-top:
 
 ```
 Layer 3 (consumers):  preset-typescript-rest, preset-decorators-express, cli, docs
-Layer 2 (generation): swagger
-Layer 1 (core):       metadata
+Layer 2 (generation): swagger, metadata
+Layer 1 (contract):   core
 ```
 
-- `@trapi/swagger` depends directly on `@trapi/metadata`
-- Both framework presets peer-depend on `@trapi/metadata` and are otherwise self-contained — no cross-preset `extends` chain.
+- `@trapi/metadata` depends directly on `@trapi/core` and adds the TypeScript compiler integration on top of its contracts.
+- `@trapi/swagger` depends on both `@trapi/core` (domain types, type guards) and `@trapi/metadata` (the `Metadata` shape and `generateMetadata`).
+- Both framework presets peer-depend on `@trapi/core` only — they don't need the metadata generator. No cross-preset `extends` chain.
+- **No re-export shim:** `@trapi/metadata` does NOT re-export `@trapi/core`. Consumers that want the contract surface install `@trapi/core` directly. This keeps `typescript` out of the install graph for preset-only consumers.
+
+## Package: `@trapi/core`
+
+Framework-neutral contract surface used by `@trapi/metadata`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/adapter-zod`, `locter`.
+
+```
+packages/core/src/
+├── controller/             # Controller domain type + IControllerGenerator port
+├── method/                 # Method, MethodType, MethodName
+├── parameter/              # Parameter, ArrayParameter, IParameterGenerator, ParameterSource, CollectionFormat
+├── generator/              # Example, Response, Security
+├── validator/              # Validator, ValidatorMeta, Validators, ValidatorName
+├── resolver/               # Type union (StringType, ObjectType, RefObjectType, …), BaseType, TypeName, Extension, type guards
+├── decorator/              # Decorator/preset machinery (no orchestrator — that needs the TS compiler)
+│   ├── types.ts            # DecoratorSource, drafts, handlers, contexts, Preset, Registry, ResolverMarker, UnmatchedDecoratorReport
+│   ├── constants.ts        # ParamKind, CollectionKind, MarkerName, NumericKind, DecoratorTargetKind
+│   ├── helpers.ts          # readString/readNumber/readBoolean/readStringOrStringArray/setControllerPaths/setMethodPath
+│   ├── utils.ts            # matches/matchesJsDoc, draft factories, into/append/flag, marker lookups, identity builders
+│   ├── module.ts           # loadRegistry, loadRegistryByName, resolvePresetByName (throws CoreError)
+│   ├── validation/         # validatePreset (zod schemas + validup container)
+│   └── test-helpers.ts     # literalArg/identifierArg/arrayArg/objectArg/typeArg/createHandlerContext
+├── error/                  # CoreError, CoreErrorCode (PRESET_NOT_FOUND, PRESET_CYCLE, PRESET_REPLACES_NO_MATCH, PRESET_INVALID)
+├── variable.ts             # VariableType
+└── index.ts                # Public exports
+```
 
 ## Package: `@trapi/metadata`
 
-The core package. Analyses TypeScript source to extract decorator-based API metadata. Organised as a hexagonal architecture with a strict dependency rule: `core/` imports nothing from `adapters/` or `app/`; `adapters/` depends only on `core/`; `app/` wires both together.
+Adds the TypeScript compiler integration on top of `@trapi/core`. Internal layout still follows hexagonal layering — `core/` (TS-coupled config + errors + ports), `adapters/` (TS compiler, filesystem, cache, decorator orchestrator), `app/` (generator wiring + `generateMetadata` entry point).
 
 ```
 packages/metadata/src/
-├── core/                   # Domain types, ports, contracts (no external deps)
-│   ├── types/              # Shared type definitions
-│   ├── config/             # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint
-│   ├── controller/         # Controller domain type + IControllerGenerator port
-│   ├── method/             # Method domain type + MethodType
-│   ├── parameter/          # Parameter domain type + IParameterGenerator port
-│   ├── resolver/           # Type union (StringType, ObjectType, RefObjectType, ...), TypeName
-│   ├── metadata/           # Metadata, IMetadataGenerator, IGeneratorContext
-│   ├── generator/          # Shared generator types (Response, Security, Example, Extension)
-│   ├── validator/          # Validator types
-│   ├── error/              # MetadataError, GeneratorError, ResolverError, ConfigError, ...
-│   └── utils/              # Internal helpers (hasOwnProperty, normalizePath, isStringArray)
+├── core/                   # TS-coupled contracts (everything framework-neutral lives in @trapi/core)
+│   ├── config/             # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint (uses CacheOptions)
+│   ├── metadata/           # Metadata, IMetadataGenerator, IGeneratorContext, IResolverContext, IReferenceTypeRegistry, MetadataGeneratorContext
+│   └── error/              # MetadataError (base), ConfigError, GeneratorError, ParameterError, ResolverError, ValidatorError + their *-codes files
 │
 ├── adapters/               # Infrastructure adapters
 │   ├── typescript/         # TypeScript compiler adapter
@@ -57,23 +77,18 @@ packages/metadata/src/
 │   │   ├── node-utils/     # TS AST helpers
 │   │   ├── js-doc/         # JSDoc tag extraction
 │   │   ├── initializer.ts  # Literal-value extraction from initializers
-│   │   └── validator.ts    # Validator decorator parsing
-│   ├── decorator/          # The decorator system (handlers, drafts, registry, orchestrator)
-│   │   ├── types.ts        # DecoratorSource, drafts, handlers, contexts, Preset, Registry, ResolverMarker
-│   │   ├── constants.ts    # ParamKind, CollectionKind, MarkerName, NumericKind, DecoratorTargetKind
-│   │   ├── module.ts       # loadRegistry, loadRegistryByName, resolvePresetByName
-│   │   ├── utils.ts        # matches/matchesJsDoc, draft factories, into/append/flag, marker helpers
+│   │   └── validator/      # Validator decorator parsing
+│   ├── decorator/          # TS-coupled half of the decorator system
 │   │   ├── orchestrator/   # applyDecoratorHandlers, applyJsDocHandlers, buildHandlerContext
-│   │   ├── typescript/     # TS-specific source extraction (buildDecoratorSources, readNodeDecorators)
-│   │   └── validation/     # validatePreset (zod schemas + validup container)
+│   │   └── typescript/     # buildDecoratorSources, buildJsDocSources, readNodeDecorators
 │   ├── filesystem/         # scanSourceFiles, tsconfig loader
-│   └── cache/              # CacheClient, buildCacheOptions, generateFileHash
+│   └── cache/              # CacheClient, buildCacheOptions, hashRegistry, generateFileHash
 │
 ├── app/                    # Use-case orchestration
 │   ├── generate.ts         # generateMetadata() — public entry point
 │   └── generator/          # MetadataGenerator + ControllerGenerator, MethodGenerator, ParameterGenerator
 │
-└── index.ts                # Public exports (re-exports from core/, adapters/, app/)
+└── index.ts                # Public exports (does NOT re-export @trapi/core)
 ```
 
 ## Package: `@trapi/swagger`
@@ -113,7 +128,7 @@ packages/swagger/src/
 - TRAPI markers (`@Hidden`, `@Tags`, `@Description`, `@Example`, `@Extension`, `@Security`, `@Produces`, `@Consumes`, `@Accept`, `@Deprecated`, `@IsInt`/`@IsLong`/`@IsFloat`/`@IsDouble`).
 - JSDoc tag handlers (`/** @hidden */`, `/** @deprecated */`, `/** @summary */`, numeric narrowing tags).
 
-Both preset packages organise handlers under `src/handlers/{controller,method,parameter,jsdoc,shared}.ts` and assemble the `Preset` in `src/index.ts`.
+Both preset packages organise handlers under `src/handlers/{controller,method,parameter,jsdoc,shared}.ts` and assemble the `Preset` in `src/index.ts`. Both packages `peerDependency` on `@trapi/core` (not `@trapi/metadata`) — the contract surface is all they need.
 
 `preset-decorators-express` keys off `@decorators/express` decorator names (`@Controller`, `@Get`, `@Body`, …) plus Express-specific overrides for `@Headers`/`@Cookies`/`@Params`/`@Request`/`@Response`/`@Next`. `preset-typescript-rest` keys off typescript-rest's naming (`@Path`, `@GET`, `@QueryParam`, `ContextRequest` family, …) and ships its own `@Description`/`@Example`/`@Security` shapes that diverge from the marker defaults.
 

@@ -6,7 +6,10 @@
  */
 
 import type { Node } from 'typescript';
-import { matches, matchesJsDoc } from '../utils';
+import {
+    matches,
+    matchesJsDoc,
+} from '@trapi/core';
 import type {
     DecoratorSource,
     HandlerContext,
@@ -14,7 +17,7 @@ import type {
     JsDocMatch,
     JsDocSource,
     Match,
-} from '../types';
+} from '@trapi/core';
 import { buildDecoratorSources, buildJsDocSources } from '../typescript';
 import type { ApplyHandlersOptions } from './types';
 

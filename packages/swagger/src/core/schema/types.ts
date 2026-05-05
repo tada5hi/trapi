@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat } from '@trapi/metadata';
+import type { CollectionFormat } from '@trapi/core';
 import type { DataFormatName, DataTypeName } from './constants';
 import type { ParameterSourceV2 } from './v2';
 

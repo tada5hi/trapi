@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat } from '@trapi/metadata';
+import type { CollectionFormat } from '@trapi/core';
 import type { SecurityType } from '../../constants';
 import type { ApiKeySecurity, BaseSecurity } from '../../types';
 import type { DataFormatName, DataTypeName, TransferProtocol } from '../constants';

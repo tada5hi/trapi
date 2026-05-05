@@ -17,8 +17,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateMetadata } from '../../../src';
 import { ConfigErrorCode } from '../../../src/core/error/config-codes';
-import type { Preset, Registry } from '../../../src/adapters/decorator';
-import { createRegistry } from '../../../src/adapters/decorator';
+import type { Preset, Registry } from '@trapi/core';
+import { createRegistry } from '@trapi/core';
 
 const entryPoint = [{
     cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..'),

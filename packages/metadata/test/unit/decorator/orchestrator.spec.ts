@@ -8,18 +8,22 @@
 import { describe, expect, it } from 'vitest';
 import { ScriptTarget, createSourceFile, isClassDeclaration } from 'typescript';
 import type { ClassDeclaration, MethodDeclaration, SourceFile } from 'typescript';
+import type {
+    ControllerDraft,
+    ControllerHandler,
+    ControllerJsDocHandler,
+    MethodHandler,
+    Type,
+} from '@trapi/core';
 import {
-    type ApplyHandlersOptions,
-    type ControllerDraft,
-    type ControllerHandler,
-    type ControllerJsDocHandler,
-    type MethodHandler,
-    applyDecoratorHandlers,
-    applyJsDocHandlers,
     newControllerDraft,
     newMethodDraft,
+} from '@trapi/core';
+import {
+    type ApplyHandlersOptions,
+    applyDecoratorHandlers,
+    applyJsDocHandlers,
 } from '../../../src/adapters/decorator';
-import type { Type } from '../../../src/core/resolver/types';
 
 function compile(source: string): SourceFile {
     return createSourceFile('sample.ts', source, ScriptTarget.Latest, true);

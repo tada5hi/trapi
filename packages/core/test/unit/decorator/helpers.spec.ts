@@ -16,8 +16,8 @@ import {
     newControllerDraft,
     newMethodDraft,
     newParameterDraft,
-} from '../../../src/adapters/decorator';
-import type { Type } from '../../../src/core/resolver/types';
+} from '../../../src/decorator';
+import type { Type } from '../../../src/resolver/types';
 
 function makeContext(args: DecoratorArgument[], typeArgs: DecoratorTypeArgument[] = []) {
     return createHandlerContext({ args, typeArgs });

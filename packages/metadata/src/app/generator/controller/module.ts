@@ -17,21 +17,20 @@ import {
     isClassDeclaration,
     isMethodDeclaration,
 } from 'typescript';
+import { newControllerDraft } from '@trapi/core';
 import {
     type ApplyHandlersOptions,
     applyDecoratorHandlers,
     applyJsDocHandlers,
-    newControllerDraft,
 } from '../../../adapters/decorator';
 import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
 import { isResolverError } from '../../../core/error/resolver';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { GeneratorError, isGeneratorError } from '../../../core/error/generator';
 import { normalizePath } from '../../../core/utils';
-import type { Method } from '../../../core/types/method';
+import type { Controller, IControllerGenerator, Method } from '@trapi/core';
 import { MethodGenerator } from '../method';
-import type { IGeneratorContext } from '../../../core/types/metadata';
-import type { Controller, IControllerGenerator } from '../../../core/types/controller';
+import type { IGeneratorContext } from '../../../core/metadata/types';
 
 export class ControllerGenerator implements IControllerGenerator {
     protected readonly node: ClassDeclaration;

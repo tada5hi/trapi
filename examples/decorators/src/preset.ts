@@ -21,7 +21,7 @@ import type {
     ParameterDraft,
     ParameterHandler,
     Preset,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     MarkerName,
     NumericKind,
@@ -33,7 +33,7 @@ import {
     methodJsDoc,
     parameter,
     parameterJsDoc,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 // --- Helpers ---------------------------------------------------------------
 

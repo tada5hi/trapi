@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { matches, matchesJsDoc } from '../../../src/adapters/decorator/utils';
+import { matches, matchesJsDoc } from '../../../src/decorator/utils';
 
 describe('matches (decorator)', () => {
     it('matches by name when on is omitted', () => {

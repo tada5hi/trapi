@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Preset } from '../../../../src/adapters/decorator';
+import type { Preset } from '../../../../src/decorator';
 
 export const preset: Preset = {
     name: 'fixture-named',

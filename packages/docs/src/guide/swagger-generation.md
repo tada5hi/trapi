@@ -28,6 +28,7 @@ const specV2 = await generateSwagger({ version: 'v2', metadata });
 `generateSwagger` only requires a value matching the framework-neutral [`Metadata`](https://www.npmjs.com/package/@trapi/core) shape (`{ controllers, referenceTypes }`). You can supply one from any source — a JSON cache file, a Babel-based extractor, or a hand-rolled fixture for testing — without installing `@trapi/metadata`:
 
 ```typescript
+import { promises as fs } from 'node:fs';
 import type { Metadata } from '@trapi/core';
 import { generateSwagger } from '@trapi/swagger';
 

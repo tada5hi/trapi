@@ -78,6 +78,7 @@ const specV2 = await generateSwagger({ version: 'v2', metadata });
 You can also bring your own `Metadata` from any source — a JSON cache file, a Babel-based extractor, or a hand-rolled fixture — without installing `@trapi/metadata` at all:
 
 ```typescript
+import { promises as fs } from 'node:fs';
 import type { Metadata } from '@trapi/core';
 
 const metadata: Metadata = JSON.parse(await fs.readFile('cache/metadata.json', 'utf8'));

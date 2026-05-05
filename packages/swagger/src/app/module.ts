@@ -5,8 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+import { isMetadata } from '@trapi/core';
 import type { SpecGeneratorOptionsInput, SwaggerGenerateOptions } from '../core/config';
 import { Version } from '../core/constants';
+import { SwaggerError } from '../core/error/module';
+import { SwaggerErrorCode } from '../core/error/codes';
 import type { OutputForVersion } from '../core/types';
 import { V2Generator, V3Generator  } from '../adapters/index.ts';
 
@@ -35,6 +38,12 @@ export async function generateSwagger<V extends `${Version}`>(
     options: Omit<SwaggerGenerateOptions, 'version'> & { version: V },
 ): Promise<OutputForVersion<V>> {
     const { metadata } = options;
+    if (!isMetadata(metadata)) {
+        throw new SwaggerError({
+            message: 'Expected `options.metadata` to be a pre-built Metadata object ({ controllers, referenceTypes }). Run `generateMetadata` from `@trapi/metadata` first, or supply your own Metadata-shaped value.',
+            code: SwaggerErrorCode.METADATA_INVALID,
+        });
+    }
     const specGeneratorOptionsInput = toSpecGeneratorOptionsInput(options);
 
     switch (options.version) {

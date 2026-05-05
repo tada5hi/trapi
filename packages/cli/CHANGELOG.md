@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.1-beta.2](https://github.com/tada5hi/trapi/compare/cli-v0.1.2-beta.0...cli-v0.1.1-beta.2) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **swagger:** generateSwagger no longer accepts MetadataGenerateOptions. Callers must invoke generateMetadata themselves and pass the result via options.metadata.
+
+### Features
+
+* **swagger:** decouple from @trapi/metadata, accept only pre-built Metadata ([#817](https://github.com/tada5hi/trapi/issues/817)) ([6bc5238](https://github.com/tada5hi/trapi/commit/6bc5238f55950797f8d78d3d41266fecf2bb0911))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.0-beta.2 to ^2.0.0-beta.3
+    * @trapi/swagger bumped from ^2.0.0-beta.2 to ^2.0.0-beta.3
+
 ## [0.1.2-beta.0](https://github.com/tada5hi/trapi/compare/cli-v0.1.1-beta.0...cli-v0.1.2-beta.0) (2026-05-04)
 
 

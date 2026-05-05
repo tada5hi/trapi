@@ -9,16 +9,20 @@ import type { Node, TypeNode } from 'typescript';
 import { SyntaxKind } from 'typescript';
 import {
     NumericKind,
-    type Registry,
-    type ResolverMarker,
-    hasDecoratorNamed,
+    TypeName,
     namesForMarker,
     numericMarkerKind,
     tagsForMarker,
-} from '../../../decorator';
+} from '@trapi/core';
+import type { 
+    NeverType, 
+    PrimitiveType, 
+    Registry, 
+    ResolverMarker, 
+    VoidType,  
+} from '@trapi/core';
+import { hasDecoratorNamed } from '../../../decorator';
 import { getJSDocTagNames } from '../../js-doc';
-import { TypeName } from '../../../../core/types/type-name';
-import type { NeverType, PrimitiveType, VoidType } from '../types';
 
 const NUMERIC_KIND_TO_TYPE_NAME: Record<string, string> = {
     [NumericKind.Int]: TypeName.INTEGER,

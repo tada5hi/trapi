@@ -9,7 +9,7 @@ import type {
     ControllerHandler,
     MethodHandler,
     ParameterHandler,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     MarkerName,
     NumericKind,
@@ -17,7 +17,7 @@ import {
     method,
     parameter,
     setMethodPath,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     appendConsumes,
     appendExtensionToDraft,

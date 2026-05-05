@@ -28,6 +28,10 @@ type ControllerHandler = {
 };
 ```
 
+## Package to Install
+
+The contract surface lives in [`@trapi/core`](https://www.npmjs.com/package/@trapi/core), not `@trapi/metadata`. `@trapi/core` ships the IR types, handler/preset types, and authoring helpers (`controller(...)`, `into`, `append`, `flag`, `readString`, …) — and has no `typescript` dependency. Preset packages should peer-depend on `@trapi/core` only; they don't need the metadata extraction pipeline at runtime.
+
 ## Minimal Example
 
 ```typescript
@@ -38,7 +42,7 @@ import {
     controller,
     method,
     parameter,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const routeControllerHandler = controller({
     match: { name: 'Route', on: 'class' },
@@ -108,7 +112,7 @@ controller({
 For simple cases, `into()`, `append()`, and `flag()` save boilerplate:
 
 ```typescript
-import { append, controller, flag, into, method } from '@trapi/metadata';
+import { append, controller, flag, into, method } from '@trapi/core';
 
 method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
 method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });
@@ -126,7 +130,7 @@ import {
     controller,
     flag,
     parameter,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 controller({
     match: { name: 'Skip', on: 'class' },
@@ -150,7 +154,7 @@ The marker tells the type resolver "this handler represents the *concept* of hid
 JSDoc tags can drive metadata too. Register handlers under `methodJsDoc` / `controllerJsDoc` / `parameterJsDoc`:
 
 ```typescript
-import { methodJsDoc } from '@trapi/metadata';
+import { methodJsDoc } from '@trapi/core';
 
 const summaryJsDocHandler = methodJsDoc({
     match: { tag: 'summary' },
@@ -178,12 +182,12 @@ Decorator handlers run before JSDoc handlers on the same node, so JSDoc acts as 
         }
     },
     "peerDependencies": {
-        "@trapi/metadata": "^2.0.0"
+        "@trapi/core": "^1.0.0-beta.1"
     }
 }
 ```
 
-`@trapi/metadata` must be a peer dependency — consumers have it installed already, and you want to use *their* version, not bundle your own.
+`@trapi/core` must be a peer dependency — consumers have it installed already (transitively via `@trapi/metadata`), and you want to use *their* version, not bundle your own.
 
 ## Consuming
 
@@ -225,14 +229,14 @@ expect(metadata.controllers).toHaveLength(1);
 expect(metadata.controllers[0].paths).toEqual(['/users']);
 ```
 
-For lower-level unit testing, you can call `validatePreset(preset)` to verify the shape, and `loadRegistry(preset, { resolver })` to materialise a `Registry` directly without going through `generateMetadata`.
+For lower-level unit testing, you can call `validatePreset(preset)` and `loadRegistry(preset, { resolver })` from `@trapi/core` directly to verify the shape and materialise a `Registry` without going through `generateMetadata`. The `@trapi/core/test-helpers` module also exports `literalArg`, `identifierArg`, `arrayArg`, `objectArg`, `typeArg`, and `createHandlerContext` for synthesising decorator inputs.
 
 ## Publishing Checklist
 
 - [ ] `name` is unique and matches the package name
 - [ ] All decorators your library exports are mapped
 - [ ] `marker` is set on handlers for `@Hidden`/`@Deprecated`/`@Extension`/`@IsInt`/etc. if you rename them
-- [ ] `@trapi/metadata` is a peer dependency, not a direct dependency
+- [ ] `@trapi/core` is a peer dependency, not a direct dependency (and `@trapi/metadata` is **not** listed — preset authors should not depend on the metadata package)
 - [ ] Package is ESM (`"type": "module"`)
 - [ ] `exports` field points to both the JS bundle and the type declarations
 - [ ] The default export is the `Preset` (TRAPI checks named export `preset`, then default export, then the module itself)

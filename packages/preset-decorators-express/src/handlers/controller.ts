@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { ControllerHandler } from '@trapi/metadata';
+import type { ControllerHandler } from '@trapi/core';
 import {
     MarkerName,
     controller,
     readStringOrStringArray,
     setControllerPaths,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     appendConsumes,
     appendExtensionToDraft,

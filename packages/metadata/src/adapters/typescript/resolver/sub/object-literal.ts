@@ -26,15 +26,14 @@ import {
     hasJSDocTag,
 } from '../../js-doc';
 import { getDeclarationValidators } from '../../validator';
-import { TypeName } from '../../../../core/types/type-name';
+import { TypeName, isStringType  } from '@trapi/core';
 import { ResolverError } from '../../../../core/error/resolver';
-import { isStringType } from '../../../../core/types/type-guards';
-import type { 
-    NestedObjectLiteralType, 
-    ResolverProperty, 
-    SubResolverContext, 
-    Type, 
-} from '../types';
+import type {
+    NestedObjectLiteralType,
+    ResolverProperty,
+    Type,
+} from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveObjectLiteralType(
     typeNode: TypeNode,

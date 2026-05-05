@@ -5,13 +5,13 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { MethodDraft, MethodHandler } from '@trapi/metadata';
+import type { MethodDraft, MethodHandler } from '@trapi/core';
 import {
     MarkerName,
     method,
     readString,
     setMethodPath,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     appendConsumes,
     appendExtensionToDraft,

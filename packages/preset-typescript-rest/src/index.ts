@@ -15,7 +15,7 @@ import {
     readString,
     setControllerPaths,
     setMethodPath,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     controllerMarkerHandlers,
     methodMarkerHandlers,

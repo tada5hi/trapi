@@ -47,15 +47,27 @@ import type {
     TypeReferenceType,
 } from 'typescript';
 import {
-    hasDecoratorNamed,
+    TypeName,
+    UtilityTypeName,
     isDeprecatedMarker,
+    isRefAliasType,
+    isRefObjectType,
     namesForMarker,
     tagsForMarker,
-} from '../../decorator';
-import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/types/metadata';
-import { TypeName, UtilityTypeName } from '../../../core/types/type-name';
-
-import type { Extension } from '../../../core/types/extension';
+} from '@trapi/core';
+import type { 
+    BufferType, 
+    DateTimeType, 
+    DateType, 
+    Extension, 
+    NestedObjectLiteralType, 
+    RefEnumType, 
+    ReferenceType, 
+    ResolverProperty, 
+    Type, 
+} from '@trapi/core';
+import { hasDecoratorNamed } from '../../decorator';
+import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/metadata/types';
 import {
     JSDocTagName,
     getJSDocTagComment,
@@ -81,21 +93,9 @@ import {
     resolveUnionType,
 } from './sub';
 import { getLiteralValue } from './sub/literal';
-import {
-    isRefAliasType,
-    isRefObjectType,
-} from '../../../core/types/type-guards';
 import type {
-    BufferType,
-    DateTimeType,
-    DateType,
-    NestedObjectLiteralType,
     OverrideToken,
-    RefEnumType,
-    ReferenceType,
-    ResolverProperty,
     SubResolverContext,
-    Type,
     TypeNodeResolverContext,
     UsableDeclaration,
 } from './types';

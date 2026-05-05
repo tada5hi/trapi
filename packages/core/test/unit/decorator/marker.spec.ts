@@ -22,7 +22,7 @@ import {
     namesForMarker,
     numericMarkerKind,
     tagsForMarker,
-} from '../../../src/adapters/decorator';
+} from '../../../src/decorator';
 
 const noop = () => { /* no-op */ };
 

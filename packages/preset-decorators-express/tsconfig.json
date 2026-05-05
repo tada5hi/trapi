@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "paths": {
-            "@trapi/metadata": ["./packages/metadata/src"]
+            "@trapi/core": ["./packages/core/src"]
         }
     }
 }

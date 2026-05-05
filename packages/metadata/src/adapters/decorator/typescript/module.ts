@@ -33,7 +33,7 @@ import type {
     DecoratorSource,
     DecoratorTypeArgument,
     JsDocSource,
-} from '../types';
+} from '@trapi/core';
 import type { DecoratorSourceBuilderOptions, JsDocSourceBuilderOptions } from './types';
 import { buildDecoratorArgument } from './utils';
 

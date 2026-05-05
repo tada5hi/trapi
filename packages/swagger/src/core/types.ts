@@ -29,7 +29,7 @@ export type OutputForVersion<V extends `${Version}`> = V extends typeof Version.
     SpecV2 :
     SpecV3;
 
-declare module '@trapi/metadata' {
+declare module '@trapi/core' {
     interface ValidatorMeta {
         openApi?: ValidatorOpenApiMeta;
     }

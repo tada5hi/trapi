@@ -7,12 +7,11 @@
 
 import type { Node } from 'typescript';
 import {
-    type Registry,
-    findDecoratorsByName,
     isExtensionMarker,
     namesForMarker,
-} from '../../../decorator';
-import type { Extension } from '../../../../core/types/extension';
+} from '@trapi/core';
+import type { Extension, Registry } from '@trapi/core';
+import { findDecoratorsByName } from '../../../decorator';
 
 export function getNodeExtensions(node: Node, registry: Registry) : Extension[] {
     const names = namesForMarker(registry, isExtensionMarker);

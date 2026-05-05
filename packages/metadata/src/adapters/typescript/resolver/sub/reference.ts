@@ -7,14 +7,14 @@
 
 import type { EnumDeclaration, EnumMember, TypeChecker } from 'typescript';
 import { JSDocTagName, hasJSDocTag } from '../../js-doc';
-import { TypeName } from '../../../../core/types/type-name';
+import { TypeName } from '@trapi/core';
 import { ResolverError } from '../../../../core/error/resolver';
 import type {
-    RefEnumType, 
-    RefObjectType, 
-    ReferenceType, 
+    RefEnumType,
+    RefObjectType,
+    ReferenceType,
     Type,
-} from '../types';
+} from '@trapi/core';
 import { getNodeDescription } from '../utils';
 import { ResolverBase } from './base';
 

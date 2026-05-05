@@ -16,15 +16,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateMetadata } from '../../../src';
 import type {
-    ArrayType, 
-    Metadata,
+    ArrayType,
     NestedObjectLiteralType,
     RefAliasType,
     RefEnumType,
     RefObjectType,
     ResolverProperty,
     UnionType,
-} from '../../../src';
+} from '@trapi/core';
+import type { Metadata } from '../../../src';
 
 describe('check referenceTypes', () => {
     let metadata : Metadata;

@@ -9,12 +9,32 @@ import { isObject } from 'locter';
 import { NodeBuilderFlags, displayPartsToString, isIdentifier } from 'typescript';
 import type { ParameterDeclaration } from 'typescript';
 import {
-    type ApplyHandlersOptions,
+    CollectionFormat,
     ParamKind,
-    type ParameterDraft,
+    ParameterSource,
+    TypeName,
+    isArrayType,
+    isNestedObjectLiteralType,
+    isRefEnumType,
+    isRefObjectType,
+    isUnionType,
+    newParameterDraft,
+} from '@trapi/core';
+import type {
+    ArrayParameter,
+    BaseType,
+    Extension,
+    IParameterGenerator,
+    NestedObjectLiteralType,
+    Parameter,
+    ParameterDraft,
+    RefObjectType,
+    Type,
+} from '@trapi/core';
+import {
+    type ApplyHandlersOptions,
     applyDecoratorHandlers,
     applyJsDocHandlers,
-    newParameterDraft,
 } from '../../../adapters/decorator';
 import { getInitializerValue } from '../../../adapters/typescript/initializer';
 import { getDeclarationValidators } from '../../../adapters/typescript/validator';
@@ -25,28 +45,8 @@ import {
     transformJSDocComment,
 } from '../../../adapters/typescript/js-doc';
 import { TypeNodeResolver } from '../../../adapters/typescript/resolver';
-import {
-    isArrayType,
-    isNestedObjectLiteralType,
-    isRefEnumType,
-    isRefObjectType,
-    isUnionType,
-} from '../../../core/types/type-guards';
-import { TypeName } from '../../../core/types/type-name';
-import {
-    CollectionFormat,
-    ParameterSource,
-} from '../../../core/types/parameter-source';
 import { ParameterError } from '../../../core/error/parameter';
-import type { IGeneratorContext } from '../../../core/types/metadata';
-import type {
-    BaseType,
-    NestedObjectLiteralType,
-    RefObjectType,
-    Type,
-} from '../../../core/types/resolver';
-import type { Extension } from '../../../core/types/extension';
-import type { ArrayParameter, IParameterGenerator, Parameter } from '../../../core/types/parameter';
+import type { IGeneratorContext } from '../../../core/metadata/types';
 
 const BODY_SUPPORTED_METHODS = new Set(['delete', 'post', 'put', 'patch', 'get']);
 

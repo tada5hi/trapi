@@ -23,11 +23,13 @@ import type {
 } from 'typescript';
 import type {
     Extension,
-    IReferenceTypeRegistry,
-    IResolverContext,
     ResolverProperty,
     Type,
-} from '../../../core';
+} from '@trapi/core';
+import type {
+    IReferenceTypeRegistry,
+    IResolverContext,
+} from '../../../core/metadata/types';
 
 export type OverrideToken = Token<SyntaxKind.QuestionToken> |
 Token<SyntaxKind.PlusToken> |
@@ -80,8 +82,3 @@ export type SubResolverContext = {
     ): Extension[];
 };
 
-// Re-export domain types so adapter files can import from './types'
-export * from '../../../core/types/resolver';
-export * from '../../../core/types/type-name';
-export * from '../../../core/types/type-guards';
-export * from '../../../core/types/extension';

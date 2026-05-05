@@ -1,0 +1,56 @@
+{
+    "name": "@trapi/core",
+    "version": "1.0.0-beta.1",
+    "description": "Framework-neutral domain types, decorator/preset machinery and utilities shared across @trapi packages.",
+    "type": "module",
+    "main": "dist/index.mjs",
+    "types": "dist/index.d.mts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "npm run build:js && npm run build:types",
+        "build:js": "tsdown",
+        "build:types": "tsc -p tsconfig.build.json",
+        "test": "vitest --config ./test/vitest.config.ts --run",
+        "test:coverage": "vitest --config ./test/vitest.config.ts --run --coverage"
+    },
+    "keywords": [
+        "trapi",
+        "decorators",
+        "metadata",
+        "preset"
+    ],
+    "author": {
+        "name": "Peter Placzek",
+        "email": "contact@tada5hi.net",
+        "url": "https://github.com/tada5hi"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Tada5hi/trapi.git",
+        "directory": "packages/core"
+    },
+    "bugs": {
+        "url": "https://github.com/Tada5hi/trapi/issues"
+    },
+    "homepage": "https://github.com/Tada5hi/trapi#readme",
+    "dependencies": {
+        "@ebec/core": "^1.0.1",
+        "@validup/adapter-zod": "^0.2.4",
+        "locter": "^2.1.6",
+        "validup": "^0.2.2",
+        "zod": "^4.4.2"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

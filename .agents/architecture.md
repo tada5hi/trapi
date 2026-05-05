@@ -15,12 +15,24 @@ TypeScript Source Code → Metadata Extraction → OpenAPI Specification
 
 3. **Spec Generation** — The swagger package takes the normalised metadata and produces OpenAPI 2.0, 3.0, 3.1, or 3.2 JSON/YAML output. Lossy conversions (e.g. tuples → arrays) happen here, never in the metadata layer.
 
+## Package split
+
+The framework-neutral contract surface lives in **`@trapi/core`** and has no `typescript` dependency:
+
+- All domain types (`Type`, `BaseType`, `Controller`, `Method`, `Parameter`, `Extension`, `Example`, `Response`, `Security`, `Validator`, `MethodType`, `ParameterSource`, `CollectionFormat`, `TypeName`, …) and their type guards.
+- The decorator/preset machinery: drafts, handlers, contexts, `Preset`, `Registry`, `loadRegistry`, `loadRegistryByName`, `resolvePresetByName`, `validatePreset`, identity builders, marker helpers, `into`/`append`/`flag` writers, `readString`/`readNumber`/etc.
+- `CoreError` + `CoreErrorCode` (`PRESET_NOT_FOUND`, `PRESET_CYCLE`, `PRESET_REPLACES_NO_MATCH`, `PRESET_INVALID`).
+
+**`@trapi/metadata`** depends on `@trapi/core` and adds the TypeScript-coupled half: the orchestrator (`applyDecoratorHandlers`, `applyJsDocHandlers`, `buildHandlerContext`), source extraction (`buildDecoratorSources`, `buildJsDocSources`, `readNodeDecorators`), `TypeNodeResolver` and sub-resolvers, the filesystem/cache adapters, and the `MetadataGenerator` use-case wiring (`generateMetadata`). Its TS-coupled errors (`MetadataError`, `ConfigError`, `GeneratorError`, `ParameterError`, `ResolverError`, `ValidatorError`) and TS-coupled context interfaces (`Metadata`, `IGeneratorContext`, `IResolverContext`, `IReferenceTypeRegistry`, `IMetadataGenerator`, `MetadataGeneratorContext`, `MetadataGeneratorOptions`) stay in this package.
+
+**`@trapi/metadata` does not re-export `@trapi/core`.** Consumers that need the contract surface install `@trapi/core` directly. Both first-party presets and `examples/decorators` `peerDependency` on `@trapi/core` only — they don't pull `typescript` into their install graph. `@trapi/swagger` depends on both packages: `@trapi/core` for domain types/type guards, `@trapi/metadata` for `Metadata` and `generateMetadata`.
+
 ## Hexagonal Layering
 
 Both `@trapi/metadata` and `@trapi/swagger` are organised into three layers with a strict dependency rule:
 
-- **`core/`** — Domain types, port interfaces, constants. Imports nothing from `adapters/` or `app/`.
-- **`adapters/`** — Infrastructure concerns: TypeScript compiler API, filesystem, cache, preset loading, OpenAPI emission, file writing. Imports from `core/` only.
+- **`core/`** — TS-coupled domain types and ports specific to the package. `@trapi/core` provides the framework-neutral half. Imports nothing from `adapters/` or `app/`.
+- **`adapters/`** — Infrastructure concerns: TypeScript compiler API, filesystem, cache, decorator orchestrator, OpenAPI emission, file writing. Imports from `core/` and `@trapi/core` only.
 - **`app/`** — Use-case orchestration. The public entry points `generateMetadata()` and `generateSwagger()` live here, wiring adapters against core contracts.
 
 ## Metadata Generation
@@ -76,7 +88,7 @@ A `Preset` has `name`, optional `extends: string[]`, and arrays of handlers per 
 
 **Layers:**
 
-- **Layer 1 — Source** (`adapters/decorator/v2/typescript/`): `buildDecoratorSources` extracts AST-agnostic `DecoratorSource[]` from a TS node; `buildJsDocSources` does the same for JSDoc tags. `readNodeDecorators` is a lightweight read-only variant for the type resolver.
+- **Layer 1 — Source** (`@trapi/metadata/src/adapters/decorator/typescript/`): `buildDecoratorSources` extracts AST-agnostic `DecoratorSource[]` from a TS node; `buildJsDocSources` does the same for JSDoc tags. `readNodeDecorators` is a lightweight read-only variant for the type resolver. Lives in `@trapi/metadata` because it touches the TS compiler.
 - **Layer 2 — Drafts**: `ControllerDraft`/`MethodDraft`/`ParameterDraft` are mutable accumulators. Handlers contribute by mutating; the orchestrator finalises into the public `Controller`/`Method`/`Parameter` types.
 - **Layer 3 — Handlers + Context**: `HandlerContext` exposes `argument(i)`, `arguments()`, `typeArgument(i)`, `parameterType()`, `host`. `JsDocHandlerContext` exposes `source`, `host`, `parameterType()`. Decorator and JSDoc handlers are separate kinds.
 - **Layer 4 — Helpers**: `into('path').positional(0)`, `append('tags').positionalAll()`, `flag('hidden')`, identity builders (`controller(...)`, `method(...)`).

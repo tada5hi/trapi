@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { isValidupError } from 'validup';
 import {
     validatePreset,
-} from '../../../src/adapters/decorator/validation';
+} from '../../../src/decorator/validation';
 
 const noopApply = () => {
     /* no-op */

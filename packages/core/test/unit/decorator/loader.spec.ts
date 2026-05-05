@@ -10,7 +10,7 @@ import {
     type Preset,
     type PresetResolver,
     loadRegistry,
-} from '../../../src/adapters/decorator';
+} from '../../../src/decorator';
 
 const noopApply = () => {
     /* no-op */
@@ -246,6 +246,14 @@ describe('loadRegistry', () => {
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
         expect(registry.controllers).toHaveLength(1);
         expect(registry.controllers[0].replaces).toBe(true);
+    });
+
+    it('wraps preset-validation failures as CoreError(PRESET_INVALID)', async () => {
+        // Missing `name` is a zod schema violation that surfaces from validup.
+        const invalid = { methods: [] } as unknown as Preset;
+        await expect(
+            loadRegistry(invalid, { resolver: makeResolver([]) }),
+        ).rejects.toMatchObject({ code: 'CORE_PRESET_INVALID' });
     });
 
     it('supports JSDoc handlers in extends/replaces flow', async () => {

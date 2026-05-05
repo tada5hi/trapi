@@ -25,7 +25,7 @@ import type {
     TypeChecker,
 } from 'typescript';
 import { getInitializerValue } from '../../typescript/initializer';
-import type { DecoratorArgument } from '../types';
+import type { DecoratorArgument } from '@trapi/core';
 
 export type RawDecorator = {
     name: string;

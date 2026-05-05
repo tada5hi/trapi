@@ -10,7 +10,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import process from 'node:process';
 import type { CompilerOptions } from 'typescript';
-import type { Registry } from '../decorator/types';
+import type { Registry } from '@trapi/core';
 import { CACHE_DEFAULT_MAX_AGE_MS } from './constants';
 import type { CacheOptions, CacheOptionsInput } from './types';
 

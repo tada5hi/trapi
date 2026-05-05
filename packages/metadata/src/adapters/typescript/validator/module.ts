@@ -11,10 +11,11 @@ import type {
     PropertySignature, 
     TypeAliasDeclaration,
 } from 'typescript';
-import type { Validator } from '../../../core/types/validator';
+import type { Validator } from '@trapi/core';
+import { ValidatorName } from '@trapi/core';
 import { ValidatorError } from '../../../core/error/validator';
 import { getJSDocTags, transformJSDocComment } from '../js-doc';
-import { ValidatorErrorCode, ValidatorName } from '../../../core/error/validator-codes';
+import { ValidatorErrorCode } from '../../../core/error/validator-codes';
 
 export function getDeclarationValidators(
     declaration: PropertyDeclaration | TypeAliasDeclaration | PropertySignature | ParameterDeclaration,

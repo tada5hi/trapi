@@ -13,11 +13,8 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type {
-    Metadata,
-    NestedObjectLiteralType,
-    RefAliasType,
-} from '../../../src';
+import type { NestedObjectLiteralType, RefAliasType } from '@trapi/core';
+import type { Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('conditional type and generic context metadata extraction', () => {

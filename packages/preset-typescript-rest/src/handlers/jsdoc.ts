@@ -9,14 +9,14 @@ import type {
     ControllerJsDocHandler,
     MethodJsDocHandler,
     ParameterJsDocHandler,
-} from '@trapi/metadata';
+} from '@trapi/core';
 import {
     MarkerName,
     NumericKind,
     controllerJsDoc,
     methodJsDoc,
     parameterJsDoc,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const methodHiddenJsDoc = methodJsDoc({
     match: { tag: 'hidden' },

@@ -27,7 +27,8 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 
 | Package | npm Name | Description |
 |---------|----------|-------------|
-| `packages/metadata` | `@trapi/metadata` | Core: extracts API metadata from TypeScript decorators |
+| `packages/core` | `@trapi/core` | Framework-neutral domain types, decorator/preset machinery, and shared utilities (no `typescript` dep) |
+| `packages/metadata` | `@trapi/metadata` | Extracts API metadata from TypeScript decorators using `@trapi/core` contracts |
 | `packages/swagger` | `@trapi/swagger` | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specs |
 | `packages/preset-decorators-express` | `@trapi/preset-decorators-express` | Decorator mapping for @decorators/express (self-contained: routing + TRAPI markers + JSDoc) |
 | `packages/preset-typescript-rest` | `@trapi/preset-typescript-rest` | Decorator mapping for typescript-rest (self-contained: routing + TRAPI markers + JSDoc) |
@@ -37,7 +38,7 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 
 ### Linked Versioning
 
-`@trapi/metadata` and `@trapi/swagger` share a linked version (currently 1.3.0). The preset packages version independently.
+`@trapi/core`, `@trapi/metadata`, and `@trapi/swagger` share a linked version. Preset packages version independently and `peerDependency` on `@trapi/core` (not `@trapi/metadata`) — they only need the contract surface, not the TypeScript-coupled metadata generator.
 
 ## Detailed Guides
 

@@ -8,7 +8,8 @@
 import { NodeBuilderFlags, SyntaxKind, isTypeOperatorNode } from 'typescript';
 import type { TypeNode } from 'typescript';
 import { ResolverError } from '../../../../core/error/resolver';
-import type { SubResolverContext, Type } from '../types';
+import type { Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 import { toTypeNodeOrFail } from '../utils';
 
 export function resolveTypeOperatorType(

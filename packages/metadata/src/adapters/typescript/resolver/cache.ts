@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { IResolverCache, ReferenceType } from './types';
+import type { IResolverCache, ReferenceType } from '@trapi/core';
 
 export class ResolverCache implements IResolverCache {
     private referenceTypes = new Map<string, ReferenceType>();

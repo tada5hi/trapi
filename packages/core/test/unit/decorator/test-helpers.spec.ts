@@ -20,8 +20,8 @@ import {
     setMethodPath,
     typeArg,
     unresolvableArg,
-} from '../../../src/adapters/decorator';
-import type { Type } from '../../../src/core/resolver/types';
+} from '../../../src/decorator';
+import type { Type } from '../../../src/resolver/types';
 
 const setHidden = (
     _ctx: { argument: (i: number) => unknown },

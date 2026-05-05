@@ -10,10 +10,10 @@ import type {
     HandlerContext,
     MethodDraft,
     ParameterDraft,
-} from '@trapi/metadata';
-import { append, readString } from '@trapi/metadata';
+} from '@trapi/core';
+import { append, readString } from '@trapi/core';
 
-export { readString, readStringOrStringArray } from '@trapi/metadata';
+export { readString, readStringOrStringArray } from '@trapi/core';
 
 export const setHidden = (_ctx: HandlerContext, draft: { hidden: boolean }) => {
     draft.hidden = true;

@@ -7,8 +7,9 @@
 
 import { isIntersectionTypeNode } from 'typescript';
 import type { TypeNode } from 'typescript';
-import { TypeName } from '../../../../core/types/type-name';
-import type { IntersectionType, SubResolverContext, Type } from '../types';
+import { TypeName } from '@trapi/core';
+import type { IntersectionType, Type } from '@trapi/core';
+import type { SubResolverContext } from '../types';
 
 export function resolveIntersectionType(
     typeNode: TypeNode,

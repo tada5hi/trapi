@@ -20,7 +20,8 @@ Most tools that generate OpenAPI from decorators force you to adopt their own de
 
 | Package | Description |
 |---------|-------------|
-| [@trapi/metadata](./packages/metadata) | Core: extracts API metadata from TypeScript decorators |
+| [@trapi/core](./packages/core) | Framework-neutral contract: IR types, decorator/preset machinery, authoring helpers (no `typescript` dep) |
+| [@trapi/metadata](./packages/metadata) | Extracts API metadata from TypeScript decorators (depends on `@trapi/core`) |
 | [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
 | [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Self-contained preset for @decorators/express (routing + TRAPI markers + JSDoc) |
 | [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Self-contained preset for typescript-rest (routing + TRAPI markers + JSDoc) |
@@ -75,7 +76,7 @@ TypeScript Source Code  -->  Metadata Extraction  -->  OpenAPI Specification
 A **preset** is a collection of **handlers** that match decorators by name and mutate a draft (controller, method, parameter, ...). Each handler declares what it matches and how it contributes:
 
 ```typescript
-import { controller, method } from '@trapi/metadata';
+import { controller, method } from '@trapi/core';
 
 const controllerHandler = controller({
     match: { name: 'Controller', on: 'class' },

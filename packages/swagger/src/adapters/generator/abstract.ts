@@ -11,7 +11,6 @@ import type {
     EnumType,
     Extension,
     IntersectionType,
-    Metadata,
     NestedObjectLiteralType,
     Parameter,
     ParameterSource,
@@ -25,7 +24,8 @@ import type {
     UnionType,
     Validators,
     VariableType,
-} from '@trapi/metadata';
+} from '@trapi/core';
+import type { Metadata } from '@trapi/metadata';
 import {
     TypeName,
     isArrayType,
@@ -39,7 +39,7 @@ import {
     isUndefinedType,
     isUnionType,
     isVoidType,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 import { isObject } from 'smob';
 import { buildSpecGeneratorOptions } from '../../core/config';

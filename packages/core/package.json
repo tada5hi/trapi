@@ -48,7 +48,7 @@
         "@validup/adapter-zod": "^0.2.4",
         "locter": "^2.1.6",
         "validup": "^0.2.2",
-        "zod": "^4.4.2"
+        "zod": "^4.4.3"
     },
     "publishConfig": {
         "access": "public"

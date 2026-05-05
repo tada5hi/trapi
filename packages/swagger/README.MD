@@ -29,7 +29,7 @@ The stable public surface is documented in the [API Reference](https://trapi.tad
 npm install --save @trapi/swagger
 ```
 
-`@trapi/metadata` is a direct dependency of `@trapi/swagger`, so it is pulled in automatically. Install it explicitly if you want to import its types (`Metadata`, `MetadataGenerateOptions`) in your own code:
+`@trapi/swagger` only consumes a pre-built `Metadata` value (the framework-neutral type from `@trapi/core`). It does **not** depend on `@trapi/metadata` or the TypeScript compiler. Install `@trapi/metadata` separately if you want to extract metadata from TypeScript decorators:
 
 ```bash
 npm install --save @trapi/metadata
@@ -43,17 +43,20 @@ npm install --save @trapi/preset-decorators-express @decorators/express
 
 ## Usage
 
-`generateSwagger()` accepts either pre-built metadata or metadata generation options — when options are supplied, it runs `generateMetadata()` internally first.
+`generateSwagger()` takes a pre-built `Metadata` value and returns an OpenAPI document. Compose it with `generateMetadata` from `@trapi/metadata` for the typical TypeScript-decorator flow:
 
 ```typescript
+import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
+
+const metadata = await generateMetadata({
+    entryPoint: ['src/controllers/**/*.ts'],
+    preset: '@trapi/preset-decorators-express',
+});
 
 const spec = await generateSwagger({
     version: 'v3',
-    metadata: {
-        entryPoint: ['src/controllers/**/*.ts'],
-        preset: '@trapi/preset-decorators-express',
-    },
+    metadata,
     data: {
         name: 'My API',
         version: '1.0.0',
@@ -65,28 +68,27 @@ const spec = await generateSwagger({
 await saveSwagger(spec, { cwd: './docs', format: 'yaml' });
 ```
 
-Reusing pre-built metadata is useful if you need it for more than just OpenAPI generation:
+Reuse the same `metadata` for multiple emit targets so the TypeScript walk runs once:
 
 ```typescript
-import { generateMetadata } from '@trapi/metadata';
-import { generateSwagger } from '@trapi/swagger';
+const specV3 = await generateSwagger({ version: 'v3', metadata });
+const specV2 = await generateSwagger({ version: 'v2', metadata });
+```
 
-const metadata = await generateMetadata({
-    entryPoint: ['src/controllers/**/*.ts'],
-    preset: '@trapi/preset-decorators-express',
-});
+You can also bring your own `Metadata` from any source — a JSON cache file, a Babel-based extractor, or a hand-rolled fixture — without installing `@trapi/metadata` at all:
 
-const spec = await generateSwagger({
-    version: 'v3',
-    metadata,
-    data: { name: 'My API', version: '1.0.0' },
-});
+```typescript
+import { promises as fs } from 'node:fs';
+import type { Metadata } from '@trapi/core';
+
+const metadata: Metadata = JSON.parse(await fs.readFile('cache/metadata.json', 'utf8'));
+const spec = await generateSwagger({ version: 'v3', metadata });
 ```
 
 ## Configuration
 
 ```typescript
-import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 
 export type SwaggerGenerateOptions = {
     /**
@@ -96,9 +98,10 @@ export type SwaggerGenerateOptions = {
     version: 'v2' | 'v3' | 'v3.1' | 'v3.2';
 
     /**
-     * Pre-built metadata, or options to generate it from source.
+     * Pre-built metadata. Produce it via `generateMetadata` from `@trapi/metadata`,
+     * or supply your own `Metadata`-shaped value.
      */
-    metadata: MetadataGenerateOptions | Metadata;
+    metadata: Metadata;
 
     /**
      * Document-level content (info block, servers, security, ...).

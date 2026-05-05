@@ -31,13 +31,13 @@ Layer 1 (contract):   core
 ```
 
 - `@trapi/metadata` depends directly on `@trapi/core` and adds the TypeScript compiler integration on top of its contracts.
-- `@trapi/swagger` depends on both `@trapi/core` (domain types, type guards) and `@trapi/metadata` (the `Metadata` shape and `generateMetadata`).
+- `@trapi/swagger` depends **only** on `@trapi/core` (for `Metadata`, domain types, type guards). It does NOT depend on `@trapi/metadata` or the TypeScript compiler. Consumers compose `generateMetadata(...)` (from `@trapi/metadata`) with `generateSwagger({ metadata })` themselves; the CLI does this orchestration internally.
 - Both framework presets peer-depend on `@trapi/core` only — they don't need the metadata generator. No cross-preset `extends` chain.
-- **No re-export shim:** `@trapi/metadata` does NOT re-export `@trapi/core`. Consumers that want the contract surface install `@trapi/core` directly. This keeps `typescript` out of the install graph for preset-only consumers.
+- **No re-export shim:** `@trapi/metadata` does NOT re-export `@trapi/core`. Consumers that want the contract surface install `@trapi/core` directly. This keeps `typescript` out of the install graph for preset-only consumers and for `@trapi/swagger` consumers that bring their own metadata.
 
 ## Package: `@trapi/core`
 
-Framework-neutral contract surface used by `@trapi/metadata`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/adapter-zod`, `locter`.
+Framework-neutral contract surface used by `@trapi/metadata`, `@trapi/swagger`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/adapter-zod`, `locter`.
 
 ```text
 packages/core/src/
@@ -47,6 +47,7 @@ packages/core/src/
 ├── generator/              # Example, Response, Security
 ├── validator/              # Validator, ValidatorMeta, Validators, ValidatorName
 ├── resolver/               # Type union (StringType, ObjectType, RefObjectType, …), BaseType, TypeName, Extension, type guards
+├── metadata/               # Metadata wrapper type + isMetadata guard (the framework-neutral output of any extractor)
 ├── decorator/              # Decorator/preset machinery (no orchestrator — that needs the TS compiler)
 │   ├── types.ts            # DecoratorSource, drafts, handlers, contexts, Preset, Registry, ResolverMarker, UnmatchedDecoratorReport
 │   ├── constants.ts        # ParamKind, CollectionKind, MarkerName, NumericKind, DecoratorTargetKind

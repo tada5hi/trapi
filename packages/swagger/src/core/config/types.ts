@@ -5,8 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat } from '@trapi/core';
-import type { Metadata, MetadataGenerateOptions } from '@trapi/metadata';
+import type { CollectionFormat, Metadata } from '@trapi/core';
 import type { DocumentFormat, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 
@@ -159,9 +158,12 @@ export type SwaggerGenerateOptions = {
     version: `${Version}`;
 
     /**
-     * Pre-built metadata or options to generate metadata from source.
+     * Pre-built metadata. Produce it with `generateMetadata` from `@trapi/metadata`,
+     * or supply your own `Metadata`-shaped value (e.g. read from a JSON fixture or
+     * an alternate extractor) — `@trapi/swagger` does not depend on the TypeScript
+     * compiler.
      */
-    metadata: MetadataGenerateOptions | Metadata;
+    metadata: Metadata;
 
     /**
      * Document content (info, servers, security, etc.).

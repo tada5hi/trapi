@@ -32,10 +32,11 @@ import type { MetadataGeneratorOptions } from '../../../core/config';
 import type {
     Controller,
     DependencyResolver,
+    Metadata,
     ReferenceType,
     ReferenceTypes,
-    Registry,
-    UnmatchedDecoratorReport,
+    Registry, 
+    UnmatchedDecoratorReport, 
 } from '@trapi/core';
 import {
     createRegistry,
@@ -53,7 +54,6 @@ import { ControllerGenerator } from '../controller';
 import type {
     IGeneratorContext,
     IMetadataGenerator,
-    Metadata,
     MetadataGeneratorContext,
 } from '../../../core/metadata/types';
 

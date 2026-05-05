@@ -7,7 +7,7 @@
 
 import type { CompilerOptions } from 'typescript';
 import type { MetadataGenerateOptions } from '../core/config';
-import type { Metadata } from '../core/metadata/types';
+import type { Metadata } from '@trapi/core';
 import { MetadataGenerator } from './generator/metadata';
 import { scanSourceFiles } from '../adapters/filesystem';
 import { softLoadTsconfig } from '../adapters/filesystem/tsconfig';

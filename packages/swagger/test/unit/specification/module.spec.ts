@@ -12,7 +12,7 @@ import {
     it, 
 } from 'vitest';
 import { CollectionFormat } from '@trapi/core';
-import type { Metadata } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 import jsonata from 'jsonata';
 import { load } from 'locter';
 import type { SpecV2, SpecV3 } from '../../../src';

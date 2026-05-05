@@ -12,7 +12,7 @@ import {
     it, 
 } from 'vitest';
 import { load } from 'locter';
-import type { Metadata } from '@trapi/metadata';
+import type { Metadata } from '@trapi/core';
 import type { SpecV3 } from '../../../src';
 import {
     Version,

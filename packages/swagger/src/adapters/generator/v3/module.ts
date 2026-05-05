@@ -9,6 +9,7 @@ import type {
     BaseType,
     EnumType,
     IntersectionType,
+    Metadata,
     Method,
     NestedObjectLiteralType,
     Parameter,
@@ -17,10 +18,9 @@ import type {
     RefObjectType,
     ResolverProperty,
     Response,
-    Type,
-    UnionType,
+    Type, 
+    UnionType, 
 } from '@trapi/core';
-import type { Metadata } from '@trapi/metadata';
 import {
     ParameterSource,
     TypeName,

@@ -13,7 +13,7 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Metadata } from '../../../src';
+import type { Metadata } from '@trapi/core';
 import { generateMetadata } from '../../../src';
 
 describe('extensions on Controller and Parameter', () => {

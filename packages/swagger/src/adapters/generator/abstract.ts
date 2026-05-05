@@ -11,6 +11,7 @@ import type {
     EnumType,
     Extension,
     IntersectionType,
+    Metadata,
     NestedObjectLiteralType,
     Parameter,
     ParameterSource,
@@ -22,10 +23,9 @@ import type {
     ResolverProperty,
     TupleType,
     UnionType,
-    Validators,
-    VariableType,
+    Validators, 
+    VariableType, 
 } from '@trapi/core';
-import type { Metadata } from '@trapi/metadata';
 import {
     TypeName,
     isArrayType,

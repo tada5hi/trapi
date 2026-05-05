@@ -90,7 +90,6 @@ export default defineConfig({
                     text: 'Migration',
                     collapsible: false,
                     items: [
-                        { text: '2.x → 3.0', link: '/guide/migration-3.0' },
                         { text: '1.x → 2.0', link: '/guide/migration-2.0' },
                     ]
                 },

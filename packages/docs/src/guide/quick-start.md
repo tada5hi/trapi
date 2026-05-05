@@ -48,14 +48,17 @@ Decorators are no-ops at runtime. Their bodies never run as part of metadata ext
 
 ```typescript
 // scripts/generate-openapi.ts
+import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
+
+const metadata = await generateMetadata({
+    entryPoint: ['src/controllers/**/*.ts'],
+    preset: '@trapi/preset-decorators-express',
+});
 
 const spec = await generateSwagger({
     version: 'v3',
-    metadata: {
-        entryPoint: ['src/controllers/**/*.ts'],
-        preset: '@trapi/preset-decorators-express',
-    },
+    metadata,
     data: {
         name: 'Example API',
         version: '1.0.0',
@@ -74,9 +77,11 @@ npx tsx scripts/generate-openapi.ts
 
 `./docs/swagger.yaml` is now on disk. Drop `format: 'yaml'` (or set `format: 'json'`) for JSON output instead — one `saveSwagger()` call writes one file. Call it twice if you want both.
 
+`generateMetadata` and `generateSwagger` are intentionally separate: `@trapi/swagger` does not depend on `@trapi/metadata` or the TypeScript compiler at runtime. If you produce `Metadata` from another source (e.g. cached JSON, a Babel-based extractor, or a fixture for testing), you can call `generateSwagger` without ever installing `@trapi/metadata`.
+
 ## 4. Hook It into Your Build
 
-A common setup is to make spec generation part of `npm run build` so the committed docs never drift from the code. For a CI-friendly shape, split metadata extraction and OpenAPI emission:
+A common setup is to make spec generation part of `npm run build` so the committed docs never drift from the code. Reuse the metadata across multiple emit targets to avoid the TypeScript walk twice:
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';

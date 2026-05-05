@@ -9,6 +9,7 @@ export * from './controller';
 export * from './decorator';
 export * from './error';
 export * from './generator';
+export * from './metadata';
 export * from './method';
 export * from './parameter';
 export * from './resolver';

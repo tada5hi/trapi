@@ -10,8 +10,14 @@ import {
     expect,
     it,
 } from 'vitest';
+import type { Metadata } from '@trapi/core';
 import type { SpecV2, SpecV3 } from '../../../src';
-import { Version, generateSwagger } from '../../../src';
+import {
+    SwaggerError,
+    SwaggerErrorCode,
+    Version,
+    generateSwagger,
+} from '../../../src';
 import {
     createController,
     createMetadata,
@@ -99,5 +105,21 @@ describe('generateSwagger', () => {
         expect(spec.info.title).toEqual('Test API');
         expect(spec.info.version).toEqual('1.0.0');
         expect(spec.info.description).toEqual('A test API');
+    });
+
+    describe('input validation', () => {
+        it('throws SwaggerError(METADATA_INVALID) when metadata is missing', async () => {
+            await expect(generateSwagger({
+                version: Version.V3,
+                metadata: undefined as unknown as Metadata,
+            })).rejects.toMatchObject({ code: SwaggerErrorCode.METADATA_INVALID });
+        });
+
+        it('throws SwaggerError(METADATA_INVALID) when metadata is not Metadata-shaped', async () => {
+            await expect(generateSwagger({
+                version: Version.V3,
+                metadata: { foo: 'bar' } as unknown as Metadata,
+            })).rejects.toBeInstanceOf(SwaggerError);
+        });
     });
 });

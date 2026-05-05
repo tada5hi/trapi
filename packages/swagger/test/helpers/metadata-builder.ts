@@ -10,6 +10,7 @@ import type {
     Controller,
     EnumType,
     IntersectionType,
+    Metadata,
     Method,
     Parameter,
     RefAliasType,
@@ -18,10 +19,9 @@ import type {
     ReferenceTypes,
     ResolverProperty,
     Response,
-    Type,
-    UnionType,
+    Type, 
+    UnionType, 
 } from '@trapi/core';
-import type { Metadata } from '@trapi/metadata';
 
 /**
  * Creates a minimal valid Metadata object for testing swagger generation.

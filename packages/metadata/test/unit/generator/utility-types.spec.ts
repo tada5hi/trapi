@@ -14,13 +14,13 @@ import {
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
+    Metadata,
     NestedObjectLiteralType,
     RefAliasType,
     RefObjectType,
-    TupleType,
-    UnionType,
+    TupleType, 
+    UnionType, 
 } from '@trapi/core';
-import type { Metadata } from '../../../src';
 import { generateMetadata } from '../../../src';
 
 describe('utility type metadata extraction', () => {

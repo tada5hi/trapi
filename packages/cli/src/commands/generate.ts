@@ -7,6 +7,7 @@
 
 import { defineCommand } from 'citty';
 import type { MetadataGenerateOptions } from '@trapi/metadata';
+import { generateMetadata } from '@trapi/metadata';
 import type { SwaggerGenerateOptions } from '@trapi/swagger';
 import {
     Version,
@@ -90,13 +91,15 @@ export function defineCLIGenerateCommand() {
                 args.format as string | undefined,
             );
 
-            const metadata: MetadataGenerateOptions = {
+            const metadataOptions: MetadataGenerateOptions = {
                 entryPoint: args['entry-point'] as string,
                 preset: args.preset as string | undefined,
                 tsconfig: args.tsconfig as string | undefined,
                 strict: args.strict ? true : undefined,
                 cache: args.cache ? true : undefined,
             };
+
+            const metadata = await generateMetadata(metadataOptions);
 
             const swaggerOptions: SwaggerGenerateOptions = {
                 version,

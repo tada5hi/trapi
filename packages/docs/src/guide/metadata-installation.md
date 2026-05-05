@@ -17,6 +17,10 @@ TypeScript is declared as a peer dependency, so your project's `typescript` vers
 
 `@trapi/metadata` is an ESM-only package. Your project must either set `"type": "module"` in `package.json` or load it via dynamic `import()` from CommonJS.
 
+::: tip Authoring a custom preset?
+You don't need `@trapi/metadata` for that. Install [**`@trapi/core`**](https://www.npmjs.com/package/@trapi/core) instead — it ships the IR types, handler/preset types, and authoring helpers (`controller(...)`, `into`, `append`, `flag`, `readString`, …) without pulling in the `typescript` peer dependency. See [Custom Presets](/guide/advanced-custom-presets).
+:::
+
 ## Bundled With…
 
 You normally install it alongside either `@trapi/swagger` (if you want OpenAPI output) or a consumer you've written yourself:

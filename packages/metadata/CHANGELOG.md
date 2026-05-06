@@ -151,6 +151,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0-beta.4](https://github.com/tada5hi/trapi/compare/metadata-v2.0.0-beta.3...metadata-v2.0.0-beta.4) (2026-05-06)
+
+
+### Bug Fixes
+
+* **metadata:** guard unresolvable symbol in getInitializerValue ([70d6aba](https://github.com/tada5hi/trapi/commit/70d6aba6cbae8ec1b0f79baafc3372d524164027)), closes [#821](https://github.com/tada5hi/trapi/issues/821)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.0-beta.3 to 2.0.0-beta.4
+
 ## [2.0.0-beta.3](https://github.com/tada5hi/trapi/compare/metadata-v2.0.0-beta.2...metadata-v2.0.0-beta.3) (2026-05-05)
 
 

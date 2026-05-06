@@ -55,6 +55,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [0.2.1-beta.3](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.0-beta.3...preset-decorators-express-v0.2.1-beta.3) (2026-05-06)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/core bumped from 2.0.0-beta.3 to 2.0.0-beta.4
+  * peerDependencies
+    * @trapi/core bumped from 2.0.0-beta.3 to 2.0.0-beta.4
+
 ## [0.2.0-beta.3](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.1-beta.1...preset-decorators-express-v0.2.0-beta.3) (2026-05-05)
 
 

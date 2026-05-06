@@ -127,6 +127,9 @@ export function getInitializerValue(
             }
 
             const symbol = typeChecker.getSymbolAtLocation(initializer);
+            if (!symbol) {
+                return undefined;
+            }
             return getInitializerValue(
                 extractInitializer(symbol.valueDeclaration) || extractInitializer(extractImportSpecifier(symbol)),
                 typeChecker,

@@ -19,10 +19,8 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
 
-        "strict": false,
-        "noUncheckedIndexedAccess": false,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false
+        "strict": true,
+        "noUncheckedIndexedAccess": true
     },
     "exclude": [
         "node_modules",

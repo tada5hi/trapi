@@ -153,8 +153,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected abstract getSchemaForIntersectionType(type: IntersectionType): Schema;
 
     protected getSchemaForEnumType(enumType: EnumType): Schema {
-        const type = this.decideEnumType(enumType.members);
-        const nullable = !!enumType.members.includes(null);
+        const nullable = enumType.members.includes(null);
+        const nonNullMembers = enumType.members.filter(
+            (m): m is string | number | boolean => m !== null,
+        );
+        const type = this.decideEnumType(nonNullMembers);
 
         const schema = {
             type,
@@ -291,10 +294,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected buildSchemasForReferenceTypes(extendFn?: (output: Schema, input: ReferenceType) => void) : Record<string, Schema> {
         const output: Record<string, Schema> = {};
 
-        const keys = Object.keys(this.metadata.referenceTypes);
-        for (const key of keys) {
-            const referenceType = this.metadata.referenceTypes[key];
-
+        for (const referenceType of Object.values(this.metadata.referenceTypes)) {
             switch (referenceType.typeName) {
                 case TypeName.REF_ALIAS: {
                     output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
@@ -311,7 +311,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             }
 
             if (typeof extendFn === 'function') {
-                extendFn(output[referenceType.refName], referenceType);
+                extendFn(output[referenceType.refName]!, referenceType);
             }
         }
 
@@ -365,8 +365,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected assignPropertyDefaults(schema: Schema, property: ResolverProperty): void {
+    protected assignPropertyDefaults(_schema: Schema, _property: ResolverProperty): void {
         // No-op by default. V3 overrides to set schema.default = property.default.
     }
 
@@ -450,11 +449,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         const output : Partial<Record<ParameterSource, Parameter[]>> = {};
 
         for (const item of items) {
-            if (typeof output[item.in] === 'undefined') {
-                output[item.in] = [];
-            }
-
-            output[item.in].push(item);
+            const bucket = output[item.in] ?? (output[item.in] = []);
+            bucket.push(item);
         }
 
         return output;

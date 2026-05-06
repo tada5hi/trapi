@@ -17,6 +17,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MetadataGenerator, generateMetadata } from '../../../src';
+import type { MetadataGeneratorOptions } from '../../../src';
 import { CACHE_FILE_PREFIX } from '../../../src/adapters/cache/constants';
 
 const decoratorEntry = [{
@@ -126,7 +127,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
         // ignore-everything pattern so the source-files hash and node walk
         // are deterministic and empty. This isolates the registry hash as
         // the only varying contributor between the two runs.
-        const baseOptions = {
+        const baseOptions: MetadataGeneratorOptions = {
             entryPoint: [],
             cache: { enabled: true, directoryPath: dir },
             ignore: ['**/*'],

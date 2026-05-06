@@ -29,7 +29,7 @@ export class ReferenceResolver extends ResolverBase {
 
     public merge(referenceTypes: ReferenceType[]): ReferenceType {
         if (referenceTypes.length === 1) {
-            return referenceTypes[0];
+            return referenceTypes[0]!;
         }
 
         if (referenceTypes.every((refType) => refType.refName === TypeName.REF_ENUM)) {
@@ -46,9 +46,9 @@ export class ReferenceResolver extends ResolverBase {
     }
 
     public mergeManyRefEnums(many: RefEnumType[]): RefEnumType {
-        let merged = this.mergeRefEnums(many[0], many[1]);
+        let merged = this.mergeRefEnums(many[0]!, many[1]!);
         for (let i = 2; i < many.length; ++i) {
-            merged = this.mergeRefEnums(merged, many[i]);
+            merged = this.mergeRefEnums(merged, many[i]!);
         }
 
         return merged;
@@ -84,9 +84,9 @@ export class ReferenceResolver extends ResolverBase {
     }
 
     public mergeManyRefObjects(many: RefObjectType[]) {
-        let merged = this.mergeRefObject(many[0], many[1]);
+        let merged = this.mergeRefObject(many[0]!, many[1]!);
         for (let i = 2; i < many.length; ++i) {
-            merged = this.mergeRefObject(merged, many[i]);
+            merged = this.mergeRefObject(merged, many[i]!);
         }
         return merged;
     }

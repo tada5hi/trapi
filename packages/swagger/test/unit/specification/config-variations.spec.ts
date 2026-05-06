@@ -43,7 +43,7 @@ describe('config variations', () => {
                 },
             });
 
-            expect(spec['x-custom-field']).toEqual('custom-value');
+            expect((spec as Record<string, unknown>)['x-custom-field']).toEqual('custom-value');
             expect(spec.externalDocs).toEqual({
                 description: 'External docs',
                 url: 'https://example.com/docs',
@@ -68,7 +68,7 @@ describe('config variations', () => {
                 },
             });
 
-            expect(spec['x-custom-field']).toEqual('v3-custom');
+            expect((spec as Record<string, unknown>)['x-custom-field']).toEqual('v3-custom');
             expect(spec.externalDocs).toEqual({
                 description: 'V3 docs',
                 url: 'https://example.com/v3',

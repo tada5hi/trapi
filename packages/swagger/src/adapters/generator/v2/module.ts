@@ -87,11 +87,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             spec.produces = this.config.produces;
         }
 
-        if (
-            this.config.servers &&
-            this.config.servers.length > 0
-        ) {
-            const url = new URL(this.config.servers[0].url, 'http://localhost:3000/');
+        const firstServer = this.config.servers?.[0];
+        if (firstServer) {
+            const url = new URL(firstServer.url, 'http://localhost:3000/');
 
             spec.host = url.host;
             if (url.pathname) {
@@ -116,10 +114,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SecurityV2> {
         const definitions : Record<string, SecurityV2> = {};
 
-        const keys = Object.keys(securityDefinitions);
-        for (const key of keys) {
-            const securityDefinition = securityDefinitions[key];
-
+        for (const [key, securityDefinition] of Object.entries(securityDefinitions)) {
             switch (securityDefinition.type) {
                 case 'http':
                     if (securityDefinition.scheme === 'basic') {
@@ -174,8 +169,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return definitions;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected resolveAdditionalProperties(type: BaseType): SchemaV2 | boolean {
+    protected resolveAdditionalProperties(_type: BaseType): SchemaV2 | boolean {
         return true;
     }
 
@@ -220,8 +214,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     let fullPath = path.posix.join('/', controllerPath, method.path);
                     fullPath = normalizePathParameters(fullPath);
 
-                    output[fullPath] = output[fullPath] || {};
-                    output[fullPath][method.method] = this.buildMethod(method, fullPath, usedOperationIds);
+                    const pathItem = output[fullPath] ?? (output[fullPath] = {});
+                    pathItem[method.method] = this.buildMethod(method, fullPath, usedOperationIds);
                 }
             });
         });
@@ -240,7 +234,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // Prefer an explicit operationId from metadata (matches V3 behaviour),
         // then disambiguate across multi-mount controllers (the same method
         // emitted at multiple paths must not share an operationId).
-        const baseOperationId = method.operationId || output.operationId;
+        const baseOperationId = method.operationId || output.operationId!;
         output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
 
         output.description = method.description;
@@ -279,7 +273,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             });
         }
 
-        const bodyParameter = bodyParameters.length > 0 ?
+        const bodyParameter = bodyParameters[0] ?
             this.buildParameter(bodyParameters[0]) :
             undefined;
 
@@ -303,7 +297,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     required.push(bodyPropParam.name);
                 }
 
-                schema.properties[bodyPropParam.name] = bodyProp;
+                schema.properties![bodyPropParam.name] = bodyProp;
             }
 
             if (
@@ -544,8 +538,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const members : Type[] = [];
 
         const enumTypeMember : EnumType = { typeName: TypeName.ENUM, members: [] };
-        for (let i = 0; i < type.members.length; i++) {
-            const member = type.members[i];
+        for (const member of type.members) {
             if (isEnumType(member)) {
                 enumTypeMember.members.push(...member.members);
             }
@@ -569,8 +562,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const isNullEnum = enumTypeMember.members.every((member) => member === null);
         if (members.length === 1) {
+            const single = members[0]!;
             if (isNullEnum) {
-                const memberType = this.getSchemaForType(members[0]);
+                const memberType = this.getSchemaForType(single) as SchemaV2;
                 if (memberType.$ref) {
                     return memberType;
                 }
@@ -580,7 +574,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
 
             if (enumTypeMember.members.length === 0) {
-                return this.getSchemaForType(members[0]);
+                return this.getSchemaForType(single);
             }
         }
 
@@ -612,42 +606,38 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     produces.push('application/octet-stream');
                 }
 
-                operation.responses[res.status].schema = this.getSchemaForType(res.schema);
+                operation.responses[res.status]!.schema = this.getSchemaForType(res.schema);
             }
 
-            if (
-                res.examples &&
-                res.examples.length > 0
-            ) {
-                const example = res.examples[0];
-                if (example.value) {
-                    operation.responses[res.status].examples = { 'application/json': example.value };
-                }
+            const example = res.examples?.[0];
+            if (example?.value) {
+                operation.responses[res.status]!.examples = { 'application/json': example.value };
             }
         });
 
-        if (operation.consumes.length === 0) {
+        const consumes = operation.consumes!;
+        if (consumes.length === 0) {
             const hasBody = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.BODY || parameter.in === ParameterSource.BODY_PROP);
             if (hasBody) {
-                operation.consumes.push('application/json');
+                consumes.push('application/json');
             }
 
             const hasFormData = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.FORM_DATA);
             if (hasFormData) {
-                operation.consumes.push('multipart/form-data');
+                consumes.push('multipart/form-data');
             }
         }
 
         if (
-            operation.produces.length === 0 &&
+            operation.produces!.length === 0 &&
             produces.length > 0
         ) {
             operation.produces = [...new Set(produces)];
         }
 
-        if (operation.produces.length === 0) {
+        if (operation.produces!.length === 0) {
             operation.produces = ['application/json'];
         }
 

@@ -72,7 +72,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     private cache : CacheClient;
 
-    private controllers: Controller[];
+    private controllers: Controller[] = [];
 
     private referenceTypes: ReferenceTypes = {};
 
@@ -227,6 +227,9 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         const lines: string[] = ['[trapi] strict mode: decorators with no matching handler:'];
         for (const reports of this.unmatchedDecorators.values()) {
             const first = reports[0];
+            if (!first) {
+                continue;
+            }
             const occurrences = reports.length;
             const location = `${first.file}:${first.line}`;
             const suffix = occurrences > 1 ?
@@ -312,7 +315,6 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     // -------------------------------------------------------------------------
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public isExportedNode(_node: Node) {
         return true;
     }
@@ -338,8 +340,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     private buildControllers() : void {
         this.controllers = [];
 
-        for (let i = 0; i < this.nodes.length; i++) {
-            const node = this.nodes[i];
+        for (const node of this.nodes) {
             if (!isClassDeclaration(node)) {
                 continue;
             }

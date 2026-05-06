@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.build.json",
+    "include": [
+        "test/**/*.ts"
+    ],
+    "compilerOptions": {
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "strictPropertyInitialization": false,
+        "strictNullChecks": false,
+        "noUncheckedIndexedAccess": false
+    }
+}

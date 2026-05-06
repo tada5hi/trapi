@@ -71,7 +71,7 @@ export type SubResolverContext = {
 
     getNodeDescription(
         node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,
-    ): string;
+    ): string | undefined;
 
     getNodeExample(
         node: UsableDeclaration | PropertyDeclaration | ParameterDeclaration | EnumDeclaration,

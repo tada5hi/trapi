@@ -11,8 +11,7 @@ export function buildSpecGeneratorOptions(input: SpecGeneratorOptionsInput) : Sp
     const servers : ServerOption[] = [];
     if (input.servers) {
         if (Array.isArray(input.servers)) {
-            for (let i = 0; i < input.servers.length; i++) {
-                const server = input.servers[i];
+            for (const server of input.servers) {
                 if (typeof server === 'string') {
                     servers.push({ url: server });
                 } else {

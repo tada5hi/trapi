@@ -55,16 +55,15 @@ import {
     namesForMarker,
     tagsForMarker,
 } from '@trapi/core';
-import type { 
-    BufferType, 
-    DateTimeType, 
-    DateType, 
-    Extension, 
-    NestedObjectLiteralType, 
-    RefEnumType, 
-    ReferenceType, 
-    ResolverProperty, 
-    Type, 
+import type {
+    BufferType,
+    DateTimeType,
+    DateType,
+    Extension,
+    NestedObjectLiteralType,
+    ReferenceType,
+    ResolverProperty,
+    Type,
 } from '@trapi/core';
 import { hasDecoratorNamed } from '../../decorator';
 import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/metadata/types';
@@ -257,7 +256,8 @@ export class TypeNodeResolver extends ResolverBase {
         if (typeReference.typeName.kind === SyntaxKind.Identifier) {
             if (
                 typeReference.typeName.text === 'Record' &&
-                typeReference.typeArguments
+                typeReference.typeArguments &&
+                typeReference.typeArguments[1]
             ) {
                 return {
                     additionalProperties: this.resolveNestedType(
@@ -288,8 +288,7 @@ export class TypeNodeResolver extends ResolverBase {
 
             if (
                 typeReference.typeName.text === 'Array' &&
-                typeReference.typeArguments &&
-                typeReference.typeArguments.length >= 1
+                typeReference.typeArguments?.[0]
             ) {
                 return {
                     typeName: TypeName.ARRAY,
@@ -303,8 +302,8 @@ export class TypeNodeResolver extends ResolverBase {
 
             if (
                 typeReference.typeName.text === 'Promise' &&
-                typeReference.typeArguments &&
-                typeReference.typeArguments.length === 1
+                typeReference.typeArguments?.length === 1 &&
+                typeReference.typeArguments[0]
             ) {
                 return this.resolveNestedType(
                     typeReference.typeArguments[0],
@@ -317,9 +316,10 @@ export class TypeNodeResolver extends ResolverBase {
                 return { typeName: TypeName.STRING };
             }
 
-            if (this.context[typeReference.typeName.text]) {
+            const contextual = this.context[typeReference.typeName.text];
+            if (contextual) {
                 return this.resolveNestedType(
-                    this.context[typeReference.typeName.text],
+                    contextual,
                     this.parentNode,
                     this.context,
                 );
@@ -460,42 +460,8 @@ export class TypeNodeResolver extends ResolverBase {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static getDesignatedModels<T extends Node>(nodes: T[], _typeName: string): T[] {
         return nodes;
-    }
-
-    private getEnumerateType(typeName: EntityName): RefEnumType | undefined {
-        const enumName = (typeName as Identifier).text;
-        let enumNodes = this.current.nodes.filter(
-            (node) => node.kind === SyntaxKind.EnumDeclaration && (node as any).name.text === enumName,
-        );
-
-        if (!enumNodes.length) {
-            return undefined;
-        }
-
-        enumNodes = TypeNodeResolver.getDesignatedModels(enumNodes, enumName);
-
-        if (enumNodes.length > 1) {
-            throw new ResolverError(`Multiple matching enum found for enum ${enumName}; please make enum names unique.`);
-        }
-
-        const enumDeclaration = enumNodes[0] as EnumDeclaration;
-
-        const isNotUndefined = <T>(item: T): item is Exclude<T, undefined> => item !== undefined;
-
-        const enums = enumDeclaration.members.map(this.current.typeChecker.getConstantValue.bind(this.current.typeChecker)).filter(isNotUndefined);
-        const enumNames = enumDeclaration.members.map((e) => e.name.getText()).filter(isNotUndefined);
-
-        return {
-            typeName: TypeName.REF_ENUM,
-            description: this.getNodeDescription(enumDeclaration),
-            members: enums as string[],
-            memberNames: enumNames,
-            refName: enumName,
-            deprecated: hasJSDocTag(enumDeclaration, JSDocTagName.DEPRECATED),
-        };
     }
 
     private getReferenceType(node: TypeReferenceType): ReferenceType {
@@ -729,39 +695,6 @@ export class TypeNodeResolver extends ResolverBase {
             .replace(new RegExp(`<\\s*([^,]*\\s)*\\s*(${key})(\\s[^,]*)*\\s*,`, 'g'), `<$1${entry.getText()}$3,`)
             .replace(new RegExp(`,\\s*([^>]*\\s)*\\s*(${key})(\\s[^>]*)*\\s*>`, 'g'), `,$1${entry.getText()}$3>`)
             .replace(new RegExp(`<\\s*([^<]*\\s)*\\s*(${key})(\\s[^<]*)*\\s*<`, 'g'), `<$1${entry.getText()}$3<`), name);
-    }
-
-    private handleCachingAndCircularReferences(name: string, declarationResolver: () => ReferenceType): ReferenceType {
-        try {
-            const existingType = this.current.resolverCache.getCachedType(name);
-            if (existingType) {
-                return existingType;
-            }
-
-            if (this.current.resolverCache.isInProgress(name)) {
-                return this.createCircularDependencyResolver(name);
-            }
-
-            this.current.resolverCache.markInProgress(name);
-
-            try {
-                const reference = declarationResolver();
-
-                this.current.resolverCache.setCachedType(name, reference);
-
-                this.current.addReferenceType(reference);
-
-                return reference;
-            } finally {
-                this.current.resolverCache.clearInProgress(name);
-            }
-        } catch (err) {
-            throw new ResolverError(
-                `There was a problem resolving type of '${name}'.`,
-                this.typeNode,
-                { cause: err },
-            );
-        }
     }
 
     private createCircularDependencyResolver(refName: string) {
@@ -1035,7 +968,7 @@ export class TypeNodeResolver extends ResolverBase {
 
             const indexSignatureDeclaration = indexMember as IndexSignatureDeclaration;
             const indexType = this.resolveNestedType(
-                indexSignatureDeclaration.parameters[0].type as TypeNode,
+                indexSignatureDeclaration.parameters[0]!.type as TypeNode,
                 this.parentNode,
                 this.context,
             );
@@ -1070,8 +1003,11 @@ export class TypeNodeResolver extends ResolverBase {
                 let resolvedType: TypeNode;
 
                 // Argument may be a forward reference from context
-                if (typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) && context[typeArg.typeName.text]) {
-                    resolvedType = context[typeArg.typeName.text];
+                const contextual = typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) ?
+                    context[typeArg.typeName.text] :
+                    undefined;
+                if (contextual) {
+                    resolvedType = contextual;
                 } else if (typeArg) {
                     resolvedType = typeArg;
                 } else if (typeParameter.default) {

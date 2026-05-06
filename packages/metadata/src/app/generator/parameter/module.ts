@@ -378,9 +378,10 @@ export class ParameterGenerator implements IParameterGenerator {
                 !!comment && comment.startsWith(parameterName);
 
             if (isExample && comment) {
-                const hasExampleLabel = (comment.split(' ')[0].indexOf('.') || -1) > 0;
+                const head = comment.split(' ')[0] ?? '';
+                const hasExampleLabel = head.indexOf('.') > 0;
                 exampleLabels.push(hasExampleLabel ?
-                    comment.split(' ')[0].split('.').slice(1).join('.') :
+                    head.split('.').slice(1).join('.') :
                     undefined);
             }
             return isExample ?? false;

@@ -82,7 +82,7 @@ export class ParameterError extends MetadataError {
         if (isMethodDeclaration(node.parent)) {
             parts.push(node.parent.name.getText());
 
-            if (isClassDeclaration(node.parent.parent)) {
+            if (isClassDeclaration(node.parent.parent) && node.parent.parent.name) {
                 parts.unshift(node.parent.parent.name.text);
             }
         }

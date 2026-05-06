@@ -5,8 +5,6 @@
  * them with a runtime that wires routes into a server (see README).
  */
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 // --- Controller ------------------------------------------------------------
 
 export function Controller(_path?: string | string[]): ClassDecorator {

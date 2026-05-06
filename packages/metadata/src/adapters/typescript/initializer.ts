@@ -146,4 +146,7 @@ const extractInitializer = (
 ) => (valueDeclaration && hasInitializer(valueDeclaration) && (valueDeclaration.initializer as Expression)) || undefined;
 const extractImportSpecifier = (
     symbol?: TsSymbol,
-) => (symbol?.declarations && symbol.declarations.length > 0 && isImportSpecifier(symbol.declarations[0]) && symbol.declarations[0]) || undefined;
+) => {
+    const declaration = symbol?.declarations?.[0];
+    return declaration && isImportSpecifier(declaration) ? declaration : undefined;
+};

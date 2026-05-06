@@ -80,7 +80,7 @@ export function resolveObjectLiteralType(
     if (indexMember) {
         const indexSignatureDeclaration = indexMember as IndexSignatureDeclaration;
         const indexType = ctx.resolveType(
-            indexSignatureDeclaration.parameters[0].type as TypeNode,
+            indexSignatureDeclaration.parameters[0]!.type as TypeNode,
             ctx.parentNode,
             ctx.context,
         );

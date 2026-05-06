@@ -22,6 +22,8 @@ import {
     hashCompilerOptions,
     hashRegistry,
 } from '../../src';
+import type { CacheData } from '../../src';
+import { createRegistry } from '@trapi/core';
 
 function uniqueDir(label: string): string {
     return path.join(os.tmpdir(), `trapi-cache-${label}-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`);
@@ -290,7 +292,7 @@ describe('src/cache', () => {
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
             expect(cachePath).toBeDefined();
-            await fs.promises.unlink(cachePath!).catch(() => undefined);
+            await fs.promises.unlink(cachePath!).catch((): void => undefined);
         });
 
         it('accepts a custom fileName', async () => {
@@ -484,7 +486,7 @@ describe('src/cache', () => {
         it('survives concurrent saves of the same key', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
 
-            const data = {
+            const data: CacheData = {
                 controllers: [],
                 referenceTypes: {},
                 cacheKey: 'k-concurrent',
@@ -564,14 +566,7 @@ describe('src/cache', () => {
     });
 
     describe('hashRegistry', () => {
-        const emptyRegistry = {
-            controllers: [],
-            methods: [],
-            parameters: [],
-            controllerJsDoc: [],
-            methodJsDoc: [],
-            parameterJsDoc: [],
-        };
+        const emptyRegistry = createRegistry();
 
         it('produces a stable digest for empty registry', () => {
             expect(hashRegistry(emptyRegistry)).toEqual(hashRegistry(emptyRegistry));
@@ -583,7 +578,7 @@ describe('src/cache', () => {
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: () => undefined,
+                    apply: ((): void => undefined),
                 } as any],
             });
             expect(empty).not.toEqual(populated);
@@ -594,14 +589,14 @@ describe('src/cache', () => {
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: () => undefined,
+                    apply: ((): void => undefined),
                 } as any],
             });
             const b = hashRegistry({
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Route', on: 'class' },
-                    apply: () => undefined,
+                    apply: ((): void => undefined),
                 } as any],
             });
             expect(a).not.toEqual(b);

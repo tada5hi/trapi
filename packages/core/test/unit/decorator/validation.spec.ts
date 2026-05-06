@@ -43,8 +43,7 @@ describe('validatePreset', () => {
     });
 
     it('rejects when name is missing', async () => {
-        const preset = { controllers: [] };
-        await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
+        await expect(validatePreset({ controllers: [] })).rejects.toSatisfy((err) => isValidupError(err));
     });
 
     it('rejects when name is empty string', async () => {

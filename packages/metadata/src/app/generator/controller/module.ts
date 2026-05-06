@@ -225,7 +225,7 @@ export class ControllerGenerator implements IControllerGenerator {
         }
 
         const declaration = declarations[0];
-        if (isClassDeclaration(declaration)) {
+        if (declaration && isClassDeclaration(declaration)) {
             return declaration;
         }
 

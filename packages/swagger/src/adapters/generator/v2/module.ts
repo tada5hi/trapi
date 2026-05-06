@@ -87,11 +87,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             spec.produces = this.config.produces;
         }
 
-        if (
-            this.config.servers &&
-            this.config.servers.length > 0
-        ) {
-            const url = new URL(this.config.servers[0].url, 'http://localhost:3000/');
+        const firstServer = this.config.servers?.[0];
+        if (firstServer) {
+            const url = new URL(firstServer.url, 'http://localhost:3000/');
 
             spec.host = url.host;
             if (url.pathname) {
@@ -116,10 +114,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SecurityV2> {
         const definitions : Record<string, SecurityV2> = {};
 
-        const keys = Object.keys(securityDefinitions);
-        for (const key of keys) {
-            const securityDefinition = securityDefinitions[key];
-
+        for (const [key, securityDefinition] of Object.entries(securityDefinitions)) {
             switch (securityDefinition.type) {
                 case 'http':
                     if (securityDefinition.scheme === 'basic') {
@@ -219,8 +214,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     let fullPath = path.posix.join('/', controllerPath, method.path);
                     fullPath = normalizePathParameters(fullPath);
 
-                    output[fullPath] = output[fullPath] || {};
-                    output[fullPath][method.method] = this.buildMethod(method, fullPath, usedOperationIds);
+                    const pathItem = output[fullPath] ?? (output[fullPath] = {});
+                    pathItem[method.method] = this.buildMethod(method, fullPath, usedOperationIds);
                 }
             });
         });
@@ -278,7 +273,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             });
         }
 
-        const bodyParameter = bodyParameters.length > 0 ?
+        const bodyParameter = bodyParameters[0] ?
             this.buildParameter(bodyParameters[0]) :
             undefined;
 
@@ -543,8 +538,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const members : Type[] = [];
 
         const enumTypeMember : EnumType = { typeName: TypeName.ENUM, members: [] };
-        for (let i = 0; i < type.members.length; i++) {
-            const member = type.members[i];
+        for (const member of type.members) {
             if (isEnumType(member)) {
                 enumTypeMember.members.push(...member.members);
             }
@@ -568,8 +562,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const isNullEnum = enumTypeMember.members.every((member) => member === null);
         if (members.length === 1) {
+            const single = members[0]!;
             if (isNullEnum) {
-                const memberType = this.getSchemaForType(members[0]) as SchemaV2;
+                const memberType = this.getSchemaForType(single) as SchemaV2;
                 if (memberType.$ref) {
                     return memberType;
                 }
@@ -579,7 +574,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
 
             if (enumTypeMember.members.length === 0) {
-                return this.getSchemaForType(members[0]);
+                return this.getSchemaForType(single);
             }
         }
 
@@ -611,17 +606,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     produces.push('application/octet-stream');
                 }
 
-                operation.responses[res.status].schema = this.getSchemaForType(res.schema);
+                operation.responses[res.status]!.schema = this.getSchemaForType(res.schema);
             }
 
-            if (
-                res.examples &&
-                res.examples.length > 0
-            ) {
-                const example = res.examples[0];
-                if (example.value) {
-                    operation.responses[res.status].examples = { 'application/json': example.value };
-                }
+            const example = res.examples?.[0];
+            if (example?.value) {
+                operation.responses[res.status]!.examples = { 'application/json': example.value };
             }
         });
 

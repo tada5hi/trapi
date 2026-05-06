@@ -186,7 +186,7 @@ const parameterExtensionHandler = parameter({
 // via `meta.openApi`, consumed by the swagger emitter.
 function numericValidator(kind: NumericKind, format: string): ParameterHandler['apply'] {
     return (_ctx, draft) => {
-        const name = `is${kind[0].toUpperCase()}${kind.slice(1)}`;
+        const name = `is${kind[0]!.toUpperCase()}${kind.slice(1)}`;
         draft.validators[name] = {
             value: kind,
             meta: { openApi: { kind: 'format', format } },

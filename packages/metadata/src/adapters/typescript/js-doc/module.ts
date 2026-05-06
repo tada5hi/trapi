@@ -93,11 +93,11 @@ export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | 
 
 export function getJSDocTagComment(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : undefined | string {
     const tags : JSDocTag[] = getJSDocTags(node, tagName);
-
-    if (!tags || !tags.length || typeof tags[0].comment !== 'string') {
+    const first = tags[0];
+    if (!first || typeof first.comment !== 'string') {
         return undefined;
     }
-    return tags[0].comment;
+    return first.comment;
 }
 
 // -----------------------------------------

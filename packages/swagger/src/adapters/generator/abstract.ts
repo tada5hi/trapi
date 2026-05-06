@@ -294,10 +294,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected buildSchemasForReferenceTypes(extendFn?: (output: Schema, input: ReferenceType) => void) : Record<string, Schema> {
         const output: Record<string, Schema> = {};
 
-        const keys = Object.keys(this.metadata.referenceTypes);
-        for (const key of keys) {
-            const referenceType = this.metadata.referenceTypes[key];
-
+        for (const referenceType of Object.values(this.metadata.referenceTypes)) {
             switch (referenceType.typeName) {
                 case TypeName.REF_ALIAS: {
                     output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
@@ -314,7 +311,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             }
 
             if (typeof extendFn === 'function') {
-                extendFn(output[referenceType.refName], referenceType);
+                extendFn(output[referenceType.refName]!, referenceType);
             }
         }
 

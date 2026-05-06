@@ -55,7 +55,7 @@ import {
     ParameterSourceV3,
 } from '../../../core/schema';
 import type { SpecGeneratorOptionsInput } from '../../../core/config';
-import type { SecurityDefinition, SecurityDefinitions } from '../../../core/types';
+import type { SecurityDefinitions } from '../../../core/types';
 import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
 import {
     normalizePathParameters,
@@ -147,10 +147,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     ) : Record<string, SecurityV3> {
         const output : Record<string, SecurityV3> = {};
 
-        const keys = Object.keys(securityDefinitions);
-        for (const key of keys) {
-            const securityDefinition : SecurityDefinition = securityDefinitions[key];
-
+        for (const [key, securityDefinition] of Object.entries(securityDefinitions)) {
             switch (securityDefinition.type) {
                 case 'http':
                     output[key] = securityDefinition;
@@ -171,16 +168,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const output: Record<string, Path<OperationV3, ParameterV3>> = {};
         const usedOperationIds = new Set<string>();
 
-        for (let i = 0; i < this.metadata.controllers.length; i++) {
-            const controller = this.metadata.controllers[i];
+        for (const controller of this.metadata.controllers) {
             if (controller.hidden) {
                 continue;
             }
 
             const controllerPaths = controller.paths.length === 0 ? [''] : controller.paths;
 
-            for (let j = 0; j < controller.methods.length; j++) {
-                const method = controller.methods[j];
+            for (const method of controller.methods) {
                 if (method.hidden) {
                     continue;
                 }
@@ -196,8 +191,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     );
                     path = normalizePathParameters(path);
 
-                    output[path] = output[path] || {};
-                    output[path][method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
+                    const pathItem = output[path] ?? (output[path] = {});
+                    pathItem[method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
                 }
             }
         }
@@ -268,13 +263,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
-        if (bodyPropParams.length > 0) {
+        const firstBodyProp = bodyPropParams[0];
+        if (firstBodyProp) {
             if (bodyParams.length === 0) {
                 bodyParams.push({
                     in: ParameterSource.BODY,
                     name: 'body',
                     description: '',
-                    parameterName: bodyPropParams[0].parameterName || 'body',
+                    parameterName: firstBodyProp.parameterName || 'body',
                     required: true,
                     type: {
                         typeName: TypeName.NESTED_OBJECT_LITERAL,
@@ -286,9 +282,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 });
             }
 
-            if (isNestedObjectLiteralType(bodyParams[0].type)) {
+            const firstBody = bodyParams[0]!;
+            if (isNestedObjectLiteralType(firstBody.type)) {
                 for (const bodyPropParam of bodyPropParams) {
-                    bodyParams[0].type.properties.push({
+                    firstBody.type.properties.push({
                         default: bodyPropParam.default,
                         validators: bodyPropParam.validators,
                         description: bodyPropParam.description,
@@ -301,8 +298,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
         }
 
-        if (bodyParams.length > 0) {
-            output.requestBody = this.buildRequestBody(bodyParams[0]);
+        const firstBodyParam = bodyParams[0];
+        if (firstBodyParam) {
+            output.requestBody = this.buildRequestBody(firstBodyParam);
         } else if (formParams.length > 0) {
             output.requestBody = this.buildRequestBodyWithFormData(formParams);
         }
@@ -363,7 +361,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         for (const res of input) {
             const name : string = res.status || 'default';
-            output[name] = { description: res.description };
+            const response: ResponseV3 = { description: res.description };
+            output[name] = response;
 
             if (
                 res.schema &&
@@ -371,21 +370,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 !isNeverType(res.schema)
             ) {
                 const examples : Record<string, Example> = {};
-                if (
-                    res.examples &&
-                    res.examples.length > 0
-                ) {
-                    for (let i = 0; i < res.examples.length; i++) {
-                        const label = res.examples[i].label || `example${i + 1}`;
-                        examples[label] = { value: res.examples[i].value };
+                if (res.examples) {
+                    for (const [i, ex] of res.examples.entries()) {
+                        const label = ex.label || `example${i + 1}`;
+                        examples[label] = { value: ex.value };
                     }
                 }
 
-                output[name].content = output[name].content || {};
+                const content = response.content ?? (response.content = {});
 
                 const contentTypes = res.produces || ['application/json'];
                 for (const contentType of contentTypes) {
-                    output[name].content[contentType] = {
+                    content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
                         ...(Object.keys(examples).length > 0 && { examples }),
                     };
@@ -409,7 +405,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     });
                 }
 
-                output[res.name].headers = headers;
+                response.headers = headers;
             }
         }
 
@@ -513,13 +509,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private transformParameterExamples(parameter: Parameter) : Record<string, Example> {
         const output : Record<string, Example> = {};
-        if (
-            parameter.examples &&
-            parameter.examples.length > 0
-        ) {
-            for (let i = 0; i < parameter.examples.length; i++) {
-                const label = parameter.examples[i].label || `example${i + 1}`;
-                output[label] = { value: parameter.examples[i].value };
+        if (parameter.examples) {
+            for (const [i, ex] of parameter.examples.entries()) {
+                const label = ex.label || `example${i + 1}`;
+                output[label] = { value: ex.value };
             }
         }
 
@@ -615,11 +608,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         let nullable = false;
         const enumMembers : Record<string, Array<string | number | boolean>> = {};
-        for (let i = 0; i < type.members.length; i++) {
-            const member = type.members[i];
+        for (const member of type.members) {
             if (isEnumType(member)) {
-                for (let j = 0; j < member.members.length; j++) {
-                    const memberChild = member.members[j];
+                for (const memberChild of member.members) {
                     if (memberChild === null || memberChild === undefined) {
                         nullable = true;
                         continue;
@@ -627,8 +618,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                     const typeOf = typeof memberChild;
                     if (typeOf === 'string' || typeOf === 'number' || typeOf === 'boolean') {
-                        enumMembers[typeOf] = enumMembers[typeOf] || [];
-                        enumMembers[typeOf].push(memberChild);
+                        const bucket = enumMembers[typeOf] ?? (enumMembers[typeOf] = []);
+                        bucket.push(memberChild);
                     }
                 }
             }
@@ -652,7 +643,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (const enumMembersKey of enumMembersKeys) {
             const enumType : EnumType = {
                 typeName: 'enum',
-                members: enumMembers[enumMembersKey],
+                members: enumMembers[enumMembersKey]!,
             };
             schemas.push(this.getSchemaForEnumType(enumType));
         }
@@ -670,7 +661,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             if (schemas.length === 1) {
-                return schemas[0];
+                return schemas[0]!;
             }
 
             const schema: SchemaV3 = { [compositionKey]: schemas };
@@ -682,7 +673,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         // 3.0: use nullable keyword
         if (schemas.length === 1) {
-            const schema = schemas[0];
+            const schema = schemas[0]!;
 
             if (schema.$ref) {
                 return { allOf: [schema], nullable };

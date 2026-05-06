@@ -256,7 +256,8 @@ export class TypeNodeResolver extends ResolverBase {
         if (typeReference.typeName.kind === SyntaxKind.Identifier) {
             if (
                 typeReference.typeName.text === 'Record' &&
-                typeReference.typeArguments
+                typeReference.typeArguments &&
+                typeReference.typeArguments[1]
             ) {
                 return {
                     additionalProperties: this.resolveNestedType(
@@ -287,8 +288,7 @@ export class TypeNodeResolver extends ResolverBase {
 
             if (
                 typeReference.typeName.text === 'Array' &&
-                typeReference.typeArguments &&
-                typeReference.typeArguments.length >= 1
+                typeReference.typeArguments?.[0]
             ) {
                 return {
                     typeName: TypeName.ARRAY,
@@ -302,8 +302,8 @@ export class TypeNodeResolver extends ResolverBase {
 
             if (
                 typeReference.typeName.text === 'Promise' &&
-                typeReference.typeArguments &&
-                typeReference.typeArguments.length === 1
+                typeReference.typeArguments?.length === 1 &&
+                typeReference.typeArguments[0]
             ) {
                 return this.resolveNestedType(
                     typeReference.typeArguments[0],
@@ -316,9 +316,10 @@ export class TypeNodeResolver extends ResolverBase {
                 return { typeName: TypeName.STRING };
             }
 
-            if (this.context[typeReference.typeName.text]) {
+            const contextual = this.context[typeReference.typeName.text];
+            if (contextual) {
                 return this.resolveNestedType(
-                    this.context[typeReference.typeName.text],
+                    contextual,
                     this.parentNode,
                     this.context,
                 );
@@ -967,7 +968,7 @@ export class TypeNodeResolver extends ResolverBase {
 
             const indexSignatureDeclaration = indexMember as IndexSignatureDeclaration;
             const indexType = this.resolveNestedType(
-                indexSignatureDeclaration.parameters[0].type as TypeNode,
+                indexSignatureDeclaration.parameters[0]!.type as TypeNode,
                 this.parentNode,
                 this.context,
             );
@@ -1002,8 +1003,11 @@ export class TypeNodeResolver extends ResolverBase {
                 let resolvedType: TypeNode;
 
                 // Argument may be a forward reference from context
-                if (typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) && context[typeArg.typeName.text]) {
-                    resolvedType = context[typeArg.typeName.text];
+                const contextual = typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) ?
+                    context[typeArg.typeName.text] :
+                    undefined;
+                if (contextual) {
+                    resolvedType = contextual;
                 } else if (typeArg) {
                     resolvedType = typeArg;
                 } else if (typeParameter.default) {

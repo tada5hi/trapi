@@ -154,10 +154,10 @@ export class MethodGenerator {
         let bodyParameterCount = 0;
         let formParameterCount = 0;
 
-        for (let i = 0; i < this.node.parameters.length; i++) {
+        for (const [i, declaration] of this.node.parameters.entries()) {
             try {
                 const generator = new ParameterGenerator(
-                    this.node.parameters[i],
+                    declaration,
                     verb,
                     fullPaths,
                     this.current,
@@ -219,9 +219,8 @@ function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Res
     if (handlerResponses.length === 0) {
         return [defaultResponse];
     }
-    const existing = handlerResponses.findIndex((r) => r.status === defaultResponse.status);
-    if (existing >= 0) {
-        const target = handlerResponses[existing];
+    const target = handlerResponses.find((r) => r.status === defaultResponse.status);
+    if (target) {
         if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
             (!target.examples || target.examples.length === 0)) {
             target.examples = defaultResponse.examples;

@@ -30,11 +30,11 @@ export function getDeclarationValidators(
     const parameterTags = getSupportedParameterTags();
     const tags = getJSDocTags(declaration.parent, (tag) => {
         const { comment } = tag;
-        const text : string = transformJSDocComment(comment);
         if (!comment) {
             return false;
         }
 
+        const text = transformJSDocComment(comment);
         const commentValue = getCommentValue(text);
 
         return parameterTags.some((value) => {
@@ -46,7 +46,7 @@ export function getDeclarationValidators(
         });
     });
 
-    function getErrorMsg(comment?: string, isValue = true) : string {
+    function getErrorMsg(comment?: string, isValue = true) : string | undefined {
         if (!comment) {
             return undefined;
         }
@@ -70,8 +70,11 @@ export function getDeclarationValidators(
 
         const name = tag.tagName.text;
 
-        let comment = transformJSDocComment(tag.comment);
-        comment = comment.substring(comment.indexOf(' ') + 1).trim();
+        const rawComment = transformJSDocComment(tag.comment);
+        if (!rawComment) {
+            continue;
+        }
+        const comment = rawComment.substring(rawComment.indexOf(' ') + 1).trim();
 
         const value = getCommentValue(comment);
 

@@ -72,7 +72,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     private cache : CacheClient;
 
-    private controllers: Controller[];
+    private controllers: Controller[] = [];
 
     private referenceTypes: ReferenceTypes = {};
 

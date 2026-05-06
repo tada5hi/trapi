@@ -57,7 +57,7 @@ export function getJSDocTags(
         (string & {})[] |
         ((tag: JSDocTag) => boolean),
 ) : JSDocTag[] {
-    const jsDoc : JSDoc = getJSDoc(node);
+    const jsDoc = getJSDoc(node);
     if (typeof jsDoc === 'undefined') {
         return [];
     }

@@ -128,6 +128,9 @@ export class MethodGenerator {
         if (!nodeType) {
             const { typeChecker } = this.current;
             const signature = typeChecker.getSignatureFromDeclaration(this.node);
+            if (!signature) {
+                throw new GeneratorError({ message: 'Could not resolve method signature.' });
+            }
             const implicitType = typeChecker.getReturnTypeOfSignature(signature);
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
         }

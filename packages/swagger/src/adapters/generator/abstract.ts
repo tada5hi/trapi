@@ -153,8 +153,11 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected abstract getSchemaForIntersectionType(type: IntersectionType): Schema;
 
     protected getSchemaForEnumType(enumType: EnumType): Schema {
-        const type = this.decideEnumType(enumType.members);
-        const nullable = !!enumType.members.includes(null);
+        const nullable = enumType.members.includes(null);
+        const nonNullMembers = enumType.members.filter(
+            (m): m is string | number | boolean => m !== null,
+        );
+        const type = this.decideEnumType(nonNullMembers);
 
         const schema = {
             type,
@@ -449,11 +452,8 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         const output : Partial<Record<ParameterSource, Parameter[]>> = {};
 
         for (const item of items) {
-            if (typeof output[item.in] === 'undefined') {
-                output[item.in] = [];
-            }
-
-            output[item.in].push(item);
+            const bucket = output[item.in] ?? (output[item.in] = []);
+            bucket.push(item);
         }
 
         return output;

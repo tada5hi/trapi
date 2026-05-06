@@ -221,7 +221,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // one. When the same method is mounted at multiple controller paths the
         // operationIds collide — disambiguate by suffixing _2, _3, ... so the
         // emitted spec stays OpenAPI-valid.
-        const baseOperationId = method.operationId || output.operationId;
+        const baseOperationId = method.operationId || output.operationId!;
         output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
 
         if (method.deprecated) {
@@ -295,7 +295,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                         name: bodyPropParam.name,
                         type: bodyPropParam.type,
                         required: bodyPropParam.required,
-                        deprecated: bodyPropParam.deprecated,
+                        deprecated: bodyPropParam.deprecated ?? false,
                     });
                 }
             }
@@ -317,8 +317,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const properties: Record<string, SchemaV3> = {};
 
         for (const parameter of parameters) {
-            const { schema } = this.buildMediaType(parameter);
-            properties[parameter.name] = schema;
+            properties[parameter.name] = this.buildMediaType(parameter).schema!;
 
             if (parameter.required) {
                 required.push(parameter.name);
@@ -487,8 +486,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const parameterType = this.getSchemaForType(input.type);
+        const schema = parameter.schema!;
         if (parameterType.format) {
-            parameter.schema.format = parameterType.format;
+            schema.format = parameterType.format;
         }
 
         if (parameterType.$ref) {
@@ -497,13 +497,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         if (isAnyType(input.type)) {
-            parameter.schema.type = DataTypeName.STRING;
+            schema.type = DataTypeName.STRING;
         } else {
             if (parameterType.type) {
-                parameter.schema.type = parameterType.type as DataTypeName;
+                schema.type = parameterType.type as DataTypeName;
             }
-            parameter.schema.items = parameterType.items;
-            parameter.schema.enum = parameterType.enum;
+            schema.items = parameterType.items;
+            schema.enum = parameterType.enum;
         }
 
         parameter.examples = this.transformParameterExamples(input);
@@ -527,12 +527,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     private buildServers() : ServerV3[] {
-        const servers = [];
-        for (let i = 0; i < this.config.servers.length; i++) {
-            const url = new URL(this.config.servers[i].url, 'http://localhost:3000/');
+        const servers: ServerV3[] = [];
+        const configured = this.config.servers ?? [];
+        for (const entry of configured) {
+            const url = new URL(entry.url, 'http://localhost:3000/');
             servers.push({
                 url: `${url.protocol}//${url.host}${url.pathname || ''}`,
-                ...(this.config.servers[i].description ? { description: this.config.servers[i].description } : {}),
+                ...(entry.description ? { description: entry.description } : {}),
             });
         }
 
@@ -566,7 +567,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         for (const element of typesUsed) {
-            schema.anyOf.push({
+            schema.anyOf!.push({
                 type: element as `${DataTypeName}`,
                 enum: referenceType.members.filter((e) => typeof e === element),
             });

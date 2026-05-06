@@ -239,7 +239,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // Prefer an explicit operationId from metadata (matches V3 behaviour),
         // then disambiguate across multi-mount controllers (the same method
         // emitted at multiple paths must not share an operationId).
-        const baseOperationId = method.operationId || output.operationId;
+        const baseOperationId = method.operationId || output.operationId!;
         output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
 
         output.description = method.description;
@@ -302,7 +302,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     required.push(bodyPropParam.name);
                 }
 
-                schema.properties[bodyPropParam.name] = bodyProp;
+                schema.properties![bodyPropParam.name] = bodyProp;
             }
 
             if (
@@ -625,28 +625,29 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
         });
 
-        if (operation.consumes.length === 0) {
+        const consumes = operation.consumes!;
+        if (consumes.length === 0) {
             const hasBody = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.BODY || parameter.in === ParameterSource.BODY_PROP);
             if (hasBody) {
-                operation.consumes.push('application/json');
+                consumes.push('application/json');
             }
 
             const hasFormData = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.FORM_DATA);
             if (hasFormData) {
-                operation.consumes.push('multipart/form-data');
+                consumes.push('multipart/form-data');
             }
         }
 
         if (
-            operation.produces.length === 0 &&
+            operation.produces!.length === 0 &&
             produces.length > 0
         ) {
             operation.produces = [...new Set(produces)];
         }
 
-        if (operation.produces.length === 0) {
+        if (operation.produces!.length === 0) {
             operation.produces = ['application/json'];
         }
 

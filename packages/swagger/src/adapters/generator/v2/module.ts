@@ -174,8 +174,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return definitions;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected resolveAdditionalProperties(type: BaseType): SchemaV2 | boolean {
+    protected resolveAdditionalProperties(_type: BaseType): SchemaV2 | boolean {
         return true;
     }
 

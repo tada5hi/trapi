@@ -365,8 +365,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected assignPropertyDefaults(schema: Schema, property: ResolverProperty): void {
+    protected assignPropertyDefaults(_schema: Schema, _property: ResolverProperty): void {
         // No-op by default. V3 overrides to set schema.default = property.default.
     }
 

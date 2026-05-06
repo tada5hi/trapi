@@ -312,7 +312,6 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     // -------------------------------------------------------------------------
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public isExportedNode(_node: Node) {
         return true;
     }

@@ -55,16 +55,15 @@ import {
     namesForMarker,
     tagsForMarker,
 } from '@trapi/core';
-import type { 
-    BufferType, 
-    DateTimeType, 
-    DateType, 
-    Extension, 
-    NestedObjectLiteralType, 
-    RefEnumType, 
-    ReferenceType, 
-    ResolverProperty, 
-    Type, 
+import type {
+    BufferType,
+    DateTimeType,
+    DateType,
+    Extension,
+    NestedObjectLiteralType,
+    ReferenceType,
+    ResolverProperty,
+    Type,
 } from '@trapi/core';
 import { hasDecoratorNamed } from '../../decorator';
 import type { IReferenceTypeRegistry, IResolverContext } from '../../../core/metadata/types';
@@ -460,42 +459,8 @@ export class TypeNodeResolver extends ResolverBase {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static getDesignatedModels<T extends Node>(nodes: T[], _typeName: string): T[] {
         return nodes;
-    }
-
-    private getEnumerateType(typeName: EntityName): RefEnumType | undefined {
-        const enumName = (typeName as Identifier).text;
-        let enumNodes = this.current.nodes.filter(
-            (node) => node.kind === SyntaxKind.EnumDeclaration && (node as any).name.text === enumName,
-        );
-
-        if (!enumNodes.length) {
-            return undefined;
-        }
-
-        enumNodes = TypeNodeResolver.getDesignatedModels(enumNodes, enumName);
-
-        if (enumNodes.length > 1) {
-            throw new ResolverError(`Multiple matching enum found for enum ${enumName}; please make enum names unique.`);
-        }
-
-        const enumDeclaration = enumNodes[0] as EnumDeclaration;
-
-        const isNotUndefined = <T>(item: T): item is Exclude<T, undefined> => item !== undefined;
-
-        const enums = enumDeclaration.members.map(this.current.typeChecker.getConstantValue.bind(this.current.typeChecker)).filter(isNotUndefined);
-        const enumNames = enumDeclaration.members.map((e) => e.name.getText()).filter(isNotUndefined);
-
-        return {
-            typeName: TypeName.REF_ENUM,
-            description: this.getNodeDescription(enumDeclaration),
-            members: enums as string[],
-            memberNames: enumNames,
-            refName: enumName,
-            deprecated: hasJSDocTag(enumDeclaration, JSDocTagName.DEPRECATED),
-        };
     }
 
     private getReferenceType(node: TypeReferenceType): ReferenceType {
@@ -729,39 +694,6 @@ export class TypeNodeResolver extends ResolverBase {
             .replace(new RegExp(`<\\s*([^,]*\\s)*\\s*(${key})(\\s[^,]*)*\\s*,`, 'g'), `<$1${entry.getText()}$3,`)
             .replace(new RegExp(`,\\s*([^>]*\\s)*\\s*(${key})(\\s[^>]*)*\\s*>`, 'g'), `,$1${entry.getText()}$3>`)
             .replace(new RegExp(`<\\s*([^<]*\\s)*\\s*(${key})(\\s[^<]*)*\\s*<`, 'g'), `<$1${entry.getText()}$3<`), name);
-    }
-
-    private handleCachingAndCircularReferences(name: string, declarationResolver: () => ReferenceType): ReferenceType {
-        try {
-            const existingType = this.current.resolverCache.getCachedType(name);
-            if (existingType) {
-                return existingType;
-            }
-
-            if (this.current.resolverCache.isInProgress(name)) {
-                return this.createCircularDependencyResolver(name);
-            }
-
-            this.current.resolverCache.markInProgress(name);
-
-            try {
-                const reference = declarationResolver();
-
-                this.current.resolverCache.setCachedType(name, reference);
-
-                this.current.addReferenceType(reference);
-
-                return reference;
-            } finally {
-                this.current.resolverCache.clearInProgress(name);
-            }
-        } catch (err) {
-            throw new ResolverError(
-                `There was a problem resolving type of '${name}'.`,
-                this.typeNode,
-                { cause: err },
-            );
-        }
     }
 
     private createCircularDependencyResolver(refName: string) {

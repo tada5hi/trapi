@@ -418,7 +418,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return output;
     }
 
-    protected buildOperation(controllerName: string, method: Method): OperationV3 {
+    protected buildOperation(_controllerName: string, method: Method): OperationV3 {
         const operation : OperationV3 = {
             operationId: this.getOperationId(method.name),
             responses: this.buildResponses(method.responses),

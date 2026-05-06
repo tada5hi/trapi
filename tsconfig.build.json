@@ -20,9 +20,7 @@
         "esModuleInterop": true,
 
         "strict": false,
-        "noUncheckedIndexedAccess": false,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false
+        "noUncheckedIndexedAccess": false
     },
     "exclude": [
         "node_modules",

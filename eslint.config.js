@@ -13,6 +13,12 @@ export default [
         rules: {
             'class-methods-use-this': 'off',
             'no-continue': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', {
+                args: 'after-used',
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_',
+            }],
         },
     },
     {

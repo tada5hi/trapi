@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0-beta.4](https://github.com/tada5hi/trapi/compare/core-v2.0.0-beta.3...core-v2.0.0-beta.4) (2026-05-06)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 3 updates ([#820](https://github.com/tada5hi/trapi/issues/820)) ([35b9e59](https://github.com/tada5hi/trapi/commit/35b9e594ef3e48e5c22df350c184ca41862390e2))
+
 ## 2.0.0-beta.3 (2026-05-05)
 
 

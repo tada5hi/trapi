@@ -316,13 +316,12 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         const required: string[] = [];
         const properties: Record<string, SchemaV3> = {};
 
-        const keys = Object.keys(parameters);
-        for (let i = 0; i < parameters.length; i++) {
-            const { schema } = this.buildMediaType(parameters[keys[i]]);
-            properties[parameters[keys[i]].name] = schema;
+        for (const parameter of parameters) {
+            const { schema } = this.buildMediaType(parameter);
+            properties[parameter.name] = schema;
 
-            if (parameters[keys[i]].required) {
-                required.push(parameters[keys[i]].name);
+            if (parameter.required) {
+                required.push(parameter.name);
             }
         }
 

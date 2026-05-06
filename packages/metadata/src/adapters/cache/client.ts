@@ -68,7 +68,7 @@ export class CacheClient implements ICacheClient {
 
         // Opportunistic eviction. Errors are ignored — eviction is a
         // housekeeping concern, not a correctness one.
-        this.evict().catch(() => undefined);
+        this.evict().catch((): void => undefined);
 
         return filePath;
     }
@@ -92,7 +92,7 @@ export class CacheClient implements ICacheClient {
             cache = parseFlatted(content) as CacheData;
         } catch {
             // Corrupt file — drop it so the next save can replace cleanly.
-            await fs.promises.unlink(filePath).catch(() => undefined);
+            await fs.promises.unlink(filePath).catch((): void => undefined);
             return undefined;
         }
 

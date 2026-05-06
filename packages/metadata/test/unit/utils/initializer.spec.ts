@@ -19,6 +19,7 @@ import type {
     CompilerHost,
     CompilerOptions,
     Expression,
+    ModifierLike,
     SourceFile,
 } from 'typescript';
 import { getInitializerValue } from '../../../src/adapters/typescript/initializer';
@@ -55,7 +56,7 @@ function firstClassDecoratorArgument(sf: SourceFile): Expression {
     if (!cls) {
         throw new Error('class not found');
     }
-    const modifiers = cls.modifiers ?? [];
+    const modifiers = cls.modifiers ?? ([] as readonly ModifierLike[]);
     for (const modifier of modifiers) {
         if (modifier.kind !== SyntaxKind.Decorator) {
             continue;

@@ -569,7 +569,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const isNullEnum = enumTypeMember.members.every((member) => member === null);
         if (members.length === 1) {
             if (isNullEnum) {
-                const memberType = this.getSchemaForType(members[0]);
+                const memberType = this.getSchemaForType(members[0]) as SchemaV2;
                 if (memberType.$ref) {
                     return memberType;
                 }

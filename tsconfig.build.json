@@ -19,7 +19,8 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
 
-        "strict": false,
+        "strict": true,
+        "strictNullChecks": false,
         "noUncheckedIndexedAccess": false
     },
     "exclude": [

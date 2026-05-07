@@ -6,12 +6,12 @@
     "bump-patch-for-minor-pre-major": true,
     "packages": {
         "packages/cli": { "component": "cli" },
-        "packages/core": { "component": "core" },
+        "packages/core": { "component": "core", "release-as": "2.0.0" },
         "packages/docs": { "component": "docs" },
-        "packages/metadata": { "component": "metadata" },
+        "packages/metadata": { "component": "metadata", "release-as": "2.0.0" },
         "packages/preset-decorators-express": { "component": "preset-decorators-express" },
         "packages/preset-typescript-rest": { "component": "preset-typescript-rest" },
-        "packages/swagger": { "component": "swagger" }
+        "packages/swagger": { "component": "swagger", "release-as": "2.0.0" }
     },
     "plugins": [
         {
@@ -24,8 +24,7 @@
             "components": [
                 "core",
                 "metadata",
-                "swagger",
-                "cli"
+                "swagger"
             ]
         }
     ],

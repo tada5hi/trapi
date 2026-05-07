@@ -62,4 +62,3 @@ jobs:
                 uses: tada5hi/monoship@v2
                 with:
                     token: ${{ secrets.NPM_TOKEN }}
-                    tag: beta

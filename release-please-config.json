@@ -5,13 +5,13 @@
     "bump-minor-pre-major": true,
     "bump-patch-for-minor-pre-major": true,
     "packages": {
-        "packages/cli": { "component": "cli", "release-as": "0.1.2-beta.3" },
-        "packages/core": { "component": "core", "release-as": "1.0.0-beta.0" },
+        "packages/cli": { "component": "cli" },
+        "packages/core": { "component": "core" },
         "packages/docs": { "component": "docs" },
-        "packages/metadata": { "component": "metadata", "release-as": "2.0.0-beta.4" },
-        "packages/preset-decorators-express": { "component": "preset-decorators-express", "release-as": "0.2.1-beta.4" },
-        "packages/preset-typescript-rest": { "component": "preset-typescript-rest", "release-as": "2.0.1-beta.4" },
-        "packages/swagger": { "component": "swagger", "release-as": "2.0.0-beta.4" }
+        "packages/metadata": { "component": "metadata" },
+        "packages/preset-decorators-express": { "component": "preset-decorators-express" },
+        "packages/preset-typescript-rest": { "component": "preset-typescript-rest" },
+        "packages/swagger": { "component": "swagger" }
     },
     "plugins": [
         {
@@ -24,7 +24,8 @@
             "components": [
                 "core",
                 "metadata",
-                "swagger"
+                "swagger",
+                "cli"
             ]
         }
     ],

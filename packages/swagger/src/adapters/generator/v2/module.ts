@@ -203,7 +203,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 method.consumes = unique([...controller.consumes, ...method.consumes]);
                 method.produces = unique([...controller.produces, ...method.produces]);
                 method.tags = unique([...controller.tags, ...method.tags]);
-                method.security = method.security || controller.security;
+                // Inherit controller security only when the method declared none of its own.
+                // `[]` is truthy, so a plain `||` short-circuits and never cascades.
+                if (!method.security?.length) {
+                    method.security = controller.security;
+                }
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
                 method.deprecated = method.deprecated || controller.deprecated;
@@ -244,7 +248,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         if (method.deprecated) { output.deprecated = method.deprecated; }
         if (method.tags.length) { output.tags = method.tags; }
-        if (method.security) {
+        if (method.security?.length) {
             output.security = method.security;
         }
 
@@ -587,7 +591,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             consumes: method.consumes || [],
             produces: method.produces || [],
             responses: {},
-            security: method.security || [],
         };
 
         const produces : string[] = [];

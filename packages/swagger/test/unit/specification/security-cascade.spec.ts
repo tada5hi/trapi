@@ -21,7 +21,14 @@ import {
 } from '../../helpers/metadata-builder';
 
 describe('controller -> method security cascade (#832)', () => {
-    const securityDefinitions: SecurityDefinitions = { bearerAuth: { type: 'http', scheme: 'basic' } };
+    const securityDefinitions: SecurityDefinitions = {
+        bearerAuth: { type: 'http', scheme: 'basic' },
+        apiKey: {
+            type: 'apiKey', 
+            name: 'X-API-Key', 
+            in: 'header', 
+        },
+    };
 
     describe('controller has security, method has none', () => {
         let specV2: SpecV2;

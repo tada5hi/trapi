@@ -53,7 +53,7 @@ export function defineCLIInfoCommand() {
                 logger.section('Config');
                 const cfgPad = 'entries'.length;
                 logger.kv('file', loaded.path ?? '<none>', cfgPad);
-                logger.kv('entries', String(loaded.entries.length || '<flag-only>'), cfgPad);
+                logger.kv('entries', String(loaded.entries.length), cfgPad);
 
                 logger.section('Dependencies');
                 const depPad = Math.max(...DEPENDENCIES.map((name) => name.length));

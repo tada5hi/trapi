@@ -156,10 +156,13 @@ export type GenerateResult = {
     output: { path: string };
 };
 
-export async function runGenerate(
-    args: GenerateArgs,
-    logger = createLogger(),
-): Promise<GenerateResult[]> {
+export type ResolvedTargets = {
+    cwd: string;
+    configPath?: string;
+    targets: ResolvedTarget[];
+};
+
+export async function resolveTargets(args: GenerateArgs): Promise<ResolvedTargets> {
     const flags = parseFlags(args);
     const cwd = flags.cwd ?? process.cwd();
 
@@ -169,20 +172,32 @@ export async function runGenerate(
         disabled: args['no-config'] === true,
     });
 
-    if (loaded.path) {
-        logger.debug(`loaded config from ${loaded.path}`);
+    const entries: TrapiConfigEntry[] = loaded.entries.length > 0 ? loaded.entries : [{}];
+    const fallbackCwd = defaultConfigCwd(loaded, cwd);
+    const targets = entries.map((entry) => resolveEntry(entry, flags, fallbackCwd));
+
+    return {
+        cwd, 
+        configPath: loaded.path, 
+        targets, 
+    };
+}
+
+export async function runGenerate(
+    args: GenerateArgs,
+    logger = createLogger(),
+): Promise<GenerateResult[]> {
+    const resolved = await resolveTargets(args);
+
+    if (resolved.configPath) {
+        logger.debug(`loaded config from ${resolved.configPath}`);
     } else {
         logger.debug('no config file found; using CLI flags only');
     }
-
-    const entries: TrapiConfigEntry[] = loaded.entries.length > 0 ? loaded.entries : [{}];
-    const fallbackCwd = defaultConfigCwd(loaded);
-
-    const targets = entries.map((entry) => resolveEntry(entry, flags, fallbackCwd));
-    logger.debug(`resolved ${targets.length} target(s)`);
+    logger.debug(`resolved ${resolved.targets.length} target(s)`);
 
     const start = Date.now();
-    const results = await runTargets(targets, logger);
+    const results = await runTargets(resolved.targets, logger);
     logger.success(`done in ${Date.now() - start}ms`);
     return results;
 }
@@ -234,29 +249,39 @@ type MetadataGroup = {
 function groupByMetadataSignature(targets: ResolvedTarget[]): MetadataGroup[] {
     const groups = new Map<string, MetadataGroup>();
 
-    for (const target of targets) {
-        const key = signatureFor(target.metadata);
+    targets.forEach((target, index) => {
+        const key = signatureFor(target.metadata, index);
         const existing = groups.get(key);
         if (existing) {
             existing.targets.push(target);
         } else {
             groups.set(key, { metadataOptions: target.metadata, targets: [target] });
         }
-    }
+    });
 
     return [...groups.values()];
 }
 
-function signatureFor(opts: MetadataGenerateOptions): string {
+// Inline preset/tsconfig/registry values cannot be compared structurally — two
+// targets with different inline objects would otherwise hash to the same key
+// and one would silently inherit the other's metadata. Fall back to a
+// per-target unique signature so each runs through generateMetadata
+// independently.
+function signatureFor(opts: MetadataGenerateOptions, index: number): string {
+    const presetInline = opts.preset !== undefined && typeof opts.preset !== 'string';
+    const tsconfigInline = opts.tsconfig !== undefined && typeof opts.tsconfig !== 'string';
+    if (presetInline || tsconfigInline || opts.registry) {
+        return `inline:${index}`;
+    }
+
     return JSON.stringify({
         entryPoint: opts.entryPoint,
-        preset: typeof opts.preset === 'string' ? opts.preset : '<inline-preset>',
-        tsconfig: typeof opts.tsconfig === 'string' ? opts.tsconfig : '<inline-tsconfig>',
+        preset: opts.preset ?? null,
+        tsconfig: opts.tsconfig ?? null,
         ignore: opts.ignore ?? null,
         allow: opts.allow ?? null,
         cache: opts.cache ?? null,
         strict: opts.strict ?? null,
-        registry: opts.registry ? '<inline-registry>' : null,
     });
 }
 

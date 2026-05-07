@@ -10,10 +10,11 @@ import path from 'node:path';
 import fsp from 'node:fs/promises';
 import { defineCommand } from 'citty';
 import { watch as chokidarWatch } from 'chokidar';
+import type { EntryPoint, EntryPointOptions } from '@trapi/metadata';
 import { createLogger, normalizeLogLevel } from '../logger.ts';
 import { runWithExitCode } from '../exit.ts';
-import { loadConfig } from '../config';
-import { GENERATE_ARGS, runGenerate } from './generate.ts';
+import type { ResolvedTargets } from './generate.ts';
+import { GENERATE_ARGS, resolveTargets, runGenerate } from './generate.ts';
 
 const DEBOUNCE_MS = 200;
 
@@ -36,14 +37,9 @@ export function defineCLIWatchCommand() {
         async run({ args }) {
             const logger = createLogger(normalizeLogLevel(args['log-level'] as string | undefined));
             await runWithExitCode(logger, async () => {
-                const cwd = (args.cwd as string | undefined) ?? process.cwd();
-                const loaded = await loadConfig({
-                    cwd,
-                    configPath: typeof args.config === 'string' ? args.config : undefined,
-                    disabled: args['no-config'] === true,
-                });
+                const resolved = await resolveTargets(args);
+                const watchRoots = await collectWatchRoots(resolved);
 
-                const watchRoots = await collectWatchRoots(cwd, loaded.path);
                 logger.info(`watching ${watchRoots.length} root(s) — press Ctrl+C to exit`);
                 for (const root of watchRoots) {
                     logger.debug(`watch root: ${root}`);
@@ -53,7 +49,11 @@ export function defineCLIWatchCommand() {
                 // so we don't loop on our own writes.
                 const knownOutputs = new Set<string>();
 
+                let running = false;
+                let pending = false;
+
                 const runOnce = async () => {
+                    running = true;
                     if (args.clear === true) {
                         process.stdout.write('\x1Bc');
                     }
@@ -65,11 +65,21 @@ export function defineCLIWatchCommand() {
                         }
                     } catch (err) {
                         logger.error(err instanceof Error ? err.message : String(err));
+                    } finally {
+                        running = false;
+                        if (pending) {
+                            pending = false;
+                            void runOnce();
+                        }
                     }
                 };
 
                 let timer: NodeJS.Timeout | undefined;
                 const schedule = () => {
+                    if (running) {
+                        pending = true;
+                        return;
+                    }
                     if (timer) {
                         clearTimeout(timer);
                     }
@@ -110,12 +120,16 @@ export function defineCLIWatchCommand() {
     });
 }
 
-async function collectWatchRoots(cwd: string, configPath: string | undefined): Promise<string[]> {
+async function collectWatchRoots(resolved: ResolvedTargets): Promise<string[]> {
     const candidates = new Set<string>();
 
-    candidates.add(path.resolve(cwd, 'src'));
-    if (configPath) {
-        candidates.add(path.dirname(configPath));
+    for (const target of resolved.targets) {
+        for (const root of entryPointRoots(target.metadata.entryPoint, resolved.cwd)) {
+            candidates.add(root);
+        }
+    }
+    if (resolved.configPath) {
+        candidates.add(path.dirname(resolved.configPath));
     }
 
     const valid: string[] = [];
@@ -131,7 +145,37 @@ async function collectWatchRoots(cwd: string, configPath: string | undefined): P
     }
 
     if (valid.length === 0) {
-        valid.push(cwd);
+        valid.push(resolved.cwd);
     }
     return valid;
+}
+
+function entryPointRoots(entryPoint: EntryPoint, cwd: string): string[] {
+    const roots: string[] = [];
+    const visit = (value: string | EntryPointOptions, baseCwd: string) => {
+        if (typeof value === 'string') {
+            roots.push(globRoot(value, baseCwd));
+            return;
+        }
+        roots.push(globRoot(value.pattern, value.cwd ?? baseCwd));
+    };
+
+    if (Array.isArray(entryPoint)) {
+        for (const item of entryPoint) {
+            visit(item, cwd);
+        }
+    } else {
+        visit(entryPoint, cwd);
+    }
+    return roots;
+}
+
+// Strip the trailing glob portion of a pattern so chokidar can watch the
+// largest concrete directory (e.g. `src/api/**/*.ts` → `<cwd>/src/api`).
+function globRoot(pattern: string, cwd: string): string {
+    const meta = pattern.search(/[*?{[]/);
+    const staticPrefix = meta === -1 ? pattern : pattern.slice(0, meta);
+    const dir = meta === -1 ? path.dirname(staticPrefix) : staticPrefix;
+    const trimmed = dir.replace(/[\\/]+$/, '');
+    return path.isAbsolute(trimmed) ? trimmed : path.resolve(cwd, trimmed || '.');
 }

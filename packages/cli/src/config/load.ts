@@ -7,7 +7,6 @@
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import process from 'node:process';
 import {
     buildFilePath,
     isObject,
@@ -129,9 +128,9 @@ function assertEntry(value: unknown, where: string): void {
     }
 }
 
-export function defaultConfigCwd(loaded: LoadedConfig): string {
+export function defaultConfigCwd(loaded: LoadedConfig, fallbackCwd: string): string {
     if (loaded.path) {
         return path.dirname(loaded.path);
     }
-    return process.cwd();
+    return fallbackCwd;
 }

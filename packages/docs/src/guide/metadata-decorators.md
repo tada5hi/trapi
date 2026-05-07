@@ -22,7 +22,7 @@ Other concepts (HTTP verbs, parameter sources, content types) are conveyed direc
 A handler matches by name and contributes to a draft:
 
 ```typescript
-import { ParamKind, controller, method, parameter } from '@trapi/metadata';
+import { ParamKind, controller, method, parameter } from '@trapi/core';
 
 const controllerControllerHandler = controller({
     match: { name: 'Controller', on: 'class' },
@@ -90,7 +90,7 @@ Decorator handlers always run before JSDoc handlers on the same node — JSDoc a
 For routine cases, prebuilt helpers cut boilerplate:
 
 ```typescript
-import { append, controller, flag, into, method } from '@trapi/metadata';
+import { append, controller, flag, into, method } from '@trapi/core';
 
 method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
 method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });

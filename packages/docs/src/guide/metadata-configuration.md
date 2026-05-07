@@ -9,6 +9,11 @@ import type {
     CacheOptions,
     TsConfig,
 } from '@trapi/metadata';
+import type {
+    Preset,
+    Registry,
+    UnmatchedDecoratorReport,
+} from '@trapi/core';
 
 export type EntryPointOptions = {
     cwd: string;
@@ -21,14 +26,17 @@ export type EntryPoint =
     | EntryPointOptions
     | EntryPointOptions[];
 
-export interface MetadataGenerateOptions {
+export type MetadataGenerateOptions = {
     entryPoint: EntryPoint;
     ignore?: string[];
     allow?: string[];
     cache?: string | boolean | Partial<CacheOptions>;
-    preset?: string;
+    preset?: string | Preset;
+    registry?: Registry;
+    strict?: boolean | 'throw';
+    onUnmatchedDecorator?: (reports: UnmatchedDecoratorReport[]) => void;
     tsconfig?: string | TsConfig;
-}
+};
 ```
 
 ### entryPoint
@@ -74,15 +82,55 @@ cache: { enabled: true, directoryPath: '.cache/trapi' }  // full options object
 
 ### preset
 
-Name of a published preset package. Loaded dynamically via `import()` and validated against the v2 `Preset` schema before use.
+Decorator preset to load. Either a published preset name or an inline `Preset` object.
 
 ```typescript
-preset: '@trapi/preset-decorators-express'
+preset: '@trapi/preset-decorators-express'         // by name (npm / relative path / `module:` specifier)
+preset: { name: 'my-app/preset', controllers: [...] }   // inline (still walked through `loadRegistry`)
 ```
 
 `generateMetadata` resolves the package, looks for a named export `preset` (then the default export, then the module itself), validates the shape, and materialises a `Registry` of handlers via `loadRegistry`. `extends` chains in the resolved preset are loaded recursively through the same lookup.
 
 To author your own preset see [Custom Presets](/guide/advanced-custom-presets).
+
+### registry
+
+An already-resolved decorator `Registry`. Use this for one-off custom handlers without authoring a full `Preset`.
+
+```typescript
+import { createRegistry, method } from '@trapi/core';
+
+registry: createRegistry({
+    methods: [
+        method({ match: { name: 'Get', on: 'method' }, apply: (_ctx, draft) => { draft.verb = 'get'; } }),
+    ],
+})
+```
+
+If both `preset` and `registry` are provided they merge: the preset-derived registry comes first, the inline `registry` is appended after, so inline handlers run last (winning on scalar mutations like `into('path')`, additively contributing on `append`-style fields). Inline `registry` handlers cannot carry `replaces` semantics — those are enforced at preset-load time.
+
+### strict
+
+Surface decorators that don't match any registered handler — useful for catching typos (`@Hiden` vs `@Hidden`) or unwired decorators in custom presets.
+
+```typescript
+strict: true        // emit a single console.warn at the end of generation
+strict: 'throw'     // throw GeneratorError instead — useful as a CI gate
+```
+
+JSDoc tags are not included in strict-mode reporting (standard documentation tags like `@param`, `@returns`, … would generate excessive noise).
+
+### onUnmatchedDecorator
+
+Replace the default `console.warn` / `throw` behaviour of `strict` with a callback. Setting this implicitly enables collection — you don't also need `strict`.
+
+```typescript
+onUnmatchedDecorator: (reports) => {
+    for (const r of reports) {
+        console.error(`unmatched @${r.name} on ${r.host.name} (${r.file}:${r.line})`);
+    }
+}
+```
 
 ### tsconfig
 

@@ -43,7 +43,7 @@ In 2.0, custom mappings are authored as a `Preset` and passed through `preset`. 
 ```typescript
 // 2.0 — author a preset module
 // my-preset.ts
-import { type Preset, controller, method } from '@trapi/metadata';
+import { type Preset, controller, method } from '@trapi/core';
 
 const preset: Preset = {
     name: 'my-app/preset',
@@ -209,7 +209,7 @@ await saveSwagger(spec, { cwd: './docs', name: 'openapi', format: 'json' });
 
 ### 8. New: strict-mode warnings (opt-in)
 
-`generateMetadata({ strict: true })` warns about decorators that don't match any registered handler. Useful for catching typos (`@Hiden` instead of `@Hidden`) or unwired decorators in custom presets. Output goes to `console.warn` once at the end of generation.
+`generateMetadata({ strict: true })` warns about decorators that don't match any registered handler. Useful for catching typos (`@Hiden` instead of `@Hidden`) or unwired decorators in custom presets. Output goes to `console.warn` once at the end of generation. Pass `strict: 'throw'` to throw a `GeneratorError` instead — useful as a CI gate. For full control, pass an `onUnmatchedDecorator(reports)` callback to replace the default warn/throw behaviour.
 
 ### 9. New: loud failure on missing preset
 

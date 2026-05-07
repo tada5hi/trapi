@@ -50,7 +50,7 @@ import {
     controller,
     method,
     parameter,
-} from '@trapi/metadata';
+} from '@trapi/core';
 
 const preset: Preset = {
     name: 'my-app/preset',

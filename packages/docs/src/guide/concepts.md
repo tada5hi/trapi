@@ -13,7 +13,7 @@ Because decorator *names* differ from framework to framework, TRAPI normalises t
 A **handler** is a function that matches against a decorator name (or JSDoc tag) and contributes to a draft. The orchestrator walks each TS node, dispatches its decorators to all matching handlers in the registry, and finalises the draft into a `Controller` / `Method` / `Parameter`.
 
 ```typescript
-import { ParamKind, parameter } from '@trapi/metadata';
+import { ParamKind, parameter } from '@trapi/core';
 
 const bodyHandler = parameter({
     match: { name: 'Body', on: 'parameter' },

@@ -182,7 +182,7 @@ Decorator handlers run before JSDoc handlers on the same node, so JSDoc acts as 
         }
     },
     "peerDependencies": {
-        "@trapi/core": "^1.0.0-beta.1"
+        "@trapi/core": "^2.0.0"
     }
 }
 ```

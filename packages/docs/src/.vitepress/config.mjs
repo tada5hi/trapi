@@ -76,6 +76,7 @@ export default defineConfig({
                     items: [
                         { text: 'Supported TypeScript Types', link: '/guide/advanced-type-support' },
                         { text: 'Custom Presets', link: '/guide/advanced-custom-presets' },
+                        { text: 'Handler Reference', link: '/guide/advanced-handler-reference' },
                     ]
                 },
                 {

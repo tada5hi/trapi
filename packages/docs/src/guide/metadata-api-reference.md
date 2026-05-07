@@ -347,7 +347,7 @@ try {
 Every `Type` variant has a guard: `isStringType`, `isArrayType`, `isObjectType`, `isRefObjectType`, and so on. They narrow `Type` to the specific variant.
 
 ```typescript
-import { isRefObjectType } from '@trapi/metadata';
+import { isRefObjectType } from '@trapi/core';
 
 if (isRefObjectType(parameter.type)) {
     const schemaName = parameter.type.refName;
@@ -361,7 +361,7 @@ if (isRefObjectType(parameter.type)) {
 Save boilerplate when a handler just copies one argument into a draft field:
 
 ```typescript
-import { append, controller, flag, into, method } from '@trapi/metadata';
+import { append, controller, flag, into, method } from '@trapi/core';
 
 method({ match: { name: 'Path', on: 'method' }, apply: into('path').positional(0) });
 method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positionalAll() });

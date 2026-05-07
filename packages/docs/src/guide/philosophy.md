@@ -14,7 +14,7 @@ TRAPI does not force you to adopt a specific decorator library. Instead, you def
 
 ```typescript
 // Example: a preset mapping a custom decorator library to TRAPI's metadata model
-import { type Preset, controller, method, parameter, ParamKind } from '@trapi/metadata';
+import { type Preset, controller, method, parameter, ParamKind } from '@trapi/core';
 
 const preset: Preset = {
     name: 'my-app/preset',

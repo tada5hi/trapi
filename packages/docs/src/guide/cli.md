@@ -95,7 +95,7 @@ export default defineConfig([
 
 ## Commands
 
-### `trapi generate`
+### generate
 
 Generate an OpenAPI / Swagger specification from decorated TypeScript sources.
 
@@ -127,7 +127,7 @@ trapi generate [OPTIONS]
 
 Run `trapi generate --help` to render the same list against the installed version.
 
-### `trapi watch`
+### watch
 
 Re-run `generate` whenever source files or the config change. Accepts the same flags as `trapi generate`, plus `--clear` to reset the console between runs.
 
@@ -137,25 +137,31 @@ trapi watch --entry-point 'src/**/*.ts' --preset @trapi/preset-decorators-expres
 
 The watcher uses [chokidar](https://github.com/paulmillr/chokidar) — atomic writes from editors are handled, and the CLI's own output files are excluded from triggering re-runs.
 
-### `trapi info`
+### info
 
 Print version + environment diagnostics for bug reports.
 
-```bash
+```text
 $ trapi info
-trapi 0.2.0
-node v22.21.1
-platform darwin arm64
-cwd /path/to/project
-config /path/to/project/trapi.config.ts
-entries 1
-@trapi/core 2.0.0
-@trapi/metadata 2.0.0
-@trapi/swagger 2.0.0
-typescript 5.5.4
+ℹ trapi v0.2.0
+
+Environment
+  node      v22.21.1
+  platform  darwin arm64
+  cwd       /path/to/project
+
+Config
+  file     /path/to/project/trapi.config.ts
+  entries  1
+
+Dependencies
+  @trapi/core      2.0.0
+  @trapi/metadata  2.0.0
+  @trapi/swagger   2.0.0
+  typescript       5.5.4
 ```
 
-### `trapi cache clean`
+### cache clean
 
 Delete cached metadata files (`.trapi-metadata-*.json`). The metadata cache evicts files older than `maxAgeMs` automatically after each successful run; this command is for manual cleanup when you want to force a cold rebuild.
 

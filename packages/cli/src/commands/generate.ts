@@ -99,7 +99,7 @@ export const GENERATE_ARGS = {
         description: 'JSON string of security scheme definitions (matches SwaggerGenerateData.securityDefinitions).',
         valueHint: '{"bearer":{"type":"apiKey",...}}',
     },
-    name: {
+    'api-name': {
         type: 'string',
         description: 'API name written into the spec info object.',
     },
@@ -107,7 +107,7 @@ export const GENERATE_ARGS = {
         type: 'string',
         description: 'API version written into the spec info object.',
     },
-    description: {
+    'api-description': {
         type: 'string',
         description: 'API description written into the spec info object.',
     },
@@ -279,9 +279,9 @@ function parseFlags(args: GenerateArgs): GenerateFlags {
         output: typeof args.output === 'string' ? args.output : undefined,
         format: typeof args.format === 'string' ? (args.format as `${DocumentFormat}`) : undefined,
         version,
-        name: typeof args.name === 'string' ? args.name : undefined,
+        name: typeof args['api-name'] === 'string' ? (args['api-name'] as string) : undefined,
         apiVersion: typeof args['api-version'] === 'string' ? (args['api-version'] as string) : undefined,
-        description: typeof args.description === 'string' ? args.description : undefined,
+        description: typeof args['api-description'] === 'string' ? (args['api-description'] as string) : undefined,
         servers: splitCsv(typeof args.servers === 'string' ? args.servers : undefined),
         securityDefinitions: parseSecurityDefinitions(
             typeof args['security-definitions'] === 'string' ? (args['security-definitions'] as string) : undefined,

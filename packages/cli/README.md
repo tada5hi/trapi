@@ -137,9 +137,9 @@ trapi generate [OPTIONS]
 | `--output` | Output file path. The extension picks the format unless `--format` is set. | `swagger.json` |
 | `--format` | Output document format (`json` \| `yaml`). | inferred from `--output` |
 | `--version` | OpenAPI specification version (`v2` \| `v3` \| `v3.1` \| `v3.2`). The leading `v` is optional. | `v3` |
-| `--name` | API name written into the spec `info` object. | _package.json_ |
+| `--api-name` | API name written into the spec `info` object. | _package.json_ |
 | `--api-version` | API version written into the spec `info` object. | _package.json_ |
-| `--description` | API description written into the spec `info` object. | _package.json_ |
+| `--api-description` | API description written into the spec `info` object. | _package.json_ |
 | `--servers` | Comma-separated server URLs written into `spec.servers`. | _config_ |
 | `--security-definitions` | JSON string of security scheme definitions. | _config_ |
 | `--cwd` | Working directory. Relative paths in config + flags are resolved against it. | `process.cwd()` |

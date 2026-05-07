@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './generate.ts';
-export * from './info.ts';
-export * from './cache.ts';
-export * from './watch.ts';
+export * from './types.ts';
+export * from './define.ts';
+export * from './load.ts';
+export * from './merge.ts';

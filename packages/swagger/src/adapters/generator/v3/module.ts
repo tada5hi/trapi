@@ -184,6 +184,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 // controller deprecation to every emitted operation.
                 method.deprecated = method.deprecated || controller.deprecated;
 
+                // Inherit controller security only when the method declared none of its own.
+                // OpenAPI 3.x: an operation's `security: []` explicitly removes any inherited
+                // requirement, so we must omit the field when the method has no security
+                // rather than emitting an empty array.
+                if (!method.security?.length) {
+                    method.security = controller.security;
+                }
+
                 for (const controllerPath of controllerPaths) {
                     let path = removeFinalCharacter(
                         removeDuplicateSlashes(`/${controllerPath}/${method.path}`),
@@ -223,7 +231,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             output.deprecated = method.deprecated;
         }
 
-        if (method.security) {
+        if (method.security?.length) {
             output.security = method.security as any[];
         }
 
@@ -420,7 +428,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         if (method.description) {
             operation.description = method.description;
         }
-        if (method.security) {
+        if (method.security?.length) {
             operation.security = method.security;
         }
         if (method.deprecated) {

@@ -7,3 +7,13 @@
 
 export * from './commands';
 export * from './module.ts';
+export * from './config';
+export {
+    LogLevel,
+    LOG_LEVEL_VALUES,
+    createLogger,
+    normalizeLogLevel,
+    CLIUserError,
+} from './logger.ts';
+export type { Logger } from './logger.ts';
+export { ExitCode, runWithExitCode } from './exit.ts';

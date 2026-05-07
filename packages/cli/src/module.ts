@@ -7,7 +7,12 @@
 
 import { defineCommand } from 'citty';
 import { readPackageJson } from './utils.ts';
-import { defineCLIGenerateCommand } from './commands';
+import {
+    defineCLICacheCommand,
+    defineCLIGenerateCommand,
+    defineCLIInfoCommand,
+    defineCLIWatchCommand,
+} from './commands';
 
 export async function createCLIEntryPointCommand() {
     const pkg = await readPackageJson();
@@ -18,6 +23,11 @@ export async function createCLIEntryPointCommand() {
             version: pkg.version ?? '0.0.0',
             description: pkg.description ?? 'CLI for the trapi metadata + swagger pipeline.',
         },
-        subCommands: { generate: defineCLIGenerateCommand() },
+        subCommands: {
+            generate: defineCLIGenerateCommand(),
+            watch: defineCLIWatchCommand(),
+            info: defineCLIInfoCommand(),
+            cache: defineCLICacheCommand(),
+        },
     });
 }

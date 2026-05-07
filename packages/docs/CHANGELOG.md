@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/tada5hi/trapi/compare/docs-v3.0.0...docs-v3.1.0) (2026-05-07)
+
+
+### Features
+
+* **cli:** config file, subcommands, and styled output ([#827](https://github.com/tada5hi/trapi/issues/827)) ([4b9b595](https://github.com/tada5hi/trapi/commit/4b9b595179ccfa580ccdc41cbff6705cff9948c3))
+
 ## [3.0.0](https://github.com/tada5hi/trapi/compare/docs-v2.1.0...docs-v3.0.0) (2026-05-05)
 
 

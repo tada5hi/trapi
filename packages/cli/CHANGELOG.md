@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2-beta.3](https://github.com/tada5hi/trapi/compare/cli-v0.1.2-beta.2...cli-v0.1.2-beta.3) (2026-05-07)
+
+
+### Features
+
+* **cli:** config file, subcommands, and styled output ([#827](https://github.com/tada5hi/trapi/issues/827)) ([4b9b595](https://github.com/tada5hi/trapi/commit/4b9b595179ccfa580ccdc41cbff6705cff9948c3))
+
 ## [0.1.2-beta.2](https://github.com/tada5hi/trapi/compare/cli-v0.1.1-beta.2...cli-v0.1.2-beta.2) (2026-05-06)
 
 

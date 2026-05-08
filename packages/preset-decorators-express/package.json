@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-decorators-express",
-    "version": "0.2.1-beta.3",
+    "version": "0.2.2-beta.3",
     "description": "Preset for @decorators/express library.",
     "type": "module",
     "main": "dist/index.mjs",
@@ -33,10 +33,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "@trapi/core": "2.0.0-beta.4"
+        "@trapi/core": "2.0.0"
     },
     "peerDependencies": {
-        "@trapi/core": "2.0.0-beta.4"
+        "@trapi/core": "2.0.0"
     },
     "scripts": {
         "build": "npm run build:js && npm run build:types",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.1](https://github.com/tada5hi/trapi/compare/docs-v3.1.0...docs-v3.1.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 2 updates ([#829](https://github.com/tada5hi/trapi/issues/829)) ([90faaa3](https://github.com/tada5hi/trapi/commit/90faaa343771f900586fa892a956bf7e1d35f1d8))
+
 ## [3.1.0](https://github.com/tada5hi/trapi/compare/docs-v3.0.0...docs-v3.1.0) (2026-05-07)
 
 

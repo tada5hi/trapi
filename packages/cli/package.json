@@ -1,6 +1,6 @@
 {
     "name": "@trapi/cli",
-    "version": "0.1.2-beta.3",
+    "version": "2.0.0",
     "description": "CLI for generating REST-API metadata and OpenAPI / Swagger specifications.",
     "type": "module",
     "main": "dist/index.mjs",
@@ -51,8 +51,8 @@
         "test:coverage": "vitest --config ./test/vitest.config.ts --run --coverage"
     },
     "dependencies": {
-        "@trapi/metadata": "^2.0.0-beta.4",
-        "@trapi/swagger": "^2.0.0-beta.4",
+        "@trapi/metadata": "^2.0.0",
+        "@trapi/swagger": "^2.0.0",
         "chokidar": "^5.0.0",
         "citty": "^0.2.2",
         "locter": "^2.1.6"

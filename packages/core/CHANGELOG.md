@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0](https://github.com/tada5hi/trapi/compare/core-v2.0.0-beta.4...core-v2.0.0) (2026-05-08)
+
+
+### Miscellaneous Chores
+
+* **core:** Synchronize main versions
+
 ## [2.0.0-beta.4](https://github.com/tada5hi/trapi/compare/core-v2.0.0-beta.3...core-v2.0.0-beta.4) (2026-05-06)
 
 

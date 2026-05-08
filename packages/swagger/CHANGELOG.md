@@ -178,6 +178,21 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.0](https://github.com/tada5hi/trapi/compare/swagger-v2.0.0-beta.4...swagger-v2.0.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* **swagger:** cascade controller security to operations without their own ([#833](https://github.com/tada5hi/trapi/issues/833)) ([49aa1a2](https://github.com/tada5hi/trapi/commit/49aa1a22e1e412a681ea2edff9d5b1ce265998bd))
+* **swagger:** emit "/" for root path instead of empty string ([#836](https://github.com/tada5hi/trapi/issues/836)) ([ac0ce6f](https://github.com/tada5hi/trapi/commit/ac0ce6f822578df95a3fbbbff8eaa3d78e4199f9))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.0-beta.4 to 2.0.0
+
 ## [2.0.0-beta.4](https://github.com/tada5hi/trapi/compare/swagger-v2.0.0-beta.3...swagger-v2.0.0-beta.4) (2026-05-06)
 
 

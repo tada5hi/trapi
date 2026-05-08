@@ -24,7 +24,8 @@
             "components": [
                 "core",
                 "metadata",
-                "swagger"
+                "swagger",
+                "cli"
             ]
         }
     ],

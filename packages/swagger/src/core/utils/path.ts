@@ -18,3 +18,18 @@ export function normalizePathParameters(str: string) : string {
 
     return str;
 }
+
+// OpenAPI 3.x §4.8.8 requires every `paths` key to start with `/`. Joining a
+// controller path with a method path naively (template literal + slash
+// stripping) collapses the root combination — `''` + `'/'`, `'/'` + `''`,
+// `'/'` + `'/'` — to an empty string, which strict validators reject.
+export function joinPaths(...segments: string[]): string {
+    let result = segments.join('/').replace(/\/{2,}/g, '/');
+    if (!result.startsWith('/')) {
+        result = `/${result}`;
+    }
+    if (result.length > 1 && result.endsWith('/')) {
+        result = result.slice(0, -1);
+    }
+    return result;
+}

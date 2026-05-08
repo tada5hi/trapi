@@ -58,9 +58,8 @@ import type { SpecGeneratorOptionsInput } from '../../../core/config';
 import type { SecurityDefinitions } from '../../../core/types';
 import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
 import {
+    joinPaths,
     normalizePathParameters,
-    removeDuplicateSlashes,
-    removeFinalCharacter,
 } from '../../../core/utils';
 import { AbstractSpecGenerator } from '../abstract';
 import type { Version } from '../../../core/constants';
@@ -193,11 +192,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 }
 
                 for (const controllerPath of controllerPaths) {
-                    let path = removeFinalCharacter(
-                        removeDuplicateSlashes(`/${controllerPath}/${method.path}`),
-                        '/',
-                    );
-                    path = normalizePathParameters(path);
+                    const path = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[path] ?? (output[path] = {});
                     pathItem[method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);

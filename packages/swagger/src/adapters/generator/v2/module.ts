@@ -28,7 +28,6 @@ import {
     isUndefinedType,
     isVoidType,
 } from '@trapi/core';
-import path from 'node:path';
 import { URL } from 'node:url';
 import { merge } from 'smob';
 
@@ -45,7 +44,7 @@ import type {
 import { DataTypeName, ParameterSourceV2 } from '../../../core/schema';
 import type { SecurityDefinitions } from '../../../core/types';
 import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
-import { normalizePathParameters } from '../../../core/utils';
+import { joinPaths, normalizePathParameters } from '../../../core/utils';
 import { AbstractSpecGenerator } from '../abstract';
 
 function uniqueOperationId(base: string, used: Set<string>): string {
@@ -215,8 +214,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 method.responses = unique([...controller.responses, ...method.responses]);
 
                 for (const controllerPath of controllerPaths) {
-                    let fullPath = path.posix.join('/', controllerPath, method.path);
-                    fullPath = normalizePathParameters(fullPath);
+                    const fullPath = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[fullPath] ?? (output[fullPath] = {});
                     pathItem[method.method] = this.buildMethod(method, fullPath, usedOperationIds);

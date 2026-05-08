@@ -6,7 +6,7 @@
  */
 
 export function removeDuplicateSlashes(str: string) : string {
-    return str.replace('/([^:]$)/+/g', '$1');
+    return str.replace(/\/{2,}/g, '/');
 }
 
 export function removeFinalCharacter(

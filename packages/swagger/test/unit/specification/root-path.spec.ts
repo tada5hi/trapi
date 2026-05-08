@@ -22,36 +22,36 @@ const servers = [{ url: '/' }];
 // validators reject (§4.8.8 requires every paths key to start with '/').
 describe('root path emission', () => {
     const cases: Array<{
-        controller: string; 
-        method: string; 
-        label: string 
+        controller: string;
+        method: string;
+        label: string
     }> = [
         {
-            controller: '', 
-            method: '/', 
-            label: "@Controller('') + @Get('/')", 
+            controller: '',
+            method: '/',
+            label: "@Controller('') + @Get('/')",
         },
         {
-            controller: '/', 
-            method: '', 
-            label: "@Controller('/') + @Get('')", 
+            controller: '/',
+            method: '',
+            label: "@Controller('/') + @Get('')",
         },
         {
-            controller: '/', 
-            method: '/', 
-            label: "@Controller('/') + @Get('/')", 
+            controller: '/',
+            method: '/',
+            label: "@Controller('/') + @Get('/')",
         },
         {
-            controller: '', 
-            method: '', 
-            label: "@Controller('') + @Get('')", 
+            controller: '',
+            method: '',
+            label: "@Controller('') + @Get('')",
         },
     ];
 
     for (const {
-        controller, 
-        method, 
-        label, 
+        controller,
+        method,
+        label,
     } of cases) {
         describe(label, () => {
             const metadata = createMetadata([
@@ -106,16 +106,16 @@ describe('root path emission', () => {
         ]);
 
         const v3 = await generateSwagger({
-            version: Version.V3, 
-            metadata, 
-            data: { servers }, 
+            version: Version.V3,
+            metadata,
+            data: { servers },
         });
         expect(Object.keys(v3.paths)).toEqual(['/events']);
 
         const v2 = await generateSwagger({
-            version: Version.V2, 
-            metadata, 
-            data: { servers }, 
+            version: Version.V2,
+            metadata,
+            data: { servers },
         });
         expect(Object.keys(v2.paths)).toEqual(['/events']);
     });

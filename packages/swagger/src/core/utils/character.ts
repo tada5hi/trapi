@@ -6,7 +6,8 @@
  */
 
 export function removeDuplicateSlashes(str: string) : string {
-    return str.replace(/\/{2,}/g, '/');
+    // URL-safe: a `:/` boundary (e.g. `http://`) is not collapsed.
+    return str.replace(/([^:]\/)\/+/g, '$1');
 }
 
 export function removeFinalCharacter(

@@ -43,13 +43,13 @@
     },
     "devDependencies": {
         "@types/yamljs": "^0.2.34",
-        "jsonata": "^2.0.6",
+        "jsonata": "^2.2.1",
         "locter": "^2.1.6"
     },
     "dependencies": {
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.0",
-        "smob": "^1.5.0",
+        "smob": "^1.6.2",
         "yamljs": "^0.3.0"
     },
     "repository": {

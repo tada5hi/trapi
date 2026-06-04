@@ -41,7 +41,7 @@ export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConf
     }
 
     const found = await locate(CONFIG_FILE_PATTERN, {
-        path: options.cwd,
+        cwd: options.cwd,
         onlyFiles: true,
     });
     if (found) {

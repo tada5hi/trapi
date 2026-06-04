@@ -19,7 +19,7 @@ export async function scanSourceFiles(input: EntryPoint) : Promise<string[]> {
         if (typeof source === 'string') {
             promises.push(locateMany(source));
         } else {
-            promises.push(locateMany(source.pattern, { path: source.cwd }));
+            promises.push(locateMany(source.pattern, { cwd: source.cwd }));
         }
     }
 

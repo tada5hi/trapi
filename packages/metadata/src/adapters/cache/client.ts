@@ -123,7 +123,7 @@ export class CacheClient implements ICacheClient {
 
         let entries: Awaited<ReturnType<typeof locateMany>>;
         try {
-            entries = await locateMany(pattern, { path: this.options.directoryPath });
+            entries = await locateMany(pattern, { cwd: this.options.directoryPath });
         } catch {
             return;
         }

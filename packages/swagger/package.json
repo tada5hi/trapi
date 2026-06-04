@@ -43,7 +43,7 @@
     },
     "devDependencies": {
         "@types/yamljs": "^0.2.34",
-        "jsonata": "^2.0.6",
+        "jsonata": "^2.2.1",
         "locter": "^2.1.6"
     },
     "dependencies": {

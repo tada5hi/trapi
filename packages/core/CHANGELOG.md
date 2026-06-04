@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.1](https://github.com/tada5hi/trapi/compare/core-v2.0.0...core-v2.0.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* **deps:** bump locter to v3 and remaining minor/patch updates ([9acd603](https://github.com/tada5hi/trapi/commit/9acd603dda3b24f3b94e1e563e878be26978d0aa))
+* **deps:** bump the minorandpatch group across 1 directory with 12 updates ([#849](https://github.com/tada5hi/trapi/issues/849)) ([4bfa470](https://github.com/tada5hi/trapi/commit/4bfa470e49cf5a581228326a31301df35ecaee64))
+* **deps:** bump the minorandpatch group across 1 directory with 5 updates ([#838](https://github.com/tada5hi/trapi/issues/838)) ([5721721](https://github.com/tada5hi/trapi/commit/57217210eca89b00e868773b42ca6fa28ece0e9b))
+
 ## [2.0.0](https://github.com/tada5hi/trapi/compare/core-v2.0.0-beta.4...core-v2.0.0) (2026-05-08)
 
 

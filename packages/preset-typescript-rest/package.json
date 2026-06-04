@@ -1,6 +1,6 @@
 {
     "name": "@trapi/preset-typescript-rest",
-    "version": "2.0.2-beta.3",
+    "version": "2.0.3-beta.3",
     "description": "Preset for typescript-rest library.",
     "type": "module",
     "main": "dist/index.mjs",
@@ -33,10 +33,10 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "devDependencies": {
-        "@trapi/core": "2.0.0"
+        "@trapi/core": "2.0.1"
     },
     "peerDependencies": {
-        "@trapi/core": "2.0.0"
+        "@trapi/core": "2.0.1"
     },
     "scripts": {
         "build": "npm run build:js && npm run build:types",

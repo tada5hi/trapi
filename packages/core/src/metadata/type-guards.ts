@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { hasOwnProperty, isObject } from 'locter';
+import { hasOwnProperty, isObject } from 'smob';
 import type { Metadata } from './types';
 
 export function isMetadata(input: unknown): input is Metadata {

@@ -55,7 +55,8 @@
         "@trapi/swagger": "^2.0.1",
         "chokidar": "^5.0.0",
         "citty": "^0.2.2",
-        "locter": "^3.0.0"
+        "locter": "^4.0.0-beta.0",
+        "smob": "^1.6.2"
     },
     "engines": {
         "node": ">=22.0.0"

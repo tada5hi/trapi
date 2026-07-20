@@ -44,7 +44,7 @@
     "devDependencies": {
         "@types/yamljs": "^0.2.34",
         "jsonata": "^2.2.1",
-        "locter": "^3.0.0"
+        "locter": "^4.0.0-beta.0"
     },
     "dependencies": {
         "@ebec/core": "^1.1.0",

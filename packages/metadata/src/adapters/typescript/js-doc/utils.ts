@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isObject } from 'locter';
+import { isObject } from 'smob';
 import type { JSDocComment, NodeArray } from 'typescript';
 
 export function transformJSDocComment(

@@ -11,7 +11,7 @@ import {
     expect, 
     it, 
 } from 'vitest';
-import { load } from 'locter';
+import { read } from 'locter';
 import type { Metadata } from '@trapi/core';
 import type { SpecV3 } from '../../../src';
 import {
@@ -23,7 +23,7 @@ describe('SpecGenerator', () => {
     let spec : SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = await load('./test/data/metadata.json');
+        const metadata : Metadata = (await read('./test/data/metadata.json')).default;
 
         spec = await generateSwagger({
             version: Version.V3,

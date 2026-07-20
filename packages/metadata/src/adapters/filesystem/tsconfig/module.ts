@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isObject, load } from 'locter';
+import { read } from 'locter';
+import { isObject } from 'smob';
 import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { ConfigError } from '../../../core/error/config';
 import process from 'node:process';
@@ -33,7 +34,9 @@ export async function loadTSConfig(
         filePath = path.join(cwd, fileName);
     }
 
-    const content = await load(filePath);
+    // read() returns a frozen module record; unwrap to the mutable
+    // parsed value (compilerOptions is reassigned below)
+    const content = (await read(filePath)).default;
     if (!isObject(content)) {
         throw new ConfigError({
             message: `The tsconfig file '${filePath}' is malformed.`,

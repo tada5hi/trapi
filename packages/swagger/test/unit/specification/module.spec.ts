@@ -14,7 +14,7 @@ import {
 import { CollectionFormat } from '@trapi/core';
 import type { Metadata } from '@trapi/core';
 import jsonata from 'jsonata';
-import { load } from 'locter';
+import { read } from 'locter';
 import type { SpecV2, SpecV3 } from '../../../src';
 import { Version, generateSwagger } from '../../../src';
 
@@ -22,7 +22,7 @@ describe('generating swagger spec from metadata', () => {
     let spec : SpecV2 | SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = await load('./test/data/metadata.json');
+        const metadata : Metadata = (await read('./test/data/metadata.json')).default;
 
         spec = await generateSwagger({
             version: Version.V2,

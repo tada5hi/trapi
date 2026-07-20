@@ -34,9 +34,9 @@ export async function loadTSConfig(
         filePath = path.join(cwd, fileName);
     }
 
-    // read() returns a frozen module record; unwrap to the mutable
-    // parsed value (compilerOptions is reassigned below)
-    const content = (await read(filePath)).default;
+    // read() returns the raw parsed value for data formats —
+    // mutable, so compilerOptions can be reassigned below
+    const content = await read(filePath);
     if (!isObject(content)) {
         throw new ConfigError({
             message: `The tsconfig file '${filePath}' is malformed.`,

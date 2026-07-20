@@ -23,7 +23,7 @@ describe('SpecGenerator', () => {
     let spec : SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = (await read('./test/data/metadata.json')).default;
+        const metadata : Metadata = await read('./test/data/metadata.json');
 
         spec = await generateSwagger({
             version: Version.V3,

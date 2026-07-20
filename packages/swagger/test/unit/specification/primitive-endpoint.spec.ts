@@ -21,7 +21,7 @@ describe('PrimitiveEndpoint', () => {
     let spec : SpecV2 | SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = (await read('./test/data/metadata.json')).default;
+        const metadata : Metadata = await read('./test/data/metadata.json');
 
         spec = await generateSwagger({
             version: Version.V2,

@@ -50,7 +50,8 @@
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.1",
         "smob": "^1.6.2",
-        "yamljs": "^0.3.0"
+        "yamljs": "^0.3.0",
+        "locter": "^4.0.0-beta.1"
     },
     "repository": {
         "type": "git",

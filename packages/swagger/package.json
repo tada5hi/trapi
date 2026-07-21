@@ -42,7 +42,7 @@
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
-        "jsonata": "^2.2.1"
+        "jsonata": "^2.2.2"
     },
     "dependencies": {
         "@ebec/core": "^1.1.0",

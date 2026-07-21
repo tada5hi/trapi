@@ -48,7 +48,7 @@
         "@validup/adapter-zod": "^0.2.4",
         "locter": "^4.0.0",
         "smob": "^1.6.2",
-        "validup": "^0.5.0",
+        "validup": "^0.5.1",
         "zod": "^4.4.3"
     },
     "publishConfig": {

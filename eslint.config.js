@@ -6,6 +6,7 @@ export default [
             '**/dist/**',
             '**/bin/**',
             'packages/docs/**',
+            '.claude/**',
         ],
     },
     ...await config(),

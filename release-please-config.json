@@ -9,8 +9,8 @@
         "packages/core": { "component": "core" },
         "packages/docs": { "component": "docs" },
         "packages/metadata": { "component": "metadata" },
-        "packages/preset-decorators-express": { "component": "preset-decorators-express", "release-as": "0.2.4" },
-        "packages/preset-typescript-rest": { "component": "preset-typescript-rest", "release-as": "2.0.4" },
+        "packages/preset-decorators-express": { "component": "preset-decorators-express" },
+        "packages/preset-typescript-rest": { "component": "preset-typescript-rest" },
         "packages/swagger": { "component": "swagger" }
     },
     "plugins": [

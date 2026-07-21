@@ -178,6 +178,21 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.2](https://github.com/tada5hi/trapi/compare/swagger-v2.0.1...swagger-v2.0.2) (2026-07-21)
+
+
+### Bug Fixes
+
+* **deps:** bump locter to v4 beta and migrate to the read/write API ([#861](https://github.com/tada5hi/trapi/issues/861)) ([e5c7021](https://github.com/tada5hi/trapi/commit/e5c7021e0a632143d50e9ce9ed4182b65709fbcb))
+* **deps:** bump the minorandpatch group across 1 directory with 10 updates ([#863](https://github.com/tada5hi/trapi/issues/863)) ([1897fdc](https://github.com/tada5hi/trapi/commit/1897fdc26c3abfac2034bbebc924bcb7ae11322c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.1 to 2.0.2
+
 ## [2.0.1](https://github.com/tada5hi/trapi/compare/swagger-v2.0.0...swagger-v2.0.1) (2026-06-04)
 
 

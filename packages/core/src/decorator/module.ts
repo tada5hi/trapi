@@ -6,6 +6,7 @@
  */
 
 import { LocterNotFoundError, readAsModule } from 'locter';
+import { isObject } from 'smob';
 import type {
     AnyDecoratorHandler,
     AnyJsDocHandler,
@@ -287,10 +288,10 @@ function isModuleNotFoundError(error: unknown): boolean {
     }
     // Fallback for errors raised outside locter's readAsModule() (e.g. custom
     // resolvers re-throwing Node module errors).
-    if (typeof error !== 'object' || error === null) {
+    if (!isObject(error)) {
         return false;
     }
-    const { code } = (error as { code?: unknown });
+    const { code } = error;
     return typeof code === 'string' && MODULE_NOT_FOUND_CODES.has(code);
 }
 

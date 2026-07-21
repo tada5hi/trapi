@@ -55,7 +55,7 @@
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.1",
         "flatted": "^3.3.3",
-        "locter": "^4.0.0-beta.1",
+        "locter": "^4.0.0",
         "minimatch": "^10.0.3",
         "smob": "^1.6.2"
     },

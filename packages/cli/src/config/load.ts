@@ -9,10 +9,10 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import {
     buildFilePath,
-    isObject,
-    load,
     locate,
+    read,
 } from 'locter';
+import { isObject } from 'smob';
 import { CLIUserError } from '../logger.ts';
 import type { LoadedConfig, TrapiConfigEntry } from './types.ts';
 
@@ -59,7 +59,7 @@ export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConf
 async function readConfigFile(filePath: string): Promise<LoadedConfig> {
     let mod: unknown;
     try {
-        mod = await load(filePath);
+        mod = await read(filePath);
     } catch (err) {
         throw new CLIUserError(
             `Failed to load config "${filePath}": ${err instanceof Error ? err.message : String(err)}`,

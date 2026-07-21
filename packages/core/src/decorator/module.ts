@@ -5,7 +5,8 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { LocterNotFoundError, load } from 'locter';
+import { LocterNotFoundError, readAsModule } from 'locter';
+import { isObject } from 'smob';
 import type {
     AnyDecoratorHandler,
     AnyJsDocHandler,
@@ -239,7 +240,7 @@ export async function resolvePresetByName(input: string): Promise<Preset> {
 
     for (const lookupPath of lookupPaths) {
         try {
-            const moduleExport = await load(lookupPath) as Record<string, unknown>;
+            const moduleExport = await readAsModule(lookupPath) as Record<string, unknown>;
 
             const candidates: unknown[] = [
                 (moduleExport as { preset?: unknown }).preset,
@@ -285,12 +286,12 @@ function isModuleNotFoundError(error: unknown): boolean {
     if (error instanceof LocterNotFoundError) {
         return true;
     }
-    // Fallback for errors raised outside locter's load() (e.g. custom
+    // Fallback for errors raised outside locter's readAsModule() (e.g. custom
     // resolvers re-throwing Node module errors).
-    if (typeof error !== 'object' || error === null) {
+    if (!isObject(error)) {
         return false;
     }
-    const { code } = (error as { code?: unknown });
+    const { code } = error;
     return typeof code === 'string' && MODULE_NOT_FOUND_CODES.has(code);
 }
 

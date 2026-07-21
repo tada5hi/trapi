@@ -8,7 +8,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import process from 'node:process';
-import YAML from 'yamljs';
+import { YAMLWriter } from 'locter';
 import type { SwaggerSaveOptions } from '../core/config';
 import { DocumentFormat } from '../core/constants';
 import type { SpecV2, SpecV3 } from '../core/schema';
@@ -23,7 +23,7 @@ function resolveFileName(name: string | undefined, format: `${DocumentFormat}`):
 
 function serialise(spec: SpecV2 | SpecV3, format: `${DocumentFormat}`): string {
     if (format === DocumentFormat.YAML) {
-        return YAML.stringify(spec, 1000);
+        return new YAMLWriter().stringify(spec);
     }
     return JSON.stringify(spec, null, 4);
 }

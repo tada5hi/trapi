@@ -42,15 +42,13 @@
         "preblushOnly": "npm run build"
     },
     "devDependencies": {
-        "@types/yamljs": "^0.2.34",
-        "jsonata": "^2.2.2",
-        "locter": "^3.0.0"
+        "jsonata": "^2.2.2"
     },
     "dependencies": {
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.1",
         "smob": "^1.6.2",
-        "yamljs": "^0.3.0"
+        "locter": "^4.0.0"
     },
     "repository": {
         "type": "git",

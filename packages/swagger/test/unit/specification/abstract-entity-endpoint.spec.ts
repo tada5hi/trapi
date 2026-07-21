@@ -11,7 +11,7 @@ import {
     expect, 
     it, 
 } from 'vitest';
-import { load } from 'locter';
+import { read } from 'locter';
 import jsonata from 'jsonata';
 import type { Metadata } from '@trapi/core';
 import type { SpecV2, SpecV3 } from '../../../src';
@@ -21,7 +21,7 @@ describe('AbstractEntityEndpoint', () => {
     let spec : SpecV2 | SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = await load('./test/data/metadata.json');
+        const metadata : Metadata = await read('./test/data/metadata.json');
 
         spec = await generateSwagger({
             version: Version.V2,

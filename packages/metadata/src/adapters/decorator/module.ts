@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { load } from 'locter';
+import { readAsModule } from 'locter';
 import type {
     AnyDecoratorHandler,
     AnyJsDocHandler,
@@ -219,7 +219,7 @@ export async function resolvePresetByName(input: string): Promise<Preset> {
 
     for (const lookupPath of lookupPaths) {
         try {
-            const moduleExport = await load(lookupPath) as Record<string, unknown>;
+            const moduleExport = await readAsModule(lookupPath) as Record<string, unknown>;
 
             const candidates: unknown[] = [
                 (moduleExport as { preset?: unknown }).preset,

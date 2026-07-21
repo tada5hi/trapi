@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isObject } from 'locter';
+import { isObject } from 'smob';
 import { NodeBuilderFlags, displayPartsToString, isIdentifier } from 'typescript';
 import type { ParameterDeclaration } from 'typescript';
 import {

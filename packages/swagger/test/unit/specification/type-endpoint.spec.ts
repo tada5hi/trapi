@@ -12,7 +12,7 @@ import {
     it, 
 } from 'vitest';
 import jsonata from 'jsonata';
-import { load } from 'locter';
+import { read } from 'locter';
 import type { Metadata } from '@trapi/core';
 import type { SpecV2, SpecV3 } from '../../../src';
 import {
@@ -24,7 +24,7 @@ describe('TypeEndpoint', () => {
     let spec : SpecV2 | SpecV3;
 
     beforeAll(async () => {
-        const metadata : Metadata = await load('./test/data/metadata.json');
+        const metadata : Metadata = await read('./test/data/metadata.json');
 
         spec = await generateSwagger({
             version: Version.V2,

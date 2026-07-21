@@ -55,8 +55,9 @@
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.1",
         "flatted": "^3.3.3",
-        "locter": "^3.0.0",
-        "minimatch": "^10.0.3"
+        "locter": "^4.0.0",
+        "minimatch": "^10.0.3",
+        "smob": "^1.6.2"
     },
     "peerDependencies": {
         "typescript": ">=5.0.0"

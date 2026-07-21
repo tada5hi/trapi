@@ -14,6 +14,7 @@ coveralls.yml
 tsconfig.tsbuildinfo
 .nx
 .claude/settings.local.json
+.claude/worktrees/
 .claude/scheduled_tasks.lock
 .agents/plans
 packages/docs/src/.vitepress/cache

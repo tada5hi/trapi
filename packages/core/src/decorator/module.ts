@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { LocterNotFoundError, readAsModule } from 'locter';
+import { NotFoundError, readAsModule } from 'locter';
 import { isObject } from 'smob';
 import type {
     AnyDecoratorHandler,
@@ -283,7 +283,7 @@ const MODULE_NOT_FOUND_CODES = new Set([
 function isModuleNotFoundError(error: unknown): boolean {
     // locter >=3 wraps missing modules in a typed error (cross-realm safe
     // via Symbol.hasInstance markers).
-    if (error instanceof LocterNotFoundError) {
+    if (error instanceof NotFoundError) {
         return true;
     }
     // Fallback for errors raised outside locter's readAsModule() (e.g. custom

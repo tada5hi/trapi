@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.3](https://github.com/tada5hi/trapi/compare/cli-v2.0.2...cli-v2.0.3) (2026-07-22)
+
+
+### Bug Fixes
+
+* **deps:** bump locter to v4.1.0 ([0604934](https://github.com/tada5hi/trapi/commit/06049348c1077ef69b0a9de059a25aba9f40be7c))
+* **deps:** bump the minorandpatch group with 2 updates ([#868](https://github.com/tada5hi/trapi/issues/868)) ([df36e63](https://github.com/tada5hi/trapi/commit/df36e639c4f772401ca1370d2373baa2968ac945))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.2 to ^2.0.3
+    * @trapi/swagger bumped from ^2.0.2 to ^2.0.3
+
 ## [2.0.2](https://github.com/tada5hi/trapi/compare/cli-v2.0.1...cli-v2.0.2) (2026-07-21)
 
 

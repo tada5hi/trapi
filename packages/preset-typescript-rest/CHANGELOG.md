@@ -55,6 +55,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [2.0.5](https://github.com/tada5hi/trapi/compare/preset-typescript-rest-v2.0.4...preset-typescript-rest-v2.0.5) (2026-07-22)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/core bumped from 2.0.2 to 2.0.3
+  * peerDependencies
+    * @trapi/core bumped from 2.0.2 to 2.0.3
+
 ## [2.0.4](https://github.com/tada5hi/trapi/compare/preset-typescript-rest-v2.0.3-beta.3...preset-typescript-rest-v2.0.4) (2026-07-21)
 
 

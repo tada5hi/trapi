@@ -45,7 +45,7 @@
         "jsonata": "^2.2.2"
     },
     "dependencies": {
-        "@ebec/core": "^1.1.0",
+        "@ebec/core": "^1.2.0",
         "@trapi/core": "2.0.3",
         "smob": "^1.6.2",
         "locter": "^4.1.0"

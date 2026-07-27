@@ -44,7 +44,7 @@
     },
     "homepage": "https://github.com/Tada5hi/trapi#readme",
     "dependencies": {
-        "@ebec/core": "^1.1.0",
+        "@ebec/core": "^1.2.0",
         "@validup/adapter-zod": "^0.2.4",
         "locter": "^4.1.0",
         "smob": "^1.6.2",

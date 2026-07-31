@@ -1,6 +1,6 @@
 {
     "name": "@trapi/metadata",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "Generate REST-API metadata scheme from TypeScript Decorators.",
     "type": "module",
     "main": "dist/index.mjs",
@@ -53,7 +53,7 @@
     },
     "dependencies": {
         "@ebec/core": "^1.1.0",
-        "@trapi/core": "2.0.3",
+        "@trapi/core": "2.0.4",
         "flatted": "^3.4.3",
         "locter": "^4.1.0",
         "minimatch": "^10.2.6",

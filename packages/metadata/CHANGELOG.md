@@ -151,6 +151,21 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.4](https://github.com/tada5hi/trapi/compare/metadata-v2.0.3...metadata-v2.0.4) (2026-07-31)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#875](https://github.com/tada5hi/trapi/issues/875)) ([c6556bc](https://github.com/tada5hi/trapi/commit/c6556bc9f625e1097d132fd3a3b0c9fd639db5b3))
+* **deps:** bump validup to v1 and migrate to @validup/zod ([a63582b](https://github.com/tada5hi/trapi/commit/a63582bc9bc5bf9aec00c0ab4b9cfc93e32dd67c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.3 to 2.0.4
+
 ## [2.0.3](https://github.com/tada5hi/trapi/compare/metadata-v2.0.2...metadata-v2.0.3) (2026-07-22)
 
 

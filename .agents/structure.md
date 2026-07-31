@@ -37,7 +37,7 @@ Layer 1 (contract):   core
 
 ## Package: `@trapi/core`
 
-Framework-neutral contract surface used by `@trapi/metadata`, `@trapi/swagger`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/adapter-zod`, `locter`.
+Framework-neutral contract surface used by `@trapi/metadata`, `@trapi/swagger`, presets, and any third-party consumer. Has no `typescript` dependency. Runtime deps: `@ebec/core`, `zod`, `validup`, `@validup/zod`, `locter`.
 
 ```text
 packages/core/src/

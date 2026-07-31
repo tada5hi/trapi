@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.4](https://github.com/tada5hi/trapi/compare/core-v2.0.3...core-v2.0.4) (2026-07-31)
+
+
+### Bug Fixes
+
+* **deps:** bump validup to v1 and migrate to @validup/zod ([a63582b](https://github.com/tada5hi/trapi/commit/a63582bc9bc5bf9aec00c0ab4b9cfc93e32dd67c))
+
 ## [2.0.3](https://github.com/tada5hi/trapi/compare/core-v2.0.2...core-v2.0.3) (2026-07-22)
 
 

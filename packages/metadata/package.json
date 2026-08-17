@@ -54,7 +54,7 @@
     "dependencies": {
         "@ebec/core": "^1.1.0",
         "@trapi/core": "2.0.4",
-        "flatted": "^3.4.3",
+        "flatted": "^3.4.4",
         "locter": "^4.1.0",
         "minimatch": "^10.2.6",
         "smob": "^1.6.2"

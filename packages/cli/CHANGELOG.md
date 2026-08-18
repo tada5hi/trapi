@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.0.5](https://github.com/tada5hi/trapi/compare/cli-v2.0.4...cli-v2.0.5) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node, nx and validup ([367b823](https://github.com/tada5hi/trapi/commit/367b8238d9254ec1855e8e530b1a3b081695324c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.4 to ^2.0.5
+    * @trapi/swagger bumped from ^2.0.4 to ^2.0.5
+
 ## [2.0.4](https://github.com/tada5hi/trapi/compare/cli-v2.0.3...cli-v2.0.4) (2026-07-31)
 
 

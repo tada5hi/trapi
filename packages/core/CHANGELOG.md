@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/tada5hi/trapi/compare/core-v2.0.4...core-v2.0.5) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node, nx and validup ([367b823](https://github.com/tada5hi/trapi/commit/367b8238d9254ec1855e8e530b1a3b081695324c))
+
 ## [2.0.4](https://github.com/tada5hi/trapi/compare/core-v2.0.3...core-v2.0.4) (2026-07-31)
 
 

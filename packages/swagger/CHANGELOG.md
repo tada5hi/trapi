@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.0.5](https://github.com/tada5hi/trapi/compare/swagger-v2.0.4...swagger-v2.0.5) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node, nx and validup ([367b823](https://github.com/tada5hi/trapi/commit/367b8238d9254ec1855e8e530b1a3b081695324c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.4 to 2.0.5
+
 ## [2.0.4](https://github.com/tada5hi/trapi/compare/swagger-v2.0.3...swagger-v2.0.4) (2026-07-31)
 
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.4](https://github.com/tada5hi/trapi/compare/docs-v3.1.3...docs-v3.1.4) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps:** bump @types/node, nx and validup ([367b823](https://github.com/tada5hi/trapi/commit/367b8238d9254ec1855e8e530b1a3b081695324c))
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#882](https://github.com/tada5hi/trapi/issues/882)) ([44755a6](https://github.com/tada5hi/trapi/commit/44755a61777ca9215d1776c0a58c1e212777e090))
+
 ## [3.1.3](https://github.com/tada5hi/trapi/compare/docs-v3.1.2...docs-v3.1.3) (2026-07-21)
 
 

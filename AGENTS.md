@@ -16,7 +16,7 @@ npx nx run-many -t test
 npm run lint
 ```
 
-- **Node.js**: >=22.0.0
+- **Node.js**: >=24.0.0
 - **Package manager**: npm (workspaces)
 - **Module format**: ESM (`"type": "module"`)
 - **Build orchestrator**: NX + tsdown

@@ -108,7 +108,7 @@ For reusable wrappers, prefer the type helpers exported alongside the const (e.g
 
 GitHub Actions workflow (`.github/workflows/main.yml`):
 
-1. **Install** — checkout + `npm ci` (Node 22)
+1. **Install** — checkout + `npm ci` (Node 24)
 2. **Build** — `npm run build` (tsdown + typecheck)
 3. **Lint** — ESLint (depends on build)
 4. **Test** — Vitest (depends on build)

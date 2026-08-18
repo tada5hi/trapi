@@ -146,7 +146,7 @@ $ trapi info
 ℹ trapi v0.2.0
 
 Environment
-  node      v22.21.1
+  node      v24.15.0
   platform  darwin arm64
   cwd       /path/to/project
 

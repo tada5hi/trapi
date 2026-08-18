@@ -43,7 +43,7 @@ import{_ as i,o as a,c as e,ae as t}from"./chunks/framework.DCJ5T8RY.js";const k
 <span class="line"><span>ℹ trapi v0.2.0</span></span>
 <span class="line"><span></span></span>
 <span class="line"><span>Environment</span></span>
-<span class="line"><span>  node      v22.21.1</span></span>
+<span class="line"><span>  node      v24.15.0</span></span>
 <span class="line"><span>  platform  darwin arm64</span></span>
 <span class="line"><span>  cwd       /path/to/project</span></span>
 <span class="line"><span></span></span>

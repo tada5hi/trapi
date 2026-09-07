@@ -42,7 +42,7 @@ export function getDeclarationValidators(
                 return false;
             }
 
-            return !(name && name !== commentValue);
+            return !name || name === commentValue;
         });
     });
 

@@ -246,7 +246,7 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, handlers, draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => reports.push(`${r.name}@${r.target}`),
+            onUnmatchedDecorator: (r) => { reports.push(`${r.name}@${r.target}`); },
         });
 
         expect(reports).toEqual(['Hiden@class']);
@@ -263,7 +263,7 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, handlers, draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => reports.push(r.name),
+            onUnmatchedDecorator: (r) => { reports.push(r.name); },
         });
         expect(reports).toEqual([]);
     });
@@ -276,7 +276,7 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => reports.push(r.name),
+            onUnmatchedDecorator: (r) => { reports.push(r.name); },
         });
         expect(reports.sort()).toEqual(['A', 'B']);
     });
@@ -293,11 +293,11 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('Bar'),
-            onUnmatchedDecorator: (r) => seen.push({
+            onUnmatchedDecorator: (r) => { seen.push({
                 name: r.name, 
                 target: r.target, 
                 host: r.host.name, 
-            }),
+            }); },
         });
         expect(seen).toEqual([{
             name: 'Foo',
@@ -321,7 +321,7 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('Bar'),
-            onUnmatchedDecorator: (r) => seen.push({ name: r.name, line: r.line }),
+            onUnmatchedDecorator: (r) => { seen.push({ name: r.name, line: r.line }); },
         });
 
         // Lines 3, 4, 5 — each decorator's own line, not the class line (6).

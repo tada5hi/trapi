@@ -25,7 +25,7 @@ export function normalizePathParameters(str: string) : string {
  */
 export function pathVariables(path: string) : string[] {
     return [...new Set(
-        [...path.matchAll(/\{([^{}/]+)\}/g)].map((match) => match[1]!),
+        path.matchAll(/\{([^{}/]+)\}/g).map((match) => match[1]!),
     )];
 }
 

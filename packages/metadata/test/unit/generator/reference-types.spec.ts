@@ -232,7 +232,7 @@ describe('check referenceTypes', () => {
             await jsonata('PrimitiveInterfaceModel').evaluate(metadata.referenceTypes),
         ];
 
-        values.map((value) => {
+        values.forEach((value) => {
             expect(value.typeName).toEqual('refObject');
             expect(value.properties).toBeDefined();
             expect(value.properties.length).toEqual(4);

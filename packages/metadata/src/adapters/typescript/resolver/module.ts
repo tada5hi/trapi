@@ -1054,15 +1054,16 @@ export class TypeNodeResolver extends ResolverBase {
                             type = type.type;
                         }
 
-                        if (type.typeName === TypeName.REF_OBJECT) {
-                            properties = [...properties, ...type.properties];
-                        } else if (type.typeName === TypeName.NESTED_OBJECT_LITERAL) {
+                        if (
+                            type.typeName === TypeName.REF_OBJECT ||
+                            type.typeName === TypeName.NESTED_OBJECT_LITERAL
+                        ) {
                             properties = [...properties, ...type.properties];
                         }
                     }
 
                     if (isRefObjectType(referenceType)) {
-                        referenceType.properties.forEach((property) => properties.push(property));
+                        properties.push(...referenceType.properties);
                     }
                 }
 

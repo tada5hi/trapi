@@ -175,8 +175,7 @@ describe('edge cases and spec compliance', () => {
 
     describe('response status codes', () => {
         it('V2: all response codes should be valid HTTP status codes or default', () => {
-            for (const pathKey of Object.keys(specV2.paths)) {
-                const pathItem = specV2.paths[pathKey];
+            for (const pathItem of Object.values(specV2.paths)) {
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
                     if (!op) continue;
@@ -188,8 +187,7 @@ describe('edge cases and spec compliance', () => {
         });
 
         it('V3: all response codes should be valid HTTP status codes or default', () => {
-            for (const pathKey of Object.keys(specV3.paths)) {
-                const pathItem = specV3.paths[pathKey];
+            for (const pathItem of Object.values(specV3.paths)) {
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
                     if (!op) continue;

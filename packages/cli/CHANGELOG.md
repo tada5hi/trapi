@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.1](https://github.com/tada5hi/trapi/compare/cli-v2.1.0...cli-v2.1.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 13 updates ([#905](https://github.com/tada5hi/trapi/issues/905)) ([a4e4c06](https://github.com/tada5hi/trapi/commit/a4e4c066f72e128c5646aad1f28837b82e488fca))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.1.0 to ^2.1.1
+    * @trapi/swagger bumped from ^2.1.0 to ^2.1.1
+
 ## [2.1.0](https://github.com/tada5hi/trapi/compare/cli-v2.0.5...cli-v2.1.0) (2026-09-07)
 
 

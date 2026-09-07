@@ -151,6 +151,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.1](https://github.com/tada5hi/trapi/compare/metadata-v2.1.0...metadata-v2.1.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 13 updates ([#905](https://github.com/tada5hi/trapi/issues/905)) ([a4e4c06](https://github.com/tada5hi/trapi/commit/a4e4c066f72e128c5646aad1f28837b82e488fca))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.1.0 to 2.1.1
+
 ## [2.1.0](https://github.com/tada5hi/trapi/compare/metadata-v2.0.5...metadata-v2.1.0) (2026-09-07)
 
 

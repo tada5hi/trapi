@@ -184,11 +184,16 @@ describe('generating swagger spec from metadata', () => {
         expect(param.collectionFormat).toEqual(CollectionFormat.MULTI);
     });
 
-    it('should generate an array query param for parameter with compatible array and primitive intersection type', async () => {
+    it('should fall back to a string query param for a union of string and string[]', async () => {
         const param = await jsonata('paths."/mypath/multi-query".get.parameters[1]').evaluate(spec);
         expect(param.name).toEqual('name');
         expect(param.required).toEqual(false);
-        expect(param.type).toEqual('object');
+        // V2's `getSchemaForUnionType` collapses a multi-member union to an object
+        // schema, which Swagger 2.0 does not admit on a non-body parameter —
+        // `queryParameterSubSchema.type` is ['string','number','boolean','integer',
+        // 'array']. It used to be emitted as `object` regardless, matching no
+        // location branch. `string` is the lossy floor the emitter falls back to.
+        expect(param.type).toEqual('string');
     });
 
     it('should generate default value for a number query param', async () => {

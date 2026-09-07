@@ -171,7 +171,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
-                method.deprecated = method.deprecated || controller.deprecated;
+                method.deprecated = method.deprecated || controller.deprecated || false;
 
                 // Inherit controller security only when the method declared none of its own.
                 // OpenAPI 3.x: an operation's `security: []` explicitly removes any inherited
@@ -299,17 +299,29 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             const firstBody = bodyParams[0]!;
             if (isNestedObjectLiteralType(firstBody.type)) {
-                for (const bodyPropParam of bodyPropParams) {
-                    firstBody.type.properties.push({
-                        default: bodyPropParam.default,
-                        validators: bodyPropParam.validators,
-                        description: bodyPropParam.description,
-                        name: bodyPropParam.name,
-                        type: bodyPropParam.type,
-                        required: bodyPropParam.required,
-                        deprecated: bodyPropParam.deprecated ?? false,
-                    });
-                }
+                // Merge into a copy, never into the metadata's own nested literal.
+                // `buildOperation` runs once per (controllerPath × methodPath) and a
+                // `Metadata` is reused across emitted documents, so pushing in place
+                // appended the same properties again on every pass — `required`
+                // came out as ["name", "name"] on a controller's second mount.
+                bodyParams[0] = {
+                    ...firstBody,
+                    type: {
+                        ...firstBody.type,
+                        properties: [
+                            ...firstBody.type.properties,
+                            ...bodyPropParams.map((bodyPropParam) => ({
+                                default: bodyPropParam.default,
+                                validators: bodyPropParam.validators,
+                                description: bodyPropParam.description,
+                                name: bodyPropParam.name,
+                                type: bodyPropParam.type,
+                                required: bodyPropParam.required,
+                                deprecated: bodyPropParam.deprecated ?? false,
+                            })),
+                        ],
+                    },
+                };
             }
         }
 

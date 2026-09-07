@@ -148,3 +148,5 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters; `data.pathParameters` descriptions for synthesized and declared path parameters |
 | `parameter-flags.spec.ts` | `allowEmptyValue` emitted only for query parameters (V3) and nowhere in V2; `allowReserved` never emitted; the only `validateV31Spec` coverage of a document carrying operation parameters — the v3.0 schema is Draft-04 and cannot catch the query-only rule |
 | `content-types.spec.ts` | Consumes/produces resolution: method, controller cascade, document defaults, form-data |
+| `metadata-immutability.spec.ts` | Emission leaves `Metadata` byte-identical; repeated and cross-version emission from one object is stable; the `@BodyProp` merge runs once per operation rather than accumulating across mounts |
+| `v2-parameter-types.spec.ts` | Swagger 2.0 non-body parameters carry an inline `type`: `refEnum`/`refAlias` dereferenced, cyclic aliases guarded, `object`/unmodellable shapes floored to `string`, body parameters keep their `$ref` |

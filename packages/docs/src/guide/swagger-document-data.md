@@ -12,6 +12,7 @@ type SwaggerGenerateData = {
     securityDefinitions?: SecurityDefinitions;
     consumes?: string[];
     produces?: string[];
+    responses?: Response[];
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
     operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;
@@ -106,6 +107,36 @@ data: {
 ```
 
 Precedence: `@Consumes`/`@Produces` on a controller and on a method are **merged** (controller entries first) and win over these defaults. A `@Produces` on a specific response wins over the method's in v3. When nothing is declared anywhere, a request body with file parameters uses `multipart/form-data`, any other form body uses `application/x-www-form-urlencoded`, and everything else falls back to these defaults — or to `application/json` when they are unset too.
+
+## Document Responses
+
+`responses` is merged into **every** emitted operation. OpenAPI has no document-level `responses` field, so without it a spec-wide error shape has to be repeated on every method — or patched onto the finished document, which cannot know which paths exist.
+
+```typescript
+data: {
+    responses: [
+        {
+            name: 'default',
+            status: 'default',
+            description: 'Error',
+            schema: { typeName: 'refObject', refName: 'ErrorResponse', properties: [] },
+        },
+    ],
+}
+```
+
+Entries are `Response` objects from `@trapi/core`, not raw OpenAPI fragments, so one config works for every emitter: v2 writes `{ description, schema: { $ref: '#/definitions/…' } }` and v3 writes `{ description, content: { 'application/json': { schema: { $ref: '#/components/schemas/…' } } } }`.
+
+A `schema` may reference a type your controllers never mention — the `$ref` is emitted without requiring the type to be in the metadata. Supply the component itself through [`extra`](#extra) and the two compose:
+
+```typescript
+data: {
+    responses: [ /* … as above … */ ],
+    extra: { components: { schemas: { ErrorResponse: { type: 'object' } } } },
+}
+```
+
+Precedence: a method's own response with the same `status` wins. There is no per-operation opt-out, so reserve this for responses that genuinely apply everywhere — a `default` error shape is the intended case; `404` is usually not.
 
 ## Collection Format
 

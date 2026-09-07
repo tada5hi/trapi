@@ -203,6 +203,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     const fullPath = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[fullPath] ?? (output[fullPath] = {});
+                    if (pathItem[method.method]) {
+                        this.warnDuplicateOperation(controller.name, method, fullPath);
+                    }
                     pathItem[method.method] = this.buildMethod(method, fullPath, usedOperationIds);
                 }
             });
@@ -564,7 +567,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const produces : string[] = [];
 
-        method.responses.forEach((res: Response) => {
+        // Document-wide responses go first so a method's own response with the
+        // same status overwrites them on the record below.
+        [...(this.config.responses ?? []), ...method.responses].forEach((res: Response) => {
             operation.responses[res.status] = { description: res.description };
 
             if (

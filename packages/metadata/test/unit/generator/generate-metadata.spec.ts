@@ -128,6 +128,47 @@ describe('generateMetadata', () => {
         expect(metadata.controllers[0].methods[0].operationId).toEqual('listWidgets');
     });
 
+    it('should append handler-contributed draft.parameters to the derived ones', async () => {
+        const registry: Registry = createRegistry({
+            controllers: [{
+                match: { name: 'Controller', on: 'class' },
+                apply: (_ctx, draft) => { draft.paths = ['/widgets']; },
+            }],
+            methods: [{
+                match: { name: 'Get', on: 'method' },
+                apply: (_ctx, draft) => {
+                    draft.verb = 'get';
+                    // No TypeScript argument declares this one — it is the shape a
+                    // decorator binding a runtime-registered query vocabulary emits.
+                    draft.parameters.push({
+                        parameterName: 'filter',
+                        name: 'filter',
+                        in: 'query',
+                        description: 'runtime-registered filter vocabulary',
+                        required: false,
+                        type: { typeName: 'string' },
+                        extensions: [],
+                    });
+                },
+            }],
+        });
+
+        const metadata = await generateMetadata({
+            entryPoint: [{
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/inline-registry'),
+                pattern: '**/*.ts',
+            }],
+            cache: false,
+            registry,
+        });
+
+        const { parameters } = metadata.controllers[0].methods[0];
+        expect(parameters).toHaveLength(1);
+        expect(parameters[0].name).toEqual('filter');
+        expect(parameters[0].in).toEqual('query');
+        expect(parameters[0].type).toEqual({ typeName: 'string' });
+    });
+
     it('should merge an inline registry on top of a preset (registry wins on scalar fields)', async () => {
         // Inline parameter handler that overrides @Path to set a marker
         // description so we can detect that it ran after the preset's handler.

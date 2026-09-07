@@ -191,6 +191,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     const path = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[path] ?? (output[path] = {});
+                    if (pathItem[method.method]) {
+                        this.warnDuplicateOperation(controller.name, method, path);
+                    }
                     pathItem[method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
                 }
             }
@@ -433,7 +436,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected buildOperation(_controllerName: string, method: Method): OperationV3 {
-        const operation : OperationV3 = { responses: this.buildResponses(method.responses, this.resolveProduces(method)) };
+        // Document-wide responses go first: `buildResponses` keys its output by
+        // status, so a method's own response overwrites a colliding document
+        // one rather than the other way round.
+        const operation : OperationV3 = {
+            responses: this.buildResponses(
+                [...(this.config.responses ?? []), ...method.responses],
+                this.resolveProduces(method),
+            ),
+        };
         if (method.description) {
             operation.description = method.description;
         }

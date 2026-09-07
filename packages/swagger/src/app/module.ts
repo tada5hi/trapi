@@ -29,6 +29,7 @@ function toSpecGeneratorOptionsInput(options: SwaggerGenerateOptions): SpecGener
         securityDefinitions: data.securityDefinitions,
         consumes: data.consumes,
         produces: data.produces,
+        responses: data.responses,
         collectionFormat: data.collectionFormat,
         operationIdStrategy: data.operationIdStrategy,
         specificationExtra: data.extra,

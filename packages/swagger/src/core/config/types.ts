@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CollectionFormat, Metadata } from '@trapi/core';
+import type { CollectionFormat, Metadata, Response } from '@trapi/core';
 import type { DocumentFormat, OperationIdStrategy, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 
@@ -63,6 +63,21 @@ export type SpecGeneratorOptions = {
      * Default produces property for the entire API
      */
     produces?: string[];
+
+    /**
+     * Responses merged into every emitted operation, ahead of the operation's
+     * own. OpenAPI has no document-level `responses`, so a spec-wide error shape
+     * can otherwise only be repeated on every method, or patched onto the
+     * finished document — which cannot know which paths exist.
+     *
+     * A method's own response wins on a colliding `status`: both emitters key
+     * the operation's response record by status and the later write survives.
+     *
+     * These are `@trapi/core` `Response` objects rather than raw OpenAPI
+     * fragments, so one config emits the right shape for every version — a V2
+     * `schema` ref and a V3 `content` entry come out of the same input.
+     */
+    responses?: Response[];
 
     /**
      * Default collectionFormat property for query parameters of array type.
@@ -152,6 +167,12 @@ export type SwaggerGenerateData = {
      * Default produces content types.
      */
     produces?: string[];
+
+    /**
+     * Responses merged into every operation. A method's own response with the
+     * same `status` wins.
+     */
+    responses?: Response[];
 
     /**
      * Default collection format for array query parameters.

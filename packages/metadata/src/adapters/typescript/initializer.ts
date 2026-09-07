@@ -126,6 +126,18 @@ export function getInitializerValue(
                 return undefined;
             }
 
+            // Ask the checker before hand-walking declarations. It has already
+            // constant-folded the shapes the walk below cannot follow: an import
+            // alias (an `ImportSpecifier` has no `initializer` to extract), a
+            // barrel re-export, and a template expression (which has no symbol
+            // at all). The walk still runs second — the checker deliberately
+            // widens `let x = '/a'` and `const x: string = '/a'` to `string`,
+            // and those two the walk does resolve.
+            const literalType = typeChecker.getTypeAtLocation(initializer);
+            if (literalType.isStringLiteral() || literalType.isNumberLiteral()) {
+                return literalType.value;
+            }
+
             const symbol = typeChecker.getSymbolAtLocation(initializer);
             if (!symbol) {
                 return undefined;

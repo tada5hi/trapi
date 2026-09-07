@@ -239,6 +239,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         ]
             .map((p) => this.buildParameter(p));
 
+        // A path variable need not be a decorated argument; declare the rest so
+        // the operation stays valid (and callable from Swagger UI / generated clients).
+        output.parameters.push(
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
+                name,
+                in: ParameterSourceV3.PATH,
+                required: true,
+                schema: { type: DataTypeName.STRING },
+            })),
+        );
+
         // ignore ParameterSource.QUERY!
 
         const bodyParams = parameters[ParameterSource.BODY] || [];

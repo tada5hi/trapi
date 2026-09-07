@@ -145,4 +145,5 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `primitive-endpoint.spec.ts`, `parameterized-endpoint.spec.ts`, `type-endpoint.spec.ts`, `abstract-entity-endpoint.spec.ts` | End-to-end endpoint coverage from fixture controllers |
 | `v3.spec.ts` | V3-family version dispatch (v3 vs v3.1 vs v3.2) |
 | `tag-cascade.spec.ts` | Controller→method tag/response cascade in V3, omitted empty `tags` |
+| `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters |
 | `content-types.spec.ts` | Consumes/produces resolution: method, controller cascade, document defaults, form-data |

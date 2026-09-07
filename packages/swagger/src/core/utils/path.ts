@@ -19,6 +19,16 @@ export function normalizePathParameters(str: string) : string {
     return str;
 }
 
+/**
+ * The `{name}` variables of an emitted path template, in order, deduplicated.
+ * The path must already be normalized — `normalizePathParameters` guarantees that.
+ */
+export function pathVariables(path: string) : string[] {
+    return [...new Set(
+        [...path.matchAll(/\{([^{}/]+)\}/g)].map((match) => match[1]!),
+    )];
+}
+
 // OpenAPI 3.x §4.8.8 requires every `paths` key to start with `/`. Joining a
 // controller path with a method path naively (template literal + slash
 // stripping) collapses the root combination — `''` + `'/'`, `'/'` + `''`,

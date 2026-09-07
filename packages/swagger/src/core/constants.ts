@@ -26,3 +26,15 @@ export const SecurityType = {
     OAUTH2: 'oauth2',
 } as const;
 export type SecurityType = typeof SecurityType[keyof typeof SecurityType];
+
+export const OperationIdStrategy = {
+    /**
+     * Ucfirst(methodName), disambiguated with a positional `_2` suffix.
+     */
+    METHOD: 'method',
+    /**
+     * `<verb><PathSegments>`, e.g. `getRealmsByRealmIdRoles`.
+     */
+    PATH: 'path',
+} as const;
+export type OperationIdStrategy = typeof OperationIdStrategy[keyof typeof OperationIdStrategy];

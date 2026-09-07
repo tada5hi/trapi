@@ -47,20 +47,6 @@ import { SwaggerError, SwaggerErrorCode } from '../../../core/error';
 import { joinPaths, normalizePathParameters } from '../../../core/utils';
 import { AbstractSpecGenerator } from '../abstract';
 
-function uniqueOperationId(base: string, used: Set<string>): string {
-    if (!used.has(base)) {
-        used.add(base);
-        return base;
-    }
-    let counter = 2;
-    while (used.has(`${base}_${counter}`)) {
-        counter += 1;
-    }
-    const candidate = `${base}_${counter}`;
-    used.add(candidate);
-    return candidate;
-}
-
 export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     async build() : Promise<SpecV2> {
         if (typeof this.spec !== 'undefined') {
@@ -231,13 +217,15 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         usedOperationIds: Set<string>,
     ) : OperationV2 {
         const output = this.buildOperation(method);
-        output.consumes = this.buildMethodConsumes(method);
+        // `buildOperation` derives V2's body/form defaults; fall back to the verb
+        // default only when it derived nothing.
+        let consumes = output.consumes!;
+        if (consumes.length === 0 && this.supportsBodyParameters(method.method)) {
+            consumes = ['application/json'];
+        }
+        output.consumes = this.resolveConsumes(method, consumes);
 
-        // Prefer an explicit operationId from metadata (matches V3 behaviour),
-        // then disambiguate across multi-mount controllers (the same method
-        // emitted at multiple paths must not share an operationId).
-        const baseOperationId = method.operationId || output.operationId!;
-        output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
+        output.operationId = this.buildOperationId(method, emittedPath, usedOperationIds);
 
         output.description = method.description;
         if (method.summary) {
@@ -468,37 +456,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return parameter;
     }
 
-    private buildMethodConsumes(method: Method) : string[] {
-        if (
-            method.consumes &&
-            method.consumes.length > 0
-        ) {
-            return method.consumes;
-        }
-
-        if (this.hasFileParams(method)) {
-            return ['multipart/form-data'];
-        }
-
-        if (this.hasFormParams(method)) {
-            return ['application/x-www-form-urlencoded'];
-        }
-
-        if (this.supportsBodyParameters(method.method)) {
-            return ['application/json'];
-        }
-
-        return [];
-    }
-
-    private hasFileParams(method: Method) {
-        return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA && p.type.typeName === 'file'));
-    }
-
-    private hasFormParams(method: Method) {
-        return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA));
-    }
-
     private supportsBodyParameters(method: string) {
         return ['post', 'put', 'patch'].includes(method);
     }
@@ -585,9 +542,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
     private buildOperation(method: Method) {
         const operation : OperationV2 = {
-            operationId: this.getOperationId(method.name),
-            consumes: method.consumes || [],
-            produces: method.produces || [],
+            // Copy, never alias: `[]` is truthy, so `method.consumes || []` handed
+            // back the metadata's own array and the `push`es below mutated it.
+            // V3 reads `method.consumes` now, so a Metadata reused across targets
+            // (what the CLI does) leaked V2's multipart default into the V3 document.
+            consumes: [...method.consumes],
+            produces: [...method.produces],
             responses: {},
         };
 

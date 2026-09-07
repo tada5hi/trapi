@@ -17,6 +17,26 @@ export type TrapiOutputConfig = {
     format?: `${DocumentFormat}`;
 };
 
+/**
+ * Post-process the generated OpenAPI document before it is written.
+ *
+ * Runs after `generateSwagger` and before the output file is written, so it
+ * sees the finished document — including the paths and operationIds the
+ * emitter assigned, which `swagger.data.extra` cannot know because that merge
+ * input is built before generation.
+ *
+ * Mutate `spec` in place and return nothing, or return a replacement document.
+ *
+ * Throwing aborts the run: no file is written for this entry and
+ * `trapi generate` exits non-zero.
+ *
+ * Only reachable from a JS/TS config file — a JSON config (or the `trapi`
+ * field in `package.json`) cannot carry a function.
+ */
+export type SwaggerTransform = (
+    spec: Record<string, any>,
+) => Record<string, any> | void | Promise<Record<string, any> | void>;
+
 export type TrapiConfigEntry = {
     /**
      * Working directory relative paths in this entry are resolved against.
@@ -36,6 +56,7 @@ export type TrapiConfigEntry = {
     swagger?: {
         version?: `${Version}`;
         data?: SwaggerGenerateData;
+        transform?: SwaggerTransform;
     };
 
     /**

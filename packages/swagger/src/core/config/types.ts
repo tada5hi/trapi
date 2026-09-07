@@ -6,7 +6,7 @@
  */
 
 import type { CollectionFormat, Metadata } from '@trapi/core';
-import type { DocumentFormat, Version } from '../constants';
+import type { DocumentFormat, OperationIdStrategy, Version } from '../constants';
 import type { SecurityDefinitions } from '../types';
 
 export type ServerOption = {
@@ -69,6 +69,19 @@ export type SpecGeneratorOptions = {
      * Possible values are `csv`, `ssv`, `tsv`, `pipes`, `multi`. If not specified, Swagger defaults to `csv`.
      */
     collectionFormat?: `${CollectionFormat}`;
+
+    /**
+     * How a default operationId is derived. `method` uses Ucfirst(methodName),
+     * `path` uses the HTTP verb plus the emitted URL segments. An explicit
+     * `operationId` always wins over both.
+     *
+     * `path` ids are stable under controller reordering, except where two paths
+     * normalise to the same id (`/users/{id}` and `/users/by-id` both yield
+     * `getUsersById`) — the loser still gets an emission-order `_2` suffix.
+     *
+     * default: OperationIdStrategy.METHOD
+     */
+    operationIdStrategy?: `${OperationIdStrategy}`;
 };
 
 export type SpecGeneratorOptionsInput = Omit<Partial<SpecGeneratorOptions>, 'servers'> & {
@@ -144,6 +157,13 @@ export type SwaggerGenerateData = {
      * Default collection format for array query parameters.
      */
     collectionFormat?: `${CollectionFormat}`;
+
+    /**
+     * How a default operationId is derived ('method' or 'path').
+     *
+     * default: 'method'
+     */
+    operationIdStrategy?: `${OperationIdStrategy}`;
 
     /**
      * Extra properties to merge into the generated spec.

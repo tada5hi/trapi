@@ -192,6 +192,50 @@ describe('resolveEntry', () => {
         expect(t.output.path).toBe(path.join(cwd, 'swagger.json'));
     });
 
+    it('threads swagger.transform onto the resolved target', () => {
+        const transform = () => {};
+        const t = resolveEntry(
+            { metadata: { entryPoint: 'src/x.ts' }, swagger: { transform } },
+            {},
+            cwd,
+        );
+        expect(t.swagger.transform).toBe(transform);
+    });
+
+    it('leaves swagger.transform undefined when the config does not set one', () => {
+        const t = resolveEntry(
+            { metadata: { entryPoint: 'src/x.ts' } },
+            {},
+            cwd,
+        );
+        expect(t.swagger.transform).toBeUndefined();
+    });
+
+    it('throws a CLIUserError when swagger.transform is not a function', () => {
+        expect(() => resolveEntry(
+            { metadata: { entryPoint: 'src/x.ts' }, swagger: { transform: './post.mjs' as never } },
+            {},
+            cwd,
+        )).toThrowError(CLIUserError);
+    });
+
+    it('keeps each entry transform separate across two entries', () => {
+        const a = () => {};
+        const b = () => {};
+        const first = resolveEntry(
+            { metadata: { entryPoint: 'src/x.ts' }, swagger: { transform: a } },
+            {},
+            cwd,
+        );
+        const second = resolveEntry(
+            { metadata: { entryPoint: 'src/x.ts' }, swagger: { transform: b } },
+            {},
+            cwd,
+        );
+        expect(first.swagger.transform).toBe(a);
+        expect(second.swagger.transform).toBe(b);
+    });
+
     it('CLI cwd flag wins over config cwd', () => {
         const flagCwd = path.resolve('/flag-cwd');
         const t = resolveEntry(

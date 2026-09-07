@@ -7,9 +7,10 @@
 
 import process from 'node:process';
 import { defineCommand } from 'citty';
+import { isObject } from 'smob';
 import type { MetadataGenerateOptions } from '@trapi/metadata';
 import { generateMetadata } from '@trapi/metadata';
-import type { DocumentFormat } from '@trapi/swagger';
+import type { DocumentFormat, SpecV2, SpecV3 } from '@trapi/swagger';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
 import type {
     GenerateFlags,
@@ -22,6 +23,7 @@ import {
     resolveEntry,
 } from '../config';
 import {
+    CLIUserError,
     LOG_LEVEL_VALUES,
     createLogger,
     normalizeLogLevel,
@@ -202,26 +204,33 @@ export async function runGenerate(
     return results;
 }
 
-async function runTargets(targets: ResolvedTarget[], logger: ReturnType<typeof createLogger>): Promise<GenerateResult[]> {
-    const groups = groupByMetadataSignature(targets);
+// Targets are emitted in config order; metadata extraction is memoised per
+// signature so entries sharing metadata options still run generateMetadata once.
+export async function runTargets(
+    targets: ResolvedTarget[],
+    logger: ReturnType<typeof createLogger>,
+): Promise<GenerateResult[]> {
+    const cache = new Map<string, Metadata>();
     const results: GenerateResult[] = [];
 
-    for (const group of groups) {
-        const metadata = await generateMetadata(group.metadataOptions);
-        logger.debug(
-            `metadata: ${metadata.controllers.length} controller(s), ${Object.keys(metadata.referenceTypes).length} reference type(s)`,
-        );
-
-        for (const target of group.targets) {
-            const result = await emitOne(target, metadata, logger);
-            results.push(result);
+    for (const [index, target] of targets.entries()) {
+        const key = signatureFor(target.metadata, index);
+        let metadata = cache.get(key);
+        if (!metadata) {
+            metadata = await generateMetadata(target.metadata);
+            logger.debug(
+                `metadata: ${metadata.controllers.length} controller(s), ${Object.keys(metadata.referenceTypes).length} reference type(s)`,
+            );
+            cache.set(key, metadata);
         }
+
+        results.push(await emitOne(target, metadata, logger));
     }
 
     return results;
 }
 
-async function emitOne(
+export async function emitOne(
     target: ResolvedTarget,
     metadata: Metadata,
     logger: ReturnType<typeof createLogger>,
@@ -231,35 +240,32 @@ async function emitOne(
         metadata,
         data: target.swagger.data,
     });
+
+    // The transform sees the document as a plain record so it can add keys the
+    // emitter never produces; returning nothing keeps its in-place edits.
+    // Throwing aborts before the write, so the previous file stays untouched.
+    // ponytail: the transformed document is not re-validated — upgrade path is
+    // to run the OAI JSON Schema validator (packages/swagger/test/schemas) here
+    // behind a flag if bad transforms turn out to be a real problem.
+    // `null`/`undefined` mean "kept my in-place edits"; anything else is meant to
+    // replace the document. A `.js` config has no type checking, so reject a
+    // non-object return rather than writing `0` or `"…"` out as the document.
+    const transformed = await target.swagger.transform?.(spec);
+    if (transformed != null && !isObject(transformed)) {
+        throw new CLIUserError(
+            `\`swagger.transform\` must return an object or nothing, received ${Array.isArray(transformed) ? 'an array' : typeof transformed}.`,
+        );
+    }
+    const document = (transformed ?? spec) as SpecV2 | SpecV3;
+
     const split = splitOutputPath(target.output.path, target.output.format);
-    const written = await saveSwagger(spec, {
+    const written = await saveSwagger(document, {
         cwd: split.cwd,
         name: split.name,
         format: split.format,
     });
     logger.info(`wrote ${written.path} (${target.swagger.version})`);
     return { target, output: { path: written.path } };
-}
-
-type MetadataGroup = {
-    metadataOptions: MetadataGenerateOptions;
-    targets: ResolvedTarget[];
-};
-
-function groupByMetadataSignature(targets: ResolvedTarget[]): MetadataGroup[] {
-    const groups = new Map<string, MetadataGroup>();
-
-    targets.forEach((target, index) => {
-        const key = signatureFor(target.metadata, index);
-        const existing = groups.get(key);
-        if (existing) {
-            existing.targets.push(target);
-        } else {
-            groups.set(key, { metadataOptions: target.metadata, targets: [target] });
-        }
-    });
-
-    return [...groups.values()];
 }
 
 // Inline preset/tsconfig/registry values cannot be compared structurally — two

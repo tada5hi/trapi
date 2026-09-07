@@ -70,20 +70,6 @@ const OPENAPI_VERSION_MAP: Partial<Record<`${Version}`, string>> = {
     'v3.2': '3.2.0',
 };
 
-function uniqueOperationId(base: string, used: Set<string>): string {
-    if (!used.has(base)) {
-        used.add(base);
-        return base;
-    }
-    let counter = 2;
-    while (used.has(`${base}_${counter}`)) {
-        counter += 1;
-    }
-    const candidate = `${base}_${counter}`;
-    used.add(candidate);
-    return candidate;
-}
-
 export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private readonly openApiVersion: string;
 
@@ -195,6 +181,8 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     method.security = controller.security;
                 }
 
+                method.consumes = [...new Set([...controller.consumes, ...method.consumes])];
+                method.produces = [...new Set([...controller.produces, ...method.produces])];
                 method.tags = [...new Set([...controller.tags, ...method.tags])];
                 // todo: unique for objects
                 method.responses = [...new Set([...controller.responses, ...method.responses])];
@@ -225,12 +213,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             output.tags = method.tags;
         }
 
-        // Use the explicit operationId tag if provided, otherwise the generated
-        // one. When the same method is mounted at multiple controller paths the
-        // operationIds collide — disambiguate by suffixing _2, _3, ... so the
-        // emitted spec stays OpenAPI-valid.
-        const baseOperationId = method.operationId || output.operationId!;
-        output.operationId = uniqueOperationId(baseOperationId, usedOperationIds);
+        output.operationId = this.buildOperationId(method, emittedPath, usedOperationIds);
 
         if (method.deprecated) {
             output.deprecated = method.deprecated;
@@ -312,10 +295,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const firstBodyParam = bodyParams[0];
-        if (firstBodyParam) {
-            output.requestBody = this.buildRequestBody(firstBodyParam);
-        } else if (formParams.length > 0) {
-            output.requestBody = this.buildRequestBodyWithFormData(formParams);
+        if (firstBodyParam || formParams.length > 0) {
+            const consumes = this.resolveConsumes(
+                method,
+                this.config.consumes?.length ? this.config.consumes : ['application/json'],
+            );
+
+            if (firstBodyParam) {
+                output.requestBody = this.buildRequestBody(firstBodyParam, consumes);
+            } else {
+                output.requestBody = this.buildRequestBodyWithFormData(formParams, consumes);
+            }
         }
 
         Object.assign(output, this.transformExtensions(method.extensions));
@@ -323,7 +313,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return output;
     }
 
-    private buildRequestBodyWithFormData(parameters: Parameter[]): RequestBodyV3 {
+    private buildRequestBodyWithFormData(parameters: Parameter[], consumes: string[]): RequestBodyV3 {
         const required: string[] = [];
         const properties: Record<string, SchemaV3> = {};
 
@@ -335,29 +325,35 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
         }
 
+        const schema : SchemaV3 = {
+            type: DataTypeName.OBJECT,
+            properties,
+            // An empty list required: [] is not valid.
+            // If all properties are optional, do not specify the required keyword.
+            ...(required && required.length && { required }),
+        };
+
+        const content: Record<string, MediaTypeV3> = {};
+        for (const contentType of consumes) {
+            content[contentType] = { schema };
+        }
+
         return {
             required: required.length > 0,
-            content: {
-                'multipart/form-data': {
-                    schema: {
-                        type: DataTypeName.OBJECT,
-                        properties,
-                        // An empty list required: [] is not valid.
-                        // If all properties are optional, do not specify the required keyword.
-                        ...(required && required.length && { required }),
-                    },
-                },
-            },
+            content,
         };
     }
 
-    private buildRequestBody(parameter: Parameter): RequestBodyV3 {
-        const mediaType = this.buildMediaType(parameter);
+    private buildRequestBody(parameter: Parameter, consumes: string[]): RequestBodyV3 {
+        const content: Record<string, MediaTypeV3> = {};
+        for (const contentType of consumes) {
+            content[contentType] = this.buildMediaType(parameter);
+        }
 
         return {
             description: parameter.description,
             required: parameter.required,
-            content: { 'application/json': mediaType },
+            content,
         };
     }
 
@@ -369,7 +365,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
     }
 
-    protected buildResponses(input: Response[]) : Record<string, ResponseV3> {
+    protected buildResponses(input: Response[], produces: string[]) : Record<string, ResponseV3> {
         const output: Record<string, ResponseV3> = {};
 
         for (const res of input) {
@@ -392,7 +388,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                 const content = response.content ?? (response.content = {});
 
-                const contentTypes = res.produces || ['application/json'];
+                const contentTypes = res.produces?.length ? res.produces : produces;
                 for (const contentType of contentTypes) {
                     content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
@@ -426,10 +422,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     }
 
     protected buildOperation(_controllerName: string, method: Method): OperationV3 {
-        const operation : OperationV3 = {
-            operationId: this.getOperationId(method.name),
-            responses: this.buildResponses(method.responses),
-        };
+        const operation : OperationV3 = { responses: this.buildResponses(method.responses, this.resolveProduces(method)) };
         if (method.description) {
             operation.description = method.description;
         }
@@ -441,6 +434,23 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         return operation;
+    }
+
+    /**
+     * V3-only: `content` is per response, so the method produces is just the
+     * fallback for responses that declare none. V2 resolves produces the other
+     * way round (per operation, method wins over response).
+     */
+    private resolveProduces(method: Method) : string[] {
+        if (method.produces && method.produces.length > 0) {
+            return method.produces;
+        }
+
+        if (this.config.produces?.length) {
+            return this.config.produces;
+        }
+
+        return ['application/json'];
     }
 
     protected transformParameterSource(

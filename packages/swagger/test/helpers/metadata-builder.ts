@@ -187,6 +187,13 @@ export function fileType(): Type {
     return { typeName: 'file' };
 }
 
+// What the TypeScript resolver actually emits for an upload parameter — it
+// never produces `file`, so a fixture using `fileType()` alone would not catch
+// a regression that only affects real projects.
+export function bufferType(): Type {
+    return { typeName: 'buffer' };
+}
+
 export function arrayType(elementType: Type): ArrayType {
     return { typeName: 'array', elementType };
 }

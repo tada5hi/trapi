@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.0](https://github.com/tada5hi/trapi/compare/cli-v2.0.5...cli-v2.1.0) (2026-09-07)
+
+
+### Features
+
+* stable path operationIds, OpenAPI 3 content types, swagger.transform hook ([#902](https://github.com/tada5hi/trapi/issues/902)) ([8314456](https://github.com/tada5hi/trapi/commit/83144562af3bb1e7e526d91513014af2bb29ef12))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.0.5 to ^2.1.0
+    * @trapi/swagger bumped from ^2.0.5 to ^2.1.0
+
 ## [2.0.5](https://github.com/tada5hi/trapi/compare/cli-v2.0.4...cli-v2.0.5) (2026-08-18)
 
 

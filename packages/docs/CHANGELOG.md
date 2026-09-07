@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.2.0](https://github.com/tada5hi/trapi/compare/docs-v3.1.4...docs-v3.2.0) (2026-09-07)
+
+
+### Features
+
+* stable path operationIds, OpenAPI 3 content types, swagger.transform hook ([#902](https://github.com/tada5hi/trapi/issues/902)) ([8314456](https://github.com/tada5hi/trapi/commit/83144562af3bb1e7e526d91513014af2bb29ef12))
+
+
+### Bug Fixes
+
+* **swagger:** declare path-template variables that no parameter declared ([#903](https://github.com/tada5hi/trapi/issues/903)) ([0d349ff](https://github.com/tada5hi/trapi/commit/0d349ff60d83a4c3b898306226dc3f99c5962ae3)), closes [#896](https://github.com/tada5hi/trapi/issues/896)
+* tsconfig extends resolution, v3 tag cascade, operationId propagation ([#899](https://github.com/tada5hi/trapi/issues/899)) ([3cc293b](https://github.com/tada5hi/trapi/commit/3cc293bf882fb663a916cae8d887dfeefeb9b28e)), closes [#895](https://github.com/tada5hi/trapi/issues/895)
+
 ## [3.1.4](https://github.com/tada5hi/trapi/compare/docs-v3.1.3...docs-v3.1.4) (2026-08-18)
 
 

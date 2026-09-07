@@ -151,6 +151,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.0](https://github.com/tada5hi/trapi/compare/metadata-v2.0.5...metadata-v2.1.0) (2026-09-07)
+
+
+### Bug Fixes
+
+* tsconfig extends resolution, v3 tag cascade, operationId propagation ([#899](https://github.com/tada5hi/trapi/issues/899)) ([3cc293b](https://github.com/tada5hi/trapi/commit/3cc293bf882fb663a916cae8d887dfeefeb9b28e)), closes [#895](https://github.com/tada5hi/trapi/issues/895)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.0.5 to 2.1.0
+
 ## [2.0.5](https://github.com/tada5hi/trapi/compare/metadata-v2.0.4...metadata-v2.0.5) (2026-08-18)
 
 

@@ -152,6 +152,8 @@ tsconfig: {
 
 If omitted, TRAPI uses a permissive default that accepts most projects. For consistent behaviour between your build and metadata generation, point at the same `tsconfig.json` you compile with.
 
+A path is parsed with TypeScript's own config parser, so `extends` chains are followed and `paths` resolve against the `baseUrl` of the config that declares it — a package config inheriting `baseUrl` from a monorepo root behaves the same as it does under `tsc`.
+
 ## Typical Configurations
 
 ### Minimal

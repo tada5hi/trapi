@@ -78,6 +78,19 @@ describe('multi-mount controller paths', () => {
             expect(second).toEqual('List_2');
         });
 
+        it('yields distinct path-derived ids per mount with no numeric suffix', async () => {
+            const spec = await generateSwagger({
+                version: Version.V3,
+                metadata,
+                data: { servers, operationIdStrategy: 'path' },
+            });
+
+            expect(spec.paths['/roles'].get!.operationId).toEqual('getRoles');
+            expect(spec.paths['/realms/{realmId}/roles'].get!.operationId).toEqual('getRealmsByRealmIdRoles');
+            expect(spec.paths['/roles/{id}'].get!.operationId).toEqual('getRolesById');
+            expect(spec.paths['/realms/{realmId}/roles/{id}'].get!.operationId).toEqual('getRealmsByRealmIdRolesById');
+        });
+
         it('only emits path-bound parameters that are present in the URL template', async () => {
             const spec = await generateSwagger({
                 version: Version.V3,
@@ -120,6 +133,19 @@ describe('multi-mount controller paths', () => {
             const second = spec.paths['/realms/{realmId}/roles'].get!.operationId;
             expect(first).toEqual('List');
             expect(second).toEqual('List_2');
+        });
+
+        it('yields distinct path-derived ids per mount with no numeric suffix', async () => {
+            const spec = await generateSwagger({
+                version: Version.V2,
+                metadata,
+                data: { servers, operationIdStrategy: 'path' },
+            });
+
+            expect(spec.paths['/roles'].get!.operationId).toEqual('getRoles');
+            expect(spec.paths['/realms/{realmId}/roles'].get!.operationId).toEqual('getRealmsByRealmIdRoles');
+            expect(spec.paths['/roles/{id}'].get!.operationId).toEqual('getRolesById');
+            expect(spec.paths['/realms/{realmId}/roles/{id}'].get!.operationId).toEqual('getRealmsByRealmIdRolesById');
         });
     });
 });

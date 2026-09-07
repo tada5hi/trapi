@@ -72,6 +72,7 @@ type SwaggerGenerateData = {
     consumes?: string[];
     produces?: string[];
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
+    operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;
 };
 ```
@@ -102,6 +103,18 @@ type ServerOption = {
 ### `SpecV2` / `SpecV3`
 
 The shape of the emitted document. `SpecV2` follows the OpenAPI 2.0 (Swagger) schema; `SpecV3` covers 3.0, 3.1, and 3.2 outputs. The swagger package re-exports them as TypeScript types so you can write utilities over the output without pulling in a third-party type package.
+
+### `OperationIdStrategy`
+
+```typescript
+const OperationIdStrategy = {
+    METHOD: 'method',
+    PATH: 'path',
+} as const;
+type OperationIdStrategy = typeof OperationIdStrategy[keyof typeof OperationIdStrategy];
+```
+
+See [Operation IDs](/guide/swagger-document-data#operation-ids).
 
 ### `Version`
 

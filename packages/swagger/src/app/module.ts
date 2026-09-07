@@ -30,6 +30,7 @@ function toSpecGeneratorOptionsInput(options: SwaggerGenerateOptions): SpecGener
         consumes: data.consumes,
         produces: data.produces,
         collectionFormat: data.collectionFormat,
+        operationIdStrategy: data.operationIdStrategy,
         specificationExtra: data.extra,
     };
 }

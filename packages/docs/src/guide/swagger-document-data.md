@@ -13,6 +13,7 @@ type SwaggerGenerateData = {
     consumes?: string[];
     produces?: string[];
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
+    operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;
 };
 ```
@@ -95,7 +96,7 @@ Operation-level `security` is driven by the `@Security` decorator on your contro
 
 ## Default Content Types
 
-`consumes` and `produces` become the default media types for request bodies and responses respectively. They can be overridden per-operation via the `@Consumes`/`@Produces` decorators.
+`consumes` and `produces` become the default media types for request bodies and responses respectively. Both emitters honour them, but they surface differently: v2 writes the top-level `consumes`/`produces` keys, while v3 folds them into the `requestBody.content` and `responses.<code>.content` keys — OpenAPI 3 removed the document-level fields.
 
 ```typescript
 data: {
@@ -104,6 +105,8 @@ data: {
 }
 ```
 
+Precedence: `@Consumes`/`@Produces` on a controller and on a method are **merged** (controller entries first) and win over these defaults. A `@Produces` on a specific response wins over the method's in v3. When nothing is declared anywhere, a request body with file parameters uses `multipart/form-data`, any other form body uses `application/x-www-form-urlencoded`, and everything else falls back to these defaults — or to `application/json` when they are unset too.
+
 ## Collection Format
 
 `collectionFormat` controls how array-valued query parameters are serialised in OpenAPI 2.0. It has no effect on v3 emitters.
@@ -111,6 +114,39 @@ data: {
 ```typescript
 data: { collectionFormat: 'multi' }  // ?tag=a&tag=b
 ```
+
+## Operation IDs
+
+`operationIdStrategy` selects how a default `operationId` is derived. An explicit `operationId` on a method always wins over both strategies.
+
+### `'method'` (default)
+
+`Ucfirst(methodName)`. When two operations end up with the same id — the same method name on two controllers, or one method mounted at several controller paths — the later one gets a positional `_2`, `_3`, … suffix. That suffix depends on emission order, so adding, removing or reordering a controller can shift the ids of unrelated operations. It is kept as the default for backwards compatibility.
+
+### `'path'`
+
+The HTTP verb plus the emitted URL segments, with `{param}` becoming `By<Param>`:
+
+```typescript
+data: { operationIdStrategy: 'path' }
+```
+
+| Operation | `operationId` |
+|---|---|
+| `GET /roles` | `getRoles` |
+| `GET /roles/{id}` | `getRolesById` |
+| `POST /roles` | `postRoles` |
+| `GET /realms/{realmId}/roles` | `getRealmsByRealmIdRoles` |
+| `DELETE /realms/{realmId}/roles/{id}` | `deleteRealmsByRealmIdRolesById` |
+
+Details:
+
+- The verb is not aliased — `POST` yields `post…`, not `create…`.
+- The root path `/` yields the bare verb (`get`, `post`). One verb per path makes it unique by construction.
+- Non-alphanumerics are separators: `by-id` becomes `ById`, `user.profile` becomes `UserProfile`. The lowercase verb prefix keeps the id identifier-safe even when a segment starts with a digit (`/2fa` → `get2fa`).
+- A multi-mount controller gets a distinct id per mount with no numeric suffix, because the path differs.
+
+Two different paths can still normalise to the same id — `/users/{id}` and `/users/by-id` both yield `getUsersById`. The `_2` suffix remains as the backstop for that case; set an explicit `operationId` on one of the two to remove the ambiguity.
 
 ## Extra Properties
 
@@ -129,3 +165,5 @@ data: {
 ```
 
 Generated properties take precedence where keys overlap — `extra` cannot overwrite content TRAPI has produced from your decorators.
+
+`extra` is built *before* generation, so it cannot key on values the emitter assigns — per-operation additions that need the emitted path or `operationId` have nothing to attach to. For those, use the CLI's [`swagger.transform`](/guide/cli#post-processing-the-document) hook, which runs on the finished document just before it is written.

@@ -12,9 +12,9 @@ import type {
     Extension,
     IntersectionType,
     Metadata,
+    Method,
     NestedObjectLiteralType,
     Parameter,
-    ParameterSource,
     PrimitiveType,
     RefAliasType,
     RefEnumType,
@@ -27,6 +27,7 @@ import type {
     VariableType, 
 } from '@trapi/core';
 import {
+    ParameterSource,
     TypeName,
     isArrayType,
     isEnumType,
@@ -47,7 +48,8 @@ import { SwaggerError, SwaggerErrorCode } from '../../core/error';
 import type { SpecGeneratorOptions, SpecGeneratorOptionsInput } from '../../core/config';
 import { DataFormatName, DataTypeName } from '../../core/schema';
 import type { ValidatorOpenApiMeta } from '../../core/types';
-import { transformValueTo } from '../../core/utils';
+import { OperationIdStrategy } from '../../core/constants';
+import { operationIdFromPath, transformValueTo, uniqueOperationId } from '../../core/utils';
 
 import type {
     BaseSchema,
@@ -441,8 +443,59 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return 'string';
     }
 
+    /**
+     * Shared consumes precedence: an explicit `@Consumes`/`@Accept` on the method
+     * (already merged with the controller's) wins, then the form-data defaults.
+     * The tail differs per version, so the caller supplies it.
+     */
+    protected resolveConsumes(method: Method, fallback: string[]) : string[] {
+        if (method.consumes && method.consumes.length > 0) {
+            return method.consumes;
+        }
+
+        if (this.hasFileParams(method)) {
+            return ['multipart/form-data'];
+        }
+
+        if (this.hasFormParams(method)) {
+            return ['application/x-www-form-urlencoded'];
+        }
+
+        return fallback;
+    }
+
+    // `Buffer` is what the TypeScript resolver actually emits for an upload
+    // parameter — it never produces `TypeName.FILE`, which only reaches a
+    // generator through hand-built metadata. Matching both keeps a real
+    // `@File()` upload on `multipart/form-data` instead of demoting it to
+    // `application/x-www-form-urlencoded`.
+    protected hasFileParams(method: Method) {
+        return method.parameters.some((p) => (
+            p.in === ParameterSource.FORM_DATA &&
+            (p.type.typeName === TypeName.FILE || p.type.typeName === TypeName.BUFFER)
+        ));
+    }
+
+    protected hasFormParams(method: Method) {
+        return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA));
+    }
+
     protected getOperationId(name: string) {
         return name.charAt(0).toUpperCase() + name.substring(1);
+    }
+
+    /**
+     * An explicit `operationId` from metadata always wins, then the configured
+     * strategy, then the collision backstop (`_2`, `_3`, ...) which also covers
+     * the same method emitted at several controller mounts.
+     */
+    protected buildOperationId(method: Method, emittedPath: string, used: Set<string>): string {
+        const base = method.operationId ||
+            (this.config.operationIdStrategy === OperationIdStrategy.PATH ?
+                operationIdFromPath(method.method, emittedPath) :
+                this.getOperationId(method.name));
+
+        return uniqueOperationId(base, used);
     }
 
     protected groupParameters(items: Parameter[]) : Partial<Record<ParameterSource, Parameter[]>> {

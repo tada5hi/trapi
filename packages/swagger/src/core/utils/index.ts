@@ -6,6 +6,7 @@
  */
 
 export * from './character';
+export * from './operation-id';
 export * from './path';
 export * from './object';
 export * from './value';

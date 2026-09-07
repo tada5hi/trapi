@@ -567,9 +567,17 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const produces : string[] = [];
 
-        // Document-wide responses go first so a method's own response with the
-        // same status overwrites them on the record below.
-        [...(this.config.responses ?? []), ...method.responses].forEach((res: Response) => {
+        // Collapse by status BEFORE emitting: document-wide responses go first,
+        // so a method's own response with the same status replaces them. It has
+        // to happen here rather than on the record below, because the loop also
+        // derives `produces` — a response that loses the status key must not
+        // leave its media type advertised on an operation that never emits it.
+        const responses = new Map<string, Response>();
+        for (const res of [...(this.config.responses ?? []), ...method.responses]) {
+            responses.set(res.status, res);
+        }
+
+        responses.forEach((res: Response) => {
             operation.responses[res.status] = { description: res.description };
 
             if (

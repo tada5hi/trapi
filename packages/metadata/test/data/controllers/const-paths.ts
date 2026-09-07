@@ -11,7 +11,10 @@ import {
     CONST_SUB,
     MOUNT_A,
     MOUNT_B,
+    Mounts,
+    PATHS,
     SEGMENT,
+    TYPED_MOUNT,
 } from '../path-constants';
 import { BARREL_MOUNT } from '../path-constants-barrel';
 
@@ -51,6 +54,30 @@ export class BarrelConstController {
 
 @Controller(LOCAL_MOUNT)
 export class LocalConstController {
+    @Get()
+    public list(): string[] {
+        return [];
+    }
+}
+
+@Controller(TYPED_MOUNT)
+export class TypedImportedConstController {
+    @Get()
+    public list(): string[] {
+        return [];
+    }
+}
+
+@Controller(PATHS.object)
+export class ConstObjectPropertyController {
+    @Get()
+    public list(): string[] {
+        return [];
+    }
+}
+
+@Controller(Mounts.Enum)
+export class EnumMemberController {
     @Get()
     public list(): string[] {
         return [];

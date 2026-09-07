@@ -115,6 +115,46 @@ describe('document responses', () => {
         expect(spec.paths['/users']!.post!.responses['200']!.description).toEqual('FROM_DOCUMENT');
     });
 
+    // v2 derives an operation's `produces` from its responses. A document
+    // response that loses the status key must not leave its media type behind.
+    it('should not advertise the media type of a v2 document response the method overrode', async () => {
+        const spec = await generateSwagger({
+            version: Version.V2,
+            metadata: createMetadata([
+                createController({
+                    name: 'UserController',
+                    paths: ['users'],
+                    methods: [createMethod({
+                        name: 'getMany',
+                        method: 'get',
+                        path: '',
+                        type: stringType(),
+                        responses: [createResponse({
+                            status: '200',
+                            description: 'Ok',
+                            schema: stringType(),
+                            produces: ['application/json'],
+                        })],
+                    })],
+                }),
+            ]),
+            data: {
+                responses: [createResponse({
+                    status: '200',
+                    description: 'Problem',
+                    schema: stringType(),
+                    produces: ['application/problem+json'],
+                })],
+            },
+        });
+
+        expect(spec.paths['/users']!.get!.responses['200']).toEqual({
+            description: 'Ok',
+            schema: { type: 'string' },
+        });
+        expect(spec.paths['/users']!.get!.produces).toEqual(['application/json']);
+    });
+
     // The no-opt-in guarantee, pinned rather than argued.
     it.each([Version.V2, ...V3_VERSIONS])('should not change %s output when the option is absent or empty', async (version) => {
         const baseline = await generateSwagger({ version, metadata: metadata() });

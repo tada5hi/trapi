@@ -12,4 +12,13 @@ export const MOUNT_B = '/mount-b';
 
 export const SEGMENT = 'segment';
 
-export const LOCAL_UNUSED = '/unused';
+// Explicitly annotated, so the checker widens it to `string` and declines to
+// fold it. Only the declaration walk can resolve this one, and only if it can
+// follow the import alias.
+export const TYPED_MOUNT: string = '/typed-mount';
+
+export const PATHS = { object: '/object-mount' } as const;
+
+export enum Mounts {
+    Enum = '/enum-mount',
+}

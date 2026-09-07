@@ -45,7 +45,7 @@ type DecoratorTypeArgument = {
 | kind | What it is | Example | `raw` shape |
 | --- | --- | --- | --- |
 | `'literal'` | string / number / boolean / null literal | `@Path('/users')` | the literal value |
-| `'identifier'` | reference the compiler folds to a constant | `@Path(USERS_PATH)`, an imported or re-exported constant, `PATHS.users`, an enum member, or a template expression whose substitutions are all constants | the resolved value |
+| `'identifier'` | reference that the compiler folds to a constant | `@Path(USERS_PATH)`, an imported or re-exported constant, `PATHS.users`, an enum member, or a template expression whose substitutions are all constants | the resolved value |
 | `'array'` | array literal | `@Tags('a', ['b', 'c'])` second arg | `string[]` (or mixed) |
 | `'object'` | object literal | `@Security({ bearer: ['scope'] })` | `Record<string, unknown>` |
 | `'unresolvable'` | argument the static analyser couldn't reduce | `@Example(buildExample())` | `undefined` |

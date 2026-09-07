@@ -72,4 +72,21 @@ describe('constant decorator paths', () => {
         const controller = controllerNamed('LocalConstController');
         expect(controller.paths).toEqual(['local-mount']);
     });
+
+    // The checker widens an annotated constant to `string` and declines to fold
+    // it, so this one can only be resolved by following the import alias.
+    it('should resolve a mount declared by an explicitly typed imported constant', () => {
+        const controller = controllerNamed('TypedImportedConstController');
+        expect(controller.paths).toEqual(['typed-mount']);
+    });
+
+    it('should resolve a mount declared by an as-const object property', () => {
+        const controller = controllerNamed('ConstObjectPropertyController');
+        expect(controller.paths).toEqual(['object-mount']);
+    });
+
+    it('should resolve a mount declared by an enum member', () => {
+        const controller = controllerNamed('EnumMemberController');
+        expect(controller.paths).toEqual(['enum-mount']);
+    });
 });

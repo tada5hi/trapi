@@ -142,8 +142,17 @@ export function getInitializerValue(
             if (!symbol) {
                 return undefined;
             }
+            // Hand the `ImportSpecifier` itself to the recursion, not its
+            // (always absent) initializer — that is what reaches the
+            // `SyntaxKind.ImportSpecifier` case below, which walks the alias to
+            // the declaration in the other file. Without it an annotated
+            // constant like `export const X: string = '/a'` is unresolvable
+            // once imported: the checker widens it to `string` and declines to
+            // fold it, and there is nothing else left to follow.
             return getInitializerValue(
-                extractInitializer(symbol.valueDeclaration) || extractInitializer(extractImportSpecifier(symbol)),
+                // An `ImportSpecifier` is a Node, not an Expression; the case
+                // that receives it casts it back.
+                (extractInitializer(symbol.valueDeclaration) || extractImportSpecifier(symbol)) as Expression | undefined,
                 typeChecker,
             );
         }

@@ -127,7 +127,7 @@ data: {
 
 Entries are `Response` objects from `@trapi/core`, not raw OpenAPI fragments, so one config works for every emitter: v2 writes `{ description, schema: { $ref: '#/definitions/…' } }` and v3 writes `{ description, content: { 'application/json': { schema: { $ref: '#/components/schemas/…' } } } }`.
 
-A `schema` may reference a type your controllers never mention — the `$ref` is emitted without requiring the type to be in the metadata. Supply the component itself through [`extra`](#extra) and the two compose:
+A `schema` may reference a type your controllers never mention — the `$ref` is emitted without requiring the type to be in the metadata. Supply the component itself through [`extra`](#extra-properties) and the two compose:
 
 ```typescript
 data: {

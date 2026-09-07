@@ -107,8 +107,12 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             openapi: this.openApiVersion,
             paths: this.buildPaths(),
             servers: this.buildServers(),
-            tags: this.buildTags(),
         };
+
+        const tags = this.buildTags();
+        if (tags.length > 0) {
+            spec.tags = tags;
+        }
 
         if (this.config.specificationExtra) {
             spec = merge(spec, this.config.specificationExtra);
@@ -191,6 +195,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     method.security = controller.security;
                 }
 
+                method.tags = [...new Set([...controller.tags, ...method.tags])];
+                // todo: unique for objects
+                method.responses = [...new Set([...controller.responses, ...method.responses])];
+
                 for (const controllerPath of controllerPaths) {
                     const path = normalizePathParameters(joinPaths(controllerPath, method.path));
 
@@ -213,7 +221,9 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         output.description = method.description;
         output.summary = method.summary;
-        output.tags = method.tags;
+        if (method.tags.length) {
+            output.tags = method.tags;
+        }
 
         // Use the explicit operationId tag if provided, otherwise the generated
         // one. When the same method is mounted at multiple controller paths the

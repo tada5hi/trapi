@@ -19,7 +19,7 @@ import {
 import { emitOne, runTargets } from '../../../src/commands/generate.ts';
 import type { ResolvedTarget } from '../../../src/config/merge.ts';
 import type { SwaggerTransform } from '../../../src/config/types.ts';
-import { LogLevel, createLogger } from '../../../src/logger.ts';
+import { CLIUserError, LogLevel, createLogger } from '../../../src/logger.ts';
 
 const metadata = { controllers: [], referenceTypes: {} };
 const logger = createLogger(LogLevel.Silent);
@@ -123,6 +123,26 @@ describe('emitOne', () => {
 
         await expect(emitOne(target, metadata, logger)).rejects.toThrow('boom');
         expect(await fs.readFile(outPath(), 'utf-8')).toBe('{"old":true}');
+    });
+
+    it('keeps the generated document when the transform returns null', async () => {
+        await emitOne(makeTarget(() => null as never), metadata, logger);
+
+        const parsed = await readOutput();
+        expect(parsed.info.title).toBe('API');
+    });
+
+    it.each([
+        ['a number', 0],
+        ['a string', 'nope'],
+        ['a boolean', false],
+        ['an array', []],
+    ])('rejects a transform that returns %s', async (_label, value) => {
+        const target = makeTarget(() => value as never);
+
+        await expect(emitOne(target, metadata, logger))
+            .rejects.toThrow(CLIUserError);
+        await expect(fs.access(outPath())).rejects.toThrow();
     });
 });
 

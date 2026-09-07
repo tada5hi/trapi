@@ -72,8 +72,12 @@ export type SpecGeneratorOptions = {
 
     /**
      * How a default operationId is derived. `method` uses Ucfirst(methodName),
-     * `path` uses the HTTP verb plus the emitted URL segments — stable under
-     * controller reordering. An explicit `operationId` always wins.
+     * `path` uses the HTTP verb plus the emitted URL segments. An explicit
+     * `operationId` always wins over both.
+     *
+     * `path` ids are stable under controller reordering, except where two paths
+     * normalise to the same id (`/users/{id}` and `/users/by-id` both yield
+     * `getUsersById`) — the loser still gets an emission-order `_2` suffix.
      *
      * default: OperationIdStrategy.METHOD
      */

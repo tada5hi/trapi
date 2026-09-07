@@ -22,6 +22,7 @@ import {
     resolveEntry,
 } from '../config';
 import {
+    CLIUserError,
     LOG_LEVEL_VALUES,
     createLogger,
     normalizeLogLevel,
@@ -245,7 +246,16 @@ export async function emitOne(
     // ponytail: the transformed document is not re-validated — upgrade path is
     // to run the OAI JSON Schema validator (packages/swagger/test/schemas) here
     // behind a flag if bad transforms turn out to be a real problem.
-    const document = ((await target.swagger.transform?.(spec)) ?? spec) as SpecV2 | SpecV3;
+    // `null`/`undefined` mean "kept my in-place edits"; anything else is meant to
+    // replace the document. A `.js` config has no type checking, so reject a
+    // non-object return rather than writing `0` or `"…"` out as the document.
+    const transformed = await target.swagger.transform?.(spec);
+    if (transformed != null && (typeof transformed !== 'object' || Array.isArray(transformed))) {
+        throw new CLIUserError(
+            `\`swagger.transform\` must return an object or nothing, received ${Array.isArray(transformed) ? 'an array' : typeof transformed}.`,
+        );
+    }
+    const document = (transformed ?? spec) as SpecV2 | SpecV3;
 
     const split = splitOutputPath(target.output.path, target.output.format);
     const written = await saveSwagger(document, {

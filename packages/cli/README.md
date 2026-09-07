@@ -83,7 +83,7 @@ export default defineConfig({
 });
 ```
 
-`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config. The one field with no CLI-flag equivalent is [`swagger.transform`](#post-processing-the-document) — a function cannot come from argv.
+`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config. Not every field has a CLI flag — `swagger.data.extra`, `consumes`/`produces` and `collectionFormat` are config-only too — but [`swagger.transform`](#post-processing-the-document) is the only one that never could have one, since a function cannot come from argv.
 
 ### CLI flags override config
 
@@ -131,8 +131,13 @@ export default defineConfig({
     swagger: {
         version: 'v3.1',
         transform(spec) {
+            const VERBS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+
             for (const [url, item] of Object.entries(spec.paths)) {
                 for (const [verb, operation] of Object.entries(item)) {
+                    // A Path Item may also hold $ref/parameters/summary/description.
+                    if (!VERBS.includes(verb)) continue;
+
                     // Edits keyed on what the emitter actually produced.
                     operation['x-internal'] = url.startsWith('/admin');
 

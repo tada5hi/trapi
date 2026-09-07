@@ -7,6 +7,7 @@
 
 import process from 'node:process';
 import { defineCommand } from 'citty';
+import { isObject } from 'smob';
 import type { MetadataGenerateOptions } from '@trapi/metadata';
 import { generateMetadata } from '@trapi/metadata';
 import type { DocumentFormat, SpecV2, SpecV3 } from '@trapi/swagger';
@@ -250,7 +251,7 @@ export async function emitOne(
     // replace the document. A `.js` config has no type checking, so reject a
     // non-object return rather than writing `0` or `"…"` out as the document.
     const transformed = await target.swagger.transform?.(spec);
-    if (transformed != null && (typeof transformed !== 'object' || Array.isArray(transformed))) {
+    if (transformed != null && !isObject(transformed)) {
         throw new CLIUserError(
             `\`swagger.transform\` must return an object or nothing, received ${Array.isArray(transformed) ? 'an array' : typeof transformed}.`,
         );

@@ -49,7 +49,12 @@ import type { SpecGeneratorOptions, SpecGeneratorOptionsInput } from '../../core
 import { DataFormatName, DataTypeName } from '../../core/schema';
 import type { ValidatorOpenApiMeta } from '../../core/types';
 import { OperationIdStrategy } from '../../core/constants';
-import { operationIdFromPath, transformValueTo, uniqueOperationId } from '../../core/utils';
+import {
+    operationIdFromPath,
+    pathVariables,
+    transformValueTo,
+    uniqueOperationId,
+} from '../../core/utils';
 
 import type {
     BaseSchema,
@@ -478,6 +483,19 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected hasFormParams(method: Method) {
         return method.parameters.some((p) => (p.in === ParameterSource.FORM_DATA));
+    }
+
+    /**
+     * Path-template variables the emitted operation does not declare a parameter
+     * for. OpenAPI requires every `{name}` in a path template to correspond to a
+     * `required: true` path parameter (OAS 3.1 §4.8.9.1), but a variable does not
+     * have to be a decorated argument — a controller mounted at
+     * `/realms/:realmId/users` may leave `realmId` to middleware. The emitter owns
+     * the template, so it can close the gap without new information.
+     */
+    protected undeclaredPathVariables(emittedPath: string, declared: Parameter[]) : string[] {
+        const names = new Set(declared.map((p) => p.name));
+        return pathVariables(emittedPath).filter((name) => !names.has(name));
     }
 
     protected getOperationId(name: string) {

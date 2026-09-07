@@ -251,6 +251,17 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             ...(parameters[ParameterSource.FORM_DATA] || []),
         ].map((p) => this.buildParameter(p));
 
+        // A path variable need not be a decorated argument; declare the rest so
+        // the operation stays valid (and callable from Swagger UI / generated clients).
+        output.parameters.push(
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
+                name,
+                in: ParameterSourceV2.PATH,
+                required: true,
+                type: DataTypeName.STRING,
+            })),
+        );
+
         // ignore ParameterSource.QUERY!
 
         // ------------------------------------------------------

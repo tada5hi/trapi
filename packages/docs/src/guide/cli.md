@@ -60,7 +60,7 @@ export default defineConfig({
 });
 ```
 
-`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config. Not every field has a CLI flag — `swagger.data.extra`, `consumes`/`produces` and `collectionFormat` are config-only too — but [`swagger.transform`](#post-processing-the-document) is the only one that never could have one, since a function cannot come from argv.
+`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config. Not every field has a CLI flag — `swagger.data.extra`, `consumes`/`produces`, `collectionFormat` and `pathParameters` are config-only too — but [`swagger.transform`](#post-processing-the-document) is the only one that never could have one, since a function cannot come from argv.
 
 ### Override precedence
 

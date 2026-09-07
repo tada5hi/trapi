@@ -245,12 +245,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // A path variable need not be a decorated argument; declare the rest so
         // the operation stays valid (and callable from Swagger UI / generated clients).
         output.parameters.push(
-            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
-                name,
-                in: ParameterSourceV3.PATH,
-                required: true,
-                schema: { type: DataTypeName.STRING },
-            })),
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => {
+                const description = this.pathParameterDescription(name);
+
+                return {
+                    name,
+                    in: ParameterSourceV3.PATH,
+                    required: true,
+                    schema: { type: DataTypeName.STRING },
+                    ...(description ? { description } : {}),
+                };
+            }),
         );
 
         // ignore ParameterSource.QUERY!
@@ -507,9 +512,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const parameter : ParameterV3 = {
-            allowEmptyValue: false,
             deprecated: false,
-            description: input.description,
+            description: input.in === ParameterSource.PATH ?
+                this.pathParameterDescription(input.name, input.description) :
+                input.description,
             in: sourceIn,
             name: input.name,
             required: input.required,
@@ -519,6 +525,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 ...this.transformValidators(input.validators),
             },
         };
+
+        // `allowEmptyValue` is defined only for query parameters (OAS 3.1 §4.8.11.1);
+        // the Parameter Object closes every other `in` branch with
+        // `unevaluatedProperties: false`, so emitting it elsewhere fails validation.
+        if (sourceIn === ParameterSourceV3.QUERY) {
+            parameter.allowEmptyValue = input.allowEmptyValue ?? false;
+        }
 
         Object.assign(parameter, this.transformExtensions(input.extensions));
 

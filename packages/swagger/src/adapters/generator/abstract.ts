@@ -498,6 +498,27 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return pathVariables(emittedPath).filter((name) => !names.has(name));
     }
 
+    /**
+     * Description for a path-template variable, from the document-wide
+     * `pathParameters` map. A synthesized variable has no declaration to read one
+     * from; a declared one takes it only when it has none of its own, so `own`
+     * wins whenever it says anything.
+     *
+     * `own` is also what comes back when the map has nothing to offer, so a
+     * document that configures no `pathParameters` emits exactly what it emitted
+     * before: a declared parameter whose description is `''` keeps `description: ''`
+     * rather than dropping the key. (Dropping it would be valid OpenAPI — omitting
+     * falsy defaults is the half of #914 that was deliberately deferred — but it is
+     * not this option's business to change an unconfigured document.)
+     */
+    protected pathParameterDescription(name: string, own?: string) : string | undefined {
+        if (own) {
+            return own;
+        }
+
+        return this.config.pathParameters?.[name]?.description ?? own;
+    }
+
     protected getOperationId(name: string) {
         return name.charAt(0).toUpperCase() + name.substring(1);
     }

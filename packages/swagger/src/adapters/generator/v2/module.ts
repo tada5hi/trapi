@@ -257,12 +257,17 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // A path variable need not be a decorated argument; declare the rest so
         // the operation stays valid (and callable from Swagger UI / generated clients).
         output.parameters.push(
-            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
-                name,
-                in: ParameterSourceV2.PATH,
-                required: true,
-                type: DataTypeName.STRING,
-            })),
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => {
+                const description = this.pathParameterDescription(name);
+
+                return {
+                    name,
+                    in: ParameterSourceV2.PATH,
+                    required: true,
+                    type: DataTypeName.STRING,
+                    ...(description ? { description } : {}),
+                };
+            }),
         );
 
         // ignore ParameterSource.QUERY!
@@ -383,7 +388,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         const parameter = {
-            description: input.description,
+            description: input.in === ParameterSource.PATH ?
+                this.pathParameterDescription(input.name, input.description) :
+                input.description,
             in: sourceIn,
             name: input.name,
             required: input.required,

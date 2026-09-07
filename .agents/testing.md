@@ -145,5 +145,6 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `primitive-endpoint.spec.ts`, `parameterized-endpoint.spec.ts`, `type-endpoint.spec.ts`, `abstract-entity-endpoint.spec.ts` | End-to-end endpoint coverage from fixture controllers |
 | `v3.spec.ts` | V3-family version dispatch (v3 vs v3.1 vs v3.2) |
 | `tag-cascade.spec.ts` | Controller→method tag/response cascade in V3, omitted empty `tags` |
-| `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters |
+| `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters; `data.pathParameters` descriptions for synthesized and declared path parameters |
+| `parameter-flags.spec.ts` | `allowEmptyValue` emitted only for query parameters (V3) and nowhere in V2; `allowReserved` never emitted; the only `validateV31Spec` coverage of a document carrying operation parameters — the v3.0 schema is Draft-04 and cannot catch the query-only rule |
 | `content-types.spec.ts` | Consumes/produces resolution: method, controller cascade, document defaults, form-data |

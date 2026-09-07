@@ -14,7 +14,7 @@ import type {
     Version,
 } from '@trapi/swagger';
 import { CLIUserError } from '../logger.ts';
-import type { TrapiConfigEntry } from './types.ts';
+import type { SwaggerTransform, TrapiConfigEntry } from './types.ts';
 
 export type GenerateFlags = {
     cwd?: string;
@@ -41,6 +41,7 @@ export type ResolvedTarget = {
     swagger: {
         version: `${Version}`;
         data: SwaggerGenerateData;
+        transform?: SwaggerTransform;
     };
     output: {
         path: string;
@@ -115,6 +116,15 @@ export function resolveEntry(
 
     const version = flags.version ?? swaggerConfig.version ?? DEFAULT_VERSION;
 
+    // A JSON config (or the `trapi` field in package.json) can carry any value
+    // here, so reject a non-function loudly instead of crashing at emit time.
+    const { transform } = swaggerConfig;
+    if (transform !== undefined && typeof transform !== 'function') {
+        throw new CLIUserError(
+            '`swagger.transform` must be a function. A JSON config (or the `trapi` field in package.json) cannot carry one — use a `trapi.config.{ts,mts,mjs,js}` file.',
+        );
+    }
+
     const outputPath = flags.output ?? outputConfig.path ?? 'swagger.json';
     const outputFormat = flags.format ?? outputConfig.format;
     const absoluteOutput = path.isAbsolute(outputPath) ?
@@ -124,7 +134,11 @@ export function resolveEntry(
     return {
         cwd,
         metadata,
-        swagger: { version, data },
+        swagger: {
+            version, 
+            data, 
+            transform, 
+        },
         output: { path: absoluteOutput, format: outputFormat },
     };
 }

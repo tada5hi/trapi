@@ -60,7 +60,7 @@ export default defineConfig({
 });
 ```
 
-`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config.
+`defineConfig` is an identity helper — pass any `TrapiConfig` and you get IDE autocompletion + type checking. The shape mirrors the underlying option types (`MetadataGenerateOptions`, `SwaggerGenerateData`, `DocumentFormat`), so anything those accept is reachable from config. The one field with no CLI-flag equivalent is [`swagger.transform`](#post-processing-the-document) — a function cannot come from argv.
 
 ### Override precedence
 
@@ -92,6 +92,44 @@ export default defineConfig([
     { ...shared, swagger: { version: 'v2'   }, output: { path: 'dist/openapi.v2.yaml'  } },
 ]);
 ```
+
+### Post-processing the document
+
+`swagger.transform` runs after `generateSwagger` and before the output file is written, so it sees the finished document — including the paths and `operationId`s the emitter assigned. That is what [`swagger.data.extra`](/guide/swagger-document-data) cannot give you: `extra` is merged from an input built *before* generation, so it can't key on values the emitter produces.
+
+Mutate the document in place and return nothing, or return a replacement:
+
+```typescript
+// trapi.config.ts
+import { defineConfig } from '@trapi/cli';
+
+export default defineConfig({
+    metadata: { entryPoint: 'src/**/*.ts', preset: '@trapi/preset-decorators-express' },
+    swagger: {
+        version: 'v3.1',
+        transform(spec) {
+            for (const [url, item] of Object.entries(spec.paths)) {
+                for (const [verb, operation] of Object.entries(item)) {
+                    // Edits keyed on what the emitter actually produced.
+                    operation['x-internal'] = url.startsWith('/admin');
+
+                    // Project-specific assertions that fail the build.
+                    if (!operation.summary) {
+                        throw new Error(`${verb.toUpperCase()} ${url} has no summary.`);
+                    }
+                }
+            }
+        },
+    },
+    output: { path: 'docs/openapi.json' },
+});
+```
+
+The transform may be `async`; the CLI awaits it before writing.
+
+Throwing aborts the run: the file for that entry is **not** written, so a rejected document never lands on disk — and the previous run's file is left exactly as it was (it is not deleted). `trapi generate` then exits non-zero. Throwing a `CLIUserError` (exported from `@trapi/cli`) gives exit code `1` plus a bare message; any other error gives exit code `2` plus a stack trace.
+
+In a multi-target config the transform is per entry, and targets are emitted in config order — sharing metadata extraction between entries never reorders emission — so if entry 3 throws, the files for entries 1 and 2 are already written.
 
 ## Commands
 
@@ -136,6 +174,8 @@ trapi watch --entry-point 'src/**/*.ts' --preset @trapi/preset-decorators-expres
 ```
 
 The watcher uses [chokidar](https://github.com/paulmillr/chokidar) — atomic writes from editors are handled, and the CLI's own output files are excluded from triggering re-runs.
+
+A [`swagger.transform`](#post-processing-the-document) that throws is logged and watching continues rather than exiting, so a failing assertion is fixed on the next change. Note that a transform which itself writes files under a watched root will retrigger the watcher.
 
 ### info
 
@@ -244,3 +284,4 @@ For one-shot programmatic generation, compose `@trapi/metadata` and `@trapi/swag
 
 - **Single entry-point glob via CLI flag.** `--entry-point` accepts one glob string. The metadata layer and the config file's `metadata.entryPoint` field both accept arrays + `EntryPointOptions[]` for richer setups.
 - **No `--check` mode.** Drift detection in CI (compare generated spec against committed file) is on the roadmap.
+- **`swagger.transform` needs a JS/TS config file.** A `trapi.config.json` (or the `trapi` field in `package.json`) cannot carry a function — the CLI raises a `CLIUserError` if it finds a non-function there.

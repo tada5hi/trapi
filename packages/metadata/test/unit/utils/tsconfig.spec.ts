@@ -22,6 +22,18 @@ describe('src/typescript.ts', () => {
         expect(tsConfig.compilerOptions.allowJs).toBeTruthy();
     });
 
+    it('should follow tsconfig extends', async () => {
+        const tsConfig = await loadTSConfig({ cwd: './test/data/tsconfig-extends/child' });
+        const base = path.join(process.cwd(), 'test/data/tsconfig-extends');
+
+        expect(tsConfig.compilerOptions).toBeDefined();
+        expect(tsConfig.compilerOptions.baseUrl).toEqual(base);
+        expect(tsConfig.compilerOptions.pathsBasePath).toEqual(base);
+        expect(tsConfig.compilerOptions.paths).toEqual({ '@fixture/*': ['fixture/*'] });
+        expect(tsConfig.compilerOptions.allowJs).toBeTruthy();
+        expect(tsConfig.compilerOptions.experimentalDecorators).toBeTruthy();
+    });
+
     it('should not load tsconfig', async () => {
         // with non-existing fileName or filePath
         const tsConfig = await softLoadTsconfig({ cwd: './test/data', name: 'non-existing-tsconfig.json' });

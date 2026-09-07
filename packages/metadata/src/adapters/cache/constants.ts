@@ -11,7 +11,7 @@
  * or the cache wrapper itself). Old cache files with a different
  * version are rejected on read.
  */
-export const CACHE_SCHEMA_VERSION = '3';
+export const CACHE_SCHEMA_VERSION = '4';
 
 export const CACHE_FILE_PREFIX = '.trapi-metadata-';
 export const CACHE_FILE_SUFFIX = '.json';

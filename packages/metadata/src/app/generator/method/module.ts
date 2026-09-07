@@ -99,6 +99,7 @@ export class MethodGenerator {
             hidden: draft.hidden,
             method: draft.verb,
             name,
+            operationId: draft.operationId,
             path: normalizePath(draft.path),
             produces: draft.produces,
             responses,

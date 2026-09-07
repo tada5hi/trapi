@@ -99,6 +99,35 @@ describe('generateMetadata', () => {
         expect(metadata.controllers[0].methods[0].method).toBe('get');
     });
 
+    it('should propagate a handler-assigned draft.operationId to Method.operationId', async () => {
+        const registry: Registry = createRegistry({
+            controllers: [{
+                match: { name: 'Controller', on: 'class' },
+                apply: (_ctx, draft) => { draft.paths = ['/widgets']; },
+            }],
+            methods: [{
+                match: { name: 'Get', on: 'method' },
+                apply: (_ctx, draft) => {
+                    draft.verb = 'get';
+                    draft.operationId = 'listWidgets';
+                },
+            }],
+        });
+
+        const metadata = await generateMetadata({
+            entryPoint: [{
+                cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/inline-registry'),
+                pattern: '**/*.ts',
+            }],
+            cache: false,
+            registry,
+        });
+
+        expect(metadata.controllers.length).toBe(1);
+        expect(metadata.controllers[0].methods.length).toBe(1);
+        expect(metadata.controllers[0].methods[0].operationId).toEqual('listWidgets');
+    });
+
     it('should merge an inline registry on top of a preset (registry wins on scalar fields)', async () => {
         // Inline parameter handler that overrides @Path to set a marker
         // description so we can detect that it ran after the preset's handler.

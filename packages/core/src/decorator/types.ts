@@ -116,7 +116,6 @@ export type MethodDraft = {
     responses: Response[];
     security: Security[];
     extensions: Extension[];
-    parameters: ParameterDraft[];
     type?: BaseType;
     /**
      * Examples that handlers (e.g. `@Example`) want attached to the implicitly

@@ -201,6 +201,46 @@ const REF_ALIAS_CHAIN : Case = {
     },
 };
 
+// An alias carrying its own JSDoc-derived annotations. `TypeNodeResolver` fills
+// `format`/`default`/`description`/`validators` from the alias declaration, and
+// v3 keeps them by emitting a `$ref`; a v2 non-body parameter has to inline them
+// or the same document says two different things about one alias.
+const ANNOTATED_ALIAS = () : RefAliasType => ({
+    typeName: 'refAlias',
+    refName: 'Email',
+    type: stringType(),
+    description: 'An email address.',
+    format: 'email',
+    default: 'a@b.c',
+    validators: { pattern: { value: '^.+@.+$' } },
+    deprecated: false,
+});
+
+const ANNOTATED_ALIAS_HEADER : Case = {
+    parameters: [
+        createParameter({
+            name: 'x-owner',
+            in: 'header',
+            type: ANNOTATED_ALIAS(),
+        }),
+    ],
+    referenceTypes: { Email: ANNOTATED_ALIAS() },
+};
+
+// The parameter's own description and default must win over the alias's.
+const ANNOTATED_ALIAS_OVERRIDDEN : Case = {
+    parameters: [
+        createParameter({
+            name: 'x-owner',
+            in: 'header',
+            type: ANNOTATED_ALIAS(),
+            description: 'The account owner.',
+            default: 'owner@example.com',
+        }),
+    ],
+    referenceTypes: { Email: ANNOTATED_ALIAS() },
+};
+
 // A `refObject` on a header is the thing Swagger 2.0 genuinely cannot model —
 // there is no reference and no object type available at a non-body location.
 const REF_OBJECT_HEADER : Case = {
@@ -341,6 +381,72 @@ describe('V2 non-body parameter types', () => {
                 name: 'level',
                 required: true,
                 type: 'integer',
+            });
+        });
+    });
+
+    describe('refAlias annotations (#917)', () => {
+        it('carries the alias description, format, default and validators onto the parameter', async () => {
+            const spec = await emitV2(ANNOTATED_ALIAS_HEADER);
+
+            expect(parameterNamed(spec.paths['/statuses'].get!, 'x-owner')).toEqual({
+                default: 'a@b.c',
+                description: 'An email address.',
+                format: 'email',
+                in: 'header',
+                name: 'x-owner',
+                pattern: '^.+@.+$',
+                required: true,
+                type: 'string',
+            });
+        });
+
+        it('says the same thing on the parameter as in definitions', async () => {
+            const spec = await emitV2(ANNOTATED_ALIAS_HEADER);
+
+            const parameter = parameterNamed(spec.paths['/statuses'].get!, 'x-owner');
+            const definition = spec.definitions!.Email;
+
+            expect(definition).toEqual({
+                default: 'a@b.c',
+                description: 'An email address.',
+                format: 'email',
+                pattern: '^.+@.+$',
+                type: 'string',
+            });
+            expect(parameter.description).toEqual(definition.description);
+            expect(parameter.format).toEqual(definition.format);
+            expect(parameter.default).toEqual(definition.default);
+            expect(parameter.pattern).toEqual(definition.pattern);
+        });
+
+        it('lets the parameter own description and default win over the alias', async () => {
+            const spec = await emitV2(ANNOTATED_ALIAS_OVERRIDDEN);
+
+            expect(parameterNamed(spec.paths['/statuses'].get!, 'x-owner')).toEqual({
+                default: 'owner@example.com',
+                description: 'The account owner.',
+                format: 'email',
+                in: 'header',
+                name: 'x-owner',
+                pattern: '^.+@.+$',
+                required: true,
+                type: 'string',
+            });
+        });
+
+        it('keeps emitting a $ref in v3, where the annotations live on the schema', async () => {
+            const spec = await emitV3(ANNOTATED_ALIAS_HEADER);
+
+            const parameter = parameterNamed(spec.paths['/statuses'].get!, 'x-owner');
+
+            expect(parameter.schema).toEqual({ $ref: '#/components/schemas/Email' });
+            expect(spec.components!.schemas!.Email).toEqual({
+                default: 'a@b.c',
+                description: 'An email address.',
+                format: 'email',
+                pattern: '^.+@.+$',
+                type: 'string',
             });
         });
     });
@@ -487,6 +593,8 @@ describe('V2 non-body parameter types', () => {
             ['refAlias header', REF_ALIAS_HEADER],
             ['refAlias queryProp', REF_ALIAS_QUERY],
             ['refAlias chain', REF_ALIAS_CHAIN],
+            ['annotated refAlias header', ANNOTATED_ALIAS_HEADER],
+            ['annotated refAlias header, overridden', ANNOTATED_ALIAS_OVERRIDDEN],
             ['refEnum queryProp', REF_ENUM_QUERY],
             ['refObject header', REF_OBJECT_HEADER],
             ['refObject body', REF_OBJECT_BODY],

@@ -143,7 +143,11 @@ describe('generateMetadata', () => {
                     draft.parameters.push({
                         parameterName: 'filter',
                         name: 'filter',
-                        in: 'query',
+                        // `queryProp` is a single named query key. `query` marks the
+                        // whole query bag, which the parameter generator decomposes
+                        // into `queryProp` entries — a contributed parameter skips
+                        // that decomposition, so the emitters would drop it.
+                        in: 'queryProp',
                         description: 'runtime-registered filter vocabulary',
                         required: false,
                         type: { typeName: 'string' },
@@ -165,7 +169,7 @@ describe('generateMetadata', () => {
         const { parameters } = metadata.controllers[0].methods[0];
         expect(parameters).toHaveLength(1);
         expect(parameters[0].name).toEqual('filter');
-        expect(parameters[0].in).toEqual('query');
+        expect(parameters[0].in).toEqual('queryProp');
         expect(parameters[0].type).toEqual({ typeName: 'string' });
     });
 

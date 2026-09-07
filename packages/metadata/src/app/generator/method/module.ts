@@ -83,8 +83,14 @@ export class MethodGenerator {
         const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples);
         const responses = mergeDefaultResponse(draft.responses, defaultResponse);
 
-        // Walk parameters.
-        const parameters = this.buildParameters(controllerPaths, draft.path, draft.verb);
+        // Walk parameters. Handler-contributed ones are appended after the
+        // signature-derived ones, so a handler can add to the operation but
+        // never displace what the method's own arguments put there. They skip
+        // ParameterGenerator entirely — there is no declaration behind them.
+        const parameters = [
+            ...this.buildParameters(controllerPaths, draft.path, draft.verb),
+            ...draft.parameters,
+        ];
 
         // Description from leading JSDoc comment (no v2 handler covers this since it
         // isn't a tagged value).

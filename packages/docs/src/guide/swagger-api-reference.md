@@ -71,6 +71,7 @@ type SwaggerGenerateData = {
     securityDefinitions?: SecurityDefinitions;
     consumes?: string[];
     produces?: string[];
+    responses?: Response[];
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
     operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;

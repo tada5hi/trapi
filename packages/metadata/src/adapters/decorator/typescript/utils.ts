@@ -18,6 +18,7 @@ import {
     isPrefixUnaryExpression,
     isPropertyAccessExpression,
     isStringLiteral,
+    isTemplateExpression,
 } from 'typescript';
 import type {
     Expression,
@@ -141,7 +142,11 @@ export function buildDecoratorArgument(
         return { raw: getInitializerValue(expr, typeChecker), kind: 'array' };
     }
 
-    if (isIdentifier(expr) || isPropertyAccessExpression(expr)) {
+    // A template expression is included because the checker folds one whose
+    // substitutions are all constants (`` `/${SEGMENT}` `` -> '/segment').
+    // It keeps `kind: 'identifier'` — the kind union is public API that
+    // third-party presets match on, and `readString` already accepts it.
+    if (isIdentifier(expr) || isPropertyAccessExpression(expr) || isTemplateExpression(expr)) {
         const value = getInitializerValue(expr, typeChecker);
         if (typeof value !== 'undefined') {
             return { raw: value, kind: 'identifier' };

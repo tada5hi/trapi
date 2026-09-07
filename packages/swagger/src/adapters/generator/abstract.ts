@@ -516,6 +516,21 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         return uniqueOperationId(base, used);
     }
 
+    /**
+     * A path item holds at most one operation per verb, so emitting a second
+     * one at the same URL drops the first without a trace. That is nearly
+     * always two controllers that ended up on the same mount — the shape #906
+     * produced when a controller path failed to resolve and fell back to the
+     * document root.
+     */
+    protected warnDuplicateOperation(controllerName: string, method: Method, emittedPath: string): void {
+        // eslint-disable-next-line no-console
+        console.warn(
+            `[trapi] duplicate operation ${method.method.toUpperCase()} ${emittedPath}: ` +
+            `'${controllerName}.${method.name}' overwrites an operation already emitted there.`,
+        );
+    }
+
     protected groupParameters(items: Parameter[]) : Partial<Record<ParameterSource, Parameter[]>> {
         const output : Partial<Record<ParameterSource, Parameter[]>> = {};
 

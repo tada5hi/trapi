@@ -9,6 +9,7 @@ import type { Example, Response, Security } from '../generator/types';
 import type { Extension } from '../resolver/extension';
 import type { BaseType, Type } from '../resolver/types';
 import type { MethodType } from '../method/types';
+import type { Parameter } from '../parameter/types';
 import type { Validator } from '../validator/types';
 import type {
     CollectionKind,
@@ -116,6 +117,22 @@ export type MethodDraft = {
     responses: Response[];
     security: Security[];
     extensions: Extension[];
+    /**
+     * Parameters a handler wants on the operation on top of the ones derived
+     * from the method signature — e.g. a decorator binding a query vocabulary
+     * whose allowed keys come from a runtime registry, so no TypeScript
+     * argument exists to read them off.
+     *
+     * Finalised `Parameter` objects rather than `ParameterDraft`s: every
+     * remaining step of the parameter generator reads the underlying
+     * `ts.ParameterDeclaration`, so there is nothing left to finalise for a
+     * parameter that has no declaration behind it. `Parameter` also makes `in`
+     * and `type` required, where the draft leaves both optional.
+     *
+     * The method generator appends these after the derived parameters, so a
+     * handler can only add to the operation, never remove from it.
+     */
+    parameters: Parameter[];
     type?: BaseType;
     /**
      * Examples that handlers (e.g. `@Example`) want attached to the implicitly

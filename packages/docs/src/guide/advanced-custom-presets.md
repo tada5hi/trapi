@@ -119,6 +119,31 @@ method({ match: { name: 'Tags', on: 'method' }, apply: append('tags').positional
 controller({ match: { name: 'Hidden', on: 'class' }, apply: flag('hidden') });
 ```
 
+## Contributing Parameters
+
+TRAPI derives an operation's parameters from the method's TypeScript arguments. When a decorator binds something no argument declares — a query vocabulary whose allowed keys come from a runtime registry, say — a method handler can push onto `draft.parameters`:
+
+```typescript
+method({
+    match: { name: 'Filterable', on: 'method' },
+    apply: (ctx, draft) => {
+        draft.parameters.push({
+            parameterName: 'filter',
+            name: 'filter',
+            in: 'queryProp',
+            description: 'Filter keys registered for this operation',
+            required: false,
+            type: { typeName: 'string' },
+            extensions: [],
+        });
+    },
+});
+```
+
+These are finalised `Parameter` objects, not `ParameterDraft`s — there is no `ts.ParameterDeclaration` behind them for the generator to finalise against. They are appended **after** the derived parameters, so a handler can add to an operation but never remove what the method signature put there.
+
+Use `in: 'queryProp'` for a single named query key. `'query'` marks the whole query bag, which the parameter generator decomposes into `queryProp` entries — a contributed parameter skips that decomposition, so the emitters would drop it.
+
 ## Resolver Markers
 
 If your preset renames decorators that the type resolver consumes (`@Hidden`, `@Deprecated`, `@Extension`, `@IsInt`/`@IsLong`/`@IsFloat`/`@IsDouble`), tag the handler with a `marker` so the type resolver discovers it:

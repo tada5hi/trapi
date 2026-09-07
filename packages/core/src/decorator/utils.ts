@@ -79,6 +79,7 @@ export function newMethodDraft(input: Pick<MethodDraft, 'name'>): MethodDraft {
         responses: [],
         security: [],
         extensions: [],
+        parameters: [],
         defaultResponseExamples: [],
     };
 }

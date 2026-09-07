@@ -8,10 +8,15 @@
 /**
  * Bump whenever the on-disk cache shape changes incompatibly
  * (Metadata, Controller, Method, Parameter, resolver type nodes,
- * or the cache wrapper itself). Old cache files with a different
- * version are rejected on read.
+ * or the cache wrapper itself), OR whenever the generator starts
+ * producing different metadata from unchanged input. No other
+ * contributor to the cache key tracks the generator itself — the key
+ * folds source text, compiler options, the registry and the preset
+ * name, all of which a resolution fix leaves untouched — so without a
+ * bump an upgrade keeps serving pre-fix metadata from a warm cache.
+ * Old cache files with a different version are rejected on read.
  */
-export const CACHE_SCHEMA_VERSION = '4';
+export const CACHE_SCHEMA_VERSION = '5';
 
 export const CACHE_FILE_PREFIX = '.trapi-metadata-';
 export const CACHE_FILE_SUFFIX = '.json';

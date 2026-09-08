@@ -327,19 +327,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                         ...schema.properties,
                     };
 
-                    const merged = [
+                    // A `@BodyProp` may name a property the body type already declares
+                    // required, so the two lists can overlap. Swagger 2.0's `required`
+                    // is draft-04's `stringArray` (`uniqueItems: true`), so a repeat
+                    // is invalid — the same shape the V3 merge produced across mounts.
+                    const merged = [...new Set([
                         ...(bodyParameter.schema.required || []),
                         ...required,
-                    ];
+                    ])];
 
-                    // An all-optional body must omit the key — Swagger 2.0's
-                    // `stringArray` sets `minItems: 1`, so `required: []` is invalid.
-                    // The synthetic-body branch below already guards this.
+                    // An all-optional body must omit the key — that same `stringArray`
+                    // sets `minItems: 1`, so `required: []` is invalid too. The
+                    // synthetic-body branch below already guards this.
                     if (merged.length) {
                         bodyParameter.schema.required = merged;
                     }
                 } else {
+                    // The declared body type is not an object, so the collected
+                    // properties replace it wholesale — carry their requiredness
+                    // across rather than dropping it on the floor.
                     bodyParameter.schema = schema;
+
+                    if (required.length) {
+                        bodyParameter.schema.required = [...new Set(required)];
+                    }
                 }
 
                 output.parameters.push(bodyParameter);

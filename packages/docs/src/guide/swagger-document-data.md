@@ -13,6 +13,7 @@ type SwaggerGenerateData = {
     consumes?: string[];
     produces?: string[];
     responses?: Response[];
+    pathParameters?: Record<string, { description?: string }>;
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
     operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;
@@ -137,6 +138,24 @@ data: {
 ```
 
 Precedence: a method's own response with the same `status` wins. There is no per-operation opt-out, so reserve this for responses that genuinely apply everywhere — a `default` error shape is the intended case; `404` is usually not.
+
+## Path Parameters
+
+`pathParameters` supplies descriptions for path-template variables, keyed by the variable name as it appears in the template — `realmId` for `/realms/:realmId/users`, not the name of a method or of a decorated argument.
+
+```typescript
+data: {
+    pathParameters: {
+        realmId: { description: 'The realm, addressed by id or by name.' },
+    },
+}
+```
+
+It covers two cases. A variable TRAPI **synthesizes** — one the path template declares but no decorated argument does, the `/realms/:realmId/users` case under [Multi-Mount Controllers](/guide/metadata-decorators#multi-mount-controllers) — has no declaration to read a description from, so this is the only way to give it one. A **declared** path parameter that carries no description of its own is filled in from the same entry, so one line reads identically on every operation the variable appears in.
+
+The option is document-wide rather than per-method because a synthesized variable appears on every verb of its mount — there is no single handler a per-method description could hang off — and path variable names are global in practice anyway.
+
+Precedence: a description that came from a decorator always wins; an entry here only fills a gap. Keys that match no template variable are ignored.
 
 ## Collection Format
 

@@ -23,6 +23,7 @@ import {
     isBinaryType,
     isEnumType,
     isNeverType,
+    isRefAliasType,
     isRefEnumType,
     isRefObjectType,
     isUndefinedType,
@@ -195,7 +196,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 }
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
-                method.deprecated = method.deprecated || controller.deprecated;
+                method.deprecated = method.deprecated || controller.deprecated || false;
                 // todo: unique for objects
                 method.responses = unique([...controller.responses, ...method.responses]);
 
@@ -257,12 +258,17 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // A path variable need not be a decorated argument; declare the rest so
         // the operation stays valid (and callable from Swagger UI / generated clients).
         output.parameters.push(
-            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
-                name,
-                in: ParameterSourceV2.PATH,
-                required: true,
-                type: DataTypeName.STRING,
-            })),
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => {
+                const description = this.pathParameterDescription(name);
+
+                return {
+                    name,
+                    in: ParameterSourceV2.PATH,
+                    required: true,
+                    type: DataTypeName.STRING,
+                    ...(description ? { description } : {}),
+                };
+            }),
         );
 
         // ignore ParameterSource.QUERY!
@@ -297,7 +303,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 bodyProp.description = bodyPropParam.description;
                 bodyProp.example = bodyPropParam.examples;
 
-                if (bodyProp.required) {
+                // `bodyPropParam.required` is the parameter's own flag. `bodyProp` is
+                // the emitted schema, where `required` is the array of child property
+                // names — never a boolean — so this branch was never taken and every
+                // `@BodyProp` came out optional, under an empty `required: []` that
+                // draft-04's `minItems: 1` rejects outright.
+                if (bodyPropParam.required) {
                     required.push(bodyPropParam.name);
                 }
 
@@ -314,12 +325,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                         ...schema.properties,
                     };
 
-                    bodyParameter.schema.required = [
+                    // A `@BodyProp` may name a property the body type already declares
+                    // required, so the two lists can overlap. Swagger 2.0's `required`
+                    // is draft-04's `stringArray` (`uniqueItems: true`), so a repeat
+                    // is invalid — the same shape the V3 merge produced across mounts.
+                    const merged = [...new Set([
                         ...(bodyParameter.schema.required || []),
                         ...required,
-                    ];
+                    ])];
+
+                    // An all-optional body must omit the key — that same `stringArray`
+                    // sets `minItems: 1`, so `required: []` is invalid too. The
+                    // synthetic-body branch below already guards this.
+                    if (merged.length) {
+                        bodyParameter.schema.required = merged;
+                    }
                 } else {
+                    // The declared body type is not an object, so the collected
+                    // properties replace it wholesale — carry their requiredness
+                    // across rather than dropping it on the floor.
                     bodyParameter.schema = schema;
+
+                    if (required.length) {
+                        bodyParameter.schema.required = [...new Set(required)];
+                    }
                 }
 
                 output.parameters.push(bodyParameter);
@@ -383,7 +412,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         const parameter = {
-            description: input.description,
+            description: input.in === ParameterSource.PATH ?
+                this.pathParameterDescription(input.name, input.description) :
+                input.description,
             in: sourceIn,
             name: input.name,
             required: input.required,
@@ -391,27 +422,26 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         Object.assign(parameter, this.transformExtensions(input.extensions));
 
-        if (
-            input.in !== ParameterSource.BODY &&
-            isRefEnumType(input.type)
-        ) {
-            input.type = {
-                typeName: TypeName.ENUM,
-                members: input.type.members,
-            };
-        }
+        // Resolve into a local, never back onto `input`: a `Metadata` is reused
+        // across emitted documents (the CLI extracts once and emits every config
+        // entry), so rewriting the metadata's own type node leaked into the next
+        // one — a `refEnum` parameter came out of v3 as an inline enum instead of
+        // a `$ref` whenever v2 had run first.
+        const type = input.in === ParameterSource.BODY ?
+            input.type :
+            this.dereferenceNonBodyType(input.type);
 
         // Swagger 2.0: formData file parameters use type: 'file' directly
         if (
             parameter.in === ParameterSourceV2.FORM_DATA &&
-            input.type.typeName === TypeName.FILE
+            type.typeName === TypeName.FILE
         ) {
             parameter.type = 'file' as `${DataTypeName}`;
             Object.assign(parameter, this.transformValidators(input.validators));
             return parameter;
         }
 
-        const parameterType = this.getSchemaForType(input.type);
+        const parameterType = this.getSchemaForType(type);
         if (
             parameter.in !== ParameterSourceV2.BODY &&
             parameterType.format
@@ -422,18 +452,18 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // collectionFormat, might be valid for all parameters (if value != multi)
         if (
             (parameter.in === ParameterSourceV2.FORM_DATA || parameter.in === ParameterSourceV2.QUERY) &&
-            (input.type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)
+            (type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)
         ) {
             parameter.collectionFormat = input.collectionFormat || this.config.collectionFormat || 'multi';
         }
 
         if (parameter.in === ParameterSourceV2.BODY) {
-            if ((input.type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)) {
+            if ((type.typeName === TypeName.ARRAY || parameterType.type === DataTypeName.ARRAY)) {
                 parameter.schema = {
                     items: parameterType.items,
                     type: DataTypeName.ARRAY,
                 };
-            } else if (input.type.typeName === TypeName.ANY) {
+            } else if (type.typeName === TypeName.ANY) {
                 parameter.schema = { type: DataTypeName.OBJECT };
             } else {
                 parameter.schema = parameterType;
@@ -450,7 +480,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // todo: this is eventually illegal
         Object.assign(parameter, this.transformValidators(input.validators));
 
-        if (input.type.typeName === TypeName.ANY) {
+        if (type.typeName === TypeName.ANY) {
             parameter.type = DataTypeName.STRING;
         } else if (parameterType.type && !Array.isArray(parameterType.type)) {
             parameter.type = parameterType.type;
@@ -467,7 +497,53 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             parameter.default = input.default;
         }
 
+        // A Swagger 2.0 non-body parameter must carry an inline `type` from a small
+        // closed set — only `bodyParameter` has a `schema`, so `$ref` and `object`
+        // have nowhere to live. `dereferenceNonBodyType` resolves the common
+        // references; what reaches here without a usable `type` is something 2.0
+        // genuinely cannot model (an object-typed header, a union). Emitting it
+        // anyway produced a parameter matching no location branch — 10 validator
+        // errors apiece and a document no gateway would import.
+        // ponytail: `string` is the lossy floor, not a claim about the type. Emit
+        // v3 if the parameter's real shape matters.
+        if (!parameter.type || parameter.type === DataTypeName.OBJECT) {
+            parameter.type = DataTypeName.STRING;
+        }
+
         return parameter;
+    }
+
+    /**
+     * Swagger 2.0 non-body parameters have no `schema`, so a reference has nowhere
+     * to go. Resolve it to what it points at, so the parameter can carry the inline
+     * `type`/`enum`/`items` the 2.0 location subschemas require.
+     *
+     * `seen` stops an alias chain that returns to itself. TypeScript rejects a
+     * circular alias (TS2456), so `@trapi/metadata` cannot produce one — but
+     * `generateSwagger` takes caller-supplied `Metadata` from any producer, and a
+     * bare stack overflow is a poor answer for one. A cycle returns the reference
+     * untouched, which the `type: 'string'` floor below then handles.
+     */
+    private dereferenceNonBodyType(type: Type, seen?: Set<string>) : Type {
+        if (isRefEnumType(type)) {
+            return {
+                typeName: TypeName.ENUM,
+                members: type.members,
+            };
+        }
+
+        if (isRefAliasType(type)) {
+            const visited = seen ?? new Set<string>();
+            if (visited.has(type.refName)) {
+                return type;
+            }
+
+            visited.add(type.refName);
+
+            return this.dereferenceNonBodyType(type.type, visited);
+        }
+
+        return type;
     }
 
     private supportsBodyParameters(method: string) {

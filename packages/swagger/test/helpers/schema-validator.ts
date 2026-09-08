@@ -69,8 +69,12 @@ export function validateV3Spec(spec: unknown): ValidationResult {
     return { valid: !!valid, errors: formatErrors(v3Validate) };
 }
 
-// Schema Object locations where unevaluatedProperties errors are expected
-// because the OAI 3.1 schema intentionally skips JSON Schema content validation.
+// Document locations that hold a Schema Object rather than an OpenAPI object.
+//
+// The OAI 3.1 schema defers Schema Object content to JSON Schema 2020-12 via
+// `$dynamicRef: "#meta"`. ajv 8.x does not resolve that dynamic anchor to the
+// dialect meta-schema, so it keeps applying the *enclosing* subschema to the value
+// instead, and everything it then reports inside a Schema Object is an artefact.
 const SCHEMA_OBJECT_PATTERNS = [
     '/components/schemas/',
     '/content/',
@@ -78,7 +82,25 @@ const SCHEMA_OBJECT_PATTERNS = [
     '/items',
 ];
 
+// A `schema` (or `items`, or a `components.schemas` entry) is where ajv substitutes
+// the wrong subschema outright, so every keyword it reports there is noise. Inside a
+// Parameter Object that means `$defs/parameter` gets applied to the parameter's own
+// `schema` value: a perfectly valid `{ name: 'id', in: 'path', required: true,
+// schema: { type: 'string' } }` reports `required` ("must have required property
+// 'name'"/"'in'"), `oneOf` and `unevaluatedProperties` errors at `…/parameters/0/schema`.
+// Keyword-gating those away is why `validateV31Spec` used to return `valid: false`
+// for ANY document declaring an operation parameter, so no v3.1 test could exercise
+// parameters at all.
+const SCHEMA_VALUE_PATTERN = /(^|\/)(schema|items)(\/|$)/;
+
 function isSchemaObjectError(instancePath: string, keyword: string): boolean {
+    if (SCHEMA_VALUE_PATTERN.test(instancePath) || instancePath.includes('/components/schemas/')) {
+        return true;
+    }
+
+    // Everywhere else (notably `/content/`, a Media Type Object — an OpenAPI object,
+    // not a Schema Object) only the two keywords the misresolution cascades into are
+    // suppressed. A genuinely malformed `content` entry is still reported.
     if (keyword !== 'unevaluatedProperties' && keyword !== 'if') {
         return false;
     }
@@ -97,8 +119,9 @@ export function validateV31Spec(spec: unknown): ValidationResult {
         return { valid: true, errors: [] };
     }
 
-    // Filter out errors from Schema Object locations where the OAI 3.1 schema
-    // intentionally skips JSON Schema content validation.
+    // Filter out errors reported at Schema Object locations (see above — ajv cannot
+    // follow the `$dynamicRef` into the JSON Schema dialect, so everything it says
+    // there is an artefact).
     // Also filter cascading "else" errors caused by those suppressions.
     const schemaErrorPaths = new Set<string>();
     for (const err of v31Validate.errors) {

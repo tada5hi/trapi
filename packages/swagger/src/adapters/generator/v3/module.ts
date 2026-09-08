@@ -171,7 +171,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
-                method.deprecated = method.deprecated || controller.deprecated;
+                method.deprecated = method.deprecated || controller.deprecated || false;
 
                 // Inherit controller security only when the method declared none of its own.
                 // OpenAPI 3.x: an operation's `security: []` explicitly removes any inherited
@@ -245,12 +245,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // A path variable need not be a decorated argument; declare the rest so
         // the operation stays valid (and callable from Swagger UI / generated clients).
         output.parameters.push(
-            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
-                name,
-                in: ParameterSourceV3.PATH,
-                required: true,
-                schema: { type: DataTypeName.STRING },
-            })),
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => {
+                const description = this.pathParameterDescription(name);
+
+                return {
+                    name,
+                    in: ParameterSourceV3.PATH,
+                    required: true,
+                    schema: { type: DataTypeName.STRING },
+                    ...(description ? { description } : {}),
+                };
+            }),
         );
 
         // ignore ParameterSource.QUERY!
@@ -294,17 +299,29 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             const firstBody = bodyParams[0]!;
             if (isNestedObjectLiteralType(firstBody.type)) {
-                for (const bodyPropParam of bodyPropParams) {
-                    firstBody.type.properties.push({
-                        default: bodyPropParam.default,
-                        validators: bodyPropParam.validators,
-                        description: bodyPropParam.description,
-                        name: bodyPropParam.name,
-                        type: bodyPropParam.type,
-                        required: bodyPropParam.required,
-                        deprecated: bodyPropParam.deprecated ?? false,
-                    });
-                }
+                // Merge into a copy, never into the metadata's own nested literal.
+                // `buildOperation` runs once per (controllerPath × methodPath) and a
+                // `Metadata` is reused across emitted documents, so pushing in place
+                // appended the same properties again on every pass — `required`
+                // came out as ["name", "name"] on a controller's second mount.
+                bodyParams[0] = {
+                    ...firstBody,
+                    type: {
+                        ...firstBody.type,
+                        properties: [
+                            ...firstBody.type.properties,
+                            ...bodyPropParams.map((bodyPropParam) => ({
+                                default: bodyPropParam.default,
+                                validators: bodyPropParam.validators,
+                                description: bodyPropParam.description,
+                                name: bodyPropParam.name,
+                                type: bodyPropParam.type,
+                                required: bodyPropParam.required,
+                                deprecated: bodyPropParam.deprecated ?? false,
+                            })),
+                        ],
+                    },
+                };
             }
         }
 
@@ -507,9 +524,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const parameter : ParameterV3 = {
-            allowEmptyValue: false,
             deprecated: false,
-            description: input.description,
+            description: input.in === ParameterSource.PATH ?
+                this.pathParameterDescription(input.name, input.description) :
+                input.description,
             in: sourceIn,
             name: input.name,
             required: input.required,
@@ -519,6 +537,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 ...this.transformValidators(input.validators),
             },
         };
+
+        // `allowEmptyValue` is defined only for query parameters (OAS 3.1 §4.8.11.1);
+        // the Parameter Object closes every other `in` branch with
+        // `unevaluatedProperties: false`, so emitting it elsewhere fails validation.
+        if (sourceIn === ParameterSourceV3.QUERY) {
+            parameter.allowEmptyValue = input.allowEmptyValue ?? false;
+        }
 
         Object.assign(parameter, this.transformExtensions(input.extensions));
 

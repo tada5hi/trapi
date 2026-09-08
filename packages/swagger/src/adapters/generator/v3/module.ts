@@ -262,6 +262,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const bodyParams = parameters[ParameterSource.BODY] || [];
         const formParams = parameters[ParameterSource.FORM_DATA] || [];
+        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
 
         if (bodyParams.length > 1) {
             throw new SwaggerError({
@@ -270,14 +271,16 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             });
         }
 
-        if (bodyParams.length > 0 && formParams.length > 0) {
+        // bodyProp counts here because the block below synthesizes a body from it,
+        // which made `firstBodyParam` truthy and sent emission down the
+        // `buildRequestBody` arm — silently discarding every form/file parameter.
+        if ((bodyParams.length > 0 || bodyPropParams.length > 0) && formParams.length > 0) {
             throw new SwaggerError({
                 message: `Cannot mix body and form parameters in method '${method.name}'.`,
                 code: SwaggerErrorCode.BODY_FORM_CONFLICT,
             });
         }
 
-        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         const firstBodyProp = bodyPropParams[0];
         if (firstBodyProp) {
             if (bodyParams.length === 0) {

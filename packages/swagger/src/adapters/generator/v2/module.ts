@@ -278,6 +278,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // ------------------------------------------------------
 
         const bodyParameters = (parameters[ParameterSource.BODY] || []);
+        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         if (bodyParameters.length > 1) {
             throw new SwaggerError({
                 message: `Only one body parameter allowed per method, but ${bodyParameters.length} found in '${method.name}'.`,
@@ -286,9 +287,13 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         // ponytail: duplicated from V3 (v3/module.ts) rather than hoisted into
-        // AbstractSpecGenerator — a shared helper costs more lines than the six
-        // it saves, and rewrites V3's already-correct path.
-        if (bodyParameters.length > 0 && this.hasFormParams(method)) {
+        // AbstractSpecGenerator — a shared helper costs more lines than it saves.
+        // The two conditions must stay in step: V2 reads form presence off
+        // `method.parameters`, V3 off the grouped record, and they are equivalent.
+        if (
+            (bodyParameters.length > 0 || bodyPropParams.length > 0) &&
+            this.hasFormParams(method)
+        ) {
             throw new SwaggerError({
                 message: `Cannot mix body and form parameters in method '${method.name}'.`,
                 code: SwaggerErrorCode.BODY_FORM_CONFLICT,
@@ -299,7 +304,6 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             this.buildParameter(bodyParameters[0]) :
             undefined;
 
-        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         if (bodyPropParams.length > 0) {
             const schema : BaseSchema<SchemaV2> = {
                 type: DataTypeName.OBJECT,

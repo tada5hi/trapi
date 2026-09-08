@@ -12,6 +12,7 @@ import {
 } from 'vitest';
 import { Version, generateSwagger } from '../../../src';
 import {
+    bufferType,
     createController,
     createMetadata,
     createMethod,
@@ -163,6 +164,81 @@ describe('error paths', () => {
                 metadata,
                 data: { servers: 'http://localhost:3000/' },
             })).rejects.toThrow(/body.*form|form.*body/i);
+        });
+    });
+
+    describe('V2 - bodyProp and form conflict', () => {
+        // Unlike `@Body` + form, this pair is reachable from ordinary decorated
+        // source: V2 emitted `in: body` beside `in: formData`, V3 dropped the
+        // upload while still advertising `multipart/form-data`.
+        it('should throw when method has both bodyProp and form parameters', async () => {
+            const metadata = createMetadata([
+                createController({
+                    name: 'UploadController',
+                    paths: ['uploads'],
+                    methods: [
+                        createMethod({
+                            name: 'bodyPropAndFile',
+                            method: 'post',
+                            path: '',
+                            parameters: [
+                                createParameter({
+                                    name: 'title',
+                                    in: 'bodyProp',
+                                    type: stringType(),
+                                }),
+                                createParameter({
+                                    name: 'avatar',
+                                    in: 'formData',
+                                    type: bufferType(),
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ]);
+
+            await expect(generateSwagger({
+                version: Version.V2,
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
+            })).rejects.toThrow(/Cannot mix body and form parameters/);
+        });
+    });
+
+    describe('V3 - bodyProp and form conflict', () => {
+        it('should throw when method has both bodyProp and form parameters', async () => {
+            const metadata = createMetadata([
+                createController({
+                    name: 'UploadController',
+                    paths: ['uploads'],
+                    methods: [
+                        createMethod({
+                            name: 'bodyPropAndFile',
+                            method: 'post',
+                            path: '',
+                            parameters: [
+                                createParameter({
+                                    name: 'title',
+                                    in: 'bodyProp',
+                                    type: stringType(),
+                                }),
+                                createParameter({
+                                    name: 'avatar',
+                                    in: 'formData',
+                                    type: bufferType(),
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ]);
+
+            await expect(generateSwagger({
+                version: Version.V3,
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
+            })).rejects.toThrow(/Cannot mix body and form parameters/);
         });
     });
 

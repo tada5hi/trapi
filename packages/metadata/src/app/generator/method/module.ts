@@ -159,6 +159,7 @@ export class MethodGenerator {
 
         const output: Parameter[] = [];
         let bodyParameterCount = 0;
+        let bodyPropParameterCount = 0;
         let formParameterCount = 0;
 
         for (const [i, declaration] of this.node.parameters.entries()) {
@@ -175,6 +176,9 @@ export class MethodGenerator {
                 for (const parameter of parameters) {
                     if (parameter.in === ParameterSource.BODY) {
                         bodyParameterCount += 1;
+                    }
+                    if (parameter.in === ParameterSource.BODY_PROP) {
+                        bodyPropParameterCount += 1;
                     }
                     if (parameter.in === ParameterSource.FORM_DATA) {
                         formParameterCount += 1;
@@ -200,7 +204,10 @@ export class MethodGenerator {
             });
         }
 
-        if (bodyParameterCount > 0 && formParameterCount > 0) {
+        // `@BodyProp` names a key *in* the body, so it conflicts with a form-encoded
+        // request exactly as `@Body` does. Counted separately because the check
+        // above rejects a second *body*, while several `@BodyProp` are legal.
+        if ((bodyParameterCount > 0 || bodyPropParameterCount > 0) && formParameterCount > 0) {
             throw new GeneratorError({
                 message: `Cannot mix body and form parameters in '${controllerId.text}.${methodId.text}' method.`,
                 code: GeneratorErrorCode.BODY_FORM_CONFLICT,

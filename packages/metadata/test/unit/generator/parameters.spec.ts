@@ -13,7 +13,13 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Controller, Metadata  } from '@trapi/core';
+import type {
+    ArrayParameter,
+    ArrayType,
+    Controller,
+    Metadata,
+    Method,
+} from '@trapi/core';
 import { generateMetadata } from '../../../src';
 
 describe('parameter metadata extraction', () => {
@@ -88,6 +94,39 @@ describe('parameter metadata extraction', () => {
             );
             expect(testNumericEnum).toBeDefined();
             expect(testNumericEnum!.type.typeName).toEqual('refEnum');
+        });
+    });
+
+    // A bare `@Query()` marks the whole query bag. The generator resolves it to
+    // named keys for every supported shape, not just object types — anything
+    // left as `in: 'query'` is grouped away by both swagger emitters (#910).
+    describe('bare @Query() bag resolution', () => {
+        let list: Method;
+
+        beforeAll(() => {
+            list = metadata.controllers
+                .find((c) => c.name === 'QueryBagController')!
+                .methods.find((m) => m.name === 'list')!;
+        });
+
+        it('should resolve a scalar @Query() to a named queryProp', () => {
+            const search = list.parameters.find((p) => p.name === 'search')!;
+            expect(search.in).toEqual('queryProp');
+            expect(search.parameterName).toEqual('search');
+            expect(search.required).toBe(true);
+            expect(search.type.typeName).toEqual('string');
+        });
+
+        it('should resolve an array @Query() to a named queryProp', () => {
+            const tags = list.parameters.find((p) => p.name === 'tags')! as ArrayParameter;
+            expect(tags.in).toEqual('queryProp');
+            expect(tags.collectionFormat).toEqual('multi');
+            expect(tags.type.typeName).toEqual('array');
+            expect((tags.type as ArrayType).elementType.typeName).toEqual('string');
+        });
+
+        it('should never emit in: \'query\' from the parameter generator', () => {
+            expect(list.parameters.map((p) => p.in)).toEqual(['queryProp', 'queryProp']);
         });
     });
 

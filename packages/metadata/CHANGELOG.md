@@ -151,6 +151,21 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.2](https://github.com/tada5hi/trapi/compare/metadata-v2.1.1...metadata-v2.1.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* **metadata,swagger:** reject @BodyProp beside a form parameter ([#922](https://github.com/tada5hi/trapi/issues/922)) ([b863d59](https://github.com/tada5hi/trapi/commit/b863d5985c5d48f0b9bfffcb3d8f4ff0b127d663)), closes [#921](https://github.com/tada5hi/trapi/issues/921)
+* **metadata:** resolve a bare @Query() bag to named query keys ([#920](https://github.com/tada5hi/trapi/issues/920)) ([79c2c27](https://github.com/tada5hi/trapi/commit/79c2c274e0db498ab8353e139f301f9b6a01913c)), closes [#910](https://github.com/tada5hi/trapi/issues/910) [#911](https://github.com/tada5hi/trapi/issues/911)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.1.1 to 2.1.2
+
 ## [2.1.1](https://github.com/tada5hi/trapi/compare/metadata-v2.1.0...metadata-v2.1.1) (2026-09-07)
 
 

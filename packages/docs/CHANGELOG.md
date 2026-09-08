@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/tada5hi/trapi/compare/docs-v3.2.1...docs-v3.2.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* **swagger:** describe synthesized path variables; query-only allowEmptyValue; stop emitters mutating metadata ([#916](https://github.com/tada5hi/trapi/issues/916)) ([e5ec4e0](https://github.com/tada5hi/trapi/commit/e5ec4e08a384da273cad280238c4aa7d55ed17b9))
+
 ## [3.2.1](https://github.com/tada5hi/trapi/compare/docs-v3.2.0...docs-v3.2.1) (2026-09-07)
 
 

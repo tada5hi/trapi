@@ -11,6 +11,7 @@ import type {
     IntersectionType,
     Method,
     Parameter,
+    RefAliasType,
     RefObjectType,
     Response,
     Type,
@@ -34,6 +35,7 @@ import { merge } from 'smob';
 
 import type {
     BaseSchema,
+    DataFormatName,
     OperationV2,
     ParameterV2,
     Path,
@@ -411,25 +413,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             });
         }
 
+        // Resolve into a local, never back onto `input`: a `Metadata` is reused
+        // across emitted documents (the CLI extracts once and emits every config
+        // entry), so rewriting the metadata's own type node leaked into the next
+        // one — a `refEnum` parameter came out of v3 as an inline enum instead of
+        // a `$ref` whenever v2 had run first.
+        const { type, alias } = input.in === ParameterSource.BODY ?
+            { type: input.type, alias: undefined } :
+            this.dereferenceNonBodyType(input.type);
+
+        const ownDescription = input.in === ParameterSource.PATH ?
+            this.pathParameterDescription(input.name, input.description) :
+            input.description;
+
         const parameter = {
-            description: input.in === ParameterSource.PATH ?
-                this.pathParameterDescription(input.name, input.description) :
-                input.description,
+            // A dereferenced alias contributes its own description only where the
+            // parameter has none — v3 keeps the `$ref` and reads it off the schema,
+            // so this is what stops the same alias reading differently per version.
+            description: ownDescription || alias?.description || ownDescription,
             in: sourceIn,
             name: input.name,
             required: input.required,
         } as ParameterV2;
 
         Object.assign(parameter, this.transformExtensions(input.extensions));
-
-        // Resolve into a local, never back onto `input`: a `Metadata` is reused
-        // across emitted documents (the CLI extracts once and emits every config
-        // entry), so rewriting the metadata's own type node leaked into the next
-        // one — a `refEnum` parameter came out of v3 as an inline enum instead of
-        // a `$ref` whenever v2 had run first.
-        const type = input.in === ParameterSource.BODY ?
-            input.type :
-            this.dereferenceNonBodyType(input.type);
 
         // Swagger 2.0: formData file parameters use type: 'file' directly
         if (
@@ -442,11 +449,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         const parameterType = this.getSchemaForType(type);
+        const format = alias?.format ?? parameterType.format;
         if (
             parameter.in !== ParameterSourceV2.BODY &&
-            parameterType.format
+            format
         ) {
-            parameter.format = parameterType.format;
+            parameter.format = format as `${DataFormatName}`;
         }
 
         // collectionFormat, might be valid for all parameters (if value != multi)
@@ -478,7 +486,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         // todo: this is eventually illegal
-        Object.assign(parameter, this.transformValidators(input.validators));
+        // The alias's validators come first so the parameter's own win on a clash.
+        Object.assign(
+            parameter,
+            this.transformValidators(alias?.validators),
+            this.transformValidators(input.validators),
+        );
 
         if (type.typeName === TypeName.ANY) {
             parameter.type = DataTypeName.STRING;
@@ -493,8 +506,9 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             parameter.enum = parameterType.enum;
         }
 
-        if (typeof input.default !== 'undefined') {
-            parameter.default = input.default;
+        const defaultValue = input.default ?? alias?.default;
+        if (typeof defaultValue !== 'undefined') {
+            parameter.default = defaultValue;
         }
 
         // A Swagger 2.0 non-body parameter must carry an inline `type` from a small
@@ -518,32 +532,48 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
      * to go. Resolve it to what it points at, so the parameter can carry the inline
      * `type`/`enum`/`items` the 2.0 location subschemas require.
      *
+     * A resolved `refAlias` also hands back its own annotations. They are declared
+     * on the alias, not on its target — `TypeNodeResolver.getReferenceType` fills
+     * `format`, `default`, `description` and `validators` from the alias's JSDoc —
+     * and `buildSchemaForRefAlias` already merges the same set into the alias's
+     * `definitions` entry. Dropping them here made one document say both things at
+     * once: `definitions.Email` carried `format: 'email'` while every parameter of
+     * type `Email` was an unconstrained string. Innermost alias wins, matching the
+     * `alias ?? target` precedence `buildSchemaForRefAlias` uses.
+     *
      * `seen` stops an alias chain that returns to itself. TypeScript rejects a
      * circular alias (TS2456), so `@trapi/metadata` cannot produce one — but
      * `generateSwagger` takes caller-supplied `Metadata` from any producer, and a
      * bare stack overflow is a poor answer for one. A cycle returns the reference
-     * untouched, which the `type: 'string'` floor below then handles.
+     * untouched, which the `type: 'string'` floor then handles.
      */
-    private dereferenceNonBodyType(type: Type, seen?: Set<string>) : Type {
+    private dereferenceNonBodyType(
+        type: Type,
+        seen?: Set<string>,
+    ) : { type: Type, alias?: RefAliasType } {
         if (isRefEnumType(type)) {
             return {
-                typeName: TypeName.ENUM,
-                members: type.members,
+                type: {
+                    typeName: TypeName.ENUM,
+                    members: type.members,
+                },
             };
         }
 
         if (isRefAliasType(type)) {
             const visited = seen ?? new Set<string>();
             if (visited.has(type.refName)) {
-                return type;
+                return { type };
             }
 
             visited.add(type.refName);
 
-            return this.dereferenceNonBodyType(type.type, visited);
+            const resolved = this.dereferenceNonBodyType(type.type, visited);
+
+            return { type: resolved.type, alias: resolved.alias ?? type };
         }
 
-        return type;
+        return { type };
     }
 
     private supportsBodyParameters(method: string) {

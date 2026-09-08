@@ -94,6 +94,42 @@ describe('error paths', () => {
         });
     });
 
+    describe('V2 - body and form conflict', () => {
+        it('should throw when method has both body and form parameters', async () => {
+            const metadata = createMetadata([
+                createController({
+                    name: 'ConflictController',
+                    paths: ['conflict'],
+                    methods: [
+                        createMethod({
+                            name: 'bodyAndForm',
+                            method: 'post',
+                            path: '',
+                            parameters: [
+                                createParameter({
+                                    name: 'body',
+                                    in: 'body',
+                                    type: stringType(),
+                                }),
+                                createParameter({
+                                    name: 'file',
+                                    in: 'formData',
+                                    type: stringType(),
+                                }),
+                            ],
+                        }),
+                    ],
+                }),
+            ]);
+
+            await expect(generateSwagger({
+                version: Version.V2,
+                metadata,
+                data: { servers: 'http://localhost:3000/' },
+            })).rejects.toThrow(/Cannot mix body and form parameters/);
+        });
+    });
+
     describe('V3 - body and form conflict', () => {
         it('should throw when method has both body and form parameters', async () => {
             const metadata = createMetadata([

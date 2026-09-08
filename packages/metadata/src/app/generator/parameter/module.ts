@@ -179,6 +179,16 @@ export class ParameterGenerator implements IParameterGenerator {
             return decomposed;
         }
 
+        // A `query` draft marks the whole query bag. The object case decomposed
+        // above; every other supported shape already binds exactly one named key,
+        // so resolve it here too — `finalize` must never return `in: 'query'`,
+        // which both swagger emitters group away and drop (#910).
+        // ponytail: mutate `draft.in`, not the local `kind` — the branch tests and
+        // the '@Query' vs '@QueryProp' error labels below still read `kind`.
+        if (kind === ParameterSource.QUERY) {
+            draft.in = ParameterSource.QUERY_PROP;
+        }
+
         if ((kind === ParameterSource.QUERY || kind === ParameterSource.QUERY_PROP) &&
             isArrayType(type)) {
             if (!this.isLeafTypeSupported(type.elementType)) {

@@ -285,6 +285,16 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             });
         }
 
+        // ponytail: duplicated from V3 (v3/module.ts) rather than hoisted into
+        // AbstractSpecGenerator — a shared helper costs more lines than the six
+        // it saves, and rewrites V3's already-correct path.
+        if (bodyParameters.length > 0 && this.hasFormParams(method)) {
+            throw new SwaggerError({
+                message: `Cannot mix body and form parameters in method '${method.name}'.`,
+                code: SwaggerErrorCode.BODY_FORM_CONFLICT,
+            });
+        }
+
         const bodyParameter = bodyParameters[0] ?
             this.buildParameter(bodyParameters[0]) :
             undefined;

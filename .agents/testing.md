@@ -135,7 +135,7 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `intersection-types.spec.ts` | V2 flattened properties, V3 `allOf` |
 | `additional-properties.spec.ts` | V2 boolean vs V3 typed schema |
 | `edge-cases.spec.ts` | Empty required arrays, void responses, spec structure |
-| `error-paths.spec.ts` | Duplicate body params, body+form conflict, cookie filtering, hidden methods |
+| `error-paths.spec.ts` | Duplicate body params, body+form and bodyProp+form conflict, cookie filtering, hidden methods |
 | `schema-validation.spec.ts` | V2/V3 output validated against official OAI JSON Schemas |
 | `config-variations.spec.ts` | specificationExtra merging, collectionFormat, info defaults |
 | `generate-swagger.spec.ts` | `generateSwagger()` entry-point wiring (pre-built metadata vs options) |

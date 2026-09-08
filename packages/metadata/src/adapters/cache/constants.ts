@@ -16,7 +16,7 @@
  * bump an upgrade keeps serving pre-fix metadata from a warm cache.
  * Old cache files with a different version are rejected on read.
  */
-export const CACHE_SCHEMA_VERSION = '6';
+export const CACHE_SCHEMA_VERSION = '7';
 
 export const CACHE_FILE_PREFIX = '.trapi-metadata-';
 export const CACHE_FILE_SUFFIX = '.json';

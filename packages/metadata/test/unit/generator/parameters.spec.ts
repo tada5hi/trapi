@@ -205,6 +205,14 @@ describe('parameter metadata extraction', () => {
             expect(bodyParam!.type.typeName).toEqual('string');
         });
 
+        it('should allow several @BodyProp parameters on one method', () => {
+            const method = myService.methods.find(
+                (m) => m.name === 'testMultiBodyProp',
+            )!;
+            const bodyProps = method.parameters.filter((p) => p.in === 'bodyProp');
+            expect(bodyProps.map((p) => p.name)).toEqual(['title', 'count']);
+        });
+
         it('should extract object body parameter', () => {
             const method = myService.methods.find(
                 (m) => m.name === 'testPostObject',

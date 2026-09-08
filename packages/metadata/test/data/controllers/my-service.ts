@@ -8,6 +8,7 @@
 import {
     Accept, 
     Body, 
+    BodyProp, 
     Controller,
     Description,
     Example,
@@ -108,5 +109,17 @@ export class MyService {
     @Mount('test-form-param')
     public testFormParam(@FormProp('id') id: string): string {
         return id;
+    }
+
+    // Several `@BodyProp` on one method are legal — they name distinct keys of a
+    // single body. Pinned because the body/form conflict check counts bodyProp,
+    // and folding it into the "only one body parameter" counter would break this.
+    @Post()
+    @Mount('test-multi-body-prop')
+    public testMultiBodyProp(
+        @BodyProp('title') title: string,
+        @BodyProp('count') count: number,
+    ): string {
+        return title;
     }
 }

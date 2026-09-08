@@ -23,7 +23,10 @@ import {
     isAnyType,
     isBinaryType,
     isEnumType,
+    isIntersectionType,
+    isNestedObjectLiteralType,
     isNeverType,
+    isObjectType,
     isRefAliasType,
     isRefEnumType,
     isRefObjectType,
@@ -335,36 +338,61 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 bodyParameter &&
                 bodyParameter.in === ParameterSourceV2.BODY
             ) {
-                if (bodyParameter.schema.type === DataTypeName.OBJECT) {
-                    bodyParameter.schema.properties = {
-                        ...(bodyParameter.schema.properties || {}),
+                // Decide on the DECLARED type, never on the emitted schema. A named
+                // body renders as a bare `$ref` and V2's union fallback renders any
+                // multi-member union as `{type: 'object'}` — a placeholder carrying
+                // none of the union's members. Gating on `schema.type === 'object'`
+                // therefore merged the properties into that placeholder and dropped
+                // the declared union without a word, the exact loss #923 reports.
+                const declaredBody = this.buildFlattenedBodySchema(bodyParameters[0]!.type);
+
+                if (!declaredBody) {
+                    // No object shape to merge into — a scalar, an array, a union, an
+                    // enum, or an alias bottoming out in one (a cyclic alias included).
+                    // Replacing the declared body wholesale silently loses it (#923),
+                    // and there is no V2 composition that could hold both halves, so
+                    // reject the combination the way `@BodyProp` beside a form
+                    // parameter is rejected above (#921/#922). V3 raises the same code
+                    // for the same input.
+                    throw new SwaggerError({
+                        message: `Cannot mix a non-object body type with body properties in method '${method.name}'.`,
+                        code: SwaggerErrorCode.BODY_PROP_TYPE_CONFLICT,
+                    });
+                }
+
+                // The declared body flattened into a plain object schema (see
+                // `buildFlattenedBodySchema`), so the bodyProp properties can be
+                // merged into it instead of replacing it (#923). The body
+                // parameter's own validators lived on the schema `buildParameter`
+                // produced, which the flattened shape replaces — carry them across.
+                const { required: declaredRequired, ...declaredRest } = declaredBody;
+
+                bodyParameter.schema = {
+                    ...declaredRest,
+                    ...this.transformValidators(bodyParameters[0]!.validators),
+                    type: DataTypeName.OBJECT,
+                    properties: {
+                        ...declaredRest.properties,
+                        // A `@BodyProp` naming a property the body type already
+                        // declares wins.
                         ...schema.properties,
-                    };
+                    },
+                };
 
-                    // A `@BodyProp` may name a property the body type already declares
-                    // required, so the two lists can overlap. Swagger 2.0's `required`
-                    // is draft-04's `stringArray` (`uniqueItems: true`), so a repeat
-                    // is invalid — the same shape the V3 merge produced across mounts.
-                    const merged = [...new Set([
-                        ...(bodyParameter.schema.required || []),
-                        ...required,
-                    ])];
+                // A `@BodyProp` may name a property the body type already declares
+                // required, so the two lists can overlap. Swagger 2.0's `required`
+                // is draft-04's `stringArray` (`uniqueItems: true`), so a repeat
+                // is invalid — the same shape the V3 merge produced across mounts.
+                const merged = [...new Set([
+                    ...(declaredRequired || []),
+                    ...required,
+                ])];
 
-                    // An all-optional body must omit the key — that same `stringArray`
-                    // sets `minItems: 1`, so `required: []` is invalid too. The
-                    // synthetic-body branch below already guards this.
-                    if (merged.length) {
-                        bodyParameter.schema.required = merged;
-                    }
-                } else {
-                    // The declared body type is not an object, so the collected
-                    // properties replace it wholesale — carry their requiredness
-                    // across rather than dropping it on the floor.
-                    bodyParameter.schema = schema;
-
-                    if (required.length) {
-                        bodyParameter.schema.required = [...new Set(required)];
-                    }
+                // An all-optional body must omit the key — that same `stringArray`
+                // sets `minItems: 1`, so `required: []` is invalid too. The
+                // synthetic-body branch below already guards this.
+                if (merged.length) {
+                    bodyParameter.schema.required = merged;
                 }
 
                 output.parameters.push(bodyParameter);
@@ -388,6 +416,85 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         Object.assign(output, this.transformExtensions(method.extensions));
 
         return output;
+    }
+
+    /**
+     * The object schema a declared `@Body` type contributes to a `@BodyProp` merge,
+     * or `undefined` when Swagger 2.0 has no object shape to merge into.
+     *
+     * A named body type emits a `$ref`, which Swagger 2.0 forbids siblings on — so
+     * the bodyProp properties cannot simply be added to it, and replacing it
+     * wholesale silently loses the declared body (#923). Flatten it instead, through
+     * the very builders `definitions` is built from, so the merged body keeps every
+     * per-property annotation (description, deprecated, format, default, validators,
+     * `x-` extensions), the model's own description/example, and the same
+     * `isUndefinedProperty` requiredness filter the definition applies.
+     *
+     * This is also the emitter's only mergeability test — the emitted schema cannot
+     * serve as one, since a `$ref` and a union placeholder both come out of
+     * `getSchemaForType` looking nothing like what they name. The set of types it
+     * answers for must stay in step with V3's `isBodyMergeableType`, or the two
+     * emitters disagree on the same metadata.
+     */
+    private buildFlattenedBodySchema(type: Type, seen?: Set<string>) : SchemaV2 | undefined {
+        if (isRefObjectType(type)) {
+            // A `refObject` parameter's own `type.properties` is always empty — the
+            // real properties live only in `metadata.referenceTypes`.
+            const referenceType = this.metadata.referenceTypes[type.refName];
+
+            return referenceType && isRefObjectType(referenceType) ?
+                this.buildSchemaForRefObject(referenceType) :
+                undefined;
+        }
+
+        if (isNestedObjectLiteralType(type)) {
+            return this.getSchemaForObjectLiteralType(type) as SchemaV2;
+        }
+
+        // `any` and `object` declare no properties of their own, but they exclude
+        // none either — narrowing an open shape with the `@BodyProp` properties is
+        // satisfiable, so there is nothing to reject. `buildParameter` renders an
+        // `any` body as a bare `{type: 'object'}`; match it rather than the
+        // `{additionalProperties: true}` the primitive map hands back, so the
+        // emitted body is the same with and without a `@BodyProp`.
+        if (isAnyType(type)) {
+            return { type: DataTypeName.OBJECT };
+        }
+
+        if (isObjectType(type)) {
+            return this.getSchemaForType(type) as SchemaV2;
+        }
+
+        // V2's own intersection emission already flattens to `{type, properties}` —
+        // the shape this merge needs. Without this branch an intersection-typed
+        // `@Body` would merge in V3 and be rejected here, reintroducing the very
+        // V2/V3 disagreement #923 is about.
+        if (isIntersectionType(type)) {
+            return this.getSchemaForIntersectionType(type);
+        }
+
+        // `type UserDto = { ... }` — the ordinary alias idiom resolves to a
+        // `refAlias` wrapping a `nestedObjectLiteral`. Recursing (rather than testing
+        // that one shape) also covers an alias over a `refObject`, over an
+        // intersection, and over another alias. An alias that bottoms out in a scalar
+        // or an array has no properties to contribute and falls through to
+        // `undefined`, which is what the caller rejects on.
+        //
+        // `seen` stops a self-returning alias chain, for the reason
+        // `dereferenceNonBodyType` documents: TypeScript rejects a circular alias, but
+        // `generateSwagger` accepts `Metadata` from any producer and a stack overflow
+        // is a poor answer for one. A cycle yields `undefined`, i.e. the rejection.
+        if (isRefAliasType(type)) {
+            const visited = seen ?? new Set<string>();
+            if (visited.has(type.refName)) {
+                return undefined;
+            }
+            visited.add(type.refName);
+
+            return this.buildFlattenedBodySchema(type.type, visited);
+        }
+
+        return undefined;
     }
 
     private transformParameterSource(

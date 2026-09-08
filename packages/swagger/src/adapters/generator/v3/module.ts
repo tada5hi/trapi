@@ -29,6 +29,7 @@ import {
     isIntersectionType,
     isNestedObjectLiteralType,
     isNeverType,
+    isObjectType,
     isRefAliasType,
     isRefObjectType,
     isUndefinedType,
@@ -301,6 +302,19 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             const firstBody = bodyParams[0]!;
+            const bodyPropObjectType : NestedObjectLiteralType = {
+                typeName: TypeName.NESTED_OBJECT_LITERAL,
+                properties: bodyPropParams.map((bodyPropParam) => ({
+                    default: bodyPropParam.default,
+                    validators: bodyPropParam.validators,
+                    description: bodyPropParam.description,
+                    name: bodyPropParam.name,
+                    type: bodyPropParam.type,
+                    required: bodyPropParam.required,
+                    deprecated: bodyPropParam.deprecated ?? false,
+                })),
+            };
+
             if (isNestedObjectLiteralType(firstBody.type)) {
                 // Merge into a copy, never into the metadata's own nested literal.
                 // `buildOperation` runs once per (controllerPath × methodPath) and a
@@ -313,16 +327,40 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                         ...firstBody.type,
                         properties: [
                             ...firstBody.type.properties,
-                            ...bodyPropParams.map((bodyPropParam) => ({
-                                default: bodyPropParam.default,
-                                validators: bodyPropParam.validators,
-                                description: bodyPropParam.description,
-                                name: bodyPropParam.name,
-                                type: bodyPropParam.type,
-                                required: bodyPropParam.required,
-                                deprecated: bodyPropParam.deprecated ?? false,
-                            })),
+                            ...bodyPropObjectType.properties,
                         ],
+                    },
+                };
+            } else if (!V3Generator.isBodyMergeableType(firstBody.type)) {
+                // A scalar/array/union/enum/tuple body (or an alias over one, a
+                // cyclic alias included) has no object shape the properties could
+                // join. Composing anyway would emit
+                // `allOf: [{type: 'string'}, {type: 'object', ...}]` — schema-valid but
+                // unsatisfiable by any JSON value, so every request would fail
+                // validation with nothing in the document explaining why. Reject the
+                // combination instead, exactly as `@BodyProp` beside a form parameter
+                // is rejected above (#921/#922) for the same reason: no coherent single
+                // representation exists. V2 raises the same code for the same input.
+                throw new SwaggerError({
+                    message: `Cannot mix a non-object body type with body properties in method '${method.name}'.`,
+                    code: SwaggerErrorCode.BODY_PROP_TYPE_CONFLICT,
+                });
+            } else {
+                // Object-like but not an inline shape whose properties can be spliced —
+                // a named `refObject`/`refAlias`, or an intersection. Compose the
+                // declared body type with the `@BodyProp` properties the way an
+                // ordinary intersection type is composed, rather than dropping either
+                // half (#923). The synthesized node's own `typeName` is `'intersection'`,
+                // and every branch `getSchemaForType` checks before it tests a concrete
+                // `typeName` (`isReferenceType` included), so none of them match it and
+                // it renders through the existing `getSchemaForIntersectionType` —
+                // `allOf` of whatever the two members emit, no new schema-building code
+                // and no per-typeName special casing here.
+                bodyParams[0] = {
+                    ...firstBody,
+                    type: {
+                        typeName: TypeName.INTERSECTION,
+                        members: [firstBody.type, bodyPropObjectType],
                     },
                 };
             }
@@ -765,7 +803,12 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         return schema;
     }
 
-    private static isObjectLikeType(type: Type): boolean {
+    /**
+     * Whether a type is object-shaped: used to decide `oneOf` vs `anyOf` for union
+     * composition (below) and, via `isBodyMergeableType`, whether a `@Body` type can
+     * hold `@BodyProp` properties alongside it.
+     */
+    private static isObjectLikeType(type: Type, seen?: Set<string>): boolean {
         if (isRefObjectType(type) ||
             isNestedObjectLiteralType(type) ||
             isIntersectionType(type)) {
@@ -774,11 +817,53 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         // Unwrap refAlias to check the underlying type — a refAlias
         // wrapping a primitive (e.g. `type Id = string`) is not object-like.
+        //
+        // `seen` stops an alias chain that returns to itself. TypeScript rejects a
+        // circular alias (TS2456), so `@trapi/metadata` cannot produce one — but
+        // `generateSwagger` takes caller-supplied `Metadata` from any producer, and a
+        // `RangeError` is a poor answer for one. A cycle is not object-like.
         if (isRefAliasType(type)) {
-            return V3Generator.isObjectLikeType(type.type);
+            const visited = seen ?? new Set<string>();
+            if (visited.has(type.refName)) {
+                return false;
+            }
+            visited.add(type.refName);
+
+            return V3Generator.isObjectLikeType(type.type, visited);
         }
 
         return false;
+    }
+
+    /**
+     * Whether a declared `@Body` type can hold the `@BodyProp` properties alongside
+     * it. Counterpart to V2's `buildFlattenedBodySchema` — the two must answer for
+     * the same set of types, or the emitters disagree on the same metadata.
+     *
+     * Every `isObjectLikeType` type qualifies, plus `any`/`object`: neither declares
+     * properties of its own, but neither excludes any either, so composing with the
+     * bodyProp properties via `allOf` is satisfiable. Deliberately NOT folded into
+     * `isObjectLikeType` itself — that method also decides `oneOf` vs `anyOf` for
+     * union composition, where treating an `any`/`object` member as object-like
+     * would wrongly route a union containing one into `oneOf`'s exactly-one-match
+     * semantics instead of `anyOf`.
+     */
+    private static isBodyMergeableType(type: Type, seen?: Set<string>): boolean {
+        if (isAnyType(type) || isObjectType(type)) {
+            return true;
+        }
+
+        if (isRefAliasType(type)) {
+            const visited = seen ?? new Set<string>();
+            if (visited.has(type.refName)) {
+                return false;
+            }
+            visited.add(type.refName);
+
+            return V3Generator.isBodyMergeableType(type.type, visited);
+        }
+
+        return V3Generator.isObjectLikeType(type);
     }
 
     private applyDiscriminator(schema: SchemaV3, members: Type[]): void {

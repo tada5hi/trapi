@@ -21,9 +21,12 @@ import {
     createMetadata,
     createMethod,
     createParameter,
+    createProperty,
     createRefEnum,
+    createRefObject,
     createResponse,
     refEnumType,
+    refObjectType,
     stringType,
 } from '../../helpers/metadata-builder';
 import { validateV2Spec, validateV3Spec } from '../../helpers/schema-validator';
@@ -123,6 +126,82 @@ function buildBodyPropOnlyMetadata() : Metadata {
             ],
         }),
     ]);
+}
+
+/**
+ * The body type already declares `name` required, and a `@BodyProp` names it too.
+ * Swagger 2.0's `required` is draft-04's `stringArray` — `uniqueItems: true` — so
+ * the two lists have to be merged, not concatenated.
+ */
+function buildOverlappingRequirednessMetadata() : Metadata {
+    return createMetadata([
+        createController({
+            name: 'UserController',
+            paths: ['users'],
+            methods: [
+                createMethod({
+                    name: 'create',
+                    method: 'post',
+                    path: '',
+                    parameters: [
+                        createParameter({
+                            name: 'body',
+                            in: 'body',
+                            type: {
+                                typeName: 'nestedObjectLiteral',
+                                properties: [
+                                    createProperty({
+                                        name: 'name', 
+                                        type: stringType(), 
+                                        required: true, 
+                                    }),
+                                ],
+                            },
+                        }),
+                        createParameter({
+                            name: 'name', 
+                            in: 'bodyProp', 
+                            type: stringType(), 
+                        }),
+                    ],
+                    responses: [createResponse({ status: '201' })],
+                }),
+            ],
+        }),
+    ]);
+}
+
+/**
+ * A body parameter whose declared type is NOT an object: the collected bodyProp
+ * properties replace it wholesale, and their requiredness has to survive.
+ */
+function buildNonObjectBodyMetadata() : Metadata {
+    return createMetadata([
+        createController({
+            name: 'UserController',
+            paths: ['users'],
+            methods: [
+                createMethod({
+                    name: 'create',
+                    method: 'post',
+                    path: '',
+                    parameters: [
+                        createParameter({
+                            name: 'body', 
+                            in: 'body', 
+                            type: refObjectType('User'), 
+                        }),
+                        createParameter({
+                            name: 'name', 
+                            in: 'bodyProp', 
+                            type: stringType(), 
+                        }),
+                    ],
+                    responses: [createResponse({ status: '201' })],
+                }),
+            ],
+        }),
+    ], { User: createRefObject('User', [createProperty({ name: 'id', type: stringType() })]) });
 }
 
 /**
@@ -452,6 +531,37 @@ describe('bodyProp requiredness', () => {
                 metadata: buildMergedRequirednessMetadata(nameRequired),
                 data: { servers },
             });
+
+            const result = validateV2Spec(spec);
+            expect(result.errors, result.errors.join('\n')).toEqual([]);
+        });
+
+        it('lists an overlapping name once rather than twice', async () => {
+            const spec = await generateSwagger({
+                version: Version.V2,
+                metadata: buildOverlappingRequirednessMetadata(),
+                data: { servers },
+            });
+
+            const schema = bodyParameterSchema(spec, '/users');
+            expect(schema.required).toEqual(['name']);
+
+            // `uniqueItems: true` on draft-04's `stringArray`, so a repeat is not
+            // merely untidy — the document stops validating.
+            const result = validateV2Spec(spec);
+            expect(result.errors, result.errors.join('\n')).toEqual([]);
+        });
+
+        it('keeps the required names when a non-object body schema is replaced', async () => {
+            const spec = await generateSwagger({
+                version: Version.V2,
+                metadata: buildNonObjectBodyMetadata(),
+                data: { servers },
+            });
+
+            const schema = bodyParameterSchema(spec, '/users');
+            expect(Object.keys(schema.properties!)).toEqual(['name']);
+            expect(schema.required).toEqual(['name']);
 
             const result = validateV2Spec(spec);
             expect(result.errors, result.errors.join('\n')).toEqual([]);

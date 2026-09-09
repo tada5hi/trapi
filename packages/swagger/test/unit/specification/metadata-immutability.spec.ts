@@ -172,10 +172,12 @@ function buildOverlappingRequirednessMetadata() : Metadata {
 }
 
 /**
- * A body parameter whose declared type is NOT an object: the collected bodyProp
- * properties replace it wholesale, and their requiredness has to survive.
+ * A body parameter whose declared type is a named `refObject` rather than an
+ * inline object literal. There is no schema to splice properties into, so V2
+ * flattens the reference through `referenceTypes` — both halves' requiredness
+ * has to survive, deduped.
  */
-function buildNonObjectBodyMetadata() : Metadata {
+function buildRefObjectBodyMetadata() : Metadata {
     return createMetadata([
         createController({
             name: 'UserController',
@@ -552,16 +554,16 @@ describe('bodyProp requiredness', () => {
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
-        it('keeps the required names when a non-object body schema is replaced', async () => {
+        it('keeps the required names of both halves when a refObject body is flattened', async () => {
             const spec = await generateSwagger({
                 version: Version.V2,
-                metadata: buildNonObjectBodyMetadata(),
+                metadata: buildRefObjectBodyMetadata(),
                 data: { servers },
             });
 
             const schema = bodyParameterSchema(spec, '/users');
-            expect(Object.keys(schema.properties!)).toEqual(['name']);
-            expect(schema.required).toEqual(['name']);
+            expect(Object.keys(schema.properties!)).toEqual(['id', 'name']);
+            expect(schema.required).toEqual(['id', 'name']);
 
             const result = validateV2Spec(spec);
             expect(result.errors, result.errors.join('\n')).toEqual([]);

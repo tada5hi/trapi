@@ -167,8 +167,20 @@ export function neverType(): Type {
     return { typeName: 'never' };
 }
 
+export function undefinedType(): Type {
+    return { typeName: 'undefined' };
+}
+
 export function stringType(): Type {
     return { typeName: 'string' };
+}
+
+export function anyType(): Type {
+    return { typeName: 'any' };
+}
+
+export function objectType(): Type {
+    return { typeName: 'object' };
 }
 
 export function integerType(): Type {

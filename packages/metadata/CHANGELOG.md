@@ -151,6 +151,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.3](https://github.com/tada5hi/trapi/compare/metadata-v2.1.2...metadata-v2.1.3) (2026-09-09)
+
+
+### Miscellaneous Chores
+
+* **metadata:** Synchronize main versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.1.2 to 2.1.3
+
 ## [2.1.2](https://github.com/tada5hi/trapi/compare/metadata-v2.1.1...metadata-v2.1.2) (2026-09-08)
 
 

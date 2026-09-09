@@ -12,6 +12,6 @@
         "@trapi/metadata": "*"
     },
     "devDependencies": {
-        "vitest": "^4.1.8"
+        "vitest": "^5.0.0"
     }
 }

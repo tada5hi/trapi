@@ -331,7 +331,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                         ],
                     },
                 };
-            } else if (!V3Generator.isBodyMergeableType(firstBody.type)) {
+            } else if (!this.isBodyMergeableType(firstBody.type)) {
                 // A scalar/array/union/enum/tuple body (or an alias over one, a
                 // cyclic alias included) has no object shape the properties could
                 // join. Composing anyway would emit
@@ -838,7 +838,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     /**
      * Whether a declared `@Body` type can hold the `@BodyProp` properties alongside
      * it. Counterpart to V2's `buildFlattenedBodySchema` — the two must answer for
-     * the same set of types, or the emitters disagree on the same metadata.
+     * the same set of types, or the emitters disagree on the same metadata. An
+     * instance method (unlike `isObjectLikeType`) because a `refObject` needs
+     * `this.metadata.referenceTypes` to tell a resolvable reference from a dangling
+     * or wrong-kind one.
      *
      * Every `isObjectLikeType` type qualifies, plus `any`/`object`: neither declares
      * properties of its own, but neither excludes any either, so composing with the
@@ -848,9 +851,20 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
      * would wrongly route a union containing one into `oneOf`'s exactly-one-match
      * semantics instead of `anyOf`.
      */
-    private static isBodyMergeableType(type: Type, seen?: Set<string>): boolean {
+    private isBodyMergeableType(type: Type, seen?: Set<string>): boolean {
         if (isAnyType(type) || isObjectType(type)) {
             return true;
+        }
+
+        // `isObjectLikeType` accepts any `refObject` structurally, without
+        // resolving it — fine for its own caller (union composition, which doesn't
+        // compose a dangling reference into anything). Here, an unresolved or
+        // wrong-kind reference would still get merged into an `allOf` as a `$ref`
+        // that points at nothing (or at the wrong entry) — reject it the same way
+        // V2's `buildFlattenedBodySchema` does, via the identical lookup.
+        if (isRefObjectType(type)) {
+            const referenceType = this.metadata.referenceTypes[type.refName];
+            return !!referenceType && isRefObjectType(referenceType);
         }
 
         if (isRefAliasType(type)) {
@@ -860,7 +874,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
             visited.add(type.refName);
 
-            return V3Generator.isBodyMergeableType(type.type, visited);
+            return this.isBodyMergeableType(type.type, visited);
         }
 
         return V3Generator.isObjectLikeType(type);

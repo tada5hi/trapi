@@ -244,6 +244,31 @@ describe('body + bodyProp on a non-object-literal body', () => {
             })).rejects.toMatchObject({ code: 'SWAGGER_BODY_PROP_TYPE_CONFLICT' });
         });
 
+        // A `refObject` param names a `refName`; the properties live only in
+        // `metadata.referenceTypes`. Structurally it looks mergeable regardless of
+        // whether that entry actually exists, so the mergeability check has to
+        // resolve it rather than trust the shape — the same lookup V2's
+        // `buildFlattenedBodySchema` performs, or V3 would compose a `$ref` into
+        // `allOf` for a body V2 rejects outright.
+        it('rejects a refObject body whose reference is missing from referenceTypes', async () => {
+            await expect(generateSwagger({
+                version: Version.V3,
+                metadata: buildMetadata(refObjectType('Ghost')),
+                data: { servers },
+            })).rejects.toMatchObject({ code: 'SWAGGER_BODY_PROP_TYPE_CONFLICT' });
+        });
+
+        it('rejects a refObject body whose reference resolves to a different kind', async () => {
+            await expect(generateSwagger({
+                version: Version.V3,
+                metadata: buildMetadata(
+                    refObjectType('Aliased'),
+                    { Aliased: createRefAlias('Aliased', stringType()) },
+                ),
+                data: { servers },
+            })).rejects.toMatchObject({ code: 'SWAGGER_BODY_PROP_TYPE_CONFLICT' });
+        });
+
         // `isObjectLikeType` recurses through every alias it unwraps, so a chain
         // that returns to itself has to be cut — a `RangeError` from a blown stack
         // is not an answer a caller can act on.
@@ -432,7 +457,11 @@ describe('body + bodyProp on a non-object-literal body', () => {
                     createdAt: { type: 'string' },
                     name: { type: 'string', description: '' },
                 },
-                required: ['name'],
+                // Both `User.id` and `Audit.createdAt` are required members —
+                // `getSchemaForIntersectionType` has to carry that across, or a
+                // required property comes out optional the moment it reaches this
+                // merge through an intersection instead of a direct refObject.
+                required: ['id', 'createdAt', 'name'],
             });
         });
 

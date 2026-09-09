@@ -714,6 +714,8 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
     }
 
     protected getSchemaForIntersectionType(type: IntersectionType) : SchemaV2 {
+        const required : string[] = [];
+
         // tslint:disable-next-line:no-shadowed-variable
         const properties = type.members.reduce((acc, type) => {
             if (isRefObjectType(type)) {
@@ -725,12 +727,30 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                         ...pAcc,
                         [prop.name]: this.getSchemaForType(prop.type),
                     }), {});
+
+                // Without this, a required member property came out optional in the
+                // flattened schema — the same `isUndefinedProperty` filter
+                // `buildSchemaForRefObject` applies, so a `string | undefined`
+                // property stays excluded here too.
+                if (refType && refType.properties) {
+                    required.push(
+                        ...refType.properties
+                            .filter((prop) => prop.required && !this.isUndefinedProperty(prop))
+                            .map((prop) => prop.name),
+                    );
+                }
+
                 return { ...acc, ...props };
             }
             return { ...acc };
         }, {});
 
-        return { type: DataTypeName.OBJECT, properties };
+        const schema : SchemaV2 = { type: DataTypeName.OBJECT, properties };
+        if (required.length > 0) {
+            schema.required = [...new Set(required)];
+        }
+
+        return schema;
     }
 
 

@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.1.3](https://github.com/tada5hi/trapi/compare/swagger-v2.1.2...swagger-v2.1.3) (2026-09-09)
+
+
+### Bug Fixes
+
+* **swagger:** merge or reject @BodyProp beside a non-object-literal @Body ([#924](https://github.com/tada5hi/trapi/issues/924)) ([3e46b8e](https://github.com/tada5hi/trapi/commit/3e46b8eeb375d24c462123e2e432e4079c14bdc2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.1.2 to 2.1.3
+
 ## [2.1.2](https://github.com/tada5hi/trapi/compare/swagger-v2.1.1...swagger-v2.1.2) (2026-09-08)
 
 

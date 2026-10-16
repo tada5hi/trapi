@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isUnionTypeNode } from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type { TypeNode } from 'typescript';
 import { TypeName } from '@trapi/core';
 import type { Type, UnionType } from '@trapi/core';
@@ -15,7 +15,7 @@ export function resolveUnionType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isUnionTypeNode(typeNode)) {
+    if (!ts.isUnionTypeNode(typeNode)) {
         return undefined;
     }
 

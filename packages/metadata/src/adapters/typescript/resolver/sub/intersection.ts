@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isIntersectionTypeNode } from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type { TypeNode } from 'typescript';
 import { TypeName } from '@trapi/core';
 import type { IntersectionType, Type } from '@trapi/core';
@@ -15,7 +15,7 @@ export function resolveIntersectionType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isIntersectionTypeNode(typeNode)) {
+    if (!ts.isIntersectionTypeNode(typeNode)) {
         return undefined;
     }
 

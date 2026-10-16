@@ -6,7 +6,7 @@
  */
 
 import { isObject } from 'smob';
-import { NodeBuilderFlags, displayPartsToString, isIdentifier } from 'typescript';
+import { ts } from '../../../core/compiler';
 import type { ParameterDeclaration } from 'typescript';
 import {
     CollectionFormat,
@@ -339,7 +339,7 @@ export class ParameterGenerator implements IParameterGenerator {
             typeNode = this.current.typeChecker.typeToTypeNode(
                 t,
                 undefined,
-                NodeBuilderFlags.NoTruncation,
+                ts.NodeBuilderFlags.NoTruncation,
             );
         }
         if (!typeNode) {
@@ -349,7 +349,7 @@ export class ParameterGenerator implements IParameterGenerator {
     }
 
     private getParameterName(): string {
-        if (!isIdentifier(this.parameter.name)) {
+        if (!ts.isIdentifier(this.parameter.name)) {
             throw new ParameterError({ message: 'Destructured parameters are not supported. Use a simple identifier name.' });
         }
         return this.parameter.name.text;
@@ -360,7 +360,7 @@ export class ParameterGenerator implements IParameterGenerator {
         if (symbol) {
             const comments = symbol.getDocumentationComment(this.current.typeChecker);
             if (comments.length > 0) {
-                return displayPartsToString(comments);
+                return ts.displayPartsToString(comments);
             }
         }
         return '';

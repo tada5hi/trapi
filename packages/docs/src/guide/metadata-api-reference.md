@@ -265,11 +265,19 @@ See [Decorators & Presets](/guide/metadata-decorators) for the full handler API 
 ### `TsConfig`
 
 ```typescript
-type TsCompilerOptions = CompilerOptions;  // re-exported from 'typescript'
+// parsed (`ScriptTarget.ES2022`) or raw tsconfig JSON (`'ES2022'`)
+type TsCompilerOptions = CompilerOptions | Record<string, unknown>;
 
+// returned by loadTSConfig(): compilerOptions already parsed
 type TsConfig = {
-    compilerOptions?: TsCompilerOptions;
+    compilerOptions?: CompilerOptions;  // from 'typescript'
     [key: string]: any;        // standard tsconfig fields like include, exclude, files, references
+};
+
+// accepted by the `tsconfig` option
+type TsConfigInput = {
+    compilerOptions?: TsCompilerOptions;
+    [key: string]: any;
 };
 ```
 

@@ -13,6 +13,46 @@ npm install --save @trapi/metadata
 
 TypeScript is declared as a peer dependency, so your project's `typescript` version is the one TRAPI will use.
 
+## TypeScript 7
+
+TypeScript 7 (the native Go compiler) ships without the JavaScript compiler API that TRAPI drives — `typescript@7` exports only its version. TRAPI therefore keeps using the TypeScript **6** API, which Microsoft publishes for exactly this case as [`@typescript/typescript6`](https://www.npmjs.com/package/@typescript/typescript6). Your build can still run on TypeScript 7.
+
+TRAPI looks for the compiler API in this order:
+
+1. `typescript` — when it is TypeScript 5 or 6 (or aliased to the compat package, see below).
+2. `@typescript/typescript6`.
+
+Pick one of these layouts:
+
+```jsonc
+// a) Alias layout, as recommended in the TypeScript 7.0 announcement:
+//    `npx tsc` runs TS 7, tools importing `typescript` get the TS 6 API.
+{
+    "devDependencies": {
+        "@typescript/native": "npm:typescript@^7.0.2",
+        "typescript": "npm:@typescript/typescript6@^6.0.2"
+    }
+}
+
+// b) Plain TypeScript 7 plus the compat package.
+{
+    "devDependencies": {
+        "@typescript/typescript6": "^6.0.2",
+        "typescript": "^7.0.2"
+    }
+}
+```
+
+With only `typescript@7` installed, `generateMetadata()` throws a `ConfigError` with code `CONFIG_COMPILER_API_UNAVAILABLE` that names the fix.
+
+::: warning npm links the wrong `tsc` in layout (b)
+`@typescript/typescript6` depends on TypeScript 6, and npm hoists that dependency's `tsc` binary over the one from `typescript@7` — `npx tsc --version` then reports 6.x ([microsoft/TypeScript#64071](https://github.com/microsoft/TypeScript/issues/64071)). pnpm is not affected. Under npm, either use layout (a) or call TypeScript 7 explicitly (`node node_modules/typescript/bin/tsc`).
+:::
+
+TRAPI's type declarations reference `typescript`. In layout (b) those types resolve against the version-only TypeScript 7 package, so keep `skipLibCheck: true` (the default in most templates) if your own code type-checks against TRAPI's internals.
+
+Source is parsed with the TypeScript 6 front-end. TypeScript 7.0 has the same language surface as 6.0, so this is lossless today.
+
 ## Module Format
 
 `@trapi/metadata` is an ESM-only package. Your project must either set `"type": "module"` in `package.json` or load it via dynamic `import()` from CommonJS.

@@ -5,8 +5,12 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { Node, TypeNode } from 'typescript';
-import { SyntaxKind } from 'typescript';
+import type {
+    Node,
+    SyntaxKind,
+    TypeNode,
+} from 'typescript';
+import { ts } from '../../../../core/compiler';
 import {
     NumericKind,
     TypeName,
@@ -108,21 +112,21 @@ export class PrimitiveResolver {
 
     resolveSyntaxKind(syntaxKind: SyntaxKind) {
         switch (syntaxKind) {
-            case SyntaxKind.StringKeyword:
+            case ts.SyntaxKind.StringKeyword:
                 return 'string';
-            case SyntaxKind.BooleanKeyword:
+            case ts.SyntaxKind.BooleanKeyword:
                 return 'boolean';
-            case SyntaxKind.VoidKeyword:
+            case ts.SyntaxKind.VoidKeyword:
                 return 'void';
-            case SyntaxKind.UndefinedKeyword:
+            case ts.SyntaxKind.UndefinedKeyword:
                 return 'undefined';
-            case SyntaxKind.NullKeyword:
+            case ts.SyntaxKind.NullKeyword:
                 return 'null';
-            case SyntaxKind.NumberKeyword:
+            case ts.SyntaxKind.NumberKeyword:
                 return 'number';
-            case SyntaxKind.BigIntKeyword:
+            case ts.SyntaxKind.BigIntKeyword:
                 return 'bigint';
-            case SyntaxKind.NeverKeyword:
+            case ts.SyntaxKind.NeverKeyword:
                 return 'never';
             default:
                 return undefined;

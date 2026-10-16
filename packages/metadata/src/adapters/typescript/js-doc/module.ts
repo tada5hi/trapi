@@ -11,7 +11,7 @@ import type {
     JSDocTag, 
     Node,
 } from 'typescript';
-import { SyntaxKind, isJSDocParameterTag } from 'typescript';
+import { ts } from '../../../core/compiler';
 import { MetadataError } from '../../../core/error';
 import { hasOwnProperty } from '../../../core/utils';
 import type { JSDocTagName } from './constants';
@@ -108,10 +108,10 @@ export function getJSDocTagNames(node: Node, requireTagName = false) : string[] 
     let tags: JSDocTag[];
 
     /* istanbul ignore next */
-    if (node.kind === SyntaxKind.Parameter) {
+    if (node.kind === ts.SyntaxKind.Parameter) {
         const parameterName = ((node as any).name as Identifier).text;
         tags = getJSDocTags(node.parent as any, (tag) => {
-            if (isJSDocParameterTag(tag)) {
+            if (ts.isJSDocParameterTag(tag)) {
                 return false;
             } if (tag.comment === undefined) {
                 throw new MetadataError(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} must be followed by a parameter name.`);

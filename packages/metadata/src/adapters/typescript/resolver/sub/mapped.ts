@@ -5,16 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    NodeBuilderFlags,
-    SymbolFlags,
-    SyntaxKind,
-    factory,
-    isMappedTypeNode,
-    isParameter,
-    isPropertyDeclaration,
-    isPropertySignature,
-} from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type {
     Declaration,
     ParameterDeclaration,
@@ -33,7 +24,7 @@ export function resolveMappedType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isMappedTypeNode(typeNode) || !ctx.referencer) {
+    if (!ts.isMappedTypeNode(typeNode) || !ctx.referencer) {
         return undefined;
     }
 
@@ -52,9 +43,9 @@ export function resolveMappedType(
         }
         return (
             !!declaration &&
-            !isPropertyDeclaration(declaration) &&
-            !isPropertySignature(declaration) &&
-            !isParameter(declaration)
+            !ts.isPropertyDeclaration(declaration) &&
+            !ts.isPropertySignature(declaration) &&
+            !ts.isParameter(declaration)
         );
     };
 
@@ -69,32 +60,32 @@ export function resolveMappedType(
                 undefined;
 
             // Normalize +? (PlusToken) to ? (QuestionToken) so property helpers treat it as optional
-            const overrideToken = mappedTypeNode.questionToken?.kind === SyntaxKind.PlusToken ?
-                factory.createToken(SyntaxKind.QuestionToken) :
+            const overrideToken = mappedTypeNode.questionToken?.kind === ts.SyntaxKind.PlusToken ?
+                ts.factory.createToken(ts.SyntaxKind.QuestionToken) :
                 mappedTypeNode.questionToken;
 
-            if (declaration && isPropertySignature(declaration)) {
+            if (declaration && ts.isPropertySignature(declaration)) {
                 return { ...ctx.propertyFromSignature(declaration, overrideToken), name: property.getName() };
             }
-            if (declaration && (isPropertyDeclaration(declaration) || isParameter(declaration))) {
+            if (declaration && (ts.isPropertyDeclaration(declaration) || ts.isParameter(declaration))) {
                 return { ...ctx.propertyFromDeclaration(declaration, overrideToken), name: property.getName() };
             }
 
-            let required = (property.flags & SymbolFlags.Optional) === 0;
+            let required = (property.flags & ts.SymbolFlags.Optional) === 0;
 
             const typeNode2 = toTypeNodeOrFail(
                 typeChecker,
                 typeChecker.getTypeOfSymbolAtLocation(property, typeNode),
                 undefined,
-                NodeBuilderFlags.NoTruncation,
+                ts.NodeBuilderFlags.NoTruncation,
             );
-            if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === SyntaxKind.MinusToken) {
+            if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === ts.SyntaxKind.MinusToken) {
                 required = true;
             } else if (
                 mappedTypeNode.questionToken &&
                 (
-                    mappedTypeNode.questionToken.kind === SyntaxKind.QuestionToken ||
-                    mappedTypeNode.questionToken.kind === SyntaxKind.PlusToken
+                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.QuestionToken ||
+                    mappedTypeNode.questionToken.kind === ts.SyntaxKind.PlusToken
                 )
             ) {
                 required = false;

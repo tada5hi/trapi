@@ -9,7 +9,7 @@ import type {
     TypeChecker,
     TypeNode,
 } from 'typescript';
-import { SyntaxKind, displayPartsToString } from 'typescript';
+import { ts } from '../../../core/compiler';
 import { hasOwnProperty } from '../../../core/utils';
 import { ResolverError } from '../../../core/error/resolver';
 
@@ -30,14 +30,14 @@ export function getNodeDescription(
      * TODO: Workaround for what seems like a bug in the compiler
      * Warrants more investigation and possibly a PR against typescript
      */
-    if (node.kind === SyntaxKind.Parameter) {
+    if (node.kind === ts.SyntaxKind.Parameter) {
         // TypeScript won't parse jsdoc if the flag is 4, i.e. 'Property'
         symbol.flags = 0;
     }
 
     const comments = symbol.getDocumentationComment(typeChecker);
     if (comments.length) {
-        return displayPartsToString(comments);
+        return ts.displayPartsToString(comments);
     }
 
     return undefined;

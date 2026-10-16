@@ -6,7 +6,7 @@
  */
 
 import path from 'node:path';
-import { NodeBuilderFlags } from 'typescript';
+import { ts } from '../../../core/compiler';
 import type {
     ClassDeclaration,
     Identifier,
@@ -139,7 +139,7 @@ export class MethodGenerator {
                 throw new GeneratorError({ message: 'Could not resolve method signature.' });
             }
             const implicitType = typeChecker.getReturnTypeOfSignature(signature);
-            nodeType = typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
+            nodeType = typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as TypeNode;
         }
         return new TypeNodeResolver(nodeType, this.current).resolve();
     }

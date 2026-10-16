@@ -5,21 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    SyntaxKind,
-    canHaveDecorators,
-    getDecorators,
-    isArrayLiteralExpression,
-    isCallExpression,
-    isIdentifier,
-    isNoSubstitutionTemplateLiteral,
-    isNumericLiteral,
-    isObjectLiteralExpression,
-    isPrefixUnaryExpression,
-    isPropertyAccessExpression,
-    isStringLiteral,
-    isTemplateExpression,
-} from 'typescript';
+import { ts } from '../../../core/compiler';
 import type {
     Expression,
     Node,
@@ -39,10 +25,10 @@ export type RawDecorator = {
  * extension extraction) that only need decorator names + argument values.
  */
 export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDecorator[] {
-    if (!canHaveDecorators(node)) {
+    if (!ts.canHaveDecorators(node)) {
         return [];
     }
-    const decorators = getDecorators(node);
+    const decorators = ts.getDecorators(node);
     if (!decorators || decorators.length === 0) {
         return [];
     }
@@ -53,7 +39,7 @@ export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDe
         let name: string | undefined;
         let argumentExpressions: readonly Expression[] = [];
 
-        if (isCallExpression(expression)) {
+        if (ts.isCallExpression(expression)) {
             argumentExpressions = expression.arguments;
             name = readDecoratorName(expression.expression);
         } else {
@@ -93,10 +79,10 @@ export function hasDecoratorNamed(node: Node, name: string, typeChecker?: TypeCh
 }
 
 function readDecoratorName(expression: Node): string | undefined {
-    if (isIdentifier(expression)) {
+    if (ts.isIdentifier(expression)) {
         return expression.text;
     }
-    if (isPropertyAccessExpression(expression)) {
+    if (ts.isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
     return undefined;
@@ -107,38 +93,38 @@ export function buildDecoratorArgument(
     typeChecker?: TypeChecker,
 ): DecoratorArgument {
     if (
-        isStringLiteral(expr) ||
-        isNumericLiteral(expr) ||
-        isNoSubstitutionTemplateLiteral(expr)
+        ts.isStringLiteral(expr) ||
+        ts.isNumericLiteral(expr) ||
+        ts.isNoSubstitutionTemplateLiteral(expr)
     ) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'literal' };
     }
 
-    if (expr.kind === SyntaxKind.TrueKeyword) {
+    if (expr.kind === ts.SyntaxKind.TrueKeyword) {
         return { raw: true, kind: 'literal' };
     }
 
-    if (expr.kind === SyntaxKind.FalseKeyword) {
+    if (expr.kind === ts.SyntaxKind.FalseKeyword) {
         return { raw: false, kind: 'literal' };
     }
 
-    if (expr.kind === SyntaxKind.NullKeyword) {
+    if (expr.kind === ts.SyntaxKind.NullKeyword) {
         return { raw: null, kind: 'literal' };
     }
 
     if (
-        isPrefixUnaryExpression(expr) &&
-        (expr.operator === SyntaxKind.PlusToken || expr.operator === SyntaxKind.MinusToken) &&
-        isNumericLiteral(expr.operand)
+        ts.isPrefixUnaryExpression(expr) &&
+        (expr.operator === ts.SyntaxKind.PlusToken || expr.operator === ts.SyntaxKind.MinusToken) &&
+        ts.isNumericLiteral(expr.operand)
     ) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'literal' };
     }
 
-    if (isObjectLiteralExpression(expr)) {
+    if (ts.isObjectLiteralExpression(expr)) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'object' };
     }
 
-    if (isArrayLiteralExpression(expr)) {
+    if (ts.isArrayLiteralExpression(expr)) {
         return { raw: getInitializerValue(expr, typeChecker), kind: 'array' };
     }
 
@@ -146,7 +132,7 @@ export function buildDecoratorArgument(
     // substitutions are all constants (`` `/${SEGMENT}` `` -> '/segment').
     // It keeps `kind: 'identifier'` — the kind union is public API that
     // third-party presets match on, and `readString` already accepts it.
-    if (isIdentifier(expr) || isPropertyAccessExpression(expr) || isTemplateExpression(expr)) {
+    if (ts.isIdentifier(expr) || ts.isPropertyAccessExpression(expr) || ts.isTemplateExpression(expr)) {
         const value = getInitializerValue(expr, typeChecker);
         if (typeof value !== 'undefined') {
             return { raw: value, kind: 'identifier' };

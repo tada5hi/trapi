@@ -4,7 +4,8 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { CompilerOptions, Node, TypeChecker } from 'typescript';
+import type { Node, TypeChecker } from 'typescript';
+import type { TsCompilerOptions } from '../../adapters/filesystem/tsconfig';
 import type { MetadataGeneratorOptions } from '../config';
 import type {
     DependencyResolver,
@@ -18,7 +19,7 @@ import type {
 export type MetadataGeneratorContext = {
     options: MetadataGeneratorOptions,
     sourceFiles: string[],
-    compilerOptions?: CompilerOptions
+    compilerOptions?: TsCompilerOptions
 };
 
 export interface IMetadataGenerator {

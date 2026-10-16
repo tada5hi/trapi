@@ -5,14 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    isIdentifier,
-    isIndexSignatureDeclaration,
-    isNumericLiteral,
-    isPropertySignature,
-    isStringLiteral,
-    isTypeLiteralNode,
-} from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type {
     IndexSignatureDeclaration,
     ParameterDeclaration,
@@ -39,12 +32,12 @@ export function resolveObjectLiteralType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isTypeLiteralNode(typeNode)) {
+    if (!ts.isTypeLiteralNode(typeNode)) {
         return undefined;
     }
 
     const properties: ResolverProperty[] = typeNode.members
-        .filter((member) => isPropertySignature(member))
+        .filter((member) => ts.isPropertySignature(member))
         .reduce((res, propertySignature: PropertySignature) => {
             if (!propertySignature.type) {
                 throw new ResolverError('No valid type found for property declaration.', propertySignature);
@@ -73,7 +66,7 @@ export function resolveObjectLiteralType(
         }, [] as ResolverProperty[]);
 
     const indexMember = typeNode.members.find(
-        (member) => isIndexSignatureDeclaration(member),
+        (member) => ts.isIndexSignatureDeclaration(member),
     );
     let additionalType: Type | undefined;
 
@@ -110,11 +103,11 @@ function getNodeFormat(
 }
 
 function getPropertyName(node: PropertySignature): string {
-    if (isIdentifier(node.name)) {
+    if (ts.isIdentifier(node.name)) {
         return node.name.text;
     }
 
-    if (isStringLiteral(node.name) || isNumericLiteral(node.name)) {
+    if (ts.isStringLiteral(node.name) || ts.isNumericLiteral(node.name)) {
         return node.name.text;
     }
 

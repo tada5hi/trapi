@@ -5,12 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    SyntaxKind,
-    isFunctionTypeNode,
-    isLiteralTypeNode,
-    isParenthesizedTypeNode,
-} from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type {
     LiteralExpression,
     LiteralTypeNode,
@@ -30,7 +25,7 @@ export function resolveLiteralType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (typeNode.kind === SyntaxKind.NullKeyword) {
+    if (typeNode.kind === ts.SyntaxKind.NullKeyword) {
         return {
             typeName: TypeName.ENUM,
             members: [null],
@@ -38,20 +33,20 @@ export function resolveLiteralType(
     }
 
     if (
-        typeNode.kind === SyntaxKind.AnyKeyword ||
-        typeNode.kind === SyntaxKind.UnknownKeyword
+        typeNode.kind === ts.SyntaxKind.AnyKeyword ||
+        typeNode.kind === ts.SyntaxKind.UnknownKeyword
     ) {
         return { typeName: TypeName.ANY } as AnyType;
     }
 
-    if (isLiteralTypeNode(typeNode)) {
+    if (ts.isLiteralTypeNode(typeNode)) {
         return {
             typeName: TypeName.ENUM,
             members: [getLiteralValue(typeNode)],
         } as EnumType;
     }
 
-    if (typeNode.kind === SyntaxKind.TemplateLiteralType) {
+    if (typeNode.kind === ts.SyntaxKind.TemplateLiteralType) {
         const type = ctx.typeChecker.getTypeFromTypeNode(ctx.referencer || typeNode);
         if (type.isUnion() && type.types.every((t) => t.isStringLiteral())) {
             return {
@@ -68,7 +63,7 @@ export function resolveLiteralType(
         );
     }
 
-    if (isParenthesizedTypeNode(typeNode)) {
+    if (ts.isParenthesizedTypeNode(typeNode)) {
         return ctx.resolveType(
             typeNode.type,
             typeNode,
@@ -78,8 +73,8 @@ export function resolveLiteralType(
     }
 
     if (
-        typeNode.kind === SyntaxKind.ObjectKeyword ||
-        isFunctionTypeNode(typeNode)
+        typeNode.kind === ts.SyntaxKind.ObjectKeyword ||
+        ts.isFunctionTypeNode(typeNode)
     ) {
         return { typeName: TypeName.OBJECT };
     }
@@ -90,19 +85,19 @@ export function resolveLiteralType(
 export function getLiteralValue(typeNode: LiteralTypeNode): string | number | boolean | null {
     let value: boolean | number | string | null;
     switch (typeNode.literal.kind) {
-        case SyntaxKind.TrueKeyword:
+        case ts.SyntaxKind.TrueKeyword:
             value = true;
             break;
-        case SyntaxKind.FalseKeyword:
+        case ts.SyntaxKind.FalseKeyword:
             value = false;
             break;
-        case SyntaxKind.StringLiteral:
+        case ts.SyntaxKind.StringLiteral:
             value = typeNode.literal.text;
             break;
-        case SyntaxKind.NumericLiteral:
+        case ts.SyntaxKind.NumericLiteral:
             value = Number.parseFloat(typeNode.literal.text);
             break;
-        case SyntaxKind.NullKeyword:
+        case ts.SyntaxKind.NullKeyword:
             value = null;
             break;
         default:

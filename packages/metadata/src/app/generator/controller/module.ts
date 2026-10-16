@@ -11,12 +11,7 @@ import type {
     MethodDeclaration, 
     TypeNode,
 } from 'typescript';
-import {
-    SymbolFlags,
-    SyntaxKind,
-    isClassDeclaration,
-    isMethodDeclaration,
-} from 'typescript';
+import { ts } from '../../../core/compiler';
 import { newControllerDraft } from '@trapi/core';
 import {
     type ApplyHandlersOptions,
@@ -122,7 +117,7 @@ export class ControllerGenerator implements IControllerGenerator {
 
         // Process own methods first
         for (const member of this.node.members) {
-            if (!isMethodDeclaration(member)) {
+            if (!ts.isMethodDeclaration(member)) {
                 continue;
             }
 
@@ -183,7 +178,7 @@ export class ControllerGenerator implements IControllerGenerator {
         }
 
         for (const clause of node.heritageClauses) {
-            if (clause.token !== SyntaxKind.ExtendsKeyword) {
+            if (clause.token !== ts.SyntaxKind.ExtendsKeyword) {
                 continue;
             }
 
@@ -195,7 +190,7 @@ export class ControllerGenerator implements IControllerGenerator {
 
                 // Collect direct methods from the base class
                 for (const member of baseDeclaration.members) {
-                    if (isMethodDeclaration(member)) {
+                    if (ts.isMethodDeclaration(member)) {
                         methods.push(member);
                     }
                 }
@@ -215,7 +210,7 @@ export class ControllerGenerator implements IControllerGenerator {
         }
 
         // Follow import aliases to the original declaration
-        if (symbol.flags & SymbolFlags.Alias) {
+        if (symbol.flags & ts.SymbolFlags.Alias) {
             symbol = this.current.typeChecker.getAliasedSymbol(symbol);
         }
 
@@ -225,7 +220,7 @@ export class ControllerGenerator implements IControllerGenerator {
         }
 
         const declaration = declarations[0];
-        if (declaration && isClassDeclaration(declaration)) {
+        if (declaration && ts.isClassDeclaration(declaration)) {
             return declaration;
         }
 

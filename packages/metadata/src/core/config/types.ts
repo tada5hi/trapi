@@ -7,7 +7,7 @@
 
 import type { CacheOptions } from '../../adapters/cache';
 import type { Preset, Registry, UnmatchedDecoratorReport } from '@trapi/core';
-import type { TsConfig } from '../../adapters/filesystem/tsconfig';
+import type { TsConfigInput } from '../../adapters/filesystem/tsconfig';
 
 export type EntryPointOptions = {
     cwd: string,
@@ -100,7 +100,9 @@ export type MetadataGeneratorOptions = {
 
 export type MetadataGenerateOptions = MetadataGeneratorOptions & {
     /**
-     * Path to tsconfig.json or a TsConfig object.
+     * Path to tsconfig.json or an inline tsconfig object, whose
+     * compilerOptions may be parsed (`ScriptTarget.ES2022`) or raw
+     * tsconfig JSON (`'ES2022'`).
      */
-    tsconfig?: string | TsConfig;
+    tsconfig?: string | TsConfigInput;
 };

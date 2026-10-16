@@ -9,5 +9,6 @@ export const ConfigErrorCode = {
     TSCONFIG_MALFORMED: 'CONFIG_TSCONFIG_MALFORMED',
     PRESET_NOT_FOUND: 'CONFIG_PRESET_NOT_FOUND',
     PRESET_MISSING: 'CONFIG_PRESET_MISSING',
+    COMPILER_API_UNAVAILABLE: 'CONFIG_COMPILER_API_UNAVAILABLE',
 } as const;
 export type ConfigErrorCode = typeof ConfigErrorCode[keyof typeof ConfigErrorCode];

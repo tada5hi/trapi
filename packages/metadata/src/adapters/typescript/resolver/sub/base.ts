@@ -6,60 +6,56 @@
  */
 
 import type { Node } from 'typescript';
-import {
-    SyntaxKind,
-    canHaveModifiers,
-    getModifiers,
-} from 'typescript';
+import { ts } from '../../../../core/compiler';
 
 
 export class ResolverBase {
     protected hasPublicModifier(node: Node) {
-        if (!canHaveModifiers(node)) {
+        if (!ts.canHaveModifiers(node)) {
             return true;
         }
 
-        const modifiers = getModifiers(node);
+        const modifiers = ts.getModifiers(node);
         if (!modifiers) {
             return true;
         }
 
         return modifiers.every(
-            (modifier) => modifier.kind !== SyntaxKind.ProtectedKeyword && modifier.kind !== SyntaxKind.PrivateKeyword,
+            (modifier) => modifier.kind !== ts.SyntaxKind.ProtectedKeyword && modifier.kind !== ts.SyntaxKind.PrivateKeyword,
         );
     }
 
     protected hasStaticModifier(node: Node) {
-        if (!canHaveModifiers(node)) {
+        if (!ts.canHaveModifiers(node)) {
             return false;
         }
 
-        const modifiers = getModifiers(node);
+        const modifiers = ts.getModifiers(node);
 
-        return modifiers && modifiers.some((modifier) => modifier.kind === SyntaxKind.StaticKeyword);
+        return modifiers && modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword);
     }
 
     protected isAccessibleParameter(node: Node) {
         // No modifiers
-        if (!canHaveModifiers(node)) {
+        if (!ts.canHaveModifiers(node)) {
             return false;
         }
 
-        const modifiers = getModifiers(node);
+        const modifiers = ts.getModifiers(node);
         if (!modifiers) {
             return false;
         }
 
         // public || public readonly
-        if (modifiers.some((modifier) => modifier.kind === SyntaxKind.PublicKeyword)) {
+        if (modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword)) {
             return true;
         }
 
         // readonly, not private readonly, not public readonly
-        const isReadonly = modifiers.some((modifier) => modifier.kind === SyntaxKind.ReadonlyKeyword);
+        const isReadonly = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword);
         const isProtectedOrPrivate = modifiers.some(
-            (modifier) => modifier.kind === SyntaxKind.ProtectedKeyword ||
-                modifier.kind === SyntaxKind.PrivateKeyword,
+            (modifier) => modifier.kind === ts.SyntaxKind.ProtectedKeyword ||
+                modifier.kind === ts.SyntaxKind.PrivateKeyword,
         );
 
         return isReadonly && !isProtectedOrPrivate;

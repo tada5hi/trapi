@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { ScriptTarget, createSourceFile, isClassDeclaration } from 'typescript';
+import { ts } from '../../../src/core/compiler';
 import type { ClassDeclaration, MethodDeclaration, SourceFile } from 'typescript';
 import type { Type } from '@trapi/core';
 import {
@@ -14,10 +14,10 @@ import {
 } from '../../../src/adapters/decorator/typescript/module';
 
 function compileSource(source: string): SourceFile {
-    return createSourceFile(
+    return ts.createSourceFile(
         'sample.ts',
         source,
-        ScriptTarget.Latest,
+        ts.ScriptTarget.Latest,
         true,
     );
 }
@@ -25,7 +25,7 @@ function compileSource(source: string): SourceFile {
 function findClass(sf: SourceFile, name: string): ClassDeclaration {
     const found = sf.statements.find(
         (s): s is ClassDeclaration =>
-            isClassDeclaration(s) && s.name?.text === name,
+            ts.isClassDeclaration(s) && s.name?.text === name,
     );
     if (!found) {
         throw new Error(`class ${name} not found`);

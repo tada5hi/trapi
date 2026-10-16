@@ -68,6 +68,7 @@ Adds the TypeScript compiler integration on top of `@trapi/core`. Internal layou
 ```text
 packages/metadata/src/
 ├── core/                   # TS-coupled contracts (everything framework-neutral lives in @trapi/core)
+│   ├── compiler/           # `ts` proxy + resolveCompilerApi (typescript → @typescript/typescript6); all runtime TS values go through it
 │   ├── config/             # MetadataGenerateOptions, MetadataGeneratorOptions, EntryPoint (uses CacheOptions)
 │   ├── metadata/           # Metadata, IMetadataGenerator, IGeneratorContext, IResolverContext, IReferenceTypeRegistry, MetadataGeneratorContext
 │   └── error/              # MetadataError (base), ConfigError, GeneratorError, ParameterError, ResolverError, ValidatorError + their *-codes files

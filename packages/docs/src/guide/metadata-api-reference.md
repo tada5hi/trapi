@@ -53,7 +53,7 @@ Low-level orchestrator entry points. Most consumers won't use these directly —
 
 ```typescript
 type MetadataGenerateOptions = MetadataGeneratorOptions & {
-    tsconfig?: string | TsConfig;
+    tsconfig?: string | TsConfigInput;
 };
 
 type MetadataGeneratorOptions = {

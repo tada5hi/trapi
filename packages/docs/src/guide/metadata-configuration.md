@@ -150,7 +150,7 @@ tsconfig: {
 }
 ```
 
-Inline `compilerOptions` may be written as raw tsconfig JSON (`target: 'ES2022'`, as above) or in the parsed form the compiler API uses (`target: ScriptTarget.ES2022`); each option is converted as needed, so mixing both works. Prefer the raw form — it does not tie your config to the enum values of one particular `typescript` copy.
+Inline `compilerOptions` may be written as raw tsconfig JSON (`target: 'ES2022'`, as above) or in the parsed form the compiler API uses (`target: ScriptTarget.ES2022`); each option is converted as needed, so mixing both works. Prefer the raw form — it does not tie your config to the enum values of one particular `typescript` copy. A raw value outside an option's allowed set (`target: 'ES2', lib: ['bogus']`) throws a `ConfigError` with code `CONFIG_TSCONFIG_MALFORMED`.
 
 If omitted, TRAPI uses a permissive default that accepts most projects. For consistent behaviour between your build and metadata generation, point at the same `tsconfig.json` you compile with.
 

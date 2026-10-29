@@ -84,6 +84,58 @@ jobs:
                 run: |
                     npm run test
 
+    tests-typescript:
+        name: Test TypeScript layout (${{ matrix.layout }})
+        needs: [build]
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    # TS 7 for tsc, TS 6 API under the `typescript` name (TS 7.0 announcement layout)
+                    -   layout: alias
+                        packages: typescript@npm:@typescript/typescript6@^6.0.2 @typescript/native@npm:typescript@^7.0.2
+                    # plain TS 7 next to the compat package
+                    -   layout: typescript7-compat
+                        packages: typescript@^7.0.2 @typescript/typescript6@^6.0.2
+                    # plain TS 7 only: no compiler API, expect a clear error
+                    -   layout: typescript7-only
+                        packages: typescript@^7.0.2
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Install
+                uses: ./.github/actions/install
+                with:
+                    node-version: ${{ env.PRIMARY_NODE_VERSION }}
+
+            -   name: Build
+                uses: ./.github/actions/build
+
+            -   name: Swap TypeScript
+                run: |
+                    npm install --no-save --no-audit --no-fund ${{ matrix.packages }}
+
+            -   name: Run tests
+                if: ${{ matrix.layout != 'typescript7-only' }}
+                run: |
+                    npx nx run-many -t test -p @trapi/metadata @trapi/cli --skip-nx-cache
+
+            -   name: Expect compiler API error
+                if: ${{ matrix.layout == 'typescript7-only' }}
+                run: |
+                    node --input-type=module -e "
+                    const { generateMetadata } = await import('./packages/metadata/dist/index.mjs');
+                    try {
+                        await generateMetadata({ entryPoint: [] });
+                    } catch (e) {
+                        if (e.code === 'CONFIG_COMPILER_API_UNAVAILABLE') process.exit(0);
+                        throw e;
+                    }
+                    throw new Error('expected CONFIG_COMPILER_API_UNAVAILABLE');
+                    "
+
     docs:
         name: Build & deploy docs
         needs: [lint, tests]

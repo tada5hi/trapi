@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import { isClassDeclaration, isMethodDeclaration } from 'typescript';
+import { ts } from '../compiler';
 import type { Node } from 'typescript';
 import type { BaseType } from '@trapi/core';
 import { ParameterErrorCode } from './parameter-codes';
@@ -79,10 +79,10 @@ export class ParameterError extends MetadataError {
     public static getCurrentLocation(node: Node) {
         const parts : string[] = [];
 
-        if (isMethodDeclaration(node.parent)) {
+        if (ts.isMethodDeclaration(node.parent)) {
             parts.push(node.parent.name.getText());
 
-            if (isClassDeclaration(node.parent.parent) && node.parent.parent.name) {
+            if (ts.isClassDeclaration(node.parent.parent) && node.parent.parent.name) {
                 parts.unshift(node.parent.parent.name.text);
             }
         }

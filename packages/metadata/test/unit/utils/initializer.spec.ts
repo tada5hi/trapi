@@ -6,15 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-    ScriptTarget,
-    SyntaxKind,
-    createCompilerHost,
-    createProgram,
-    createSourceFile,
-    isCallExpression,
-    isClassDeclaration,
-} from 'typescript';
+import { ts } from '../../../src/core/compiler';
 import type {
     CompilerHost,
     CompilerOptions,
@@ -27,19 +19,19 @@ import { getInitializerValue } from '../../../src/adapters/typescript/initialize
 const FILE_NAME = 'sample.ts';
 
 function buildProgram(source: string) {
-    const sourceFile = createSourceFile(
+    const sourceFile = ts.createSourceFile(
         FILE_NAME,
         source,
-        ScriptTarget.Latest,
+        ts.ScriptTarget.Latest,
         true,
     );
     const compilerOptions: CompilerOptions = {
-        target: ScriptTarget.Latest,
+        target: ts.ScriptTarget.Latest,
         experimentalDecorators: true,
         noResolve: true,
         noLib: true,
     };
-    const baseHost = createCompilerHost(compilerOptions);
+    const baseHost = ts.createCompilerHost(compilerOptions);
     const host: CompilerHost = {
         ...baseHost,
         getSourceFile: (name) => (name === FILE_NAME ? sourceFile : undefined),
@@ -47,22 +39,22 @@ function buildProgram(source: string) {
         readFile: (name) => (name === FILE_NAME ? source : undefined),
         getDefaultLibFileName: () => 'lib.d.ts',
     };
-    const program = createProgram([FILE_NAME], compilerOptions, host);
+    const program = ts.createProgram([FILE_NAME], compilerOptions, host);
     return { program, sourceFile: program.getSourceFile(FILE_NAME) as SourceFile };
 }
 
 function firstClassDecoratorArgument(sf: SourceFile): Expression {
-    const cls = sf.statements.find(isClassDeclaration);
+    const cls = sf.statements.find(ts.isClassDeclaration);
     if (!cls) {
         throw new Error('class not found');
     }
     const modifiers = cls.modifiers ?? ([] as readonly ModifierLike[]);
     for (const modifier of modifiers) {
-        if (modifier.kind !== SyntaxKind.Decorator) {
+        if (modifier.kind !== ts.SyntaxKind.Decorator) {
             continue;
         }
         const decorator = modifier as unknown as { expression: Expression };
-        if (!isCallExpression(decorator.expression)) {
+        if (!ts.isCallExpression(decorator.expression)) {
             continue;
         }
         const [first] = decorator.expression.arguments;
@@ -98,9 +90,9 @@ describe('getInitializerValue', () => {
             })
             class C {}
         `);
-        const cls = sourceFile.statements.find(isClassDeclaration)!;
+        const cls = sourceFile.statements.find(ts.isClassDeclaration)!;
         const decorator = (cls.modifiers ?? []).find(
-            (m) => m.kind === SyntaxKind.Decorator,
+            (m) => m.kind === ts.SyntaxKind.Decorator,
         ) as unknown as { expression: Expression };
         const call = decorator.expression as unknown as { arguments: Expression[] };
         const objectLiteralArg = call.arguments[1];

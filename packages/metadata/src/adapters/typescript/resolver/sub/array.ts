@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isArrayTypeNode } from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type { TypeNode } from 'typescript';
 import { TypeName } from '@trapi/core';
 import type { ArrayType, Type } from '@trapi/core';
@@ -15,7 +15,7 @@ export function resolveArrayType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isArrayTypeNode(typeNode)) {
+    if (!ts.isArrayTypeNode(typeNode)) {
         return undefined;
     }
 

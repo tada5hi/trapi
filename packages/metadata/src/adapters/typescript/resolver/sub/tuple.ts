@@ -5,7 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { isNamedTupleMember, isTupleTypeNode } from 'typescript';
+import { ts } from '../../../../core/compiler';
 import type { TypeNode } from 'typescript';
 import { TypeName } from '@trapi/core';
 import type { TupleType, Type } from '@trapi/core';
@@ -15,12 +15,12 @@ export function resolveTupleType(
     typeNode: TypeNode,
     ctx: SubResolverContext,
 ): Type | undefined {
-    if (!isTupleTypeNode(typeNode)) {
+    if (!ts.isTupleTypeNode(typeNode)) {
         return undefined;
     }
 
     const elements = typeNode.elements.map((element) => {
-        const isNamed = isNamedTupleMember(element);
+        const isNamed = ts.isNamedTupleMember(element);
         const actualType = isNamed ? element.type : element;
         return {
             type: ctx.resolveType(actualType, ctx.parentNode, ctx.context),

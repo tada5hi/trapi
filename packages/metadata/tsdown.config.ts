@@ -5,5 +5,5 @@ export default defineConfig({
     format: 'esm',
     dts: true,
     sourcemap: true,
-    external: ['typescript'],
+    external: ['typescript', '@typescript/typescript6'],
 });

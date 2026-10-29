@@ -5,17 +5,17 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { CompilerOptions } from 'typescript';
 import type { MetadataGenerateOptions } from '../core/config';
 import type { Metadata } from '@trapi/core';
 import { MetadataGenerator } from './generator/metadata';
 import { scanSourceFiles } from '../adapters/filesystem';
+import type { TsCompilerOptions } from '../adapters/filesystem/tsconfig';
 import { softLoadTsconfig } from '../adapters/filesystem/tsconfig';
 
 export async function generateMetadata(
     options: MetadataGenerateOptions,
 ) : Promise<Metadata> {
-    let compilerOptions : CompilerOptions | undefined;
+    let compilerOptions : TsCompilerOptions | undefined;
 
     if (options.tsconfig) {
         let { tsconfig } = options;

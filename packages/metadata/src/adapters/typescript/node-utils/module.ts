@@ -6,13 +6,7 @@
  */
 
 import type { Node } from 'typescript';
-import {
-    canHaveDecorators,
-    getDecorators,
-    isCallExpression,
-    isNumericLiteral,
-    isStringLiteral,
-} from 'typescript';
+import { ts } from '../../../core/compiler';
 import type { NodeDecorator } from './types';
 
 /**
@@ -25,11 +19,11 @@ export function getNodeDecorators(
     node: Node,
     isMatching?: (data: NodeDecorator) => boolean,
 ): NodeDecorator[] {
-    if (!canHaveDecorators(node)) {
+    if (!ts.canHaveDecorators(node)) {
         return [];
     }
 
-    const decorators = getDecorators(node);
+    const decorators = ts.getDecorators(node);
 
     if (typeof decorators === 'undefined') {
         return [];
@@ -44,10 +38,10 @@ export function getNodeDecorators(
 
             let x: any = d.expression;
 
-            if (isCallExpression(x)) {
+            if (ts.isCallExpression(x)) {
                 if (x.arguments) {
                     result.arguments = x.arguments.map((argument: any) => {
-                        if (isStringLiteral(argument) || isNumericLiteral(argument)) {
+                        if (ts.isStringLiteral(argument) || ts.isNumericLiteral(argument)) {
                             return argument.text;
                         }
                         return argument;

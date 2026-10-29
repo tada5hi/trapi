@@ -28,6 +28,17 @@ The framework-neutral contract surface lives in **`@trapi/core`** and has no `ty
 
 **`@trapi/metadata` does not re-export `@trapi/core`.** Consumers that need the contract surface install `@trapi/core` directly. Both first-party presets and `examples/decorators` `peerDependency` on `@trapi/core` only — they don't pull `typescript` into their install graph. **`@trapi/swagger` depends on `@trapi/core` only** (for `Metadata`, domain types, type guards) and has no runtime or type dependency on `@trapi/metadata` or the TypeScript compiler. `generateSwagger({ metadata })` accepts only a pre-built `Metadata`; consumers compose `generateMetadata(...)` (from `@trapi/metadata`) with `generateSwagger({ metadata })` themselves, and `@trapi/cli` performs that orchestration internally. Producers that aren't TS-based (cached JSON, Babel-based extractors, hand-rolled fixtures) can feed `generateSwagger` directly without installing `@trapi/metadata`.
 
+## Compiler API loader (TypeScript 7)
+
+`typescript@7` (the Go-native compiler) exports only `version` — the JS compiler API is gone until 7.1's new native API. `@trapi/metadata` therefore never imports runtime values from `typescript` directly. Every value goes through the lazy `ts` proxy in `core/compiler/` (`ts.SyntaxKind`, `ts.isIdentifier`, `ts.createProgram`, …), which `resolveCompilerApi()` binds on first access to the first module exposing `createProgram`: `typescript` (TS 5/6, or the alias layout `"typescript": "npm:@typescript/typescript6"`), then `@typescript/typescript6`. If neither qualifies it throws `ConfigError` `CONFIG_COMPILER_API_UNAVAILABLE`. Importing the package never throws — only using the compiler does.
+
+- **Type imports stay on `'typescript'`** (`import type { Node } from 'typescript'`); only value imports must use the proxy. New code must follow this — a value import from `'typescript'` breaks every TS 7 consumer.
+- **`@typescript/typescript6` is an optional peer, never a dependency.** npm hoists its `@typescript/old` dependency's `tsc` bin over `typescript@7`'s (microsoft/TypeScript#64071), so a hard dependency would silently downgrade every npm consumer's `npx tsc`.
+- **Compiler options are normalised** (`normalizeCompilerOptions`, `adapters/filesystem/tsconfig/utils.ts`) before `createProgram`: each key is converted from raw tsconfig JSON when it converts, and kept as given otherwise — so raw, parsed and mixed input all work, and callers need no enum values from a particular `typescript` copy.
+- CI job `tests-typescript` runs metadata + cli tests under the alias layout and `typescript@7` + compat package, and asserts the error under `typescript@7` alone.
+
+The native-API port (a second adapter next to the classic one) is planned for after TypeScript 7.1 ships its stable API — see issue #862.
+
 ## Hexagonal Layering
 
 Both `@trapi/metadata` and `@trapi/swagger` are organised into three layers with a strict dependency rule:

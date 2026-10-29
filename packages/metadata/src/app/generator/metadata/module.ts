@@ -13,14 +13,7 @@ import type {
     SourceFile,
     TypeChecker,
 } from 'typescript';
-import {
-    NodeFlags,
-    createProgram,
-    forEachChild,
-    isClassDeclaration,
-    isModuleBlock,
-    isModuleDeclaration,
-} from 'typescript';
+import { ts } from '../../../core/compiler';
 import {
     CACHE_SCHEMA_VERSION,
     CacheClient,
@@ -50,6 +43,7 @@ import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { GeneratorError } from '../../../core/error/generator';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
+import { normalizeCompilerOptions } from '../../../adapters/filesystem/tsconfig';
 import { ControllerGenerator } from '../controller';
 import type {
     IGeneratorContext,
@@ -90,9 +84,9 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         this.registry = createRegistry();
         this.resolverCache = new ResolverCache();
 
-        this.program = createProgram(
+        this.program = ts.createProgram(
             context.sourceFiles,
-            context.compilerOptions || {},
+            normalizeCompilerOptions(context.compilerOptions),
         );
         this.typeChecker = this.program.getTypeChecker();
     }
@@ -259,8 +253,8 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             hash.update(sf.text);
             hash.update('\0');
 
-            forEachChild(sf, (node: any) => {
-                if (isModuleDeclaration(node)) {
+            ts.forEachChild(sf, (node: any) => {
+                if (ts.isModuleDeclaration(node)) {
                     /**
                      * For some reason unknown to me, TS resolves both `declare module` and `namespace` to
                      * the same kind (`ModuleDeclaration`). In order to figure out whether it's one or the other,
@@ -268,7 +262,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                      */
 
                     // tslint:disable-next-line:no-bitwise
-                    if ((node.flags & NodeFlags.Namespace) === 0 && node.body && isModuleBlock(node.body)) {
+                    if ((node.flags & ts.NodeFlags.Namespace) === 0 && node.body && ts.isModuleBlock(node.body)) {
                         node.body.statements.forEach((statement) => {
                             this.nodes.push(statement);
                         });
@@ -341,7 +335,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         this.controllers = [];
 
         for (const node of this.nodes) {
-            if (!isClassDeclaration(node)) {
+            if (!ts.isClassDeclaration(node)) {
                 continue;
             }
 

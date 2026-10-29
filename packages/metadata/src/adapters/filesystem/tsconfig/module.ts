@@ -11,7 +11,7 @@ import { ConfigErrorCode } from '../../../core/error/config-codes';
 import { ConfigError } from '../../../core/error/config';
 import process from 'node:process';
 import path from 'node:path';
-import { parseJsonConfigFileContent, sys } from 'typescript';
+import { ts } from '../../../core/compiler';
 import type { TsConfig, TsconfigLoadContext } from './types';
 
 export async function loadTSConfig(
@@ -34,9 +34,9 @@ export async function loadTSConfig(
     // unlike convertCompilerOptionsFromJson, this follows extends and sets pathsBasePath.
     // the copy keeps the returned raw config clean — parseJsonConfigFileContent
     // writes compileOnSave and the inherited include/exclude onto what it is handed.
-    content.compilerOptions = parseJsonConfigFileContent(
+    content.compilerOptions = ts.parseJsonConfigFileContent(
         { ...content },
-        sys,
+        ts.sys,
         path.dirname(filePath),
         undefined,
         filePath,

@@ -5,19 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    canHaveDecorators,
-    getDecorators,
-    isCallExpression,
-    isIdentifier,
-    isJSDocParameterTag,
-    isJSDocPropertyTag,
-    isJSDocReturnTag,
-    isJSDocThisTag,
-    isJSDocTypeTag,
-    isPropertyAccessExpression,
-    isQualifiedName,
-} from 'typescript';
+import { ts } from '../../../core/compiler';
 import type {
     Decorator,
     EntityName,
@@ -45,11 +33,11 @@ export function buildDecoratorSources(
     node: Node,
     options: DecoratorSourceBuilderOptions,
 ): DecoratorSource[] {
-    if (!canHaveDecorators(node)) {
+    if (!ts.canHaveDecorators(node)) {
         return [];
     }
 
-    const decorators = getDecorators(node);
+    const decorators = ts.getDecorators(node);
     if (!decorators || decorators.length === 0) {
         return [];
     }
@@ -74,7 +62,7 @@ function buildDecoratorSource(
     let argumentExpressions: readonly Expression[] = [];
     let typeArgumentNodes: readonly TypeNode[] = [];
 
-    if (isCallExpression(expression)) {
+    if (ts.isCallExpression(expression)) {
         argumentExpressions = expression.arguments;
         typeArgumentNodes = expression.typeArguments ?? [];
         name = readDecoratorName(expression.expression);
@@ -111,10 +99,10 @@ function buildDecoratorSource(
 }
 
 function readDecoratorName(expression: Node): string | undefined {
-    if (isIdentifier(expression)) {
+    if (ts.isIdentifier(expression)) {
         return expression.text;
     }
-    if (isPropertyAccessExpression(expression)) {
+    if (ts.isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
     return undefined;
@@ -150,15 +138,15 @@ function buildJsDocSource(
     let parameterName: string | undefined;
     let typeNode: TypeNode | undefined;
 
-    if (isJSDocParameterTag(tag) || isJSDocPropertyTag(tag)) {
+    if (ts.isJSDocParameterTag(tag) || ts.isJSDocPropertyTag(tag)) {
         if (tag.name) {
             parameterName = readEntityName(tag.name);
         }
         typeNode = tag.typeExpression?.type;
     } else if (
-        isJSDocReturnTag(tag) ||
-        isJSDocTypeTag(tag) ||
-        isJSDocThisTag(tag)
+        ts.isJSDocReturnTag(tag) ||
+        ts.isJSDocTypeTag(tag) ||
+        ts.isJSDocThisTag(tag)
     ) {
         typeNode = tag.typeExpression?.type;
     }
@@ -186,10 +174,10 @@ function buildJsDocSource(
 }
 
 function readEntityName(name: EntityName): string | undefined {
-    if (isIdentifier(name)) {
+    if (ts.isIdentifier(name)) {
         return name.text;
     }
-    if (isQualifiedName(name)) {
+    if (ts.isQualifiedName(name)) {
         const left = readEntityName(name.left);
         return left ? `${left}.${name.right.text}` : name.right.text;
     }

@@ -60,7 +60,13 @@
         "smob": "^1.6.2"
     },
     "peerDependencies": {
+        "@typescript/typescript6": "^6.0.2",
         "typescript": ">=5.0.0"
+    },
+    "peerDependenciesMeta": {
+        "@typescript/typescript6": {
+            "optional": true
+        }
     },
     "publishConfig": {
         "access": "public"

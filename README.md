@@ -95,12 +95,20 @@ npx trapi generate \
 
 The output extension selects JSON or YAML unless `--format` overrides it. For multiple targets, transforms or watch mode, use the [CLI guide](https://trapi.tada5hi.net/guide/cli).
 
+## How it works
+
+TRAPI uses the TypeScript compiler API to read decorators, signatures and types from the source AST. Extraction does not invoke controller decorators or require `reflect-metadata` or runtime type information. Generation runs at build time; it does not add a TRAPI runtime component to your application. Your framework's own decorators can still have runtime behavior.
+
+A preset is a named collection of handlers. A handler matches a decorator name on a class, method or parameter and mutates that node's draft; the extractor finalises the drafts into framework-neutral metadata. `@trapi/core` supplies the contracts and authoring helpers without depending on TypeScript. You can consume the metadata directly instead of emitting OpenAPI.
+
+The shipped presets are self-contained: each includes its framework's routing mappings, TRAPI markers and JSDoc handlers. A custom preset can map another decorator-based framework when its routes and types are statically representable; installing Express, Koa, Fastify or another framework alone does not supply that mapping. See [key concepts](https://trapi.tada5hi.net/guide/concepts) for the extraction, type-resolution and emission layers.
+
 ## Custom presets
 
-A handler matches an annotation and mutates its draft. This preset adds a `@Route(...)` controller annotation while inheriting the shipped Express mapping:
+This preset adds `@Route(...)` for controllers and `@HttpGet(...)` for methods while inheriting the shipped Express mappings:
 
 ```typescript
-import { controller } from '@trapi/core';
+import { controller, method } from '@trapi/core';
 import type { Preset } from '@trapi/core';
 
 export default {
@@ -116,10 +124,21 @@ export default {
             }
         },
     })],
+    methods: [method({
+        match: { name: 'HttpGet', on: 'method' },
+        apply(ctx, draft) {
+            draft.verb = 'get';
+            const argument = ctx.argument(0);
+
+            if (typeof argument?.raw === 'string') {
+                draft.path = argument.raw;
+            }
+        },
+    })],
 } satisfies Preset;
 ```
 
-Pass this object through `generateMetadata({ entryPoint, preset })`, or resolve a preset module by name/path. Presets compose via `extends`; JSDoc handlers use the parallel controller/method/parameter JSDoc collections. Read [preset authoring](https://trapi.tada5hi.net/guide/advanced-custom-presets) for replacement and ordering rules.
+Pass this object through `generateMetadata({ entryPoint, preset })`, or resolve a preset module by name/path. Presets compose via `extends`. Inherited and local handlers run additively; `replaces: true` shadows matching parent handlers, while `replaces: '<presetName>'` targets one parent. Same-preset siblings remain additive. Parameter mappings live in `parameters`; JSDoc mappings use `controllerJsDoc`, `methodJsDoc` and `parameterJsDoc`. Read [preset authoring](https://trapi.tada5hi.net/guide/advanced-custom-presets) for replacement and ordering rules.
 
 ## Options
 

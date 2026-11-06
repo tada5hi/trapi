@@ -63,6 +63,7 @@ describe('detectFormatFromPath', () => {
 describe('resolveOutput', () => {
     it('falls back to swagger.json under cwd when output is undefined', () => {
         const result = resolveOutput(undefined, undefined);
+
         expect(result).toEqual({
             cwd: process.cwd(),
             name: 'swagger',
@@ -72,6 +73,7 @@ describe('resolveOutput', () => {
 
     it('infers json from a relative .json output and resolves cwd against process.cwd()', () => {
         const result = resolveOutput('docs/openapi.json', undefined);
+
         expect(result).toEqual({
             cwd: path.join(process.cwd(), 'docs'),
             name: 'openapi',
@@ -89,6 +91,7 @@ describe('resolveOutput', () => {
 
     it('keeps an absolute path verbatim', () => {
         const abs = path.resolve('/tmp', 'cli-test', 'openapi.yaml');
+
         expect(resolveOutput(abs, undefined)).toEqual({
             cwd: path.dirname(abs),
             name: 'openapi',
@@ -116,6 +119,7 @@ describe('splitOutputPath', () => {
 
     it('splits absolute path into cwd/name/format', () => {
         const abs = path.resolve('/tmp', 'docs', 'openapi.json');
+
         expect(splitOutputPath(abs)).toEqual({
             cwd: path.dirname(abs),
             name: 'openapi',
@@ -125,6 +129,7 @@ describe('splitOutputPath', () => {
 
     it('honours format override', () => {
         const abs = path.resolve('/tmp', 'docs', 'openapi');
+
         expect(splitOutputPath(abs, 'yaml')).toEqual({
             cwd: path.dirname(abs),
             name: 'openapi',
@@ -177,12 +182,13 @@ describe('parseSecurityDefinitions', () => {
 
     it('parses a JSON object', () => {
         const json = '{"bearer":{"type":"apiKey","name":"Authorization","in":"header"}}';
+
         expect(parseSecurityDefinitions(json)).toEqual({
             bearer: {
-                type: 'apiKey', 
-                name: 'Authorization', 
-                in: 'header', 
-            }, 
+                type: 'apiKey',
+                name: 'Authorization',
+                in: 'header',
+            },
         });
     });
 

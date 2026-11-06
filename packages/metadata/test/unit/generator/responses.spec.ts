@@ -51,6 +51,7 @@ describe('response metadata extraction', () => {
 
         it('should have 400 and 500 response descriptions at class level', () => {
             const statuses = responseController.responses.map((r) => r.status);
+
             expect(statuses).toContain('400');
             expect(statuses).toContain('500');
         });
@@ -58,6 +59,7 @@ describe('response metadata extraction', () => {
         it('should have correct descriptions', () => {
             const res400 = responseController.responses.find((r) => r.status === '400');
             const res500 = responseController.responses.find((r) => r.status === '500');
+
             expect(res400!.description).toEqual('The request format was incorrect.');
             expect(res500!.description).toEqual('There was an unexpected error.');
         });
@@ -66,8 +68,11 @@ describe('response metadata extraction', () => {
             const testMethod = responseController.methods.find(
                 (m) => m.name === 'test',
             );
+
             expect(testMethod).toBeDefined();
+
             const statuses = testMethod!.responses.map((r) => r.status);
+
             expect(statuses).toContain('401');
             expect(statuses).toContain('502');
         });
@@ -78,10 +83,12 @@ describe('response metadata extraction', () => {
             const testGetSingle = promiseService.methods.find(
                 (m) => m.name === 'testGetSingle',
             )!;
+
             expect(testGetSingle).toBeDefined();
 
             // Should have a 200 response with example
             const res200 = testGetSingle.responses.find((r) => r.status === '200');
+
             expect(res200).toBeDefined();
             expect(res200!.examples).toBeDefined();
             expect(res200!.examples!.length).toBeGreaterThan(0);
@@ -91,9 +98,11 @@ describe('response metadata extraction', () => {
             const testPost = promiseService.methods.find(
                 (m) => m.name === 'testPost',
             )!;
+
             expect(testPost).toBeDefined();
 
             const res201 = testPost.responses.find((r) => r.status === '201');
+
             expect(res201).toBeDefined();
             expect(res201!.description).toEqual('Person Created');
         });
@@ -102,9 +111,11 @@ describe('response metadata extraction', () => {
             const testMethod = promiseService.methods.find(
                 (m) => m.name === 'test',
             )!;
+
             expect(testMethod).toBeDefined();
 
             const res401 = testMethod.responses.find((r) => r.status === '401');
+
             expect(res401).toBeDefined();
             expect(res401!.description).toEqual('Unauthorized');
         });
@@ -113,6 +124,7 @@ describe('response metadata extraction', () => {
             const testFile = promiseService.methods.find(
                 (m) => m.name === 'testFile',
             )!;
+
             expect(testFile).toBeDefined();
             expect(testFile.produces).toContain('application/pdf');
         });
@@ -123,9 +135,11 @@ describe('response metadata extraction', () => {
             const testMethod = myService.methods.find(
                 (m) => m.name === 'test',
             )!;
+
             expect(testMethod).toBeDefined();
 
             const statuses = testMethod.responses.map((r) => r.status);
+
             expect(statuses).toContain('400');
             expect(statuses).toContain('500');
         });
@@ -134,9 +148,11 @@ describe('response metadata extraction', () => {
             const test2 = myService.methods.find(
                 (m) => m.name === 'test2',
             )!;
+
             expect(test2).toBeDefined();
 
             const res200 = test2.responses.find((r) => r.status === '200');
+
             expect(res200).toBeDefined();
             expect(res200!.description).toEqual('The success test.');
         });

@@ -50,17 +50,21 @@ export function buildDecoratorSources(
     }
 
     const decorators = getDecorators(node);
+
     if (!decorators || decorators.length === 0) {
         return [];
     }
 
     const output: DecoratorSource[] = [];
+
     for (const decorator of decorators) {
         const source = buildDecoratorSource(decorator, options);
+
         if (source) {
             output.push(source);
         }
     }
+
     return output;
 }
 
@@ -114,9 +118,11 @@ function readDecoratorName(expression: Node): string | undefined {
     if (isIdentifier(expression)) {
         return expression.text;
     }
+
     if (isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
+
     return undefined;
 }
 
@@ -129,14 +135,17 @@ export function buildJsDocSources(
     options: JsDocSourceBuilderOptions,
 ): JsDocSource[] {
     const tags = getJSDocTags(node);
+
     if (tags.length === 0) {
         return [];
     }
 
     const output: JsDocSource[] = [];
+
     for (const tag of tags) {
         output.push(buildJsDocSource(tag, options));
     }
+
     return output;
 }
 
@@ -154,6 +163,7 @@ function buildJsDocSource(
         if (tag.name) {
             parameterName = readEntityName(tag.name);
         }
+
         typeNode = tag.typeExpression?.type;
     } else if (
         isJSDocReturnTag(tag) ||
@@ -179,6 +189,7 @@ function buildJsDocSource(
 
     if (typeNode) {
         const capturedTypeNode = typeNode;
+
         source.typeExpression = { resolve: () => options.resolveTypeNode(capturedTypeNode) };
     }
 
@@ -189,9 +200,12 @@ function readEntityName(name: EntityName): string | undefined {
     if (isIdentifier(name)) {
         return name.text;
     }
+
     if (isQualifiedName(name)) {
         const left = readEntityName(name.left);
+
         return left ? `${left}.${name.right.text}` : name.right.text;
     }
+
     return undefined;
 }

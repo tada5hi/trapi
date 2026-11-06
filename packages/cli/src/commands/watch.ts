@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -13,7 +14,7 @@ import { watch as chokidarWatch } from 'chokidar';
 import type { EntryPoint, EntryPointOptions } from '@trapi/metadata';
 import { createLogger, normalizeLogLevel } from '../logger.ts';
 import { runWithExitCode } from '../exit.ts';
-import type { ResolvedTargets } from './generate.ts';
+import type { ResolvedTargets } from './types';
 import { GENERATE_ARGS, resolveTargets, runGenerate } from './generate.ts';
 
 const DEBOUNCE_MS = 200;
@@ -36,11 +37,13 @@ export function defineCLIWatchCommand() {
         },
         async run({ args }) {
             const logger = createLogger(normalizeLogLevel(args['log-level'] as string | undefined));
+
             await runWithExitCode(logger, async () => {
                 const resolved = await resolveTargets(args);
                 const watchRoots = await collectWatchRoots(resolved);
 
                 logger.info(`watching ${watchRoots.length} root(s) — press Ctrl+C to exit`);
+
                 for (const root of watchRoots) {
                     logger.debug(`watch root: ${root}`);
                 }
@@ -54,19 +57,24 @@ export function defineCLIWatchCommand() {
 
                 const runOnce = async () => {
                     running = true;
+
                     if (args.clear === true) {
                         process.stdout.write('\x1Bc');
                     }
+
                     try {
                         const results = await runGenerate(args, logger);
+
                         knownOutputs.clear();
+
                         for (const r of results) {
                             knownOutputs.add(r.output.path);
                         }
                     } catch (err) {
-                        logger.error(err instanceof Error ? err.message : String(err));
+                        logger.error((err instanceof Error) ? err.message : String(err));
                     } finally {
                         running = false;
+
                         if (pending) {
                             pending = false;
                             void runOnce();
@@ -78,12 +86,17 @@ export function defineCLIWatchCommand() {
                 const schedule = () => {
                     if (running) {
                         pending = true;
+
                         return;
                     }
+
                     if (timer) {
                         clearTimeout(timer);
                     }
-                    timer = setTimeout(() => { void runOnce(); }, DEBOUNCE_MS);
+
+                    timer = setTimeout(() => {
+                        void runOnce();
+                    }, DEBOUNCE_MS);
                 };
 
                 const watcher = chokidarWatch(watchRoots, {
@@ -91,6 +104,7 @@ export function defineCLIWatchCommand() {
                         if (knownOutputs.has(filePath)) {
                             return true;
                         }
+
                         return IGNORED_DIRS.some((dir) => filePath.includes(`${path.sep}${dir}${path.sep}`));
                     },
                     ignoreInitial: true,
@@ -99,7 +113,7 @@ export function defineCLIWatchCommand() {
 
                 watcher.on('all', schedule);
                 watcher.on('error', (err) => {
-                    logger.warn(`watcher error: ${err instanceof Error ? err.message : String(err)}`);
+                    logger.warn(`watcher error: ${(err instanceof Error) ? err.message : String(err)}`);
                 });
 
                 await runOnce();
@@ -107,11 +121,14 @@ export function defineCLIWatchCommand() {
                 await new Promise<void>((resolve) => {
                     const cleanup = () => {
                         void watcher.close();
+
                         if (timer) {
                             clearTimeout(timer);
                         }
+
                         resolve();
                     };
+
                     process.once('SIGINT', cleanup);
                     process.once('SIGTERM', cleanup);
                 });
@@ -128,14 +145,17 @@ async function collectWatchRoots(resolved: ResolvedTargets): Promise<string[]> {
             candidates.add(root);
         }
     }
+
     if (resolved.configPath) {
         candidates.add(path.dirname(resolved.configPath));
     }
 
     const valid: string[] = [];
+
     for (const candidate of candidates) {
         try {
             const stat = await fsp.stat(candidate);
+
             if (stat.isDirectory()) {
                 valid.push(candidate);
             }
@@ -147,6 +167,7 @@ async function collectWatchRoots(resolved: ResolvedTargets): Promise<string[]> {
     if (valid.length === 0) {
         valid.push(resolved.cwd);
     }
+
     return valid;
 }
 
@@ -155,8 +176,10 @@ function entryPointRoots(entryPoint: EntryPoint, cwd: string): string[] {
     const visit = (value: string | EntryPointOptions, baseCwd: string) => {
         if (typeof value === 'string') {
             roots.push(globRoot(value, baseCwd));
+
             return;
         }
+
         roots.push(globRoot(value.pattern, value.cwd ?? baseCwd));
     };
 
@@ -167,6 +190,7 @@ function entryPointRoots(entryPoint: EntryPoint, cwd: string): string[] {
     } else {
         visit(entryPoint, cwd);
     }
+
     return roots;
 }
 
@@ -177,5 +201,6 @@ function globRoot(pattern: string, cwd: string): string {
     const staticPrefix = meta === -1 ? pattern : pattern.slice(0, meta);
     const dir = meta === -1 ? path.dirname(staticPrefix) : staticPrefix;
     const trimmed = dir.replace(/[\\/]+$/, '');
+
     return path.isAbsolute(trimmed) ? trimmed : path.resolve(cwd, trimmed || '.');
 }

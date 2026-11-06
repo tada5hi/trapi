@@ -88,18 +88,21 @@ describe('enum spec compliance', () => {
     describe('V2', () => {
         it('should generate string enum with correct type', () => {
             const def = specV2.definitions!.StringEnum;
+
             expect(def.type).toEqual('string');
             expect(def.enum).toEqual(['active', 'inactive', 'pending']);
         });
 
         it('should generate numeric enum with number type', () => {
             const def = specV2.definitions!.NumericEnum;
+
             expect(def.type).toEqual('number');
             expect(def.enum).toEqual([0, 1, 2]);
         });
 
         it('should handle mixed enum', () => {
             const def = specV2.definitions!.MixedEnum;
+
             expect(def.type).toEqual('string');
             expect(def.enum).toBeDefined();
             expect(def.enum!.length).toBeGreaterThan(0);
@@ -107,11 +110,13 @@ describe('enum spec compliance', () => {
 
         it('should include x-enum-varnames when memberNames are provided', () => {
             const def = specV2.definitions!.NamedEnum;
+
             expect(def['x-enum-varnames']).toEqual(['Read', 'Write', 'Admin']);
         });
 
         it('should not include null in enum values', () => {
             const def = specV2.definitions!.StringEnum;
+
             expect(def.enum).not.toContain(null);
         });
     });
@@ -119,19 +124,23 @@ describe('enum spec compliance', () => {
     describe('V3', () => {
         it('should generate string enum with correct type', () => {
             const schema = specV3.components.schemas!.StringEnum;
+
             expect(schema.type).toEqual('string');
             expect(schema.enum).toEqual(['active', 'inactive', 'pending']);
         });
 
         it('should generate numeric enum with number type', () => {
             const schema = specV3.components.schemas!.NumericEnum;
+
             expect(schema.type).toEqual('number');
             expect(schema.enum).toEqual([0, 1, 2]);
         });
 
         it('should handle mixed enum with anyOf for multi-type', () => {
             const schema = specV3.components.schemas!.MixedEnum;
+
             expect(schema.anyOf, 'mixed enum should produce anyOf').toBeDefined();
+
             for (const entry of schema.anyOf!) {
                 expect(entry.type).toBeDefined();
                 expect(entry.enum).toBeDefined();
@@ -141,6 +150,7 @@ describe('enum spec compliance', () => {
 
         it('should include x-enum-varnames when memberNames are provided', () => {
             const schema = specV3.components.schemas!.NamedEnum;
+
             expect(schema['x-enum-varnames']).toEqual(['Read', 'Write', 'Admin']);
         });
     });

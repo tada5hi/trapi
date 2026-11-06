@@ -36,6 +36,7 @@ const controllerMountHandler = controller({
     match: { name: 'Mount', on: 'class' },
     apply: (ctx, draft) => {
         const paths = readStringOrStringArray(ctx.argument(0));
+
         if (paths !== undefined) {
             draft.paths = paths;
         }

@@ -146,6 +146,7 @@ const parameterExtensionHandler = parameter({
 function numericValidator(kind: NumericKind, format: string): ParameterHandler['apply'] {
     return (_ctx, draft) => {
         const name = `is${kind[0]!.toUpperCase()}${kind.slice(1)}`;
+
         draft.validators[name] = {
             value: kind,
             meta: { openApi: { kind: 'format', format } },

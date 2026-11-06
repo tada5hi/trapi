@@ -1,3 +1,4 @@
+/* eslint-disable @tada5hi/no-reexport-shims -- Preserve the existing public forwarding module. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -43,6 +44,7 @@ export function applyDescriptionToDraft(
         [{ value: payload.raw }] :
         [];
     const typeArg = ctx.typeArgument(0);
+
     draft.responses.push({
         name: status,
         status,
@@ -60,37 +62,48 @@ export function appendSecurityToDraft(
     const nameArg = ctx.argument(1);
 
     let name = readString(nameArg);
+
     if (!name) {
         const obj = scopesArg?.kind === 'object' ? scopesArg.raw : undefined;
+
         if (obj && typeof obj === 'object') {
             // @Security({ schemeName: ['scope'] }) form
             const security: Record<string, string[]> = {};
+
             for (const [key, val] of Object.entries(obj as Record<string, unknown>)) {
-                if (Array.isArray(val) && val.every((v) => typeof v === 'string')) {
+                const matchesVal = Array.isArray(val) && val.every((v) => typeof v === 'string');
+
+                if (matchesVal) {
                     security[key] = val;
                 }
             }
+
             if (Object.keys(security).length > 0) {
                 draft.security ??= [];
                 draft.security.push(security);
             }
+
             // Object form attempted: don't fall through to array-form handling.
             // If no valid entries were extracted, reject rather than emit a
             // phantom `{ default: [] }` requirement on a scheme name the user
             // never typed.
             return;
         }
+
         name = 'default';
     }
 
     const scopes: string[] = [];
+
     if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
         // Malformed array (e.g. `[null, 'admin']`): keep the security entry
         // so the endpoint stays secured under `name`, but drop ALL scopes
         // rather than emit a partial list — silently under-reporting scopes
         // is the more dangerous failure mode. Returning early would be worse
         // still, since it would leave the endpoint appearing unsecured.
-        if (scopesArg.raw.every((item) => typeof item === 'string')) {
+        const matchesRaw = scopesArg.raw.every((item) => typeof item === 'string');
+
+        if (matchesRaw) {
             scopes.push(...scopesArg.raw);
         }
     } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
@@ -108,6 +121,7 @@ export function appendExtensionToDraft(
     const keyArg = ctx.argument(0);
     const valueArg = ctx.argument(1);
     const key = readString(keyArg);
+
     if (
         !key ||
         !valueArg ||
@@ -116,5 +130,6 @@ export function appendExtensionToDraft(
     ) {
         return;
     }
+
     draft.extensions.push({ key, value: valueArg.raw as never });
 }

@@ -20,32 +20,42 @@ import {
 
 const methodHiddenJsDoc = methodJsDoc({
     match: { tag: 'hidden' },
-    apply: (_ctx, draft) => { draft.hidden = true; },
+    apply: (_ctx, draft) => {
+        draft.hidden = true;
+    },
     marker: MarkerName.Hidden,
 });
 
 const methodDeprecatedJsDoc = methodJsDoc({
     match: { tag: 'deprecated' },
-    apply: (_ctx, draft) => { draft.deprecated = true; },
+    apply: (_ctx, draft) => {
+        draft.deprecated = true;
+    },
     marker: MarkerName.Deprecated,
 });
 
 const methodSummaryJsDoc = methodJsDoc({
     match: { tag: 'summary' },
     apply: (ctx, draft) => {
-        if (ctx.source.text) draft.summary = ctx.source.text;
+        if (ctx.source.text) {
+            draft.summary = ctx.source.text;
+        }
     },
 });
 
 const controllerHiddenJsDoc = controllerJsDoc({
     match: { tag: 'hidden' },
-    apply: (_ctx, draft) => { draft.hidden = true; },
+    apply: (_ctx, draft) => {
+        draft.hidden = true;
+    },
     marker: MarkerName.Hidden,
 });
 
 const parameterDeprecatedJsDoc = parameterJsDoc({
     match: { tag: 'deprecated' },
-    apply: (_ctx, draft) => { draft.deprecated = true; },
+    apply: (_ctx, draft) => {
+        draft.deprecated = true;
+    },
     marker: MarkerName.Deprecated,
 });
 

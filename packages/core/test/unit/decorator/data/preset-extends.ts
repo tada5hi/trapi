@@ -17,7 +17,9 @@ export const preset: Preset = {
     methods: [
         {
             match: { name: 'Put', on: 'method' },
-            apply: (_ctx, draft) => { draft.verb = 'put'; },
+            apply: (_ctx, draft) => {
+                draft.verb = 'put';
+            },
         },
     ],
 };

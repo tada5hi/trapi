@@ -9,4 +9,5 @@ export * from './types';
 export * from './constants';
 export * from './type-guards';
 export * from './extension';
+export type { Extension, ExtensionType } from './types';
 export * from './error';

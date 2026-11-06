@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import jsonata from 'jsonata';
 import { read } from 'locter';
@@ -35,7 +35,9 @@ describe('TypeEndpoint', () => {
 
     it('should generate definitions for type aliases', async () => {
         expect(spec.paths).toHaveProperty('/type/{param}');
+
         let expression = jsonata('definitions.SimpleHelloType.properties.greeting.description');
+
         expect(await expression.evaluate(spec)).toEqual('Description for greeting property');
 
         expression = jsonata('definitions.UUID');
@@ -50,6 +52,7 @@ describe('TypeEndpoint', () => {
 
     it('should generate nested object types in definitions', async () => {
         let expression = jsonata('definitions.SimpleHelloType.properties.profile.type');
+
         expect(await expression.evaluate(spec)).toEqual('object');
         expression = jsonata('definitions.SimpleHelloType.properties.profile.description');
         expect(await expression.evaluate(spec)).toEqual('Description for profile');
@@ -61,19 +64,21 @@ describe('TypeEndpoint', () => {
 
     it('should ignore properties that are functions', async () => {
         const expression = jsonata('definitions.SimpleHelloType.properties.comparePassword');
+
         expect(await expression.evaluate(spec)).toBeDefined(); // todo: fix
     });
 
     it('should support compilerOptions', async () => {
         let expression = jsonata('definitions.TestInterface');
+
         expect(await expression.evaluate(spec)).toEqual({
             description: undefined,
             properties: {
                 a: { type: 'string', description: undefined },
                 b: {
-                    type: 'number', 
-                    format: 'double', 
-                    description: undefined, 
+                    type: 'number',
+                    format: 'double',
+                    description: undefined,
                 },
             },
             required: ['a', 'b'],

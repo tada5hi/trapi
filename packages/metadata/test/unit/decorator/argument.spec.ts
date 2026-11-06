@@ -19,32 +19,38 @@ function parseFirstArgument(decoratorCallSource: string): Expression {
     );
     const stmt = sf.statements[0] as ExpressionStatement;
     const call = stmt.expression as CallExpression;
+
     return call.arguments[0];
 }
 
 describe('buildDecoratorArgument', () => {
     it('classifies string literal as literal', () => {
         const arg = parseFirstArgument('Foo("hello")');
+
         expect(buildDecoratorArgument(arg)).toEqual({ raw: 'hello', kind: 'literal' });
     });
 
     it('classifies number literal as literal', () => {
         const arg = parseFirstArgument('Foo(42)');
+
         expect(buildDecoratorArgument(arg)).toEqual({ raw: 42, kind: 'literal' });
     });
 
     it('classifies negative number as literal', () => {
         const arg = parseFirstArgument('Foo(-7)');
+
         expect(buildDecoratorArgument(arg)).toEqual({ raw: -7, kind: 'literal' });
     });
 
     it('treats logical-not prefix as unresolvable instead of throwing', () => {
         const arg = parseFirstArgument('Foo(!FOO)');
+
         expect(buildDecoratorArgument(arg)).toEqual({ raw: undefined, kind: 'unresolvable' });
     });
 
     it('treats bitwise-not prefix as unresolvable instead of throwing', () => {
         const arg = parseFirstArgument('Foo(~mask)');
+
         expect(buildDecoratorArgument(arg)).toEqual({ raw: undefined, kind: 'unresolvable' });
     });
 
@@ -57,6 +63,7 @@ describe('buildDecoratorArgument', () => {
     it('classifies object literal as object', () => {
         const arg = parseFirstArgument('Foo({ a: 1, b: "two" })');
         const result = buildDecoratorArgument(arg);
+
         expect(result.kind).toEqual('object');
         expect(result.raw).toEqual({ a: 1, b: 'two' });
     });
@@ -64,6 +71,7 @@ describe('buildDecoratorArgument', () => {
     it('classifies array literal as array', () => {
         const arg = parseFirstArgument('Foo([1, 2, 3])');
         const result = buildDecoratorArgument(arg);
+
         expect(result.kind).toEqual('array');
         expect(result.raw).toEqual([1, 2, 3]);
     });
@@ -71,6 +79,7 @@ describe('buildDecoratorArgument', () => {
     it('classifies bare identifier without resolver as unresolvable', () => {
         const arg = parseFirstArgument('Foo(SomeConst)');
         const result = buildDecoratorArgument(arg);
+
         expect(result.kind).toEqual('unresolvable');
         expect(result.raw).toBeUndefined();
     });

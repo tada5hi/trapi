@@ -27,9 +27,11 @@ function findClass(sf: SourceFile, name: string): ClassDeclaration {
         (s): s is ClassDeclaration =>
             isClassDeclaration(s) && s.name?.text === name,
     );
+
     if (!found) {
         throw new Error(`class ${name} not found`);
     }
+
     return found;
 }
 
@@ -76,6 +78,7 @@ describe('buildJsDocSources', () => {
         });
 
         const paramTag = sources.find((s) => s.tag === 'param');
+
         expect(paramTag).toBeDefined();
         expect(paramTag?.parameterName).toEqual('userId');
         expect(paramTag?.text).toEqual('the user id');
@@ -99,6 +102,7 @@ describe('buildJsDocSources', () => {
         });
 
         const paramTag = sources.find((s) => s.tag === 'param');
+
         expect(paramTag).toBeDefined();
         expect(paramTag?.parameterName).toEqual('obj.foo');
     });
@@ -120,11 +124,13 @@ describe('buildJsDocSources', () => {
             host: { name: 'get', parentName: 'C' },
             resolveTypeNode: (node) => {
                 calls.push(node.getText());
+
                 return { typeName: 'any' } as Type;
             },
         });
 
         const returnsTag = sources.find((s) => s.tag === 'returns');
+
         expect(returnsTag).toBeDefined();
         expect(returnsTag?.typeExpression).toBeDefined();
         expect(calls).toEqual([]);

@@ -137,16 +137,19 @@ describe('edge cases and spec compliance', () => {
     describe('empty required arrays', () => {
         it('V2: should not emit required array when all properties are optional', () => {
             const def = specV2.definitions!.EmptyModel;
+
             expect(def.required).toBeUndefined();
         });
 
         it('V3: should not emit required array when all properties are optional', () => {
             const schema = specV3.components.schemas!.EmptyModel;
+
             expect(schema.required).toBeUndefined();
         });
 
         it('V2: should emit required array only with required properties', () => {
             const def = specV2.definitions!.RequiredModel;
+
             expect(def.required).toBeDefined();
             expect(def.required).toEqual(['required1']);
             expect(def.required).not.toContain('optional1');
@@ -154,6 +157,7 @@ describe('edge cases and spec compliance', () => {
 
         it('V3: should emit required array only with required properties', () => {
             const schema = specV3.components.schemas!.RequiredModel;
+
             expect(schema.required).toBeDefined();
             expect(schema.required).toEqual(['required1']);
         });
@@ -162,12 +166,14 @@ describe('edge cases and spec compliance', () => {
     describe('void responses', () => {
         it('V2: should not have schema for void response', () => {
             const response = specV2.paths['/edge/void'].delete!.responses['204'];
+
             expect(response.description).toEqual('No content');
             expect(response.schema).toBeUndefined();
         });
 
         it('V3: should not have content for void response', () => {
             const response = specV3.paths['/edge/void'].delete!.responses['204'];
+
             expect(response.description).toEqual('No content');
             expect(response.content).toBeUndefined();
         });
@@ -178,7 +184,11 @@ describe('edge cases and spec compliance', () => {
             for (const pathItem of Object.values(specV2.paths)) {
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
-                    if (!op) continue;
+
+                    if (!op) {
+                        continue;
+                    }
+
                     for (const code of Object.keys(op.responses)) {
                         expect(code).toMatch(/^(default|\d{3})$/);
                     }
@@ -190,7 +200,11 @@ describe('edge cases and spec compliance', () => {
             for (const pathItem of Object.values(specV3.paths)) {
                 for (const method of ['get', 'post', 'put', 'delete', 'patch'] as const) {
                     const op = pathItem[method];
-                    if (!op) continue;
+
+                    if (!op) {
+                        continue;
+                    }
+
                     for (const code of Object.keys(op.responses)) {
                         expect(code).toMatch(/^(default|\d{3})$/);
                     }
@@ -202,9 +216,13 @@ describe('edge cases and spec compliance', () => {
     describe('V3 empty examples', () => {
         it('should not include empty examples objects in response content', () => {
             const response = specV3.paths['/edge/optional'].get!.responses['200'];
+
             expect(response.content, 'response should have content').toBeDefined();
+
             const jsonContent = response.content!['application/json'];
+
             expect(jsonContent, 'response should have application/json content').toBeDefined();
+
             // examples should either be absent or non-empty
             if (jsonContent!.examples) {
                 expect(Object.keys(jsonContent!.examples).length).toBeGreaterThan(0);

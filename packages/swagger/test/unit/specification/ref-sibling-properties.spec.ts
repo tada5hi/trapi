@@ -115,26 +115,31 @@ describe('$ref sibling properties', () => {
     describe('V2 - definitions', () => {
         it('should produce a $ref without sibling properties for reference-type properties', () => {
             const addressProp = specV2.definitions!.Person.properties!.address;
+
             expect(addressProp.$ref).toBeDefined();
 
             const keys = Object.keys(addressProp).filter((k) => k !== '$ref');
+
             expect(keys).toEqual([]);
         });
 
         it('should not merge validators alongside $ref', () => {
             const workplaceProp = specV2.definitions!.Person.properties!.workplace;
+
             expect(workplaceProp.$ref).toBeDefined();
             expect(workplaceProp).not.toHaveProperty('minLength');
         });
 
         it('should not merge x-deprecated alongside $ref', () => {
             const backupProp = specV2.definitions!.Person.properties!.backup;
+
             expect(backupProp.$ref).toBeDefined();
             expect(backupProp).not.toHaveProperty('x-deprecated');
         });
 
         it('should not merge extensions alongside $ref', () => {
             const taggedProp = specV2.definitions!.Person.properties!.tagged;
+
             expect(taggedProp.$ref).toBeDefined();
             expect(taggedProp).not.toHaveProperty('x-custom');
         });
@@ -143,26 +148,31 @@ describe('$ref sibling properties', () => {
     describe('V3 - components/schemas', () => {
         it('should produce a $ref without sibling properties for reference-type properties', () => {
             const addressProp = specV3.components.schemas!.Person.properties!.address;
+
             expect(addressProp.$ref).toBeDefined();
 
             const keys = Object.keys(addressProp).filter((k) => k !== '$ref');
+
             expect(keys).toEqual([]);
         });
 
         it('should not merge validators alongside $ref', () => {
             const workplaceProp = specV3.components.schemas!.Person.properties!.workplace;
+
             expect(workplaceProp.$ref).toBeDefined();
             expect(workplaceProp).not.toHaveProperty('minLength');
         });
 
         it('should not merge deprecated alongside $ref', () => {
             const backupProp = specV3.components.schemas!.Person.properties!.backup;
+
             expect(backupProp.$ref).toBeDefined();
             expect(backupProp).not.toHaveProperty('deprecated');
         });
 
         it('should not merge extensions alongside $ref', () => {
             const taggedProp = specV3.components.schemas!.Person.properties!.tagged;
+
             expect(taggedProp.$ref).toBeDefined();
             expect(taggedProp).not.toHaveProperty('x-custom');
         });

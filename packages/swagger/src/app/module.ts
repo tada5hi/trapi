@@ -41,12 +41,14 @@ export async function generateSwagger<V extends `${Version}`>(
     options: Omit<SwaggerGenerateOptions, 'version'> & { version: V },
 ): Promise<OutputForVersion<V>> {
     const { metadata } = options;
+
     if (!isMetadata(metadata)) {
         throw new SwaggerError({
             message: 'Expected `options.metadata` to be a pre-built Metadata object ({ controllers, referenceTypes }). Run `generateMetadata` from `@trapi/metadata` first, or supply your own Metadata-shaped value.',
             code: SwaggerErrorCode.METADATA_INVALID,
         });
     }
+
     const specGeneratorOptionsInput = toSpecGeneratorOptionsInput(options);
 
     switch (options.version) {

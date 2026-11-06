@@ -34,12 +34,14 @@ export function resolveIndexedAccessType(
         const numberIndexType = typeNode.indexType.kind === SyntaxKind.NumberKeyword;
         const objectType = ctx.typeChecker.getTypeFromTypeNode(typeNode.objectType);
         const type = numberIndexType ? objectType.getNumberIndexType() : objectType.getStringIndexType();
+
         if (type === undefined) {
             throw new ResolverError(
                 `Could not determine ${numberIndexType ? 'number' : 'string'} index on ${ctx.typeChecker.typeToString(objectType)}`,
                 typeNode,
             );
         }
+
         return ctx.resolveType(
             toTypeNodeOrFail(ctx.typeChecker, type, undefined, undefined),
             typeNode,
@@ -81,6 +83,7 @@ export function resolveIndexedAccessType(
         }
 
         const declaration = ctx.typeChecker.getTypeOfSymbolAtLocation(symbol, typeNode.objectType);
+
         try {
             return ctx.resolveType(
                 toTypeNodeOrFail(ctx.typeChecker, declaration, undefined, undefined),

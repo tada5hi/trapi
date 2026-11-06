@@ -1,3 +1,4 @@
+import type { CleanCacheOptions, CleanCacheResult } from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -55,6 +56,7 @@ function defineCacheCleanCommand() {
         },
         async run({ args }) {
             const logger = createLogger(normalizeLogLevel(args['log-level'] as string | undefined));
+
             await runWithExitCode(logger, async () => {
                 const directory = (args.directory as string | undefined) ?? tmpdir();
                 const absolute = path.isAbsolute(directory) ?
@@ -64,6 +66,7 @@ function defineCacheCleanCommand() {
                 const maxAgeMs = parseMaxAge(args['max-age']);
 
                 const result = await cleanCache({ directory: absolute, maxAgeMs });
+
                 logger.success(
                     `removed ${result.removed} cache file(s) from ${absolute}${
                         result.skipped > 0 ? ` (${result.skipped} retained)` : ''}`,
@@ -73,19 +76,9 @@ function defineCacheCleanCommand() {
     });
 }
 
-export type CleanCacheOptions = {
-    directory: string;
-    /** Only remove files older than this many ms. `undefined` removes all. */
-    maxAgeMs?: number;
-};
-
-export type CleanCacheResult = {
-    removed: number;
-    skipped: number;
-};
-
 export async function cleanCache(options: CleanCacheOptions): Promise<CleanCacheResult> {
     let entries: string[];
+
     try {
         entries = await fs.readdir(options.directory);
     } catch {
@@ -109,8 +102,10 @@ export async function cleanCache(options: CleanCacheOptions): Promise<CleanCache
         if (cutoff !== undefined) {
             try {
                 const stat = await fs.stat(filePath);
+
                 if (stat.mtimeMs > cutoff) {
                     skipped += 1;
+
                     continue;
                 }
             } catch {
@@ -133,9 +128,12 @@ function parseMaxAge(input: unknown): number | undefined {
     if (input === undefined || input === null || input === '') {
         return undefined;
     }
+
     const parsed = Number(input);
+
     if (!Number.isFinite(parsed) || parsed < 0) {
         throw new CLIUserError(`Invalid --max-age "${String(input)}".`);
     }
+
     return parsed;
 }

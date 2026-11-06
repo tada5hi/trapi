@@ -100,12 +100,14 @@ describe('never type in swagger output (#778)', () => {
     describe('standalone never type', () => {
         it('V3: should produce no response body for never return type', () => {
             const response = specV3.paths['/never/throws'].get!.responses['200'];
+
             expect(response.description).toEqual('Success');
             expect(response).not.toHaveProperty('content');
         });
 
         it('V2: should produce no response body for never return type', () => {
             const response = specV2.paths['/never/throws'].get!.responses['200'];
+
             expect(response.description).toEqual('Success');
             expect(response).not.toHaveProperty('schema');
         });
@@ -114,6 +116,7 @@ describe('never type in swagger output (#778)', () => {
     describe('union containing never', () => {
         it('V3: should filter never from union members', () => {
             const { schema } = specV3.paths['/never/union'].get!.responses['200'].content['application/json'];
+
             // never is filtered out, leaving User (object) + string (primitive)
             // mixed union → anyOf
             expect(schema).toHaveProperty('anyOf');
@@ -122,6 +125,7 @@ describe('never type in swagger output (#778)', () => {
 
         it('V2: should filter never from union members', () => {
             const response = specV2.paths['/never/union'].get!.responses['200'];
+
             // V2 handles mixed unions as object type
             expect(response.schema).toBeDefined();
             expect(response.schema).not.toHaveProperty('oneOf');

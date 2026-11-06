@@ -73,6 +73,7 @@ describe('generateMetadata', () => {
                 match: { name: 'Controller', on: 'class' },
                 apply: (ctx, draft) => {
                     const arg = ctx.argument(0);
+
                     draft.paths = arg && arg.kind === 'literal' && typeof arg.raw === 'string' ?
                         [arg.raw] :
                         [''];
@@ -80,7 +81,9 @@ describe('generateMetadata', () => {
             }],
             methods: [{
                 match: { name: 'Get', on: 'method' },
-                apply: (_ctx, draft) => { draft.verb = 'get'; },
+                apply: (_ctx, draft) => {
+                    draft.verb = 'get';
+                },
             }],
         });
 
@@ -103,7 +106,9 @@ describe('generateMetadata', () => {
         const registry: Registry = createRegistry({
             controllers: [{
                 match: { name: 'Controller', on: 'class' },
-                apply: (_ctx, draft) => { draft.paths = ['/widgets']; },
+                apply: (_ctx, draft) => {
+                    draft.paths = ['/widgets'];
+                },
             }],
             methods: [{
                 match: { name: 'Get', on: 'method' },
@@ -132,7 +137,9 @@ describe('generateMetadata', () => {
         const registry: Registry = createRegistry({
             controllers: [{
                 match: { name: 'Controller', on: 'class' },
-                apply: (_ctx, draft) => { draft.paths = ['/widgets']; },
+                apply: (_ctx, draft) => {
+                    draft.paths = ['/widgets'];
+                },
             }],
             methods: [{
                 match: { name: 'Get', on: 'method' },
@@ -167,6 +174,7 @@ describe('generateMetadata', () => {
         });
 
         const { parameters } = metadata.controllers[0].methods[0];
+
         expect(parameters).toHaveLength(1);
         expect(parameters[0].name).toEqual('filter');
         expect(parameters[0].in).toEqual('queryProp');
@@ -179,7 +187,9 @@ describe('generateMetadata', () => {
         const registry: Registry = createRegistry({
             parameters: [{
                 match: { name: 'Path', on: 'parameter' },
-                apply: (_ctx, draft) => { draft.description = 'inline-override'; },
+                apply: (_ctx, draft) => {
+                    draft.description = 'inline-override';
+                },
             }],
         });
 
@@ -194,6 +204,7 @@ describe('generateMetadata', () => {
             .flatMap((c) => c.methods)
             .flatMap((m) => m.parameters)
             .filter((p) => p.description === 'inline-override');
+
         expect(overridden.length).toBeGreaterThan(0);
     });
 
@@ -242,7 +253,9 @@ describe('generateMetadata', () => {
             });
 
             expect(warnSpy).toHaveBeenCalledTimes(1);
+
             const message = warnSpy.mock.calls[0][0] as string;
+
             expect(message).toContain('@Hiden');
             expect(message).toContain('TypoController');
             // Real decorators on the same fixture should not surface as unmatched.
@@ -255,6 +268,7 @@ describe('generateMetadata', () => {
                 cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/strict-typo'),
                 pattern: '**/*.ts',
             }];
+
             await expect(
                 generateMetadata({
                     entryPoint: typoEntry,
@@ -269,6 +283,7 @@ describe('generateMetadata', () => {
 
         it('should invoke the onUnmatchedDecorator callback instead of warning', async () => {
             const reports: { name: string; line: number }[] = [];
+
             await generateMetadata({
                 entryPoint: [{
                     cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/strict-typo'),
@@ -291,6 +306,7 @@ describe('generateMetadata', () => {
 
         it('callback wins over strict throw mode', async () => {
             const reports: string[] = [];
+
             // No throw despite strict: 'throw' because callback is terminal.
             await generateMetadata({
                 entryPoint: [{
@@ -301,7 +317,9 @@ describe('generateMetadata', () => {
                 preset: '@trapi/preset-decorators-express',
                 strict: 'throw',
                 onUnmatchedDecorator: (received) => {
-                    for (const r of received) reports.push(r.name);
+                    for (const r of received) {
+                        reports.push(r.name);
+                    }
                 },
             });
             expect(reports).toEqual(['Hiden']);

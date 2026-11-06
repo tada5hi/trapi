@@ -5,12 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    Controller,
-    Get,
-    Mount,
-    Path,
-} from '../_stubs';
+import { Controller, Get, Path } from '../_stubs';
 
 @Controller(['/roles', '/realms/:realmId/roles'])
 export class RolesController {

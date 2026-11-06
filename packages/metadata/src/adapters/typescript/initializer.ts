@@ -38,6 +38,7 @@ export function getInitializerValue(
     switch (initializer.kind) {
         case SyntaxKind.ArrayLiteralExpression: {
             const arrayLiteral = initializer as ArrayLiteralExpression;
+
             return arrayLiteral.elements.map((element) => getInitializerValue(element, typeChecker));
         }
         case SyntaxKind.StringLiteral:
@@ -49,6 +50,7 @@ export function getInitializerValue(
             return false;
         case SyntaxKind.PrefixUnaryExpression: {
             const prefixUnary = initializer as PrefixUnaryExpression;
+
             switch (prefixUnary.operator) {
                 case SyntaxKind.PlusToken:
                     return Number((prefixUnary.operand as NumericLiteral).text);
@@ -67,14 +69,18 @@ export function getInitializerValue(
 
             if (ident.text === 'Date') {
                 let date = new Date();
+
                 if (newExpression.arguments) {
                     const newArguments = newExpression.arguments.filter((args) => args.kind !== undefined);
                     const argsValue = newArguments.map((args) => getInitializerValue(args, typeChecker));
+
                     if (argsValue.length > 0) {
                         date = new Date(argsValue as any);
                     }
                 }
+
                 const dateString = date.toISOString();
+
                 if (type && type.typeName === 'date') {
                     return dateString.split('T')[0];
                 }
@@ -90,9 +96,11 @@ export function getInitializerValue(
         case SyntaxKind.ObjectLiteralExpression: {
             const objectLiteral = initializer as ObjectLiteralExpression;
             const nestedObject: any = {};
+
             objectLiteral.properties.forEach((p: any) => {
                 nestedObject[p.name.text] = getInitializerValue(p.initializer, typeChecker);
             });
+
             return nestedObject;
         }
         case SyntaxKind.ImportSpecifier: {
@@ -102,6 +110,7 @@ export function getInitializerValue(
 
             const importSpecifier = (initializer as any) as ImportSpecifier;
             const importSymbol = typeChecker.getSymbolAtLocation(importSpecifier.name);
+
             if (!importSymbol) {
                 return undefined;
             }
@@ -109,12 +118,14 @@ export function getInitializerValue(
             const aliasedSymbol = typeChecker.getAliasedSymbol(importSymbol);
             const declarations = aliasedSymbol.getDeclarations();
             const declaration = declarations && declarations.length > 0 ? declarations[0] : undefined;
+
             return getInitializerValue(extractInitializer(declaration), typeChecker);
         }
         default: {
             if (typeof initializer === 'undefined') {
                 return undefined;
             }
+
             if (
                 typeof initializer.parent === 'undefined' ||
                 typeof typeChecker === 'undefined'
@@ -134,14 +145,17 @@ export function getInitializerValue(
             // widens `let x = '/a'` and `const x: string = '/a'` to `string`,
             // and those two the walk does resolve.
             const literalType = typeChecker.getTypeAtLocation(initializer);
+
             if (literalType.isStringLiteral() || literalType.isNumberLiteral()) {
                 return literalType.value;
             }
 
             const symbol = typeChecker.getSymbolAtLocation(initializer);
+
             if (!symbol) {
                 return undefined;
             }
+
             // Hand the `ImportSpecifier` itself to the recursion, not its
             // (always absent) initializer — that is what reaches the
             // `SyntaxKind.ImportSpecifier` case below, which walks the alias to
@@ -169,5 +183,6 @@ const extractImportSpecifier = (
     symbol?: TsSymbol,
 ) => {
     const declaration = symbol?.declarations?.[0];
+
     return declaration && isImportSpecifier(declaration) ? declaration : undefined;
 };

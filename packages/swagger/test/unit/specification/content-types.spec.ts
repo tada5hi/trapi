@@ -217,6 +217,7 @@ describe('consumes / produces content types (#900)', () => {
 
     it('should not let the document level consumes leak into the v2 operation', async () => {
         const metadata = buildMetadata({});
+
         metadata.controllers[0]!.methods.push(createMethod({
             name: 'getMany',
             method: 'get',
@@ -306,11 +307,13 @@ describe('consumes / produces content types (#900)', () => {
             const alone = await buildSpecV3(buildMetadata({ parameters }));
 
             const shared = buildMetadata({ parameters });
+
             await generateSwagger({
                 version: Version.V2,
                 metadata: shared,
                 data: { servers: 'http://localhost:3000/' },
             });
+
             const afterV2 = await buildSpecV3(shared);
 
             expect(Object.keys(afterV2.paths['/roles'].post!.requestBody!.content))

@@ -60,6 +60,7 @@ describe('multi-mount controller paths', () => {
                 metadata,
                 data: { servers },
             });
+
             expect(spec.paths).toHaveProperty('/roles');
             expect(spec.paths).toHaveProperty('/realms/{realmId}/roles');
             expect(spec.paths).toHaveProperty('/roles/{id}');
@@ -74,6 +75,7 @@ describe('multi-mount controller paths', () => {
             });
             const first = spec.paths['/roles'].get!.operationId;
             const second = spec.paths['/realms/{realmId}/roles'].get!.operationId;
+
             expect(first).toEqual('List');
             expect(second).toEqual('List_2');
         });
@@ -101,11 +103,13 @@ describe('multi-mount controller paths', () => {
             const onlyId = (spec.paths['/roles/{id}'].get!.parameters || [])
                 .filter((p) => (p as { in?: string }).in === 'path')
                 .map((p) => (p as { name: string }).name);
+
             expect(onlyId).toEqual(['id']);
 
             const both = (spec.paths['/realms/{realmId}/roles/{id}'].get!.parameters || [])
                 .filter((p) => (p as { in?: string }).in === 'path')
                 .map((p) => (p as { name: string }).name);
+
             expect(both.sort()).toEqual(['id', 'realmId']);
         });
     });
@@ -117,6 +121,7 @@ describe('multi-mount controller paths', () => {
                 metadata,
                 data: { servers },
             });
+
             expect(spec.paths).toHaveProperty('/roles');
             expect(spec.paths).toHaveProperty('/realms/{realmId}/roles');
             expect(spec.paths).toHaveProperty('/roles/{id}');
@@ -131,6 +136,7 @@ describe('multi-mount controller paths', () => {
             });
             const first = spec.paths['/roles'].get!.operationId;
             const second = spec.paths['/realms/{realmId}/roles'].get!.operationId;
+
             expect(first).toEqual('List');
             expect(second).toEqual('List_2');
         });

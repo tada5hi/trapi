@@ -21,20 +21,25 @@ let v31Validate: ValidateFunction | undefined;
 
 function loadSchema(filename: string): object {
     const schemaPath = join(currentDir, '..', 'schemas', filename);
+
     return JSON.parse(readFileSync(schemaPath, 'utf-8'));
 }
 
 function compileDraft04Schema(filename: string): ValidateFunction {
     const schema = loadSchema(filename);
     const ajv = new AjvDraft04({ allErrors: true, strict: false });
+
     addFormats(ajv);
+
     return ajv.compile(schema);
 }
 
 function compileDraft2020Schema(filename: string): ValidateFunction {
     const schema = loadSchema(filename);
     const ajv = new Ajv2020({ allErrors: true, strict: false });
+
     addFormats(ajv);
+
     return ajv.compile(schema);
 }
 
@@ -57,6 +62,7 @@ export function validateV2Spec(spec: unknown): ValidationResult {
     }
 
     const valid = v2Validate(spec);
+
     return { valid: !!valid, errors: formatErrors(v2Validate) };
 }
 
@@ -66,6 +72,7 @@ export function validateV3Spec(spec: unknown): ValidationResult {
     }
 
     const valid = v3Validate(spec);
+
     return { valid: !!valid, errors: formatErrors(v3Validate) };
 }
 
@@ -124,6 +131,7 @@ export function validateV31Spec(spec: unknown): ValidationResult {
     // there is an artefact).
     // Also filter cascading "else" errors caused by those suppressions.
     const schemaErrorPaths = new Set<string>();
+
     for (const err of v31Validate.errors) {
         if (isSchemaObjectError(err.instancePath || '', err.keyword)) {
             schemaErrorPaths.add(err.instancePath || '');
@@ -132,10 +140,12 @@ export function validateV31Spec(spec: unknown): ValidationResult {
 
     const filtered = v31Validate.errors.filter((err) => {
         const path = err.instancePath || '';
+
         // Suppress schema object errors
         if (isSchemaObjectError(path, err.keyword)) {
             return false;
         }
+
         // Suppress cascading "else" errors whose parent was a schema object error
         if (err.keyword === 'if' || err.message?.includes('must match "else" schema')) {
             for (const schemaPath of schemaErrorPaths) {
@@ -144,9 +154,11 @@ export function validateV31Spec(spec: unknown): ValidationResult {
                 }
             }
         }
+
         return true;
     });
 
     const errors = filtered.map((e) => `${e.instancePath || '/'}: ${e.message}`);
+
     return { valid: errors.length === 0, errors };
 }

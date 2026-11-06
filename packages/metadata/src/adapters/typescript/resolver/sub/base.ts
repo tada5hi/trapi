@@ -20,6 +20,7 @@ export class ResolverBase {
         }
 
         const modifiers = getModifiers(node);
+
         if (!modifiers) {
             return true;
         }
@@ -46,12 +47,15 @@ export class ResolverBase {
         }
 
         const modifiers = getModifiers(node);
+
         if (!modifiers) {
             return false;
         }
 
         // public || public readonly
-        if (modifiers.some((modifier) => modifier.kind === SyntaxKind.PublicKeyword)) {
+        const matchesModifiers = modifiers.some((modifier) => modifier.kind === SyntaxKind.PublicKeyword);
+
+        if (matchesModifiers) {
             return true;
         }
 

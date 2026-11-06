@@ -1,3 +1,5 @@
+import type { Logger } from './types';
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -6,7 +8,6 @@
  */
 
 import process from 'node:process';
-import type { Logger } from './logger.ts';
 import { CLIUserError } from './logger.ts';
 
 export const ExitCode = {
@@ -14,7 +15,6 @@ export const ExitCode = {
     UserError: 1,
     InternalError: 2,
 } as const;
-export type ExitCode = typeof ExitCode[keyof typeof ExitCode];
 
 export async function runWithExitCode(
     logger: Logger,
@@ -28,11 +28,16 @@ export async function runWithExitCode(
             logger.error(err.message);
             process.exit(ExitCode.UserError);
         }
-        if (err instanceof Error) {
+
+        if ((err instanceof Error)) {
             logger.error(err.stack ?? err.message);
         } else {
             logger.error(String(err));
         }
+
         process.exit(ExitCode.InternalError);
     }
 }
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
+export type ExitCode = typeof ExitCode[keyof typeof ExitCode];

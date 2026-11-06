@@ -17,14 +17,16 @@ import {
     vi,
 } from 'vitest';
 import { emitOne, runTargets } from '../../../src/commands/generate.ts';
-import type { ResolvedTarget } from '../../../src/config/merge.ts';
+import type { ResolvedTarget } from '../../../src/config/types';
 import type { SwaggerTransform } from '../../../src/config/types.ts';
-import { CLIUserError, LogLevel, createLogger } from '../../../src/logger.ts';
+import { CLIUserError, createLogger } from '../../../src/logger.ts';
+import { LogLevel } from '../../../src/logger';
 
 const metadata = { controllers: [], referenceTypes: {} };
 const logger = createLogger(LogLevel.Silent);
 
 const generateMetadataMock = vi.hoisted(() => vi.fn());
+
 vi.mock('@trapi/metadata', () => ({ generateMetadata: generateMetadataMock }));
 
 describe('emitOne', () => {
@@ -44,9 +46,9 @@ describe('emitOne', () => {
         cwd: dir,
         metadata: { entryPoint: 'src/x.ts' },
         swagger: {
-            version: 'v3', 
-            data: { name: 'API' }, 
-            transform, 
+            version: 'v3',
+            data: { name: 'API' },
+            transform,
         },
         output: { path: outPath() },
     });
@@ -59,6 +61,7 @@ describe('emitOne', () => {
         await emitOne(makeTarget(), metadata, logger);
 
         const parsed = await readOutput();
+
         expect(parsed.openapi).toBe('3.0.0');
         expect(parsed.info.title).toBe('API');
         expect(parsed.paths).toEqual({});
@@ -66,6 +69,7 @@ describe('emitOne', () => {
 
     it('passes the generated document to the transform', async () => {
         let received: Record<string, any> | undefined;
+
         await emitOne(makeTarget((spec) => {
             received = spec;
         }), metadata, logger);
@@ -80,6 +84,7 @@ describe('emitOne', () => {
         await emitOne(makeTarget((spec) => ({ ...spec, 'x-replaced': true })), metadata, logger);
 
         const parsed = await readOutput();
+
         expect(parsed['x-replaced']).toBe(true);
         expect(parsed.openapi).toBe('3.0.0');
     });
@@ -90,6 +95,7 @@ describe('emitOne', () => {
         }), metadata, logger);
 
         const parsed = await readOutput();
+
         expect(parsed['x-mutated']).toBe(1);
         expect(parsed.openapi).toBe('3.0.0');
     });
@@ -103,6 +109,7 @@ describe('emitOne', () => {
         }), metadata, logger);
 
         const parsed = await readOutput();
+
         expect(parsed['x-async']).toBe(true);
     });
 
@@ -117,6 +124,7 @@ describe('emitOne', () => {
 
     it('leaves a pre-existing output file untouched when the transform throws', async () => {
         await fs.writeFile(outPath(), '{"old":true}', 'utf-8');
+
         const target = makeTarget(() => {
             throw new Error('boom');
         });
@@ -129,6 +137,7 @@ describe('emitOne', () => {
         await emitOne(makeTarget(() => null as never), metadata, logger);
 
         const parsed = await readOutput();
+
         expect(parsed.info.title).toBe('API');
     });
 

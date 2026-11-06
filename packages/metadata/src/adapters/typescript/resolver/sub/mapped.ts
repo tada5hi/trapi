@@ -47,9 +47,11 @@ export function resolveMappedType(
         const declaration = getDeclaration(prop);
         const tagNames = prop.getJsDocTags();
         const tagNameIndex = tagNames.findIndex((tag) => tag.name === JSDocTagName.IGNORE);
+
         if (tagNameIndex >= 0) {
             return true;
         }
+
         return (
             !!declaration &&
             !isPropertyDeclaration(declaration) &&
@@ -76,6 +78,7 @@ export function resolveMappedType(
             if (declaration && isPropertySignature(declaration)) {
                 return { ...ctx.propertyFromSignature(declaration, overrideToken), name: property.getName() };
             }
+
             if (declaration && (isPropertyDeclaration(declaration) || isParameter(declaration))) {
                 return { ...ctx.propertyFromDeclaration(declaration, overrideToken), name: property.getName() };
             }
@@ -88,6 +91,7 @@ export function resolveMappedType(
                 undefined,
                 NodeBuilderFlags.NoTruncation,
             );
+
             if (mappedTypeNode.questionToken && mappedTypeNode.questionToken.kind === SyntaxKind.MinusToken) {
                 required = true;
             } else if (

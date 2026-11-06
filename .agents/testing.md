@@ -2,7 +2,7 @@
 
 ## Setup
 
-- **Framework**: Vitest 4
+- **Framework**: Vitest 5
 - **Coverage**: v8 provider (built-in)
 - **Pattern**: `*.spec.ts` and `*.test.ts` files in `test/unit/` directories
 - **Config**: Per-package `test/vitest.config.ts`

@@ -30,6 +30,7 @@ import {
 describe('type.ts', () => {
     it('check void type', () => {
         const type : BaseType = { typeName: 'void' };
+
         expect(isVoidType(type)).toBeTruthy();
 
         type.typeName = 'any';
@@ -44,6 +45,7 @@ describe('type.ts', () => {
             typeName: 'array',
             elementType: { typeName: 'void' },
         };
+
         expect(isArrayType(type)).toBeTruthy();
 
         type = { typeName: 'any' };
@@ -58,6 +60,7 @@ describe('type.ts', () => {
             typeName: 'nestedObjectLiteral',
             properties: [],
         };
+
         expect(isNestedObjectLiteralType(type)).toBeTruthy();
 
         type = { typeName: 'any' };
@@ -72,6 +75,7 @@ describe('type.ts', () => {
             typeName: 'union',
             members: [],
         };
+
         expect(isUnionType(type)).toBeTruthy();
 
         type = { typeName: 'any' };

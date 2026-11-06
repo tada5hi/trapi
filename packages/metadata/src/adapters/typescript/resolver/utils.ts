@@ -22,6 +22,7 @@ export function getNodeDescription(
     }
 
     const symbol = typeChecker.getSymbolAtLocation(node.name as Node);
+
     if (!symbol) {
         return undefined;
     }
@@ -36,6 +37,7 @@ export function getNodeDescription(
     }
 
     const comments = symbol.getDocumentationComment(typeChecker);
+
     if (comments.length) {
         return displayPartsToString(comments);
     }
@@ -48,6 +50,7 @@ export function toTypeNodeOrFail(
     ...args: Parameters<TypeChecker['typeToTypeNode']>
 ) : TypeNode {
     const output = typeChecker.typeToTypeNode(...args);
+
     if (typeof output === 'undefined') {
         throw new ResolverError('Type could not be transformed to TypeNode.');
     }

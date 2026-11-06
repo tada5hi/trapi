@@ -13,6 +13,7 @@ describe('src/typescript.ts', () => {
     it('should load tsconfig', async () => {
         // with no filename specified
         let tsConfig = await loadTSConfig({ cwd: './test/data/' });
+
         expect(tsConfig.compilerOptions).toBeDefined();
         expect(tsConfig.compilerOptions.allowJs).toBeTruthy();
 
@@ -37,6 +38,7 @@ describe('src/typescript.ts', () => {
     it('should not load tsconfig', async () => {
         // with non-existing fileName or filePath
         const tsConfig = await softLoadTsconfig({ cwd: './test/data', name: 'non-existing-tsconfig.json' });
+
         expect(tsConfig).toBeDefined();
         expect(tsConfig.compilerOptions).toBeUndefined();
     });

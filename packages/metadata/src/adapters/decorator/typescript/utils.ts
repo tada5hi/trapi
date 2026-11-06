@@ -1,3 +1,4 @@
+import type { RawDecorator } from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -20,18 +21,9 @@ import {
     isStringLiteral,
     isTemplateExpression,
 } from 'typescript';
-import type {
-    Expression,
-    Node,
-    TypeChecker,
-} from 'typescript';
+import type { Expression, Node, TypeChecker } from 'typescript';
 import { getInitializerValue } from '../../typescript/initializer';
 import type { DecoratorArgument } from '@trapi/core';
-
-export type RawDecorator = {
-    name: string;
-    arguments: DecoratorArgument[];
-};
 
 /**
  * Enumerate decorators on a TS node and classify their argument values without
@@ -42,12 +34,15 @@ export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDe
     if (!canHaveDecorators(node)) {
         return [];
     }
+
     const decorators = getDecorators(node);
+
     if (!decorators || decorators.length === 0) {
         return [];
     }
 
     const output: RawDecorator[] = [];
+
     for (const decorator of decorators) {
         const { expression } = decorator;
         let name: string | undefined;
@@ -69,6 +64,7 @@ export function readNodeDecorators(node: Node, typeChecker?: TypeChecker): RawDe
             arguments: argumentExpressions.map((a) => buildDecoratorArgument(a, typeChecker)),
         });
     }
+
     return output;
 }
 
@@ -96,9 +92,11 @@ function readDecoratorName(expression: Node): string | undefined {
     if (isIdentifier(expression)) {
         return expression.text;
     }
+
     if (isPropertyAccessExpression(expression)) {
         return expression.name.text;
     }
+
     return undefined;
 }
 
@@ -148,9 +146,11 @@ export function buildDecoratorArgument(
     // third-party presets match on, and `readString` already accepts it.
     if (isIdentifier(expr) || isPropertyAccessExpression(expr) || isTemplateExpression(expr)) {
         const value = getInitializerValue(expr, typeChecker);
+
         if (typeof value !== 'undefined') {
             return { raw: value, kind: 'identifier' };
         }
+
         return { raw: undefined, kind: 'unresolvable' };
     }
 

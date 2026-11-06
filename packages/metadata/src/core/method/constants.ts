@@ -15,4 +15,6 @@ export const MethodName = {
     OPTIONS: 'OPTIONS',
     HEAD: 'HEAD',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type MethodName = typeof MethodName[keyof typeof MethodName];

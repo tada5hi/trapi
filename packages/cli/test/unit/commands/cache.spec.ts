@@ -8,12 +8,12 @@
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
-import { 
-    afterEach, 
-    beforeEach, 
-    describe, 
-    expect, 
-    it, 
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import { CACHE_FILE_PREFIX, CACHE_FILE_SUFFIX } from '@trapi/metadata';
 import { cleanCache } from '../../../src/commands/cache.ts';
@@ -33,6 +33,7 @@ describe('cleanCache', () => {
 
     it('returns 0 removed for a missing directory', async () => {
         const result = await cleanCache({ directory: path.join(dir, 'missing') });
+
         expect(result).toEqual({ removed: 0, skipped: 0 });
     });
 
@@ -42,26 +43,32 @@ describe('cleanCache', () => {
         await fs.writeFile(path.join(dir, 'unrelated.json'), '{}');
 
         const result = await cleanCache({ directory: dir });
+
         expect(result).toEqual({ removed: 2, skipped: 0 });
 
         const remaining = await fs.readdir(dir);
+
         expect(remaining).toEqual(['unrelated.json']);
     });
 
     it('skips files newer than the max-age cutoff', async () => {
         const fresh = cacheFile('fresh');
         const stale = cacheFile('stale');
+
         await fs.writeFile(fresh, '{}');
         await fs.writeFile(stale, '{}');
 
         // Make `stale` look 2 days old.
         const old = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
         await fs.utimes(stale, old, old);
 
         const result = await cleanCache({ directory: dir, maxAgeMs: 24 * 60 * 60 * 1000 });
+
         expect(result).toEqual({ removed: 1, skipped: 1 });
 
         const remaining = await fs.readdir(dir);
+
         expect(remaining).toEqual([path.basename(fresh)]);
     });
 
@@ -70,6 +77,7 @@ describe('cleanCache', () => {
         await fs.writeFile(path.join(dir, 'unrelated-prefix-bar.json'), 'wrong prefix');
 
         const result = await cleanCache({ directory: dir });
+
         expect(result).toEqual({ removed: 0, skipped: 0 });
         expect(await fs.readdir(dir)).toHaveLength(2);
     });

@@ -18,8 +18,8 @@ import type {
     RefObjectType,
     ResolverProperty,
     Response,
-    Type, 
-    UnionType, 
+    Type,
+    UnionType,
 } from '@trapi/core';
 import {
     ParameterSource,
@@ -97,6 +97,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         const tags = this.buildTags();
+
         if (tags.length > 0) {
             spec.tags = tags;
         }
@@ -141,12 +142,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             switch (securityDefinition.type) {
                 case 'http':
                     output[key] = securityDefinition;
+
                     break;
                 case 'oauth2':
                     output[key] = securityDefinition;
+
                     break;
                 case 'apiKey':
                     output[key] = securityDefinition;
+
                     break;
             }
         }
@@ -192,9 +196,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     const path = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[path] ?? (output[path] = {});
+
                     if (pathItem[method.method]) {
                         this.warnDuplicateOperation(controller.name, method, path);
                     }
+
                     pathItem[method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
                 }
             }
@@ -213,6 +219,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         output.description = method.description;
         output.summary = method.summary;
+
         if (method.tags.length) {
             output.tags = method.tags;
         }
@@ -283,6 +290,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const firstBodyProp = bodyPropParams[0];
+
         if (firstBodyProp) {
             if (bodyParams.length === 0) {
                 bodyParams.push({
@@ -367,6 +375,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const firstBodyParam = bodyParams[0];
+
         if (firstBodyParam || formParams.length > 0) {
             const consumes = this.resolveConsumes(
                 method,
@@ -406,6 +415,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         const content: Record<string, MediaTypeV3> = {};
+
         for (const contentType of consumes) {
             content[contentType] = { schema };
         }
@@ -418,6 +428,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildRequestBody(parameter: Parameter, consumes: string[]): RequestBodyV3 {
         const content: Record<string, MediaTypeV3> = {};
+
         for (const contentType of consumes) {
             content[contentType] = this.buildMediaType(parameter);
         }
@@ -431,6 +442,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildMediaType(parameter: Parameter): MediaTypeV3 {
         const examples = this.transformParameterExamples(parameter);
+
         return {
             schema: this.getSchemaForType(parameter.type),
             ...(Object.keys(examples).length > 0 && { examples }),
@@ -443,6 +455,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (const res of input) {
             const name : string = res.status || 'default';
             const response: ResponseV3 = { description: res.description };
+
             output[name] = response;
 
             if (
@@ -451,9 +464,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 !isNeverType(res.schema)
             ) {
                 const examples : Record<string, Example> = {};
+
                 if (res.examples) {
                     for (const [i, ex] of res.examples.entries()) {
                         const label = ex.label || `example${i + 1}`;
+
                         examples[label] = { value: ex.value };
                     }
                 }
@@ -461,6 +476,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 const content = response.content ?? (response.content = {});
 
                 const contentTypes = res.produces?.length ? res.produces : produces;
+
                 for (const contentType of contentTypes) {
                     content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
@@ -471,6 +487,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             if (res.headers) {
                 const headers: Record<string, HeaderV3> = {};
+
                 if (isRefObjectType(res.headers)) {
                     headers[res.headers.refName] = {
                         schema: this.getSchemaForReferenceType(res.headers) as SchemaV3,
@@ -503,12 +520,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 this.resolveProduces(method),
             ),
         };
+
         if (method.description) {
             operation.description = method.description;
         }
+
         if (method.security?.length) {
             operation.security = method.security;
         }
+
         if (method.deprecated) {
             operation.deprecated = method.deprecated;
         }
@@ -557,6 +577,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     protected buildParameter(input: Parameter): ParameterV3 {
         const sourceIn = this.transformParameterSource(input.in);
+
         if (!sourceIn) {
             throw new SwaggerError({
                 message: `The parameter source '${input.in}' for parameter '${input.name}' is not supported in OpenAPI 3.x.`,
@@ -594,12 +615,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const parameterType = this.getSchemaForType(input.type);
         const schema = parameter.schema!;
+
         if (parameterType.format) {
             schema.format = parameterType.format;
         }
 
         if (parameterType.$ref) {
             parameter.schema = parameterType;
+
             return parameter;
         }
 
@@ -609,6 +632,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             if (parameterType.type) {
                 schema.type = parameterType.type as DataTypeName;
             }
+
             schema.items = parameterType.items;
             schema.enum = parameterType.enum;
         }
@@ -620,9 +644,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private transformParameterExamples(parameter: Parameter) : Record<string, Example> {
         const output : Record<string, Example> = {};
+
         if (parameter.examples) {
             for (const [i, ex] of parameter.examples.entries()) {
                 const label = ex.label || `example${i + 1}`;
+
                 output[label] = { value: ex.value };
             }
         }
@@ -633,8 +659,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private buildServers() : ServerV3[] {
         const servers: ServerV3[] = [];
         const configured = this.config.servers ?? [];
+
         for (const entry of configured) {
             const url = new URL(entry.url, 'http://localhost:3000/');
+
             servers.push({
                 url: `${url.protocol}//${url.host}${url.pathname || ''}`,
                 ...(entry.description ? { description: entry.description } : {}),
@@ -719,17 +747,21 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         let nullable = false;
         const enumMembers : Record<string, Array<string | number | boolean>> = {};
+
         for (const member of type.members) {
             if (isEnumType(member)) {
                 for (const memberChild of member.members) {
                     if (memberChild === null || memberChild === undefined) {
                         nullable = true;
+
                         continue;
                     }
 
                     const typeOf = typeof memberChild;
+
                     if (typeOf === 'string' || typeOf === 'number' || typeOf === 'boolean') {
                         const bucket = enumMembers[typeOf] ?? (enumMembers[typeOf] = []);
+
                         bucket.push(memberChild);
                     }
                 }
@@ -746,16 +778,19 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const schemas : SchemaV3[] = [];
+
         for (const member of members) {
             schemas.push(this.getSchemaForType(member));
         }
 
         const enumMembersKeys = Object.keys(enumMembers);
+
         for (const enumMembersKey of enumMembersKeys) {
             const enumType : EnumType = {
                 typeName: 'enum',
                 members: enumMembers[enumMembersKey]!,
             };
+
             schemas.push(this.getSchemaForEnumType(enumType));
         }
 
@@ -776,9 +811,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             const schema: SchemaV3 = { [compositionKey]: schemas };
+
             if (useOneOf) {
                 this.applyDiscriminator(schema, members);
             }
+
             return schema;
         }
 
@@ -797,9 +834,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             [compositionKey]: schemas,
             ...(nullable ? { nullable } : {}),
         };
+
         if (useOneOf) {
             this.applyDiscriminator(schema, members);
         }
+
         return schema;
     }
 
@@ -824,9 +863,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // `RangeError` is a poor answer for one. A cycle is not object-like.
         if (isRefAliasType(type)) {
             const visited = seen ?? new Set<string>();
+
             if (visited.has(type.refName)) {
                 return false;
             }
+
             visited.add(type.refName);
 
             return V3Generator.isObjectLikeType(type.type, visited);
@@ -864,14 +905,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // V2's `buildFlattenedBodySchema` does, via the identical lookup.
         if (isRefObjectType(type)) {
             const referenceType = this.metadata.referenceTypes[type.refName];
+
             return !!referenceType && isRefObjectType(referenceType);
         }
 
         if (isRefAliasType(type)) {
             const visited = seen ?? new Set<string>();
+
             if (visited.has(type.refName)) {
                 return false;
             }
+
             visited.add(type.refName);
 
             return this.isBodyMergeableType(type.type, visited);
@@ -882,6 +926,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private applyDiscriminator(schema: SchemaV3, members: Type[]): void {
         const discriminator = this.detectDiscriminator(members);
+
         if (discriminator) {
             schema.discriminator = discriminator;
         }
@@ -893,16 +938,26 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // Resolve each member to { refName, properties }. Supports both
         // refObject and refAlias members (#783).
         const resolvedMembers = members.map((m) => this.resolveDiscriminatorMember(m));
-        if (resolvedMembers.some((m) => !m)) {
+
+        const matchesResolvedMembers = resolvedMembers.some((m) => !m);
+
+        if (matchesResolvedMembers) {
             return undefined;
         }
 
         // Find a common property with distinct enum literal values in each member
         const firstProps = resolvedMembers[0]!.properties;
+
         for (const prop of firstProps) {
-            if (prop.type.typeName !== 'enum') continue;
+            if (prop.type.typeName !== 'enum') {
+                continue;
+            }
+
             const enumType = prop.type as EnumType;
-            if (enumType.members.length !== 1) continue;
+
+            if (enumType.members.length !== 1) {
+                continue;
+            }
 
             const propName = prop.name;
             const mapping: Record<string, string> = {};
@@ -910,6 +965,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             for (const member of resolvedMembers) {
                 const memberProp = member!.properties.find((p) => p.name === propName);
+
                 if (
                     !memberProp ||
                     !memberProp.required ||
@@ -917,14 +973,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     (memberProp.type as EnumType).members.length !== 1
                 ) {
                     isDiscriminator = false;
+
                     break;
                 }
 
                 const value = String((memberProp.type as EnumType).members[0]);
+
                 if (mapping[value]) {
                     isDiscriminator = false;
+
                     break;
                 }
+
                 mapping[value] = `${this.getRefPrefix()}${member!.refName}`;
             }
 
@@ -951,6 +1011,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const { refName } = member as RefObjectType | RefAliasType;
         const referenceType = this.metadata.referenceTypes[refName];
+
         if (!referenceType) {
             return undefined;
         }
@@ -961,21 +1022,28 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         if (referenceType.typeName === 'refAlias') {
             let inner: Type = (referenceType as RefAliasType).type;
+
             for (let depth = 0; depth < 10; depth++) {
                 if (isRefObjectType(inner)) {
                     const resolved = this.metadata.referenceTypes[inner.refName];
+
                     if (resolved?.typeName === 'refObject') {
                         return { refName, properties: (resolved as RefObjectType).properties };
                     }
+
                     return undefined;
                 }
+
                 if (isNestedObjectLiteralType(inner)) {
                     return { refName, properties: (inner as NestedObjectLiteralType).properties };
                 }
+
                 if (isRefAliasType(inner)) {
                     inner = (inner as RefAliasType).type;
+
                     continue;
                 }
+
                 return undefined;
             }
         }

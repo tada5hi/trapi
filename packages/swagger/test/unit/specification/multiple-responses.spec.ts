@@ -160,6 +160,7 @@ describe('multiple response status codes', () => {
     describe('V2', () => {
         it('should have all response status codes for GET', () => {
             const { responses } = (specV2.paths['/users/{id}'].get!);
+
             expect(responses).toHaveProperty('200');
             expect(responses).toHaveProperty('404');
             expect(responses).toHaveProperty('500');
@@ -167,6 +168,7 @@ describe('multiple response status codes', () => {
 
         it('should have correct descriptions for each status', () => {
             const { responses } = (specV2.paths['/users/{id}'].get!);
+
             expect(responses['200'].description).toEqual('User found');
             expect(responses['404'].description).toEqual('User not found');
             expect(responses['500'].description).toEqual('Internal server error');
@@ -174,12 +176,14 @@ describe('multiple response status codes', () => {
 
         it('should have schema for non-void responses', () => {
             const { responses } = (specV2.paths['/users/{id}'].get!);
+
             expect(responses['200'].schema).toBeDefined();
             expect(responses['404'].schema).toBeDefined();
         });
 
         it('should not have schema for void (204) responses', () => {
             const { responses } = (specV2.paths['/users/{id}'].delete!);
+
             expect(responses['204'].description).toEqual('User deleted');
             expect(responses['204'].schema).toBeUndefined();
         });
@@ -187,6 +191,7 @@ describe('multiple response status codes', () => {
         it('should have response status codes as strings', () => {
             const { responses } = (specV2.paths['/users/{id}'].get!);
             const keys = Object.keys(responses);
+
             for (const key of keys) {
                 expect(typeof key).toBe('string');
                 expect(key).toMatch(/^[1-5]\d{2}$|^default$/);
@@ -195,11 +200,13 @@ describe('multiple response status codes', () => {
 
         it('should include examples for responses that have them', () => {
             const response = specV2.paths['/users/{id}'].get!.responses['200'];
+
             expect(response.examples).toBeDefined();
         });
 
         it('should support multiple examples on POST response', () => {
             const response = specV2.paths['/users'].post!.responses['201'];
+
             expect(response.examples).toBeDefined();
         });
 
@@ -207,6 +214,7 @@ describe('multiple response status codes', () => {
             const { responses } = (specV2.paths['/users/{id}'].get!);
             const successRef = responses['200'].schema?.$ref;
             const errorRef = responses['404'].schema?.$ref;
+
             expect(successRef).toContain('User');
             expect(errorRef).toContain('ErrorResponse');
             expect(successRef).not.toEqual(errorRef);
@@ -216,6 +224,7 @@ describe('multiple response status codes', () => {
     describe('V3', () => {
         it('should have all response status codes for GET', () => {
             const { responses } = (specV3.paths['/users/{id}'].get!);
+
             expect(responses).toHaveProperty('200');
             expect(responses).toHaveProperty('404');
             expect(responses).toHaveProperty('500');
@@ -223,6 +232,7 @@ describe('multiple response status codes', () => {
 
         it('should have content with schema for non-void responses', () => {
             const response = specV3.paths['/users/{id}'].get!.responses['200'];
+
             expect(response.content).toBeDefined();
             expect(response.content!['application/json']).toBeDefined();
             expect(response.content!['application/json'].schema).toBeDefined();
@@ -230,14 +240,18 @@ describe('multiple response status codes', () => {
 
         it('should not have content for void (204) responses', () => {
             const { responses } = (specV3.paths['/users/{id}'].delete!);
+
             expect(responses['204'].description).toEqual('User deleted');
             expect(responses['204'].content).toBeUndefined();
         });
 
         it('should include examples in content media type', () => {
             const { content } = specV3.paths['/users'].post!.responses['201'];
+
             expect(content).toBeDefined();
+
             const jsonContent = content!['application/json'];
+
             expect(jsonContent.examples).toBeDefined();
             expect(jsonContent.examples!.example1).toBeDefined();
             expect(jsonContent.examples!.example2).toBeDefined();
@@ -247,6 +261,7 @@ describe('multiple response status codes', () => {
             const { responses } = (specV3.paths['/users/{id}'].get!);
             const successSchema = responses['200'].content!['application/json'].schema;
             const errorSchema = responses['404'].content!['application/json'].schema;
+
             expect(successSchema.$ref).toContain('User');
             expect(errorSchema.$ref).toContain('ErrorResponse');
         });

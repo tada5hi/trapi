@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable unicorn/prefer-promise-try -- Keep compatibility with the published Node.js runtime requirement. */
 
 /*
  * Copyright (c) 2026.

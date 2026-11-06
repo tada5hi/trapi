@@ -9,6 +9,7 @@ export * from './constants';
 export * from './helpers';
 export * from './module';
 export * from './test-helpers';
+export type { CreateHandlerContextInput } from './types';
 export * from './types';
 export * from './utils';
 export * from './validation';

@@ -8,10 +8,14 @@
 export * from './base';
 export * from './config';
 export * from './config-codes';
+export { ConfigErrorCode } from './config-codes';
 export * from './generator';
 export * from './generator-codes';
+export { GeneratorErrorCode } from './generator-codes';
 export * from './parameter';
 export * from './parameter-codes';
+export { ParameterErrorCode } from './parameter-codes';
 export * from './resolver';
 export * from './validator';
 export * from './validator-codes';
+export { ValidatorErrorCode } from './validator-codes';

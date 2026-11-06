@@ -33,7 +33,11 @@ function findClass(sf: SourceFile, name: string): ClassDeclaration {
     const found = sf.statements.find(
         (s): s is ClassDeclaration => isClassDeclaration(s) && s.name?.text === name,
     );
-    if (!found) throw new Error(`class ${name} not found`);
+
+    if (!found) {
+        throw new Error(`class ${name} not found`);
+    }
+
     return found;
 }
 
@@ -60,6 +64,7 @@ describe('applyDecoratorHandlers', () => {
                 match: { name: 'Controller' },
                 apply: (ctx, d) => {
                     const arg = ctx.argument(0);
+
                     if (arg && arg.kind === 'literal') {
                         d.paths = [arg.raw as string];
                     }
@@ -76,7 +81,12 @@ describe('applyDecoratorHandlers', () => {
         const node = findClass(sf, 'C');
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const handlers: ControllerHandler[] = [
-            { match: { name: 'Controller' }, apply: () => { throw new Error('should not run'); } },
+            {
+                match: { name: 'Controller' },
+                apply: () => {
+                    throw new Error('should not run');
+                },
+            },
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
@@ -89,8 +99,18 @@ describe('applyDecoratorHandlers', () => {
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const trace: string[] = [];
         const handlers: ControllerHandler[] = [
-            { match: { name: 'Controller' }, apply: () => { trace.push('a'); } },
-            { match: { name: 'Controller' }, apply: () => { trace.push('b'); } },
+            {
+                match: { name: 'Controller' },
+                apply: () => {
+                    trace.push('a');
+                },
+            },
+            {
+                match: { name: 'Controller' },
+                apply: () => {
+                    trace.push('b');
+                },
+            },
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
@@ -103,8 +123,18 @@ describe('applyDecoratorHandlers', () => {
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const trace: string[] = [];
         const handlers: ControllerHandler[] = [
-            { match: { name: 'Body', on: 'parameter' }, apply: () => { trace.push('param'); } },
-            { match: { name: 'Body' }, apply: () => { trace.push('any'); } },
+            {
+                match: { name: 'Body', on: 'parameter' },
+                apply: () => {
+                    trace.push('param');
+                },
+            },
+            {
+                match: { name: 'Body' },
+                apply: () => {
+                    trace.push('any');
+                },
+            },
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
@@ -128,9 +158,18 @@ describe('applyDecoratorHandlers', () => {
                     const path = ctx.argument(0);
                     const opts = ctx.argument(1);
                     const ta = ctx.typeArgument(0);
-                    if (path?.kind === 'literal') d.path = path.raw as string;
-                    if (opts?.kind === 'object') d.extensions.push({ key: 'first-arg', value: opts.raw as never });
-                    if (ta) d.extensions.push({ key: 'type-arg', value: 'present' });
+
+                    if (path?.kind === 'literal') {
+                        d.path = path.raw as string;
+                    }
+
+                    if (opts?.kind === 'object') {
+                        d.extensions.push({ key: 'first-arg', value: opts.raw as never });
+                    }
+
+                    if (ta) {
+                        d.extensions.push({ key: 'type-arg', value: 'present' });
+                    }
                 },
             },
         ];
@@ -160,7 +199,12 @@ describe('applyDecoratorHandlers', () => {
         const node = findClass(sf, 'C');
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const handlers: ControllerHandler[] = [
-            { match: { name: 'Controller' }, apply: () => { throw new Error('should not run'); } },
+            {
+                match: { name: 'Controller' },
+                apply: () => {
+                    throw new Error('should not run');
+                },
+            },
         ];
 
         applyDecoratorHandlers(node, handlers, draft, options('C'));
@@ -179,7 +223,12 @@ describe('applyJsDocHandlers', () => {
         const node = findClass(sf, 'C');
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const handlers: ControllerJsDocHandler[] = [
-            { match: { tag: 'hidden' }, apply: (_ctx, d: ControllerDraft) => { d.hidden = true; } },
+            {
+                match: { tag: 'hidden' },
+                apply: (_ctx, d: ControllerDraft) => {
+                    d.hidden = true;
+                },
+            },
         ];
 
         applyJsDocHandlers(node, handlers, draft, options('C'));
@@ -199,7 +248,11 @@ describe('applyJsDocHandlers', () => {
         const handlers: ControllerJsDocHandler[] = [
             {
                 match: { tag: 'description' },
-                apply: (ctx) => { if (ctx.source.text) seen.push(ctx.source.text); },
+                apply: (ctx) => {
+                    if (ctx.source.text) {
+                        seen.push(ctx.source.text);
+                    }
+                },
             },
         ];
 
@@ -220,7 +273,9 @@ describe('applyJsDocHandlers', () => {
         const handlers: ControllerJsDocHandler[] = [
             {
                 match: { tag: 'description' },
-                apply: (ctx) => { resolved = ctx.parameterType(); },
+                apply: (ctx) => {
+                    resolved = ctx.parameterType();
+                },
             },
         ];
 
@@ -240,13 +295,20 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
         const node = findClass(sf, 'C');
         const draft = newControllerDraft({ name: 'C', location: 'sample.ts' });
         const handlers: ControllerHandler[] = [
-            { match: { name: 'Hidden' }, apply: () => { throw new Error('should not match @Hiden'); } },
+            {
+                match: { name: 'Hidden' },
+                apply: () => {
+                    throw new Error('should not match @Hiden');
+                },
+            },
         ];
         const reports: string[] = [];
 
         applyDecoratorHandlers(node, handlers, draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => { reports.push(`${r.name}@${r.target}`); },
+            onUnmatchedDecorator: (r) => {
+                reports.push(`${r.name}@${r.target}`);
+            },
         });
 
         expect(reports).toEqual(['Hiden@class']);
@@ -263,7 +325,9 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, handlers, draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => { reports.push(r.name); },
+            onUnmatchedDecorator: (r) => {
+                reports.push(r.name);
+            },
         });
         expect(reports).toEqual([]);
     });
@@ -276,7 +340,9 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('C'),
-            onUnmatchedDecorator: (r) => { reports.push(r.name); },
+            onUnmatchedDecorator: (r) => {
+                reports.push(r.name);
+            },
         });
         expect(reports.sort()).toEqual(['A', 'B']);
     });
@@ -286,18 +352,20 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
         const node = findClass(sf, 'Bar');
         const draft = newControllerDraft({ name: 'Bar', location: 'sample.ts' });
         const seen: {
-            name: string; 
-            target: string; 
-            host: string 
+            name: string;
+            target: string;
+            host: string
         }[] = [];
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('Bar'),
-            onUnmatchedDecorator: (r) => { seen.push({
-                name: r.name, 
-                target: r.target, 
-                host: r.host.name, 
-            }); },
+            onUnmatchedDecorator: (r) => {
+                seen.push({
+                    name: r.name,
+                    target: r.target,
+                    host: r.host.name,
+                });
+            },
         });
         expect(seen).toEqual([{
             name: 'Foo',
@@ -321,7 +389,9 @@ describe('applyDecoratorHandlers — unmatched reporting', () => {
 
         applyDecoratorHandlers(node, [], draft, {
             ...options('Bar'),
-            onUnmatchedDecorator: (r) => { seen.push({ name: r.name, line: r.line }); },
+            onUnmatchedDecorator: (r) => {
+                seen.push({ name: r.name, line: r.line });
+            },
         });
 
         // Lines 3, 4, 5 — each decorator's own line, not the class line (6).
@@ -347,7 +417,9 @@ describe('applyDecoratorHandlers — parameterType wiring', () => {
         const handlers: MethodHandler[] = [
             {
                 match: { name: 'Get' },
-                apply: (ctx) => { observed = ctx.parameterType(); },
+                apply: (ctx) => {
+                    observed = ctx.parameterType();
+                },
             },
         ];
 

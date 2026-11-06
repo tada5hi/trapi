@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-uint8array-hex -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2021.
  * Author Peter Placzek (tada5hi)
@@ -63,6 +64,7 @@ export class CacheClient implements ICacheClient {
             } catch {
                 // ignore
             }
+
             throw err;
         }
 
@@ -81,6 +83,7 @@ export class CacheClient implements ICacheClient {
         const filePath = this.resolveFilePath(cacheKey);
 
         let content: string;
+
         try {
             content = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
         } catch {
@@ -88,11 +91,13 @@ export class CacheClient implements ICacheClient {
         }
 
         let cache: CacheData;
+
         try {
             cache = parseFlatted(content) as CacheData;
         } catch {
             // Corrupt file — drop it so the next save can replace cleanly.
             await fs.promises.unlink(filePath).catch((): void => undefined);
+
             return undefined;
         }
 
@@ -122,6 +127,7 @@ export class CacheClient implements ICacheClient {
         const pattern = this.options.fileName ?? `${CACHE_FILE_PREFIX}*${CACHE_FILE_SUFFIX}`;
 
         let entries: Awaited<ReturnType<typeof locateMany>>;
+
         try {
             entries = await locateMany(pattern, { cwd: this.options.directoryPath });
         } catch {
@@ -132,8 +138,10 @@ export class CacheClient implements ICacheClient {
 
         await Promise.all(entries.map(async (entry) => {
             const filePath = joinFilePath(entry);
+
             try {
                 const stat = await fs.promises.stat(filePath);
+
                 if (stat.mtimeMs < cutoff) {
                     await fs.promises.unlink(filePath);
                 }
@@ -153,8 +161,10 @@ export class CacheClient implements ICacheClient {
         if (!CACHE_KEY_PATTERN.test(cacheKey)) {
             throw new Error(`Invalid cacheKey: must match ${CACHE_KEY_PATTERN}`);
         }
+
         const fileName = this.options.fileName ??
             `${CACHE_FILE_PREFIX}${cacheKey}${CACHE_FILE_SUFFIX}`;
+
         return path.join(this.options.directoryPath, fileName);
     }
 

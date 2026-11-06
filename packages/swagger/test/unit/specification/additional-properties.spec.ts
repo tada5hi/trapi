@@ -92,18 +92,21 @@ describe('additionalProperties', () => {
     describe('V2', () => {
         it('should set additionalProperties for string map', () => {
             const def = specV2.definitions!.StringMap;
+
             expect(def.type).toEqual('object');
             expect(def.additionalProperties).toBeDefined();
         });
 
         it('should set additionalProperties to true (V2 limitation)', () => {
             const def = specV2.definitions!.StringMap;
+
             // V2 generator uses boolean additionalProperties (doesn't preserve type)
             expect(def.additionalProperties).toBe(true);
         });
 
         it('should support additionalProperties alongside named properties', () => {
             const def = specV2.definitions!.TypedMap;
+
             expect(def.properties).toBeDefined();
             expect(def.properties!.known).toBeDefined();
             expect(def.additionalProperties).toBeDefined();
@@ -113,6 +116,7 @@ describe('additionalProperties', () => {
     describe('V3', () => {
         it('should set typed additionalProperties for string map', () => {
             const schema = specV3.components.schemas!.StringMap;
+
             expect(schema.type).toEqual('object');
             expect(schema.additionalProperties).toBeDefined();
             expect(typeof schema.additionalProperties).toBe('object');
@@ -121,6 +125,7 @@ describe('additionalProperties', () => {
 
         it('should support additionalProperties alongside named properties', () => {
             const schema = specV3.components.schemas!.TypedMap;
+
             expect(schema.properties).toBeDefined();
             expect(schema.properties!.known).toBeDefined();
             expect(schema.additionalProperties).toBeDefined();
@@ -130,8 +135,11 @@ describe('additionalProperties', () => {
 
         it('should not use bare $ref in additionalProperties', () => {
             const schema = specV3.components.schemas!.StringMap;
+
             expect(typeof schema.additionalProperties).toBe('object');
+
             const ap = schema.additionalProperties as any;
+
             // StringMap has string additionalProperties, not a $ref
             expect(ap.type).toEqual('string');
             expect(ap.$ref).toBeUndefined();

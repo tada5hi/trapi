@@ -138,9 +138,12 @@ describe('config variations', () => {
             });
 
             const pathItem = spec.paths['/arrays'];
+
             expect(pathItem, `paths: ${JSON.stringify(Object.keys(spec.paths))}`).toBeDefined();
+
             const params = pathItem.get!.parameters!;
             const tagsParam = params.find((p: any) => p.name === 'tags');
+
             expect(tagsParam).toBeDefined();
             expect((tagsParam as any).collectionFormat).toEqual('multi');
         });
@@ -156,9 +159,12 @@ describe('config variations', () => {
             });
 
             const pathItem = spec.paths['/arrays'];
+
             expect(pathItem, `paths: ${JSON.stringify(Object.keys(spec.paths))}`).toBeDefined();
+
             const params = pathItem.get!.parameters!;
             const tagsParam = params.find((p: any) => p.name === 'tags');
+
             expect(tagsParam).toBeDefined();
             expect((tagsParam as any).collectionFormat).toEqual('csv');
         });

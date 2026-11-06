@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -57,6 +58,7 @@ export async function loadRegistry(
     options: LoadRegistryOptions,
 ): Promise<Registry> {
     const tagged = await loadTaggedRegistry(preset, options, new Set());
+
     return stripOrigins(tagged);
 }
 
@@ -66,14 +68,16 @@ async function loadTaggedRegistry(
     visited: ReadonlySet<string>,
 ): Promise<TaggedRegistry> {
     let validated: Preset;
+
     try {
         validated = await validatePreset(preset);
     } catch (e) {
         if (e instanceof CoreError) {
             throw e;
         }
+
         throw new CoreError({
-            message: e instanceof Error ? e.message : 'Preset validation failed',
+            message: (e instanceof Error) ? e.message : 'Preset validation failed',
             code: CoreErrorCode.PRESET_INVALID,
             cause: e,
         });
@@ -85,7 +89,9 @@ async function loadTaggedRegistry(
             code: CoreErrorCode.PRESET_CYCLE,
         });
     }
+
     const nextVisited = new Set(visited);
+
     nextVisited.add(validated.name);
 
     const merged = emptyTaggedRegistry();
@@ -93,6 +99,7 @@ async function loadTaggedRegistry(
     for (const extendsName of validated.extends ?? []) {
         const parentPreset = await options.resolver(extendsName);
         const parentRegistry = await loadTaggedRegistry(parentPreset, options, nextVisited);
+
         appendTagged(merged, parentRegistry);
     }
 
@@ -108,20 +115,24 @@ function applyOwnHandlers(
 ): void {
     for (const kind of decoratorKinds) {
         const handlers = (preset[kind] ?? []) as AnyDecoratorHandler[];
+
         for (const handler of handlers) {
             if (handler.replaces) {
                 applyReplacesDecorator(merged, kind, handler, preset.name, strict);
             }
+
             (merged[kind] as TaggedDecoratorHandler[]).push({ origin: preset.name, handler });
         }
     }
 
     for (const kind of jsDocKinds) {
         const handlers = (preset[kind] ?? []) as AnyJsDocHandler[];
+
         for (const handler of handlers) {
             if (handler.replaces) {
                 applyReplacesJsDoc(merged, kind, handler, preset.name, strict);
             }
+
             (merged[kind] as TaggedJsDocHandler[]).push({ origin: preset.name, handler });
         }
     }
@@ -137,21 +148,26 @@ function applyReplacesDecorator(
     const list = merged[kind] as TaggedDecoratorHandler[];
     const remaining: TaggedDecoratorHandler[] = [];
     let removed = 0;
+
     for (const entry of list) {
         if (entry.origin !== presetName &&
             handlerMatches(handler, entry.handler.match.name, entry.handler.match.on) &&
             originMatches(handler.replaces!, entry.origin)) {
             removed += 1;
+
             continue;
         }
+
         remaining.push(entry);
     }
+
     if (removed === 0 && strict) {
         throw new CoreError({
             message: `Preset '${presetName}': handler with replaces=${describeReplaces(handler.replaces!)} on '${handler.match.name}' did not match any parent handler`,
             code: CoreErrorCode.PRESET_REPLACES_NO_MATCH,
         });
     }
+
     (merged as Record<string, unknown>)[kind] = remaining;
 }
 
@@ -165,21 +181,26 @@ function applyReplacesJsDoc(
     const list = merged[kind] as TaggedJsDocHandler[];
     const remaining: TaggedJsDocHandler[] = [];
     let removed = 0;
+
     for (const entry of list) {
         if (entry.origin !== presetName &&
             handlerMatches(handler, entry.handler.match.tag, entry.handler.match.on) &&
             originMatches(handler.replaces!, entry.origin)) {
             removed += 1;
+
             continue;
         }
+
         remaining.push(entry);
     }
+
     if (removed === 0 && strict) {
         throw new CoreError({
             message: `Preset '${presetName}': JSDoc handler with replaces=${describeReplaces(handler.replaces!)} on '@${handler.match.tag}' did not match any parent handler`,
             code: CoreErrorCode.PRESET_REPLACES_NO_MATCH,
         });
     }
+
     (merged as Record<string, unknown>)[kind] = remaining;
 }
 
@@ -189,12 +210,15 @@ function handlerMatches(
     targetOn: string | undefined,
 ): boolean {
     const matchName = 'name' in handler.match ? handler.match.name : handler.match.tag;
+
     if (matchName !== targetName) {
         return false;
     }
+
     if (handler.match.on && handler.match.on !== targetOn) {
         return false;
     }
+
     return true;
 }
 
@@ -202,6 +226,7 @@ function originMatches(replaces: ReplacesPolicy, origin: string): boolean {
     if (replaces === true) {
         return true;
     }
+
     return replaces === origin;
 }
 
@@ -213,6 +238,7 @@ function appendTagged(target: TaggedRegistry, source: TaggedRegistry): void {
     for (const kind of decoratorKinds) {
         (target[kind] as TaggedDecoratorHandler[]).push(...(source[kind] as TaggedDecoratorHandler[]));
     }
+
     for (const kind of jsDocKinds) {
         (target[kind] as TaggedJsDocHandler[]).push(...(source[kind] as TaggedJsDocHandler[]));
     }
@@ -220,12 +246,14 @@ function appendTagged(target: TaggedRegistry, source: TaggedRegistry): void {
 
 function stripOrigins(tagged: TaggedRegistry): Registry {
     const registry = createRegistry();
+
     registry.controllers = tagged.controllers.map((e) => e.handler);
     registry.methods = tagged.methods.map((e) => e.handler);
     registry.parameters = tagged.parameters.map((e) => e.handler);
     registry.controllerJsDoc = tagged.controllerJsDoc.map((e) => e.handler);
     registry.methodJsDoc = tagged.methodJsDoc.map((e) => e.handler);
     registry.parameterJsDoc = tagged.parameterJsDoc.map((e) => e.handler);
+
     return registry;
 }
 
@@ -256,13 +284,14 @@ export async function resolvePresetByName(input: string): Promise<Preset> {
         } catch (e) {
             if (!isModuleNotFoundError(e)) {
                 throw new CoreError({
-                    message: e instanceof Error ?
+                    message: (e instanceof Error) ?
                         `Preset '${input}' failed to load: ${e.message}` :
                         `Preset '${input}' failed to load.`,
                     code: CoreErrorCode.PRESET_INVALID,
                     cause: e,
                 });
             }
+
             lastError = e;
         }
     }
@@ -286,12 +315,15 @@ function isModuleNotFoundError(error: unknown): boolean {
     if (error instanceof NotFoundError) {
         return true;
     }
+
     // Fallback for errors raised outside locter's readAsModule() (e.g. custom
     // resolvers re-throwing Node module errors).
     if (!isObject(error)) {
         return false;
     }
+
     const { code } = error;
+
     return typeof code === 'string' && MODULE_NOT_FOUND_CODES.has(code);
 }
 
@@ -301,6 +333,7 @@ function isModuleNotFoundError(error: unknown): boolean {
  */
 export async function loadRegistryByName(input: string): Promise<Registry> {
     const preset = await resolvePresetByName(input);
+
     return loadRegistry(preset, { resolver: resolvePresetByName });
 }
 

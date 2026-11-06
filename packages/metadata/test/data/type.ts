@@ -12,24 +12,37 @@ import {
     IsLong,
 } from './_stubs';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+
+// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-unsafe-function-type -- Metadata fixture.
 export interface ClassType extends Function {
     new(...args: any[]): any;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface TestInterface {
     a: string;
     b: number;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface MyTypeWithUnion {
     property: 'value1' | 'value2';
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface Address {
     street: string;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface Person {
     name: string;
     address?: Address;
@@ -50,10 +63,16 @@ export enum TestMixedEnum {
     Option2 = 'option2',
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface BasicModel2<T> {
     prop: T;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface MyDataType2 extends BasicModel2<string> {
     property1: string;
 }
@@ -83,6 +102,9 @@ export class BasicModel {
     public id: number;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface Something {
     id: UUID;
     someone: string;
@@ -91,6 +113,9 @@ export interface Something {
 
 export type UUID = string;
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface ResponseBody<T> {
     data: T;
 }
@@ -112,6 +137,9 @@ export class PrimitiveClassModel {
     public double?: number;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface PrimitiveInterfaceModel {
     /**
      * An integer
@@ -150,16 +178,25 @@ export class NamedEntity implements Entity {
 
 // --- Circular reference types ---
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface TreeNode {
     value: string;
     children: TreeNode[];
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface TypeA {
     name: string;
     b?: TypeB;
 }
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface TypeB {
     value: number;
     a?: TypeA;
@@ -173,6 +210,9 @@ export type PickAddress = Pick<Address, 'street'>;
 
 export type RecordOfStrings = Record<string, string>;
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface GenericWrapper<T> {
     data: T;
     meta: {
@@ -182,6 +222,9 @@ export interface GenericWrapper<T> {
 
 export type NestedGeneric = GenericWrapper<GenericWrapper<string>>;
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface Timestamped {
     createdAt: string;
     updatedAt: string;
@@ -193,6 +236,9 @@ export type TimestampedPerson = Person & Timestamped;
 
 export type NullableString = string | null;
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface ModelWithNullable {
     name: string;
     nickname: string | null;
@@ -204,6 +250,7 @@ export interface ModelWithNullable {
 /**
  * @deprecated Use NewModel instead
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public type name and declaration merging.
 export interface DeprecatedModel {
     oldField: string;
 }

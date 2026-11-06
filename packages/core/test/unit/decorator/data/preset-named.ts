@@ -12,7 +12,9 @@ export const preset: Preset = {
     methods: [
         {
             match: { name: 'Get', on: 'method' },
-            apply: (_ctx, draft) => { draft.verb = 'get'; },
+            apply: (_ctx, draft) => {
+                draft.verb = 'get';
+            },
         },
     ],
 };

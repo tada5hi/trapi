@@ -50,6 +50,7 @@ export function getNodeDecorators(
                         if (isStringLiteral(argument) || isNumericLiteral(argument)) {
                             return argument.text;
                         }
+
                         return argument;
                     });
                 }

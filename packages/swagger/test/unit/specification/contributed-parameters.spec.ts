@@ -48,6 +48,7 @@ describe('handler-contributed parameters', () => {
         const spec = await generateSwagger({ version: Version.V2, metadata: metadata() });
 
         const { parameters } = spec.paths['/users']!.get!;
+
         expect(parameters).toHaveLength(1);
         expect(parameters![0]).toEqual({
             description: 'runtime-registered filter vocabulary',
@@ -63,6 +64,7 @@ describe('handler-contributed parameters', () => {
         const spec = await generateSwagger({ version: Version.V3, metadata: metadata() });
 
         const { parameters } = spec.paths['/users']!.get!;
+
         expect(parameters).toHaveLength(1);
         expect(parameters![0]).toEqual({
             allowEmptyValue: false,

@@ -53,11 +53,14 @@ export function resolveLiteralType(
 
     if (typeNode.kind === SyntaxKind.TemplateLiteralType) {
         const type = ctx.typeChecker.getTypeFromTypeNode(ctx.referencer || typeNode);
-        if (type.isUnion() && type.types.every((t) => t.isStringLiteral())) {
+
+        const matchesTypes = type.isUnion() && type.types.every((t) => t.isStringLiteral());
+
+        if (matchesTypes) {
             return {
                 typeName: TypeName.ENUM,
                 members: type.types.map(
-                    (t: StringLiteralType) => t.value,
+                    (t) => (t as StringLiteralType).value,
                 ),
             } as EnumType;
         }
@@ -89,21 +92,27 @@ export function resolveLiteralType(
 
 export function getLiteralValue(typeNode: LiteralTypeNode): string | number | boolean | null {
     let value: boolean | number | string | null;
+
     switch (typeNode.literal.kind) {
         case SyntaxKind.TrueKeyword:
             value = true;
+
             break;
         case SyntaxKind.FalseKeyword:
             value = false;
+
             break;
         case SyntaxKind.StringLiteral:
             value = typeNode.literal.text;
+
             break;
         case SyntaxKind.NumericLiteral:
             value = Number.parseFloat(typeNode.literal.text);
+
             break;
         case SyntaxKind.NullKeyword:
             value = null;
+
             break;
         default:
             if (Object.prototype.hasOwnProperty.call(typeNode.literal, 'text')) {
@@ -115,5 +124,6 @@ export function getLiteralValue(typeNode: LiteralTypeNode): string | number | bo
                 );
             }
     }
+
     return value;
 }

@@ -1,5 +1,3 @@
-<!-- NOTE: Keep this file and all corresponding files in the .agents directory updated as the project evolves. When making architectural changes, adding new patterns, or discovering important conventions, update the relevant sections. -->
-
 # TRAPI — Agent Guide
 
 TRAPI (TypeScript REST API) is a monorepo that generates REST API metadata and OpenAPI/Swagger documentation from TypeScript decorators. It analyzes decorated source code using the TypeScript compiler, extracts a normalized metadata representation, and transforms it into OpenAPI 2.0, 3.0, 3.1, or 3.2 specifications.
@@ -46,6 +44,15 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
 - **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns
 - **[Conventions](.agents/conventions.md)** — Commit conventions, linting, CI/CD, and release process
+
+### Writing agent docs
+
+Keep the guides factual and focused on contracts a future change could silently break.
+
+- Update an existing line when an invariant or cross-cutting rule changes. Put defect stories and verification details in the PR, and user-facing changes in the documentation site or release notes.
+- Keep subsystem detail in `.agents/topics/` and link it from the relevant guide; do not import topic files into `CLAUDE.md`.
+- Describe current behavior and cite issues or PRs, rather than local plan files or a running history of completed work.
+- `npm run lint` enforces the shared config's agent-doc size, import-budget and history checks. Preserve the critical contracts when splitting a guide.
 
 ## Commits
 

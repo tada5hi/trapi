@@ -309,7 +309,8 @@ export class ParameterGenerator implements IParameterGenerator {
         // For `:name`, require a word boundary after the name so `:id` doesn't
         // match `:id2` (substring), but it still matches when path-to-regexp
         // modifiers/constraints follow the name (`:id?`, `:id*`, `:id(\\d+)`).
-        const escaped = RegExp.escape(name);
+        // eslint-disable-next-line unicorn/prefer-regexp-escape -- Published consumers support Node 22, which has no RegExp.escape.
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const colonPattern = new RegExp(`:${escaped}\\b`);
         const bracePattern = `{${name}}`;
 

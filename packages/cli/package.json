@@ -55,7 +55,7 @@
         "@trapi/swagger": "^2.1.2",
         "chokidar": "^5.0.0",
         "citty": "^0.2.2",
-        "locter": "^4.1.1",
+        "locter": "^4.1.2",
         "smob": "^1.6.2"
     },
     "engines": {

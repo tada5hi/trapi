@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-labelledby="trp-title trp-desc">
+<title id="trp-title">Extract metadata once and reuse it</title><desc id="trp-desc">Decorated TypeScript is analysed with preset handlers by generateMetadata. Reuse the resulting controllers and referenceTypes with generateSwagger for OpenAPI 2.0, 3.0, 3.1 or 3.2, then save JSON or YAML.</desc>
+<style>:root{--canvas:#f6f7fb;--panel:#fff;--ink:#253447;--muted:#526278;--border:#c6cedc;--accent:#6366d8;--second:#159cb2;--arrow:#71819a}@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1}}text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink)}.small{font-size:15px;fill:var(--muted)}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px}</style>
+<defs><marker id="trp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect x="8" y="8" width="944" height="364" rx="22" fill="var(--canvas)" stroke="var(--border)"/>
+<text x="30" y="44" font-size="21" font-weight="650">One TypeScript analysis, multiple OpenAPI documents</text>
+<rect x="28" y="76" width="210" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="28" y="90" width="4" height="66" rx="2" fill="var(--accent)"/><text x="46" y="110" class="code">Your TypeScript</text><text x="46" y="137" class="small">Decorators + types</text>
+<rect x="285" y="76" width="280" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="285" y="90" width="4" height="66" rx="2" fill="var(--accent)"/><text x="303" y="110" class="code">generateMetadata()</text><text x="303" y="137" class="small">TypeScript + preset handlers</text>
+<rect x="612" y="76" width="314" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="612" y="90" width="4" height="66" rx="2" fill="var(--second)"/><text x="630" y="110" class="code">Metadata</text><text x="630" y="137" class="small">controllers + referenceTypes</text>
+<path d="M240 123 H276" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
+<path d="M567 123 H603" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
+<path d="M770 172 V208 H425 V227" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
+<text x="485" y="199" class="small">Reuse the same metadata</text>
+<rect x="285" y="236" width="280" height="104" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="285" y="250" width="4" height="76" rx="2" fill="var(--second)"/><text x="303" y="270" class="code">generateSwagger()</text><text x="303" y="297" class="small">v2 / v3 / v3.1 / v3.2</text><text x="303" y="324" class="small">No TypeScript compiler dependency</text>
+<rect x="612" y="236" width="314" height="104" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="612" y="250" width="4" height="76" rx="2" fill="var(--second)"/><text x="630" y="270" class="code">OpenAPI documents</text><text x="630" y="297" class="small">saveSwagger(): JSON or YAML</text><text x="630" y="324" class="small">One file per save call</text>
+<path d="M567 288 H603" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
+</svg>

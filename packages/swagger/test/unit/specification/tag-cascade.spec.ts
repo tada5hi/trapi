@@ -176,12 +176,14 @@ describe('controller -> method tag cascade (#894)', () => {
         const metadata = taggedMetadata();
 
         const first = await buildSpec(metadata, Version.V3_2);
+
         // a v2 target can sit between two v3 targets; it cascades over the same object.
         await generateSwagger({
             version: Version.V2,
             metadata,
             data: { servers: 'http://localhost:3000/' },
         });
+
         const second = await buildSpec(metadata, Version.V3_2);
 
         expect(second).toEqual(first);

@@ -89,15 +89,18 @@ export class ParameterGenerator implements IParameterGenerator {
         const draft = newParameterDraft({ parameterName });
 
         const options = this.applyOptions(parameterName);
+
         applyDecoratorHandlers(this.parameter, this.current.registry.parameters, draft, options);
         applyJsDocHandlers(this.parameter, this.current.registry.parameterJsDoc, draft, options);
 
         // TS-resolved type
         const type = this.resolveType();
+
         draft.type = type;
 
         // Description from TS symbol's documentation comment.
         const description = this.getDescription();
+
         if (description) {
             draft.description = description;
         }
@@ -109,6 +112,7 @@ export class ParameterGenerator implements IParameterGenerator {
 
         // Default value from TS initializer.
         const defaultValue = getInitializerValue(this.parameter.initializer, this.current.typeChecker, type);
+
         if (defaultValue !== undefined) {
             draft.default = defaultValue;
         }
@@ -118,6 +122,7 @@ export class ParameterGenerator implements IParameterGenerator {
 
         // Examples from method-level JSDoc @example tags scoped to this parameter.
         const { examples, exampleLabels } = this.getJsDocExamples(parameterName);
+
         if (examples) {
             draft.examples = examples.map((value) => ({ value }));
             draft.exampleLabels = (exampleLabels ?? []).filter((l): l is string => l !== undefined);
@@ -136,6 +141,7 @@ export class ParameterGenerator implements IParameterGenerator {
                     node: this.parameter,
                 });
             }
+
             draft.in = ParamKind.Body;
         }
 
@@ -173,9 +179,11 @@ export class ParameterGenerator implements IParameterGenerator {
                 exampleLabels: filteredLabels,
                 extensions: draft.extensions,
             });
+
             if (kind === ParameterSource.PATH) {
                 this.validatePathDecomposition(decomposed);
             }
+
             return decomposed;
         }
 
@@ -199,11 +207,13 @@ export class ParameterGenerator implements IParameterGenerator {
                     node: this.parameter,
                 });
             }
+
             const arrayParameter: ArrayParameter = {
                 ...this.draftToParameter(draft),
                 collectionFormat: draft.collectionFormat ?? CollectionFormat.MULTI,
                 type,
             };
+
             return [arrayParameter];
         }
 
@@ -265,8 +275,10 @@ export class ParameterGenerator implements IParameterGenerator {
         const isParamDeprecated = hasJSDocTag(this.parameter, JSDocTagName.DEPRECATED);
 
         const output: Parameter[] = [];
+
         for (const property of type.properties) {
             let propertyDefaultValue = property.default;
+
             if (typeof propertyDefaultValue === 'undefined' && isObject(initializerValue)) {
                 propertyDefaultValue = (initializerValue as Record<string, unknown>)[property.name];
             }
@@ -288,6 +300,7 @@ export class ParameterGenerator implements IParameterGenerator {
                 validators: {},
             });
         }
+
         return output;
     }
 
@@ -296,14 +309,17 @@ export class ParameterGenerator implements IParameterGenerator {
         // For `:name`, require a word boundary after the name so `:id` doesn't
         // match `:id2` (substring), but it still matches when path-to-regexp
         // modifiers/constraints follow the name (`:id?`, `:id*`, `:id(\\d+)`).
+        // eslint-disable-next-line unicorn/prefer-regexp-escape -- Published consumers support Node 22, which has no RegExp.escape.
         const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const colonPattern = new RegExp(`:${escaped}\\b`);
         const bracePattern = `{${name}}`;
+
         for (const p of this.paths) {
             if (p.includes(bracePattern) || colonPattern.test(p)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -322,6 +338,7 @@ export class ParameterGenerator implements IParameterGenerator {
 
     private validatePathName(name: string, parameterName: string): void {
         const candidate = name || parameterName;
+
         if (!this.pathContainsParam(candidate)) {
             throw ParameterError.invalidPathMatch({
                 decoratorName: 'Path',
@@ -344,17 +361,21 @@ export class ParameterGenerator implements IParameterGenerator {
 
     private resolveType(): Type {
         let typeNode = this.parameter.type;
+
         if (!typeNode) {
             const t = this.current.typeChecker.getTypeAtLocation(this.parameter);
+
             typeNode = this.current.typeChecker.typeToTypeNode(
                 t,
                 undefined,
                 NodeBuilderFlags.NoTruncation,
             );
         }
+
         if (!typeNode) {
             throw new ParameterError({ message: `Could not resolve type for parameter '${this.getParameterName()}'.` });
         }
+
         return new TypeNodeResolver(typeNode, this.current, this.parameter).resolve();
     }
 
@@ -362,17 +383,21 @@ export class ParameterGenerator implements IParameterGenerator {
         if (!isIdentifier(this.parameter.name)) {
             throw new ParameterError({ message: 'Destructured parameters are not supported. Use a simple identifier name.' });
         }
+
         return this.parameter.name.text;
     }
 
     private getDescription(): string {
         const symbol = this.current.typeChecker.getSymbolAtLocation(this.parameter.name);
+
         if (symbol) {
             const comments = symbol.getDocumentationComment(this.current.typeChecker);
+
             if (comments.length > 0) {
                 return displayPartsToString(comments);
             }
         }
+
         return '';
     }
 
@@ -390,10 +415,12 @@ export class ParameterGenerator implements IParameterGenerator {
             if (isExample && comment) {
                 const head = comment.split(' ')[0] ?? '';
                 const hasExampleLabel = head.indexOf('.') > 0;
+
                 exampleLabels.push(hasExampleLabel ?
                     head.split('.').slice(1).join('.') :
                     undefined);
             }
+
             return isExample ?? false;
         });
 

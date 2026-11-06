@@ -10,4 +10,6 @@ export const ValidatorErrorCode = {
     EXPECTED_DATE: 'VALIDATOR_EXPECTED_DATE',
     EXPECTED_STRING: 'VALIDATOR_EXPECTED_STRING',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type ValidatorErrorCode = typeof ValidatorErrorCode[keyof typeof ValidatorErrorCode];

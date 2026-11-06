@@ -95,12 +95,14 @@ describe('intersection types', () => {
     describe('V2', () => {
         it('should flatten intersection to object with merged properties', () => {
             const infoProp = specV2.definitions!.PersonModel.properties!.info;
+
             expect(infoProp.type).toEqual('object');
             expect(infoProp.properties).toBeDefined();
         });
 
         it('should handle intersection ref alias', () => {
             const schema = specV2.definitions!.NameAndAge;
+
             expect(schema).toBeDefined();
             expect(schema.type).toEqual('object');
         });
@@ -109,6 +111,7 @@ describe('intersection types', () => {
     describe('V3', () => {
         it('should use allOf for intersection types', () => {
             const infoProp = specV3.components.schemas!.PersonModel.properties!.info;
+
             expect(infoProp.allOf).toBeDefined();
             expect(infoProp.allOf).toHaveLength(2);
         });
@@ -116,12 +119,14 @@ describe('intersection types', () => {
         it('should reference component schemas in allOf members', () => {
             const infoProp = specV3.components.schemas!.PersonModel.properties!.info;
             const refs = infoProp.allOf!.map((m: any) => m.$ref);
+
             expect(refs).toContain('#/components/schemas/HasName');
             expect(refs).toContain('#/components/schemas/HasAge');
         });
 
         it('should handle intersection ref alias with allOf', () => {
             const schema = specV3.components.schemas!.NameAndAge;
+
             expect(schema).toBeDefined();
             expect(schema.allOf).toBeDefined();
         });

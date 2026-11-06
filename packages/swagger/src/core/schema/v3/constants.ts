@@ -11,4 +11,5 @@ export const ParameterSourceV3 = {
     PATH: 'path',
     QUERY: 'query',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type ParameterSourceV3 = typeof ParameterSourceV3[keyof typeof ParameterSourceV3];

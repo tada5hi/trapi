@@ -79,16 +79,19 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         const firstServer = this.config.servers?.[0];
+
         if (firstServer) {
             const url = new URL(firstServer.url, 'http://localhost:3000/');
 
             spec.host = url.host;
+
             if (url.pathname) {
                 spec.basePath = url.pathname;
             }
         }
 
         const tags = this.buildTags();
+
         if (tags.length > 0) {
             spec.tags = tags;
         }
@@ -111,9 +114,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     if (securityDefinition.scheme === 'basic') {
                         definitions[key] = { type: 'basic' };
                     }
+
                     break;
                 case 'apiKey':
                     definitions[key] = securityDefinition;
+
                     break;
                 case 'oauth2':
                     if (securityDefinition.flows.implicit) {
@@ -194,11 +199,13 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                 method.consumes = unique([...controller.consumes, ...method.consumes]);
                 method.produces = unique([...controller.produces, ...method.produces]);
                 method.tags = unique([...controller.tags, ...method.tags]);
+
                 // Inherit controller security only when the method declared none of its own.
                 // `[]` is truthy, so a plain `||` short-circuits and never cascades.
                 if (!method.security?.length) {
                     method.security = controller.security;
                 }
+
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
                 method.deprecated = method.deprecated || controller.deprecated || false;
@@ -209,9 +216,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
                     const fullPath = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[fullPath] ?? (output[fullPath] = {});
+
                     if (pathItem[method.method]) {
                         this.warnDuplicateOperation(controller.name, method, fullPath);
                     }
+
                     pathItem[method.method] = this.buildMethod(method, fullPath, usedOperationIds);
                 }
             });
@@ -229,20 +238,29 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // `buildOperation` derives V2's body/form defaults; fall back to the verb
         // default only when it derived nothing.
         let consumes = output.consumes!;
+
         if (consumes.length === 0 && this.supportsBodyParameters(method.method)) {
             consumes = ['application/json'];
         }
+
         output.consumes = this.resolveConsumes(method, consumes);
 
         output.operationId = this.buildOperationId(method, emittedPath, usedOperationIds);
 
         output.description = method.description;
+
         if (method.summary) {
             output.summary = method.summary;
         }
 
-        if (method.deprecated) { output.deprecated = method.deprecated; }
-        if (method.tags.length) { output.tags = method.tags; }
+        if (method.deprecated) {
+            output.deprecated = method.deprecated;
+        }
+
+        if (method.tags.length) {
+            output.tags = method.tags;
+        }
+
         if (method.security?.length) {
             output.security = method.security;
         }
@@ -282,6 +300,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         const bodyParameters = (parameters[ParameterSource.BODY] || []);
         const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
+
         if (bodyParameters.length > 1) {
             throw new SwaggerError({
                 message: `Only one body parameter allowed per method, but ${bodyParameters.length} found in '${method.name}'.`,
@@ -318,6 +337,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
             for (const bodyPropParam of bodyPropParams) {
                 const bodyProp = this.getSchemaForType(bodyPropParam.type);
+
                 bodyProp.default = bodyPropParam.default;
                 bodyProp.description = bodyPropParam.description;
                 bodyProp.example = bodyPropParam.examples;
@@ -486,9 +506,11 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // is a poor answer for one. A cycle yields `undefined`, i.e. the rejection.
         if (isRefAliasType(type)) {
             const visited = seen ?? new Set<string>();
+
             if (visited.has(type.refName)) {
                 return undefined;
             }
+
             visited.add(type.refName);
 
             return this.buildFlattenedBodySchema(type.type, visited);
@@ -527,6 +549,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
     protected buildParameter(input: Parameter): ParameterV2 {
         const sourceIn = this.transformParameterSource(input.in);
+
         if (!sourceIn) {
             throw new SwaggerError({
                 message: `The parameter source '${input.in}' for parameter '${input.name}' is not supported in OpenAPI 2.0.`,
@@ -566,11 +589,13 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         ) {
             parameter.type = 'file' as `${DataTypeName}`;
             Object.assign(parameter, this.transformValidators(input.validators));
+
             return parameter;
         }
 
         const parameterType = this.getSchemaForType(type);
         const format = alias?.format ?? parameterType.format;
+
         if (
             parameter.in !== ParameterSourceV2.BODY &&
             format
@@ -623,11 +648,13 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         if (parameterType.items) {
             parameter.items = parameterType.items;
         }
+
         if (parameterType.enum) {
             parameter.enum = parameterType.enum;
         }
 
         const defaultValue = input.default ?? alias?.default;
+
         if (typeof defaultValue !== 'undefined') {
             parameter.default = defaultValue;
         }
@@ -683,6 +710,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
         if (isRefAliasType(type)) {
             const visited = seen ?? new Set<string>();
+
             if (visited.has(type.refName)) {
                 return { type };
             }
@@ -742,10 +770,12 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
 
                 return { ...acc, ...props };
             }
+
             return { ...acc };
         }, {});
 
         const schema : SchemaV2 = { type: DataTypeName.OBJECT, properties };
+
         if (required.length > 0) {
             schema.required = [...new Set(required)];
         }
@@ -758,6 +788,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         const members : Type[] = [];
 
         const enumTypeMember : EnumType = { typeName: TypeName.ENUM, members: [] };
+
         for (const member of type.members) {
             if (isEnumType(member)) {
                 enumTypeMember.members.push(...member.members);
@@ -781,15 +812,19 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         }
 
         const isNullEnum = enumTypeMember.members.every((member) => member === null);
+
         if (members.length === 1) {
             const single = members[0]!;
+
             if (isNullEnum) {
                 const memberType = this.getSchemaForType(single) as SchemaV2;
+
                 if (memberType.$ref) {
                     return memberType;
                 }
 
                 memberType['x-nullable'] = true;
+
                 return memberType;
             }
 
@@ -820,6 +855,7 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         // derives `produces` — a response that loses the status key must not
         // leave its media type advertised on an operation that never emits it.
         const responses = new Map<string, Response>();
+
         for (const res of [...(this.config.responses ?? []), ...method.responses]) {
             responses.set(res.status, res);
         }
@@ -842,21 +878,25 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
             }
 
             const example = res.examples?.[0];
+
             if (example?.value) {
                 operation.responses[res.status]!.examples = { 'application/json': example.value };
             }
         });
 
         const consumes = operation.consumes!;
+
         if (consumes.length === 0) {
             const hasBody = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.BODY || parameter.in === ParameterSource.BODY_PROP);
+
             if (hasBody) {
                 consumes.push('application/json');
             }
 
             const hasFormData = method.parameters
                 .some((parameter) => parameter.in === ParameterSource.FORM_DATA);
+
             if (hasFormData) {
                 consumes.push('multipart/form-data');
             }

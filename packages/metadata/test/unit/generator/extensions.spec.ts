@@ -32,6 +32,7 @@ describe('extensions on Controller and Parameter', () => {
 
     it('should populate extensions on the controller', () => {
         const controller = metadata.controllers.find((c) => c.name === 'ExtensionsController');
+
         expect(controller).toBeDefined();
         expect(controller!.extensions).toHaveLength(2);
         expect(controller!.extensions).toContainEqual({ key: 'x-controller', value: 'controller-value' });
@@ -41,8 +42,11 @@ describe('extensions on Controller and Parameter', () => {
     it('should populate extensions on a parameter', () => {
         const controller = metadata.controllers.find((c) => c.name === 'ExtensionsController');
         const method = controller!.methods.find((m) => m.name === 'list');
+
         expect(method).toBeDefined();
+
         const limitParameter = method!.parameters.find((p) => p.name === 'limit');
+
         expect(limitParameter).toBeDefined();
         expect(limitParameter!.extensions).toHaveLength(1);
         expect(limitParameter!.extensions).toContainEqual({ key: 'x-param', value: 'param-value' });
@@ -51,6 +55,7 @@ describe('extensions on Controller and Parameter', () => {
     it('should default extensions to an empty array when none are declared', () => {
         const controller = metadata.controllers.find((c) => c.name === 'ExtensionsController');
         const method = controller!.methods.find((m) => m.name === 'list');
+
         expect(method!.extensions).toEqual([]);
     });
 });

@@ -12,4 +12,6 @@ export const ParameterSourceV2 = {
     PATH: 'path',
     QUERY: 'query',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type ParameterSourceV2 = typeof ParameterSourceV2[keyof typeof ParameterSourceV2];

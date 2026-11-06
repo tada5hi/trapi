@@ -107,31 +107,38 @@ describe('controller and parameter extensions', () => {
     describe('V2', () => {
         it('emits a tag entry per declared tag of a controller with extensions', () => {
             const tagNames = (specV2.tags ?? []).map((t) => t.name).sort();
+
             expect(tagNames).toEqual(['shared', 'tagged']);
         });
 
         it('attaches controller extensions to the matching tag entry', () => {
             const tagged = (specV2.tags ?? []).find((t) => t.name === 'tagged');
+
             expect(tagged).toBeDefined();
+
             const taggedRecord = tagged as Record<string, unknown>;
+
             expect(taggedRecord['x-controller']).toEqual('controller-value');
             expect(taggedRecord['x-controller-meta']).toEqual({ team: 'platform' });
         });
 
         it('merges extensions across controllers sharing a tag (last write wins)', () => {
             const shared = (specV2.tags ?? []).find((t) => t.name === 'shared');
+
             expect(shared).toBeDefined();
             expect((shared as Record<string, unknown>)['x-controller']).toEqual('shared-value');
         });
 
         it('does not emit a tag entry for controllers without extensions', () => {
             const plain = (specV2.tags ?? []).find((t) => t.name === 'plain');
+
             expect(plain).toBeUndefined();
         });
 
         it('emits parameter extensions inline on the parameter object', () => {
             const operation = specV2.paths['/tagged'].get!;
             const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+
             expect(param).toBeDefined();
             expect((param as unknown as Record<string, unknown>)['x-param']).toEqual('param-value');
         });
@@ -140,31 +147,38 @@ describe('controller and parameter extensions', () => {
     describe('V3', () => {
         it('emits a tag entry per declared tag of a controller with extensions', () => {
             const tagNames = (specV3.tags ?? []).map((t) => t.name).sort();
+
             expect(tagNames).toEqual(['shared', 'tagged']);
         });
 
         it('attaches controller extensions to the matching tag entry', () => {
             const tagged = (specV3.tags ?? []).find((t) => t.name === 'tagged');
+
             expect(tagged).toBeDefined();
+
             const taggedRecord = tagged as Record<string, unknown>;
+
             expect(taggedRecord['x-controller']).toEqual('controller-value');
             expect(taggedRecord['x-controller-meta']).toEqual({ team: 'platform' });
         });
 
         it('merges extensions across controllers sharing a tag (last write wins)', () => {
             const shared = (specV3.tags ?? []).find((t) => t.name === 'shared');
+
             expect(shared).toBeDefined();
             expect((shared as Record<string, unknown>)['x-controller']).toEqual('shared-value');
         });
 
         it('does not emit a tag entry for controllers without extensions', () => {
             const plain = (specV3.tags ?? []).find((t) => t.name === 'plain');
+
             expect(plain).toBeUndefined();
         });
 
         it('emits parameter extensions inline on the parameter object', () => {
             const operation = specV3.paths['/tagged'].get!;
             const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+
             expect(param).toBeDefined();
             expect((param as unknown as Record<string, unknown>)['x-param']).toEqual('param-value');
         });
@@ -196,6 +210,7 @@ describe('controller extensions without declared tags', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const entry = (spec.tags ?? []).find((t) => t.name === 'UntaggedController');
+
         expect(entry).toBeDefined();
         expect((entry as Record<string, unknown>)['x-fallback']).toEqual('value');
     });
@@ -207,6 +222,7 @@ describe('controller extensions without declared tags', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const entry = (spec.tags ?? []).find((t) => t.name === 'UntaggedController');
+
         expect(entry).toBeDefined();
         expect((entry as Record<string, unknown>)['x-fallback']).toEqual('value');
     });
@@ -257,6 +273,7 @@ describe('hidden controllers and methods', () => {
             metadata,
             data: { servers: 'http://localhost:3000/' },
         });
+
         expect(Object.keys(spec.paths)).not.toContain('/hidden-controller');
     });
 
@@ -266,6 +283,7 @@ describe('hidden controllers and methods', () => {
             metadata,
             data: { servers: 'http://localhost:3000/' },
         });
+
         expect(Object.keys(spec.paths)).not.toContain('/hidden-controller');
     });
 
@@ -276,6 +294,7 @@ describe('hidden controllers and methods', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const entry = (spec.tags ?? []).find((t) => t.name === 'hidden-tag');
+
         expect(entry).toBeUndefined();
     });
 
@@ -286,6 +305,7 @@ describe('hidden controllers and methods', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const entry = (spec.tags ?? []).find((t) => t.name === 'hidden-tag');
+
         expect(entry).toBeUndefined();
     });
 
@@ -295,6 +315,7 @@ describe('hidden controllers and methods', () => {
             metadata,
             data: { servers: 'http://localhost:3000/' },
         });
+
         expect(spec.paths['/partial/visible']).toBeDefined();
         expect(spec.paths['/partial/invisible']).toBeUndefined();
     });
@@ -305,6 +326,7 @@ describe('hidden controllers and methods', () => {
             metadata,
             data: { servers: 'http://localhost:3000/' },
         });
+
         expect(spec.paths['/partial/visible']).toBeDefined();
         expect(spec.paths['/partial/invisible']).toBeUndefined();
     });
@@ -349,6 +371,7 @@ describe('extensions never overwrite reserved fields', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const tag = (spec.tags ?? []).find((t) => t.name === 'guarded');
+
         expect(tag).toBeDefined();
         expect(tag!.name).toEqual('guarded');
         expect((tag as Record<string, unknown>)['x-name']).toEqual('should-not-overwrite');
@@ -361,6 +384,7 @@ describe('extensions never overwrite reserved fields', () => {
             data: { servers: 'http://localhost:3000/' },
         });
         const tag = (spec.tags ?? []).find((t) => t.name === 'guarded');
+
         expect(tag).toBeDefined();
         expect(tag!.name).toEqual('guarded');
         expect((tag as Record<string, unknown>)['x-name']).toEqual('should-not-overwrite');
@@ -374,8 +398,11 @@ describe('extensions never overwrite reserved fields', () => {
         });
         const operation = spec.paths['/guarded'].get!;
         const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+
         expect(param).toBeDefined();
+
         const record = param as unknown as Record<string, unknown>;
+
         // reserved fields preserved
         expect(record.name).toEqual('filter');
         expect(record.in).toEqual('query');
@@ -394,8 +421,11 @@ describe('extensions never overwrite reserved fields', () => {
         });
         const operation = spec.paths['/guarded'].get!;
         const param = (operation.parameters ?? []).find((p) => (p as { name?: string }).name === 'filter');
+
         expect(param).toBeDefined();
+
         const record = param as unknown as Record<string, unknown>;
+
         expect(record.name).toEqual('filter');
         expect(record.in).toEqual('query');
         expect(record.required).toEqual(true);

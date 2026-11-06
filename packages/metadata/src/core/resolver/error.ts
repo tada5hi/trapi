@@ -29,6 +29,7 @@ export class ResolverError extends MetadataError {
 
         if (node) {
             const location = prettyLocationOfNode(node);
+
             if (location) {
                 parts.push(location.text);
                 file = location.file;
@@ -63,7 +64,10 @@ export function prettyLocationOfNode(node: Node | TypeNode): {
 } | undefined {
     try {
         const sourceFile = node.getSourceFile();
-        if (!sourceFile) return undefined;
+
+        if (!sourceFile) {
+            return undefined;
+        }
 
         const token = node.getFirstToken() || node.parent?.getFirstToken();
         const start = token ? sourceFile.getLineAndCharacterOfPosition(token.getStart()).line + 1 : undefined;
@@ -86,6 +90,7 @@ export function prettyLocationOfNode(node: Node | TypeNode): {
 export function prettyTroubleCause(node: Node | TypeNode, onlyCurrent = false) {
     try {
         let name: string;
+
         if (onlyCurrent || !node.parent) {
             name = node.pos !== -1 ? node.getText() : (node as any).name.text;
         } else {

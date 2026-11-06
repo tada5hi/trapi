@@ -6,7 +6,13 @@
  */
 
 import type { TypeChecker, TypeNode } from 'typescript';
-import type { DecoratorHost, DecoratorTarget, Type } from '@trapi/core';
+import type {
+    DecoratorArgument,
+    DecoratorHost,
+    DecoratorTarget,
+    Type,
+} from '@trapi/core';
+
 
 export type DecoratorSourceBuilderOptions = {
     target: DecoratorTarget;
@@ -19,4 +25,9 @@ export type JsDocSourceBuilderOptions = {
     target: DecoratorTarget;
     host: DecoratorHost;
     resolveTypeNode: (node: TypeNode) => Type;
+};
+
+export type RawDecorator = {
+    name: string;
+    arguments: DecoratorArgument[];
 };

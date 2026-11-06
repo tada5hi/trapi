@@ -5,15 +5,34 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './commands';
+export {
+    GENERATE_ARGS,
+    cleanCache,
+    defineCLICacheCommand,
+    defineCLIGenerateCommand,
+    defineCLIInfoCommand,
+    defineCLIWatchCommand,
+    emitOne,
+    resolveTargets,
+    runGenerate,
+    runTargets,
+} from './commands';
+export type {
+    CleanCacheOptions,
+    CleanCacheResult,
+    GenerateArgs,
+    GenerateResult,
+    ResolvedTargets,
+} from './commands';
 export * from './module.ts';
 export * from './config';
 export {
-    LogLevel,
     LOG_LEVEL_VALUES,
     createLogger,
     normalizeLogLevel,
     CLIUserError,
 } from './logger.ts';
-export type { Logger } from './logger.ts';
-export { ExitCode, runWithExitCode } from './exit.ts';
+export { LogLevel } from './logger';
+export type { Logger } from './types';
+export { runWithExitCode } from './exit.ts';
+export { ExitCode } from './exit';

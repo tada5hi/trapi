@@ -12,4 +12,6 @@ export const ParameterErrorCode = {
     SCOPE_REQUIRED: 'PARAMETER_SCOPE_REQUIRED',
     INVALID_EXAMPLE: 'PARAMETER_INVALID_EXAMPLE',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type ParameterErrorCode = typeof ParameterErrorCode[keyof typeof ParameterErrorCode];

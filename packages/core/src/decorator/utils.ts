@@ -33,9 +33,11 @@ export function matches(match: Match, source: Pick<DecoratorSource, 'name' | 'ta
     if (match.name !== source.name) {
         return false;
     }
+
     if (match.on && match.on !== source.target) {
         return false;
     }
+
     return true;
 }
 
@@ -43,9 +45,11 @@ export function matchesJsDoc(match: JsDocMatch, source: Pick<JsDocSource, 'tag' 
     if (match.tag !== source.tag) {
         return false;
     }
+
     if (match.on && match.on !== source.target) {
         return false;
     }
+
     return true;
 }
 
@@ -174,11 +178,13 @@ export function namesForMarker(
         ...registry.methods,
         ...registry.parameters,
     ];
+
     for (const handler of all) {
         if (handler.marker !== undefined && predicate(handler.marker)) {
             names.add(handler.match.name);
         }
     }
+
     return names;
 }
 
@@ -196,11 +202,13 @@ export function tagsForMarker(
         ...registry.methodJsDoc,
         ...registry.parameterJsDoc,
     ];
+
     for (const handler of all) {
         if (handler.marker !== undefined && predicate(handler.marker)) {
             tags.add(handler.match.tag);
         }
     }
+
     return tags;
 }
 
@@ -222,6 +230,7 @@ export function numericMarkerKind(
     if (typeof marker === 'object' && marker !== null && 'numeric' in marker) {
         return marker.numeric;
     }
+
     return undefined;
 }
 
@@ -250,16 +259,21 @@ function isLiteralLike(kind: string): boolean {
 function readArray(draft: AnyDraft, key: string): unknown[] {
     const record = draft as Record<string, unknown>;
     const existing = record[key];
+
     if (Array.isArray(existing)) {
         return existing;
     }
+
     if (typeof existing !== 'undefined') {
         throw new TypeError(
             `append(): cannot append to draft key "${key}": existing value is not an array (got ${typeof existing}).`,
         );
     }
+
     const created: unknown[] = [];
+
     record[key] = created;
+
     return created;
 }
 
@@ -270,6 +284,7 @@ export function into(key: string) {
         positional(index: number): DraftApply {
             return (ctx, draft) => {
                 const arg = ctx.argument(index);
+
                 if (arg && isLiteralLike(arg.kind)) {
                     (draft as Record<string, unknown>)[key] = arg.raw;
                 }
@@ -278,6 +293,7 @@ export function into(key: string) {
         typeArgument(index = 0): DraftApply {
             return (ctx, draft) => {
                 const ta = ctx.typeArgument(index);
+
                 if (ta) {
                     (draft as Record<string, unknown>)[key] = ta.resolve();
                 }
@@ -293,10 +309,13 @@ export function append(key: string) {
         positional(index: number): DraftApply {
             return (ctx, draft) => {
                 const arg = ctx.argument(index);
+
                 if (!arg) {
                     return;
                 }
+
                 const target = readArray(draft, key);
+
                 if (arg.kind === 'array' && Array.isArray(arg.raw)) {
                     target.push(...arg.raw);
                 } else if (isLiteralLike(arg.kind)) {
@@ -307,6 +326,7 @@ export function append(key: string) {
         positionalAll(): DraftApply {
             return (ctx, draft) => {
                 const target = readArray(draft, key);
+
                 for (const arg of ctx.arguments()) {
                     if (arg.kind === 'array' && Array.isArray(arg.raw)) {
                         target.push(...arg.raw);

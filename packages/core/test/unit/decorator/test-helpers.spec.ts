@@ -47,6 +47,7 @@ describe('test-helpers', () => {
 
     it('createHandlerContext defaults to empty args / TestHost', () => {
         const ctx = createHandlerContext();
+
         expect(ctx.argument(0)).toBeUndefined();
         expect(ctx.arguments()).toEqual([]);
         expect(ctx.host.name).toBe('TestHost');
@@ -69,6 +70,7 @@ describe('test-helpers', () => {
         });
 
         const draft = newControllerDraft({ name: 'UserController', location: '/x.ts' });
+
         handler.apply(
             createHandlerContext({ args: [literalArg('users')] }),
             draft,
@@ -86,6 +88,7 @@ describe('test-helpers', () => {
         });
 
         const draft = newControllerDraft({ name: 'C', location: '/x.ts' });
+
         handler.apply(
             createHandlerContext({ args: [arrayArg(['/roles', '/realms/:id/roles'])] }),
             draft,
@@ -96,6 +99,7 @@ describe('test-helpers', () => {
 
     it('setMethodPath leaves draft unchanged when arg is missing', () => {
         const draft = newMethodDraft({ name: 'list' });
+
         setMethodPath(draft, undefined);
         expect(draft.path).toBe('');
     });

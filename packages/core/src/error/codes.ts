@@ -11,4 +11,6 @@ export const CoreErrorCode = {
     PRESET_REPLACES_NO_MATCH: 'CORE_PRESET_REPLACES_NO_MATCH',
     PRESET_INVALID: 'CORE_PRESET_INVALID',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type CoreErrorCode = typeof CoreErrorCode[keyof typeof CoreErrorCode];

@@ -35,6 +35,7 @@ describe('controller metadata extraction', () => {
             const myService = metadata.controllers.find(
                 (c) => c.name === 'MyService',
             )!;
+
             expect(myService).toBeDefined();
             expect(myService.tags).toContain('My Services');
             expect(myService.tags).toContain('Foo');
@@ -44,6 +45,7 @@ describe('controller metadata extraction', () => {
             const secureEndpoint = metadata.controllers.find(
                 (c) => c.name === 'SecureEndpoint',
             )!;
+
             expect(secureEndpoint.tags).toEqual([]);
         });
     });
@@ -53,6 +55,7 @@ describe('controller metadata extraction', () => {
             const myService = metadata.controllers.find(
                 (c) => c.name === 'MyService',
             )!;
+
             expect(myService.consumes).toBeDefined();
             expect(Array.isArray(myService.consumes)).toBe(true);
         });
@@ -66,6 +69,7 @@ describe('controller metadata extraction', () => {
             const testFile = promiseService.methods.find(
                 (m) => m.name === 'testFile',
             )!;
+
             expect(testFile.produces).toContain('application/pdf');
         });
     });
@@ -84,6 +88,7 @@ describe('controller metadata extraction', () => {
                 const controller = metadata.controllers.find(
                     (c) => c.name === name,
                 );
+
                 expect(controller, `controller ${name} should exist`).toBeDefined();
                 expect(controller!.paths).toEqual([expectedPath]);
             }
@@ -93,6 +98,7 @@ describe('controller metadata extraction', () => {
             const controller = metadata.controllers.find(
                 (c) => c.name === 'ParameterizedEndpoint',
             )!;
+
             expect(controller).toBeDefined();
             expect(controller.paths).toHaveLength(1);
             expect(controller.paths[0]).toContain('parameterized');
@@ -109,11 +115,13 @@ describe('controller metadata extraction', () => {
             const getMethod = myService.methods.find(
                 (m) => m.name === 'test',
             )!;
+
             expect(getMethod.method).toEqual('get');
 
             const postMethod = myService.methods.find(
                 (m) => m.name === 'testPostString',
             )!;
+
             expect(postMethod.method).toEqual('post');
         });
 
@@ -125,6 +133,7 @@ describe('controller metadata extraction', () => {
             const test2 = myService.methods.find(
                 (m) => m.name === 'test2',
             )!;
+
             expect(test2.path).toEqual('secondpath');
         });
 
@@ -135,6 +144,7 @@ describe('controller metadata extraction', () => {
             const test2 = myService.methods.find(
                 (m) => m.name === 'test2',
             )!;
+
             expect(test2.description).toEqual('This is the method description');
         });
 
@@ -148,6 +158,7 @@ describe('controller metadata extraction', () => {
             const testRequiredParam = test2.parameters.find(
                 (p) => p.name === 'testRequired',
             );
+
             expect(testRequiredParam!.description).toEqual(
                 'This is the test param description',
             );
@@ -159,8 +170,11 @@ describe('controller metadata extraction', () => {
             const promiseService = metadata.controllers.find(
                 (c) => c.name === 'PromiseService',
             )!;
+
             expect(promiseService).toBeDefined();
+
             const methodNames = promiseService.methods.map((m) => m.name);
+
             expect(methodNames).toContain('test');
             expect(methodNames).toContain('testGetSingle');
             expect(methodNames).toContain('testPost');
@@ -171,9 +185,12 @@ describe('controller metadata extraction', () => {
             const promiseService = metadata.controllers.find(
                 (c) => c.name === 'PromiseService',
             )!;
+
             expect(promiseService).toBeDefined();
+
             // testDelete is defined on BaseService, inherited by PromiseService
             const methodNames = promiseService.methods.map((m) => m.name);
+
             expect(methodNames).toContain('testDelete');
         });
 
@@ -184,12 +201,15 @@ describe('controller metadata extraction', () => {
             const testDelete = promiseService.methods.find(
                 (m) => m.name === 'testDelete',
             )!;
+
             expect(testDelete).toBeDefined();
             expect(testDelete.method).toEqual('delete');
             // Inherited @Mount(':id') should produce the path segment
             expect(testDelete.path).toEqual(':id');
+
             // Should have one path parameter 'id'
             const idParam = testDelete.parameters.find((p) => p.name === 'id');
+
             expect(idParam).toBeDefined();
             expect(idParam!.in).toEqual('path');
         });
@@ -203,6 +223,7 @@ describe('controller metadata extraction', () => {
             // All own methods are present — inherited testDelete doesn't conflict
             const methodNames = promiseService.methods.map((m) => m.name);
             const uniqueNames = new Set(methodNames);
+
             expect(uniqueNames.size).toEqual(methodNames.length);
         });
 
@@ -210,6 +231,7 @@ describe('controller metadata extraction', () => {
             const abstractEndpoint = metadata.controllers.find(
                 (c) => c.name === 'AbstractEntityEndpoint',
             )!;
+
             expect(abstractEndpoint).toBeDefined();
             expect(abstractEndpoint.paths).toEqual(['abstract']);
         });
@@ -231,6 +253,7 @@ describe('controller metadata extraction', () => {
             ];
 
             const foundNames = metadata.controllers.map((c) => c.name);
+
             for (const name of expectedControllers) {
                 expect(foundNames, `should find ${name}`).toContain(name);
             }

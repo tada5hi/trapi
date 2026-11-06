@@ -6,9 +6,9 @@
  */
 
 import type {
-    ParameterDeclaration, 
-    PropertyDeclaration, 
-    PropertySignature, 
+    ParameterDeclaration,
+    PropertyDeclaration,
+    PropertySignature,
     TypeAliasDeclaration,
 } from 'typescript';
 import type { Validator } from '@trapi/core';
@@ -30,6 +30,7 @@ export function getDeclarationValidators(
     const parameterTags = getSupportedParameterTags();
     const tags = getJSDocTags(declaration.parent, (tag) => {
         const { comment } = tag;
+
         if (!comment) {
             return false;
         }
@@ -50,11 +51,14 @@ export function getDeclarationValidators(
         if (!comment) {
             return undefined;
         }
+
         if (isValue) {
             const indexOf = comment.indexOf(' ');
+
             if (indexOf > 0) {
                 return comment.substring(indexOf + 1);
             }
+
             return undefined;
         }
 
@@ -71,9 +75,11 @@ export function getDeclarationValidators(
         const name = tag.tagName.text;
 
         const rawComment = transformJSDocComment(tag.comment);
+
         if (!rawComment) {
             continue;
         }
+
         const comment = rawComment.substring(rawComment.indexOf(' ') + 1).trim();
 
         const value = getCommentValue(comment);
@@ -84,6 +90,7 @@ export function getDeclarationValidators(
                     message: getErrorMsg(comment, false),
                     value: undefined,
                 };
+
                 break;
             case ValidatorName.MINIMUM:
             case ValidatorName.MAXIMUM:
@@ -93,12 +100,14 @@ export function getDeclarationValidators(
             case ValidatorName.MAX_LENGTH:
                 {
                     const parsed = Number(value);
+
                     if (!Number.isFinite(parsed)) {
                         throw new ValidatorError({
                             message: `@${name} validator expects a numeric value, got '${value}'.`,
                             code: ValidatorErrorCode.EXPECTED_NUMBER,
                         });
                     }
+
                     validators[name] = {
                         message: getErrorMsg(comment),
                         value: parsed,
@@ -118,6 +127,7 @@ export function getDeclarationValidators(
                     message: getErrorMsg(comment),
                     value,
                 };
+
                 break;
             case ValidatorName.PATTERN:
                 if (typeof value !== 'string') {
@@ -131,10 +141,12 @@ export function getDeclarationValidators(
                     message: getErrorMsg(comment),
                     value: removeSurroundingQuotes(value),
                 };
+
                 break;
             default:
                 if (name.toLowerCase().startsWith('is')) {
                     const errorMsg = getErrorMsg(comment, false);
+
                     if (errorMsg) {
                         validators[name] = {
                             message: errorMsg,
@@ -142,6 +154,7 @@ export function getDeclarationValidators(
                         };
                     }
                 }
+
                 break;
         }
     }
@@ -177,8 +190,10 @@ function removeSurroundingQuotes(str: string) {
     if (str.startsWith('`') && str.endsWith('`')) {
         return str.substring(1, str.length - 1);
     }
+
     if (str.startsWith('```') && str.endsWith('```')) {
         return str.substring(3, str.length - 3);
     }
+
     return str;
 }

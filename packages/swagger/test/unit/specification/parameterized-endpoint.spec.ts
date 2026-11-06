@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import { read } from 'locter';
 import jsonata from 'jsonata';
@@ -32,6 +32,7 @@ describe('ParameterizedEndpoint', () => {
 
     it('should generate path param for params declared on class', async () => {
         const expression = jsonata('paths."/parameterized/{objectId}/test".get.parameters[0].in');
+
         expect(await expression.evaluate(spec)).toEqual('path');
     });
 });

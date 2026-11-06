@@ -151,17 +151,17 @@ function buildOverlappingRequirednessMetadata() : Metadata {
                                 typeName: 'nestedObjectLiteral',
                                 properties: [
                                     createProperty({
-                                        name: 'name', 
-                                        type: stringType(), 
-                                        required: true, 
+                                        name: 'name',
+                                        type: stringType(),
+                                        required: true,
                                     }),
                                 ],
                             },
                         }),
                         createParameter({
-                            name: 'name', 
-                            in: 'bodyProp', 
-                            type: stringType(), 
+                            name: 'name',
+                            in: 'bodyProp',
+                            type: stringType(),
                         }),
                     ],
                     responses: [createResponse({ status: '201' })],
@@ -189,14 +189,14 @@ function buildRefObjectBodyMetadata() : Metadata {
                     path: '',
                     parameters: [
                         createParameter({
-                            name: 'body', 
-                            in: 'body', 
-                            type: refObjectType('User'), 
+                            name: 'body',
+                            in: 'body',
+                            type: refObjectType('User'),
                         }),
                         createParameter({
-                            name: 'name', 
-                            in: 'bodyProp', 
-                            type: stringType(), 
+                            name: 'name',
+                            in: 'bodyProp',
+                            type: stringType(),
                         }),
                     ],
                     responses: [createResponse({ status: '201' })],
@@ -260,9 +260,11 @@ function requestBodySchema(spec: SpecV3, path: string) : SchemaV3 {
  */
 function bodyParameterSchema(spec: SpecV2, path: string) : BaseSchema<SchemaV2> {
     const parameters = spec.paths[path]!.post!.parameters!;
+
     expect(parameters).toHaveLength(1);
 
     const parameter = parameters[0] as BodyParameterV2;
+
     expect(parameter.in).toEqual('body');
     expect(parameter.name).toEqual('body');
 
@@ -303,10 +305,12 @@ describe('metadata immutability', () => {
             });
 
             const bodyParameter = metadata.controllers[0]!.methods[0]!.parameters[0]!;
+
             expect(bodyParameter.name).toEqual('body');
             expect(bodyParameter.type.typeName).toEqual('nestedObjectLiteral');
 
             const bodyType = bodyParameter.type as NestedObjectLiteralType;
+
             expect(bodyType.properties).toEqual([]);
         });
     });
@@ -352,10 +356,12 @@ describe('metadata immutability', () => {
             });
 
             const queryParameter = metadata.controllers[0]!.methods[1]!.parameters[0]!;
+
             expect(queryParameter.name).toEqual('status');
             expect(queryParameter.type.typeName).toEqual('refEnum');
 
             const queryType = queryParameter.type as RefEnumType;
+
             expect(queryType.refName).toEqual('Status');
             expect(queryType.members).toEqual(['active', 'inactive']);
         });
@@ -387,11 +393,13 @@ describe('metadata immutability', () => {
             });
 
             const shared = buildMetadata();
+
             await generateSwagger({
                 version: Version.V2,
                 metadata: shared,
                 data: { servers },
             });
+
             const afterV2 = await generateSwagger({
                 version: Version.V3,
                 metadata: shared,
@@ -447,6 +455,7 @@ describe('metadata immutability', () => {
             });
 
             const { parameters } = metadata.controllers[0]!.methods[0]!;
+
             expect(parameters).toHaveLength(1);
             expect(parameters[0]!.in).toEqual('bodyProp');
             expect(JSON.stringify(metadata)).toEqual(before);
@@ -511,6 +520,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = bodyParameterSchema(spec, '/users');
+
             expect(Object.keys(schema.properties!)).toEqual(['name', 'nickname']);
             expect(schema.required).toEqual(['name']);
         });
@@ -523,6 +533,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = bodyParameterSchema(spec, '/users');
+
             expect(Object.keys(schema.properties!)).toEqual(['name', 'nickname']);
             expect(schema).not.toHaveProperty('required');
         });
@@ -535,6 +546,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -546,11 +558,13 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = bodyParameterSchema(spec, '/users');
+
             expect(schema.required).toEqual(['name']);
 
             // `uniqueItems: true` on draft-04's `stringArray`, so a repeat is not
             // merely untidy — the document stops validating.
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -562,10 +576,12 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = bodyParameterSchema(spec, '/users');
+
             expect(Object.keys(schema.properties!)).toEqual(['id', 'name']);
             expect(schema.required).toEqual(['id', 'name']);
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });
@@ -579,6 +595,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = requestBodySchema(spec, '/users');
+
             expect(Object.keys(schema.properties!)).toEqual(['name', 'nickname']);
             expect(schema.required).toEqual(['name']);
         });
@@ -591,6 +608,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const schema = requestBodySchema(spec, '/users');
+
             expect(Object.keys(schema.properties!)).toEqual(['name', 'nickname']);
             expect(schema).not.toHaveProperty('required');
         });
@@ -603,6 +621,7 @@ describe('bodyProp requiredness', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });

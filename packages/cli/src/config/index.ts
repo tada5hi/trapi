@@ -8,4 +8,6 @@
 export * from './types.ts';
 export * from './define.ts';
 export * from './load.ts';
+export type { LoadConfigOptions } from './types';
 export * from './merge.ts';
+export type { GenerateFlags, ResolvedTarget } from './types';

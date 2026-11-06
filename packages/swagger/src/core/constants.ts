@@ -11,12 +11,14 @@ export const Version = {
     V3_1: 'v3.1',
     V3_2: 'v3.2',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type Version = typeof Version[keyof typeof Version];
 
 export const DocumentFormat = {
     YAML: 'yaml',
     JSON: 'json',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type DocumentFormat = typeof DocumentFormat[keyof typeof DocumentFormat];
 
 export const SecurityType = {
@@ -25,6 +27,7 @@ export const SecurityType = {
     HTTP: 'http',
     OAUTH2: 'oauth2',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type SecurityType = typeof SecurityType[keyof typeof SecurityType];
 
 export const OperationIdStrategy = {
@@ -37,4 +40,5 @@ export const OperationIdStrategy = {
      */
     PATH: 'path',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type OperationIdStrategy = typeof OperationIdStrategy[keyof typeof OperationIdStrategy];

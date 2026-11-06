@@ -65,31 +65,39 @@ export function applyDecoratorHandlers<D>(
     if (handlers.length === 0 && !options.onUnmatchedDecorator) {
         return;
     }
+
     const sources = buildDecoratorSources(node, options);
+
     if (sources.length === 0) {
         return;
     }
+
     for (const source of sources) {
         let matched = 0;
+
         for (const handler of handlers) {
             if (matches(handler.match, source)) {
                 handler.apply(buildHandlerContext(source, options), draft);
                 matched += 1;
             }
         }
+
         if (matched === 0 && options.onUnmatchedDecorator) {
             // Prefer the decorator's own AST line if `buildDecoratorSources`
             // populated it; fall back to the host node's line otherwise.
             let file: string;
             let line: number;
+
             if (source.location) {
                 file = source.location.file;
                 line = source.location.line;
             } else {
                 const sourceFile = node.getSourceFile();
+
                 file = sourceFile.fileName;
                 line = sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1;
             }
+
             options.onUnmatchedDecorator(
                 {
                     name: source.name,
@@ -113,10 +121,13 @@ export function applyJsDocHandlers<D>(
     if (handlers.length === 0) {
         return;
     }
+
     const sources = buildJsDocSources(node, options);
+
     if (sources.length === 0) {
         return;
     }
+
     for (const source of sources) {
         for (const handler of handlers) {
             if (matchesJsDoc(handler.match, source)) {

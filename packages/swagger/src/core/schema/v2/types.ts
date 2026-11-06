@@ -98,6 +98,7 @@ export type HeaderV2 = {
 
 // Self-recursive: must remain `interface` because `type` aliases cannot reference
 // themselves through an intersection.
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface SchemaV2 extends BaseSchema<SchemaV2> {
     ['x-nullable']?: boolean;
     ['x-deprecated']?: boolean;

@@ -5,8 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import type { BaseType } from '../resolver/types';
-import type { Extension } from '../resolver/extension';
+import type { BaseType, Extension  } from '../resolver/types';
 import type { Parameter } from '../parameter/types';
 import type { Response, Security } from '../generator/types';
 

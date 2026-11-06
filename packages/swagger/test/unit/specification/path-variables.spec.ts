@@ -187,6 +187,7 @@ describe('undeclared path-template variables (#896)', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -198,6 +199,7 @@ describe('undeclared path-template variables (#896)', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });
@@ -491,6 +493,7 @@ describe('data.pathParameters (#913)', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -502,6 +505,7 @@ describe('data.pathParameters (#913)', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });

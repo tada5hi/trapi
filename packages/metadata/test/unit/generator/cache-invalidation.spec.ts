@@ -39,6 +39,7 @@ async function rmrf(p: string): Promise<void> {
 async function listCacheFiles(dir: string): Promise<string[]> {
     try {
         const entries = await fs.promises.readdir(dir);
+
         return entries.filter((f) => f.startsWith(CACHE_FILE_PREFIX));
     } catch {
         return [];
@@ -52,8 +53,13 @@ const ENDPOINT_TEST_TIMEOUT_MS = 30_000;
 
 describe('cache invalidation — end-to-end through MetadataGenerator', () => {
     let dir: string;
-    beforeEach(() => { dir = uniqueDir('inv'); });
-    afterEach(async () => { await rmrf(dir); });
+
+    beforeEach(() => {
+        dir = uniqueDir('inv');
+    });
+    afterEach(async () => {
+        await rmrf(dir);
+    });
 
     it('hits the cache on a second run with identical inputs', { timeout: ENDPOINT_TEST_TIMEOUT_MS }, async () => {
         const opts = {
@@ -64,6 +70,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
 
         const first = await generateMetadata(opts);
         const filesAfterFirst = await listCacheFiles(dir);
+
         expect(filesAfterFirst).toHaveLength(1);
 
         const cachedPath = path.join(dir, filesAfterFirst[0]);
@@ -78,6 +85,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
 
         // mtime should be unchanged because the second run reads, not writes.
         const mtimeAfterSecond = (await fs.promises.stat(cachedPath)).mtimeMs;
+
         expect(mtimeAfterSecond).toEqual(mtimeAfterFirst);
 
         // And the metadata returned matches.
@@ -90,7 +98,9 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
             cache: { enabled: true, directoryPath: dir },
             preset: '@trapi/preset-decorators-express',
         });
+
         const afterFirst = await listCacheFiles(dir);
+
         expect(afterFirst).toHaveLength(1);
 
         // Different preset name → different `presetName` AND different
@@ -100,7 +110,9 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
             cache: { enabled: true, directoryPath: dir },
             preset: '@trapi/preset-typescript-rest',
         });
+
         const afterSecond = await listCacheFiles(dir);
+
         expect(afterSecond).toHaveLength(2);
     });
 
@@ -137,6 +149,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
             sourceFiles: [],
             options: baseOptions,
         });
+
         // Mutate the resolved registry so its hash differs from a default one.
         genA.registry.controllers.push({
             match: { name: 'CtrlA', on: 'class' },
@@ -149,6 +162,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
             sourceFiles: [],
             options: baseOptions,
         });
+
         // Different match name → different registry hash → different key.
         genB.registry.controllers.push({
             match: { name: 'CtrlB', on: 'class' },
@@ -163,6 +177,7 @@ describe('cache invalidation — end-to-end through MetadataGenerator', () => {
             sourceFiles: [],
             options: baseOptions,
         });
+
         genC.registry.controllers.push({
             match: { name: 'CtrlA', on: 'class' },
             apply: () => undefined,

@@ -149,6 +149,7 @@ export type MediaTypeV3 = {
 
 // Self-recursive: must remain `interface` because `type` aliases cannot reference
 // themselves through an intersection.
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface SchemaV3 extends Omit<BaseSchema<SchemaV3>, 'discriminator'> {
     discriminator?: string | { propertyName: string; mapping?: Record<string, string> };
     nullable?: boolean;

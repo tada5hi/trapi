@@ -72,6 +72,7 @@ const parameterNamed = (op: any, name: string) => parametersOf(op).find((p) => p
 
 function allParameters(spec: any) {
     const output : any[] = [];
+
     for (const path of Object.values(spec.paths) as any[]) {
         for (const operation of Object.values(path) as any[]) {
             output.push(...parametersOf(operation));
@@ -156,6 +157,7 @@ describe('parameter flags (#914)', () => {
             const parameters = allParameters(spec);
 
             expect(parameters.length).toBeGreaterThan(0);
+
             for (const parameter of parameters) {
                 expect(parameter).not.toHaveProperty('allowReserved');
             }
@@ -197,6 +199,7 @@ describe('parameter flags (#914)', () => {
             const parameters = allParameters(spec);
 
             expect(parameters.length).toBeGreaterThan(0);
+
             for (const parameter of parameters) {
                 expect(parameter).not.toHaveProperty('allowEmptyValue');
             }
@@ -219,6 +222,7 @@ describe('parameter flags (#914)', () => {
             });
 
             const result = validateV31Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });

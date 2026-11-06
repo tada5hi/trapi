@@ -23,6 +23,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.metadata.entryPoint).toBe('src/cfg.ts');
     });
 
@@ -32,6 +33,7 @@ describe('resolveEntry', () => {
             { entryPoint: 'src/flag.ts' },
             cwd,
         );
+
         expect(t.metadata.entryPoint).toBe('src/flag.ts');
     });
 
@@ -49,6 +51,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.metadata.ignore).toEqual(['**/node_modules/**']);
         expect(t.metadata.allow).toEqual(['src/types/**']);
         expect(t.metadata.strict).toBe('throw');
@@ -78,6 +81,7 @@ describe('resolveEntry', () => {
             },
             cwd,
         );
+
         expect(t.metadata.ignore).toEqual(['new']);
         expect(t.metadata.allow).toEqual(['new']);
         expect(t.metadata.strict).toBe('throw');
@@ -97,10 +101,10 @@ describe('resolveEntry', () => {
                         servers: ['https://api.example.com'],
                         securityDefinitions: {
                             bearer: {
-                                type: 'apiKey', 
-                                name: 'Authorization', 
-                                in: 'header', 
-                            }, 
+                                type: 'apiKey',
+                                name: 'Authorization',
+                                in: 'header',
+                            },
                         },
                     },
                 },
@@ -108,15 +112,16 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.swagger.version).toBe('v3.2');
         expect(t.swagger.data.name).toBe('API');
         expect(t.swagger.data.servers).toEqual(['https://api.example.com']);
         expect(t.swagger.data.securityDefinitions).toEqual({
             bearer: {
-                type: 'apiKey', 
-                name: 'Authorization', 
-                in: 'header', 
-            }, 
+                type: 'apiKey',
+                name: 'Authorization',
+                in: 'header',
+            },
         });
     });
 
@@ -144,6 +149,7 @@ describe('resolveEntry', () => {
             },
             cwd,
         );
+
         expect(t.swagger.version).toBe('v3.1');
         expect(t.swagger.data.name).toBe('flag');
         expect(t.swagger.data.version).toBe('2.0.0');
@@ -161,6 +167,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.swagger.version).toBe('v3');
     });
 
@@ -170,6 +177,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.output.path).toBe(path.join(cwd, 'dist/api.json'));
     });
 
@@ -180,6 +188,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.output.path).toBe(abs);
     });
 
@@ -189,6 +198,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.output.path).toBe(path.join(cwd, 'swagger.json'));
     });
 
@@ -199,6 +209,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.swagger.transform).toBe(transform);
     });
 
@@ -208,6 +219,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(t.swagger.transform).toBeUndefined();
     });
 
@@ -232,6 +244,7 @@ describe('resolveEntry', () => {
             {},
             cwd,
         );
+
         expect(first.swagger.transform).toBe(a);
         expect(second.swagger.transform).toBe(b);
     });
@@ -243,6 +256,7 @@ describe('resolveEntry', () => {
             { cwd: flagCwd },
             cwd,
         );
+
         expect(t.cwd).toBe(flagCwd);
     });
 });

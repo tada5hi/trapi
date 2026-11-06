@@ -119,12 +119,14 @@ describe('file upload / multipart form data', () => {
     describe('V2', () => {
         it('should set consumes to multipart/form-data for file upload', () => {
             const op = specV2.paths['/upload/single'].post!;
+
             expect(op.consumes).toContain('multipart/form-data');
         });
 
         it('should produce formData parameter with type file', () => {
             const params = specV2.paths['/upload/single'].post!.parameters!;
             const fileParam = params.find((p: any) => p.name === 'file');
+
             expect(fileParam).toBeDefined();
             expect((fileParam as any).in).toEqual('formData');
             expect((fileParam as any).type).toEqual('file');
@@ -132,6 +134,7 @@ describe('file upload / multipart form data', () => {
 
         it('should handle mixed file and form field parameters', () => {
             const op = specV2.paths['/upload/mixed'].post!;
+
             expect(op.consumes).toContain('multipart/form-data');
 
             const params = op.parameters!;
@@ -147,6 +150,7 @@ describe('file upload / multipart form data', () => {
         it('should mark optional file as not required', () => {
             const params = specV2.paths['/upload/optional'].post!.parameters!;
             const fileParam = params.find((p: any) => p.name === 'file');
+
             expect(fileParam).toBeDefined();
             expect((fileParam as any).required).toBe(false);
         });
@@ -155,10 +159,12 @@ describe('file upload / multipart form data', () => {
     describe('V3', () => {
         it('should use requestBody with multipart/form-data for single file', () => {
             const op = specV3.paths['/upload/single'].post!;
+
             expect(op.requestBody).toBeDefined();
             expect(op.requestBody!.content).toHaveProperty('multipart/form-data');
 
             const schema = op.requestBody!.content['multipart/form-data'].schema!;
+
             expect(schema.type).toEqual('object');
             expect(schema.properties).toBeDefined();
             expect(schema.properties!.file).toBeDefined();
@@ -168,6 +174,7 @@ describe('file upload / multipart form data', () => {
             const schema = specV3.paths['/upload/single'].post!
                 .requestBody!.content['multipart/form-data'].schema!;
             const fileProp = schema.properties!.file;
+
             expect(fileProp.type).toEqual('string');
             expect(fileProp.format).toEqual('binary');
         });
@@ -175,6 +182,7 @@ describe('file upload / multipart form data', () => {
         it('should handle mixed file and form field in multipart', () => {
             const schema = specV3.paths['/upload/mixed'].post!
                 .requestBody!.content['multipart/form-data'].schema!;
+
             expect(schema.properties!.document).toBeDefined();
             expect(schema.properties!.description).toBeDefined();
             expect(schema.properties!.description.type).toEqual('string');
@@ -183,6 +191,7 @@ describe('file upload / multipart form data', () => {
         it('should not include optional file in required array', () => {
             const schema = specV3.paths['/upload/optional'].post!
                 .requestBody!.content['multipart/form-data'].schema!;
+
             if (schema.required) {
                 expect(schema.required).not.toContain('file');
             }
@@ -191,6 +200,7 @@ describe('file upload / multipart form data', () => {
         it('should include required file in required array', () => {
             const schema = specV3.paths['/upload/single'].post!
                 .requestBody!.content['multipart/form-data'].schema!;
+
             expect(schema.required).toBeDefined();
             expect(schema.required).toContain('file');
         });

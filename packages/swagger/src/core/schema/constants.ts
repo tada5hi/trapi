@@ -11,6 +11,7 @@ export const TransferProtocol = {
     WS: 'ws',
     WSS: 'wss',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type TransferProtocol = typeof TransferProtocol[keyof typeof TransferProtocol];
 
 export const DataFormatName = {
@@ -24,6 +25,7 @@ export const DataFormatName = {
     DATE_TIME: 'date-time',
     PASSWORD: 'password',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type DataFormatName = typeof DataFormatName[keyof typeof DataFormatName];
 
 export const DataTypeName = {
@@ -36,4 +38,5 @@ export const DataTypeName = {
     OBJECT: 'object',
     FILE: 'file',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type DataTypeName = typeof DataTypeName[keyof typeof DataTypeName];

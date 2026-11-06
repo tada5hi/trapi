@@ -20,6 +20,7 @@ export function transformJSDocComment(
     }
 
     const comment = input[0];
+
     if (typeof comment === 'string') {
         return comment;
     }

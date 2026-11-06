@@ -490,7 +490,9 @@ describe('V2 non-body parameter types', () => {
                 required: true,
                 type: 'string',
             });
+
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -504,7 +506,9 @@ describe('V2 non-body parameter types', () => {
                 required: false,
                 type: 'string',
             });
+
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
     });

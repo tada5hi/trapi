@@ -6,6 +6,13 @@
  */
 
 export * from './generate.ts';
+export type {
+    Metadata,
+    GenerateArgs,
+    GenerateResult,
+    ResolvedTargets,
+} from './types';
 export * from './info.ts';
 export * from './cache.ts';
+export type { CleanCacheOptions, CleanCacheResult } from './types';
 export * from './watch.ts';

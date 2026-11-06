@@ -25,6 +25,7 @@ export async function readPackageJson(): Promise<PackageJson> {
     for (const candidate of candidates) {
         try {
             const raw = await readFile(candidate, { encoding: 'utf-8' });
+
             return JSON.parse(raw) as PackageJson;
         } catch {
             // continue

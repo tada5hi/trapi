@@ -6,9 +6,9 @@
  */
 
 import type {
-    Metadata, 
-    RefAliasType, 
-    ReferenceTypes, 
+    Metadata,
+    RefAliasType,
+    ReferenceTypes,
     Type,
 } from '@trapi/core';
 import { describe, expect, it } from 'vitest';
@@ -97,6 +97,7 @@ const USER_DTO_REFERENCE_TYPES : ReferenceTypes = { UserDto: refAliasBodyType() 
  */
 function cyclicAliasBodyType() : RefAliasType {
     const a = createRefAlias('A', stringType());
+
     a.type = createRefAlias('B', a);
 
     return a;
@@ -142,9 +143,11 @@ function requestBodySchema(spec: SpecV3) : SchemaV3 {
 
 function bodyParameterSchema(spec: SpecV2) : BaseSchema<SchemaV2> {
     const parameters = spec.paths['/users']!.post!.parameters!;
+
     expect(parameters).toHaveLength(1);
 
     const parameter = parameters[0] as BodyParameterV2;
+
     expect(parameter.in).toEqual('body');
     expect(parameter.name).toEqual('body');
 
@@ -291,12 +294,14 @@ describe('body + bodyProp on a non-object-literal body', () => {
             });
 
             const schema = requestBodySchema(spec);
+
             expect(schema.allOf).toEqual([
                 { additionalProperties: true },
                 BODY_PROP_MEMBER,
             ]);
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -321,6 +326,7 @@ describe('body + bodyProp on a non-object-literal body', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -387,6 +393,7 @@ describe('body + bodyProp on a non-object-literal body', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -543,6 +550,7 @@ describe('body + bodyProp on a non-object-literal body', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 
@@ -592,6 +600,7 @@ describe('body + bodyProp on a non-object-literal body', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
         });
 

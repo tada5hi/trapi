@@ -1,3 +1,9 @@
+import type {
+    CreateHandlerContextInput,
+    DecoratorArgument,
+    DecoratorTypeArgument,
+    HandlerContext,
+} from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -6,12 +12,6 @@
  */
 
 import type { Type } from '../resolver/types';
-import type {
-    DecoratorArgument,
-    DecoratorHost,
-    DecoratorTypeArgument,
-    HandlerContext,
-} from './types';
 
 /**
  * Build a literal-kind {@link DecoratorArgument} from a primitive value.
@@ -65,13 +65,6 @@ export function typeArg(type: Type): DecoratorTypeArgument {
     return { resolve: () => type };
 }
 
-export type CreateHandlerContextInput = {
-    args?: DecoratorArgument[];
-    typeArgs?: DecoratorTypeArgument[];
-    host?: DecoratorHost;
-    parameterType?: Type;
-};
-
 /**
  * Construct a {@link HandlerContext} for unit-testing handlers in isolation
  * without spinning up the full TypeScript compiler / `generateMetadata`
@@ -88,6 +81,7 @@ export type CreateHandlerContextInput = {
 export function createHandlerContext(input: CreateHandlerContextInput = {}): HandlerContext {
     const args = input.args ?? [];
     const typeArgs = input.typeArgs ?? [];
+
     return {
         host: input.host ?? { name: 'TestHost' },
         argument: (index) => args[index],

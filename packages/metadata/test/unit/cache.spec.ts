@@ -37,8 +37,12 @@ describe('src/cache', () => {
     describe('save and get', () => {
         let dir: string;
 
-        beforeEach(() => { dir = uniqueDir('save-get'); });
-        afterEach(async () => { await rmrf(dir); });
+        beforeEach(() => {
+            dir = uniqueDir('save-get');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         it('saves and retrieves cache by key', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
@@ -54,6 +58,7 @@ describe('src/cache', () => {
             expect(fs.existsSync(cachePath!)).toBe(true);
 
             const output = await cache.get('key-empty');
+
             expect(output).toBeDefined();
             expect(output!.cacheKey).toEqual('key-empty');
             expect(output!.schemaVersion).toEqual(CACHE_SCHEMA_VERSION);
@@ -90,6 +95,7 @@ describe('src/cache', () => {
             });
 
             const output = await cache.get('key-shape');
+
             expect(output).toBeDefined();
             expect(output!.controllers).toHaveLength(1);
             expect(output!.controllers[0].name).toEqual('TestController');
@@ -126,6 +132,7 @@ describe('src/cache', () => {
 
             const a = await cache.get('key-a');
             const b = await cache.get('key-b');
+
             expect(a!.controllers).toHaveLength(0);
             expect(b!.controllers).toHaveLength(1);
         });
@@ -140,12 +147,14 @@ describe('src/cache', () => {
                 cacheKey: 'k',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
+
             expect(result).toBeUndefined();
         });
 
         it('does not get when disabled', async () => {
             const cache = new CacheClient(false);
             const result = await cache.get('k');
+
             expect(result).toBeUndefined();
         });
 
@@ -157,14 +166,20 @@ describe('src/cache', () => {
                 cacheKey: 'k',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
+
             expect(result).toBeUndefined();
         });
     });
 
     describe('cacheKey validation (path-traversal hardening)', () => {
         let dir: string;
-        beforeEach(() => { dir = uniqueDir('traverse'); });
-        afterEach(async () => { await rmrf(dir); });
+
+        beforeEach(() => {
+            dir = uniqueDir('traverse');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         const malicious = [
             '../escape',
@@ -182,6 +197,7 @@ describe('src/cache', () => {
         for (const key of malicious) {
             it(`rejects malicious cacheKey on save: ${JSON.stringify(key)}`, async () => {
                 const cache = new CacheClient({ enabled: true, directoryPath: dir });
+
                 await expect(cache.save({
                     controllers: [],
                     referenceTypes: {},
@@ -192,6 +208,7 @@ describe('src/cache', () => {
 
             it(`rejects malicious cacheKey on get: ${JSON.stringify(key)}`, async () => {
                 const cache = new CacheClient({ enabled: true, directoryPath: dir });
+
                 await expect(cache.get(key)).rejects.toThrow(/cacheKey/);
             });
         }
@@ -199,6 +216,7 @@ describe('src/cache', () => {
         it('accepts a sha256 hex digest (the canonical caller)', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
             const hexKey = 'a'.repeat(64);
+
             await expect(cache.save({
                 controllers: [],
                 referenceTypes: {},
@@ -210,12 +228,18 @@ describe('src/cache', () => {
 
     describe('cache miss', () => {
         let dir: string;
-        beforeEach(() => { dir = uniqueDir('miss'); });
-        afterEach(async () => { await rmrf(dir); });
+
+        beforeEach(() => {
+            dir = uniqueDir('miss');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         it('returns undefined for missing entry', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
             const out = await cache.get('never-saved');
+
             expect(out).toBeUndefined();
         });
 
@@ -225,7 +249,9 @@ describe('src/cache', () => {
             // Tamper: write a file at the path for `key-x` whose payload
             // claims to be `key-y` — the cross-check must reject.
             await fs.promises.mkdir(dir, { recursive: true });
+
             const filePath = path.join(dir, '.trapi-metadata-key-x.json');
+
             await fs.promises.writeFile(filePath, JSON.stringify({
                 controllers: [],
                 referenceTypes: {},
@@ -234,6 +260,7 @@ describe('src/cache', () => {
             }));
 
             const out = await cache.get('key-x');
+
             expect(out).toBeUndefined();
         });
 
@@ -241,10 +268,13 @@ describe('src/cache', () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
 
             await fs.promises.mkdir(dir, { recursive: true });
+
             const filePath = path.join(dir, '.trapi-metadata-key-corrupt.json');
+
             await fs.promises.writeFile(filePath, '{ not valid json');
 
             const out = await cache.get('key-corrupt');
+
             expect(out).toBeUndefined();
             expect(fs.existsSync(filePath)).toBe(false);
         });
@@ -253,7 +283,9 @@ describe('src/cache', () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
 
             await fs.promises.mkdir(dir, { recursive: true });
+
             const filePath = path.join(dir, '.trapi-metadata-key-old.json');
+
             await fs.promises.writeFile(filePath, JSON.stringify({
                 controllers: [],
                 referenceTypes: {},
@@ -262,6 +294,7 @@ describe('src/cache', () => {
             }));
 
             const out = await cache.get('key-old');
+
             expect(out).toBeUndefined();
         });
     });
@@ -269,6 +302,7 @@ describe('src/cache', () => {
     describe('constructor inputs', () => {
         it('accepts a string directory path', async () => {
             const dir = uniqueDir('str');
+
             try {
                 const cache = new CacheClient(dir);
                 const cachePath = await cache.save({
@@ -277,6 +311,7 @@ describe('src/cache', () => {
                     cacheKey: 'k',
                     schemaVersion: CACHE_SCHEMA_VERSION,
                 });
+
                 expect(cachePath!.startsWith(dir)).toBe(true);
             } finally {
                 await rmrf(dir);
@@ -291,12 +326,14 @@ describe('src/cache', () => {
                 cacheKey: 'k-default',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
+
             expect(cachePath).toBeDefined();
             await fs.promises.unlink(cachePath!).catch((): void => undefined);
         });
 
         it('accepts a custom fileName', async () => {
             const dir = uniqueDir('fn');
+
             try {
                 const cache = new CacheClient({
                     enabled: true,
@@ -309,6 +346,7 @@ describe('src/cache', () => {
                     cacheKey: 'k',
                     schemaVersion: CACHE_SCHEMA_VERSION,
                 });
+
                 expect(cachePath!.endsWith('custom-cache.json')).toBe(true);
             } finally {
                 await rmrf(dir);
@@ -317,6 +355,7 @@ describe('src/cache', () => {
 
         it('auto-creates the directory if missing', async () => {
             const dir = uniqueDir('mkdir');
+
             // Don't create it — the cache should.
             try {
                 const cache = new CacheClient({ enabled: true, directoryPath: dir });
@@ -326,6 +365,7 @@ describe('src/cache', () => {
                     cacheKey: 'k',
                     schemaVersion: CACHE_SCHEMA_VERSION,
                 });
+
                 expect(fs.existsSync(dir)).toBe(true);
                 expect(fs.existsSync(cachePath!)).toBe(true);
             } finally {
@@ -336,8 +376,13 @@ describe('src/cache', () => {
 
     describe('eviction', () => {
         let dir: string;
-        beforeEach(() => { dir = uniqueDir('evict'); });
-        afterEach(async () => { await rmrf(dir); });
+
+        beforeEach(() => {
+            dir = uniqueDir('evict');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         it('removes files older than maxAgeMs on evict()', async () => {
             const cache = new CacheClient({
@@ -352,10 +397,12 @@ describe('src/cache', () => {
                 cacheKey: 'k-old',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
+
             expect(cachePath).toBeDefined();
 
             // Backdate the file so it appears stale.
             const past = (Date.now() - 60_000) / 1000;
+
             await fs.promises.utimes(cachePath!, past, past);
 
             await cache.evict();
@@ -396,6 +443,7 @@ describe('src/cache', () => {
 
             // Backdate
             const past = (Date.now() - 60_000) / 1000;
+
             await fs.promises.utimes(cachePath!, past, past);
 
             await cache.evict();
@@ -405,8 +453,13 @@ describe('src/cache', () => {
 
     describe('cycle-safe serialization', () => {
         let dir: string;
-        beforeEach(() => { dir = uniqueDir('cycle'); });
-        afterEach(async () => { await rmrf(dir); });
+
+        beforeEach(() => {
+            dir = uniqueDir('cycle');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         it('round-trips an object containing a self-reference', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
@@ -417,12 +470,15 @@ describe('src/cache', () => {
                 cacheKey: 'k-cycle-self',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             };
+
             data.self = data;
 
             const cachePath = await cache.save(data);
+
             expect(cachePath).toBeDefined();
 
             const restored = await cache.get('k-cycle-self') as any;
+
             expect(restored).toBeDefined();
             // The cycle is preserved on read — `restored.self` is the
             // restored object, not undefined or a stripped subtree.
@@ -444,6 +500,7 @@ describe('src/cache', () => {
                 properties: [],
                 deprecated: false,
             };
+
             // Hypothetical in-place back-edge (not how real metadata is shaped,
             // but defensively supported).
             typeA.partner = typeB;
@@ -455,9 +512,11 @@ describe('src/cache', () => {
                 cacheKey: 'k-cycle-pair',
                 schemaVersion: CACHE_SCHEMA_VERSION,
             });
+
             expect(cachePath).toBeDefined();
 
             const restored = await cache.get('k-cycle-pair') as any;
+
             expect(restored).toBeDefined();
             expect(restored.referenceTypes.A.partner).toBe(restored.referenceTypes.B);
             expect(restored.referenceTypes.B.partner).toBe(restored.referenceTypes.A);
@@ -466,8 +525,13 @@ describe('src/cache', () => {
 
     describe('atomic write', () => {
         let dir: string;
-        beforeEach(() => { dir = uniqueDir('atomic'); });
-        afterEach(async () => { await rmrf(dir); });
+
+        beforeEach(() => {
+            dir = uniqueDir('atomic');
+        });
+        afterEach(async () => {
+            await rmrf(dir);
+        });
 
         it('does not leave .tmp files behind on success', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
@@ -480,6 +544,7 @@ describe('src/cache', () => {
             });
 
             const entries = await fs.promises.readdir(dir);
+
             expect(entries.some((f) => f.endsWith('.tmp'))).toBe(false);
         });
 
@@ -501,10 +566,12 @@ describe('src/cache', () => {
             ]);
 
             const out = await cache.get('k-concurrent');
+
             expect(out).toBeDefined();
 
             // No leftover tmp files
             const entries = await fs.promises.readdir(dir);
+
             expect(entries.filter((f) => f.endsWith('.tmp'))).toEqual([]);
         });
     });
@@ -525,6 +592,7 @@ describe('src/cache', () => {
                 registryHash: 'reg',
                 presetName: 'p',
             });
+
             expect(a).toEqual(b);
             expect(a).toMatch(/^[0-9a-f]{64}$/);
         });
@@ -545,6 +613,7 @@ describe('src/cache', () => {
                 { ...base, presetName: 'p2' },
             ];
             const baseKey = composeCacheKey(base);
+
             for (const v of variants) {
                 expect(composeCacheKey(v)).not.toEqual(baseKey);
             }
@@ -555,12 +624,14 @@ describe('src/cache', () => {
         it('is stable across key insertion order', () => {
             const a = hashCompilerOptions({ target: 99, strict: true });
             const b = hashCompilerOptions({ strict: true, target: 99 } as any);
+
             expect(a).toEqual(b);
         });
 
         it('changes when an option changes', () => {
             const a = hashCompilerOptions({ strict: true });
             const b = hashCompilerOptions({ strict: false });
+
             expect(a).not.toEqual(b);
         });
     });
@@ -581,6 +652,7 @@ describe('src/cache', () => {
                     apply: ((): void => undefined),
                 } as any],
             });
+
             expect(empty).not.toEqual(populated);
         });
 
@@ -599,6 +671,7 @@ describe('src/cache', () => {
                     apply: ((): void => undefined),
                 } as any],
             });
+
             expect(a).not.toEqual(b);
         });
 
@@ -607,16 +680,21 @@ describe('src/cache', () => {
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: (_ctx: any, draft: any) => { draft.paths = ['a']; },
+                    apply: (_ctx: any, draft: any) => {
+                        draft.paths = ['a'];
+                    },
                 } as any],
             });
             const b = hashRegistry({
                 ...emptyRegistry,
                 controllers: [{
                     match: { name: 'Controller', on: 'class' },
-                    apply: (_ctx: any, draft: any) => { draft.paths = ['b']; },
+                    apply: (_ctx: any, draft: any) => {
+                        draft.paths = ['b'];
+                    },
                 } as any],
             });
+
             expect(a).not.toEqual(b);
         });
     });

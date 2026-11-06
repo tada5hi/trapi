@@ -15,19 +15,24 @@ describe('@trapi/example-decorators', () => {
         });
 
         expect(metadata.controllers).toHaveLength(1);
+
         const [controller] = metadata.controllers;
+
         expect(controller.name).toBe('UsersController');
         // normalizePath strips the leading slash
         expect(controller.paths).toEqual(['users']);
 
         const verbs = controller.methods.map((m) => m.method).sort();
+
         expect(verbs).toEqual(['get', 'get', 'post']);
 
         const create = controller.methods.find((m) => m.method === 'post');
+
         expect(create?.parameters).toHaveLength(1);
         expect(create?.parameters[0].in).toBe('body');
 
         const getById = controller.methods.find((m) => m.path === ':id');
+
         expect(getById?.parameters[0].in).toBe('path');
         expect(getById?.parameters[0].name).toBe('id');
     });

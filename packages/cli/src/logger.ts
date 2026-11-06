@@ -1,3 +1,4 @@
+import type { Logger } from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -12,7 +13,6 @@ export const LogLevel = {
     Info: 'info',
     Debug: 'debug',
 } as const;
-export type LogLevel = typeof LogLevel[keyof typeof LogLevel];
 
 export const LOG_LEVEL_VALUES: LogLevel[] = Object.values(LogLevel);
 
@@ -36,17 +36,6 @@ const ICON_SUCCESS = '✔';
 const ICON_WARN = '⚠';
 const ICON_ERROR = '✖';
 const ICON_DEBUG = '›';
-
-export type Logger = {
-    info: (msg: string) => void;
-    debug: (msg: string) => void;
-    warn: (msg: string) => void;
-    error: (msg: string) => void;
-    success: (msg: string) => void;
-    section: (title: string) => void;
-    kv: (key: string, value: string, padTo?: number) => void;
-    blank: () => void;
-};
 
 export function createLogger(level: LogLevel = LogLevel.Info): Logger {
     const enabled = (target: LogLevel): boolean => RANK[level] >= RANK[target];
@@ -92,6 +81,7 @@ export function createLogger(level: LogLevel = LogLevel.Info): Logger {
             }
 
             const pad = ' '.repeat(Math.max(0, padTo - key.length));
+
             write(`  ${tint(DIM, key)}${pad}  ${value}`);
         },
         blank: () => {
@@ -106,9 +96,11 @@ export function normalizeLogLevel(input: string | undefined): LogLevel {
     if (!input) {
         return LogLevel.Info;
     }
+
     if ((LOG_LEVEL_VALUES as string[]).includes(input)) {
         return input as LogLevel;
     }
+
     throw new CLIUserError(
         `Unknown log level "${input}". Supported: ${LOG_LEVEL_VALUES.join(', ')}.`,
     );
@@ -120,3 +112,6 @@ export class CLIUserError extends Error {
         this.name = 'CLIUserError';
     }
 }
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
+export type LogLevel = typeof LogLevel[keyof typeof LogLevel];

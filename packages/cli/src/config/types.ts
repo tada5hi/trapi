@@ -12,6 +12,7 @@ import type {
     Version,
 } from '@trapi/swagger';
 
+
 export type TrapiOutputConfig = {
     path?: string;
     format?: `${DocumentFormat}`;
@@ -73,4 +74,47 @@ export type LoadedConfig = {
     path?: string;
     /** Always normalised to an array. Empty when no config and no entries. */
     entries: TrapiConfigEntry[];
+};
+
+
+
+export type LoadConfigOptions = {
+    cwd: string;
+    /** Explicit config path from `--config`. Skips discovery. */
+    configPath?: string;
+    /** When `true`, do not attempt discovery; returns an empty result. */
+    disabled?: boolean;
+};
+
+export type GenerateFlags = {
+    cwd?: string;
+    entryPoint?: string | string[];
+    preset?: string;
+    tsconfig?: string;
+    ignore?: string[];
+    allow?: string[];
+    strict?: boolean | 'throw';
+    cache?: boolean;
+    output?: string;
+    format?: `${DocumentFormat}`;
+    version?: `${Version}`;
+    name?: string;
+    apiVersion?: string;
+    description?: string;
+    servers?: string[];
+    securityDefinitions?: SwaggerGenerateData['securityDefinitions'];
+};
+
+export type ResolvedTarget = {
+    cwd: string;
+    metadata: MetadataGenerateOptions;
+    swagger: {
+        version: `${Version}`;
+        data: SwaggerGenerateData;
+        transform?: SwaggerTransform;
+    };
+    output: {
+        path: string;
+        format?: `${DocumentFormat}`;
+    };
 };

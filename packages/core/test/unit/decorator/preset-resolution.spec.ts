@@ -21,12 +21,14 @@ const fixturePath = (name: string) => path.resolve(here, './data', name);
 describe('resolvePresetByName', () => {
     it('resolves a preset exported as named `preset`', async () => {
         const preset = await resolvePresetByName(fixturePath('preset-named.ts'));
+
         expect(preset.name).toEqual('fixture-named');
         expect(preset.methods).toHaveLength(1);
     });
 
     it('resolves a preset exported as default', async () => {
         const preset = await resolvePresetByName(fixturePath('preset-default.ts'));
+
         expect(preset.name).toEqual('fixture-default');
         expect(preset.methods?.[0].match.name).toEqual('Post');
     });
@@ -56,6 +58,7 @@ describe('resolvePresetByName', () => {
 describe('loadRegistryByName', () => {
     it('materializes a registry from a named preset', async () => {
         const registry = await loadRegistryByName(fixturePath('preset-named.ts'));
+
         expect(registry.methods).toHaveLength(1);
         expect(registry.methods[0].match.name).toEqual('Get');
     });
@@ -64,6 +67,7 @@ describe('loadRegistryByName', () => {
         const registry = await loadRegistryByName(fixturePath('preset-extends.ts'));
         // parent contributes Get, child contributes Put — both should land in the registry.
         const names = registry.methods.map((h) => h.match.name).sort();
+
         expect(names).toEqual(['Get', 'Put']);
     });
 });

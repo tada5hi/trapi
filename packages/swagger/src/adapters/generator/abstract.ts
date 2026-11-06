@@ -23,8 +23,8 @@ import type {
     ResolverProperty,
     TupleType,
     UnionType,
-    Validators, 
-    VariableType, 
+    Validators,
+    VariableType,
 } from '@trapi/core';
 import {
     ParameterSource,
@@ -112,6 +112,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             }
 
             const extensions = controller.extensions ?? [];
+
             if (extensions.length === 0) {
                 continue;
             }
@@ -121,6 +122,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
             for (const tagName of tagNames) {
                 let entry = tagMap.get(tagName);
+
                 if (!entry) {
                     entry = { name: tagName };
                     tagMap.set(tagName, entry);
@@ -136,21 +138,37 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
     protected getSchemaForType(type: BaseType): Schema | BaseSchema<Schema> {
         if (isVoidType(type) || isUndefinedType(type) || isNeverType(type)) {
             return {} as Schema;
-        } if (isReferenceType(type)) {
+        }
+
+        if (isReferenceType(type)) {
             return this.getSchemaForReferenceType(type);
-        } if (isPrimitiveType(type)) {
+        }
+
+        if (isPrimitiveType(type)) {
             return this.getSchemaForPrimitiveType(type);
-        } if (isArrayType(type)) {
+        }
+
+        if (isArrayType(type)) {
             return this.getSchemaForArrayType(type);
-        } if (isTupleType(type)) {
+        }
+
+        if (isTupleType(type)) {
             return this.getSchemaForTupleType(type);
-        } if (isEnumType(type)) {
+        }
+
+        if (isEnumType(type)) {
             return this.getSchemaForEnumType(type);
-        } if (isUnionType(type)) {
+        }
+
+        if (isUnionType(type)) {
             return this.getSchemaForUnionType(type);
-        } if (isIntersectionType(type)) {
+        }
+
+        if (isIntersectionType(type)) {
             return this.getSchemaForIntersectionType(type);
-        } if (isNestedObjectLiteralType(type)) {
+        }
+
+        if (isNestedObjectLiteralType(type)) {
             return this.getSchemaForObjectLiteralType(type);
         }
 
@@ -305,14 +323,17 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
             switch (referenceType.typeName) {
                 case TypeName.REF_ALIAS: {
                     output[referenceType.refName] = this.buildSchemaForRefAlias(referenceType);
+
                     break;
                 }
                 case TypeName.REF_ENUM: {
                     output[referenceType.refName] = this.buildSchemaForRefEnum(referenceType);
+
                     break;
                 }
                 case TypeName.REF_OBJECT: {
                     output[referenceType.refName] = this.buildSchemaForRefObject(referenceType);
+
                     break;
                 }
             }
@@ -340,6 +361,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
             if (swaggerType.$ref && this.shouldStripRefSiblings()) {
                 output[property.name] = { $ref: swaggerType.$ref } as Schema;
+
                 return;
             }
 
@@ -354,6 +376,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
             const extensions = this.transformExtensions(property.extensions);
             const validators = this.transformValidators(property.validators);
+
             output[property.name] = {
                 ...swaggerType,
                 ...validators,
@@ -403,6 +426,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
     protected determineTypesUsedInEnum(anEnum: Array<string | number | boolean | null>) : VariableType[] {
         const set = new Set<VariableType>();
+
         for (const element of anEnum) {
             if (element === null) {
                 continue;
@@ -421,6 +445,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         if (types.length === 1) {
             const value = types[0];
+
             if (
                 value === 'string' ||
                 value === 'number' ||
@@ -438,6 +463,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         const unsupportedTypes = types.filter(
             (type) => type !== 'string' && type !== 'number' && type !== 'boolean',
         );
+
         if (unsupportedTypes.length > 0) {
             throw new SwaggerError({
                 message: `Enum contains unsupported types: ${unsupportedTypes.join(', ')}. Only string, number, and boolean values are allowed.`,
@@ -495,6 +521,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
      */
     protected undeclaredPathVariables(emittedPath: string, declared: Parameter[]) : string[] {
         const names = new Set(declared.map((p) => p.name));
+
         return pathVariables(emittedPath).filter((name) => !names.has(name));
     }
 
@@ -557,6 +584,7 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
 
         for (const item of items) {
             const bucket = output[item.in] ?? (output[item.in] = []);
+
             bucket.push(item);
         }
 
@@ -569,8 +597,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         }
 
         const output : Record<string, any> = {};
+
         for (const extension of input) {
             const key = extension.key.startsWith('x-') ? extension.key : `x-${extension.key}`;
+
             output[key] = extension.value;
         }
 
@@ -583,8 +613,10 @@ export abstract class AbstractSpecGenerator<Spec extends SpecV2 | SpecV3, Schema
         }
 
         const output : Record<string, any> = {};
+
         for (const [name, validator] of Object.entries(input)) {
             const mapping = validator.meta?.openApi ?? DEFAULT_VALIDATOR_OPENAPI_MAPPINGS[name];
+
             if (!mapping || mapping.kind === 'ignore') {
                 continue;
             }

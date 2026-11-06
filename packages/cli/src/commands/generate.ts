@@ -1,3 +1,9 @@
+import type {
+    GenerateArgs,
+    GenerateResult,
+    Metadata,
+    ResolvedTargets,
+} from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -12,16 +18,8 @@ import type { MetadataGenerateOptions } from '@trapi/metadata';
 import { generateMetadata } from '@trapi/metadata';
 import type { DocumentFormat, SpecV2, SpecV3 } from '@trapi/swagger';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
-import type {
-    GenerateFlags,
-    ResolvedTarget,
-    TrapiConfigEntry,
-} from '../config';
-import {
-    defaultConfigCwd,
-    loadConfig,
-    resolveEntry,
-} from '../config';
+import type { GenerateFlags, ResolvedTarget, TrapiConfigEntry } from '../config';
+import { defaultConfigCwd, loadConfig, resolveEntry } from '../config';
 import {
     CLIUserError,
     LOG_LEVEL_VALUES,
@@ -38,8 +36,6 @@ import {
     splitCsv,
     splitOutputPath,
 } from './utils.ts';
-
-type Metadata = Awaited<ReturnType<typeof generateMetadata>>;
 
 export const GENERATE_ARGS = {
     'entry-point': {
@@ -144,25 +140,13 @@ export function defineCLIGenerateCommand() {
         args: GENERATE_ARGS,
         async run({ args }) {
             const logger = createLogger(normalizeLogLevel(args['log-level'] as string | undefined));
+
             await runWithExitCode(logger, async () => {
                 await runGenerate(args, logger);
             });
         },
     });
 }
-
-export type GenerateArgs = Record<string, unknown>;
-
-export type GenerateResult = {
-    target: ResolvedTarget;
-    output: { path: string };
-};
-
-export type ResolvedTargets = {
-    cwd: string;
-    configPath?: string;
-    targets: ResolvedTarget[];
-};
 
 export async function resolveTargets(args: GenerateArgs): Promise<ResolvedTargets> {
     const flags = parseFlags(args);
@@ -179,9 +163,9 @@ export async function resolveTargets(args: GenerateArgs): Promise<ResolvedTarget
     const targets = entries.map((entry) => resolveEntry(entry, flags, fallbackCwd));
 
     return {
-        cwd, 
-        configPath: loaded.path, 
-        targets, 
+        cwd,
+        configPath: loaded.path,
+        targets,
     };
 }
 
@@ -196,11 +180,14 @@ export async function runGenerate(
     } else {
         logger.debug('no config file found; using CLI flags only');
     }
+
     logger.debug(`resolved ${resolved.targets.length} target(s)`);
 
     const start = Date.now();
     const results = await runTargets(resolved.targets, logger);
+
     logger.success(`done in ${Date.now() - start}ms`);
+
     return results;
 }
 
@@ -216,6 +203,7 @@ export async function runTargets(
     for (const [index, target] of targets.entries()) {
         const key = signatureFor(target.metadata, index);
         let metadata = cache.get(key);
+
         if (!metadata) {
             metadata = await generateMetadata(target.metadata);
             logger.debug(
@@ -251,11 +239,13 @@ export async function emitOne(
     // replace the document. A `.js` config has no type checking, so reject a
     // non-object return rather than writing `0` or `"…"` out as the document.
     const transformed = await target.swagger.transform?.(spec);
+
     if (transformed != null && !isObject(transformed)) {
         throw new CLIUserError(
             `\`swagger.transform\` must return an object or nothing, received ${Array.isArray(transformed) ? 'an array' : typeof transformed}.`,
         );
     }
+
     const document = (transformed ?? spec) as SpecV2 | SpecV3;
 
     const split = splitOutputPath(target.output.path, target.output.format);
@@ -264,7 +254,9 @@ export async function emitOne(
         name: split.name,
         format: split.format,
     });
+
     logger.info(`wrote ${written.path} (${target.swagger.version})`);
+
     return { target, output: { path: written.path } };
 }
 
@@ -276,6 +268,7 @@ export async function emitOne(
 function signatureFor(opts: MetadataGenerateOptions, index: number): string {
     const presetInline = opts.preset !== undefined && typeof opts.preset !== 'string';
     const tsconfigInline = opts.tsconfig !== undefined && typeof opts.tsconfig !== 'string';
+
     if (presetInline || tsconfigInline || opts.registry) {
         return `inline:${index}`;
     }

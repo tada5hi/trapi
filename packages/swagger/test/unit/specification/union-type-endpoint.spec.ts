@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import jsonata from 'jsonata';
 import { read } from 'locter';
@@ -35,6 +35,7 @@ describe('TestUnionType', () => {
         const paramSpec = await expression.evaluate(spec);
         const definitionExpression = jsonata('definitions.MyTypeWithUnion.properties.property');
         const myTypeDefinition = await definitionExpression.evaluate(spec);
+
         expect(paramSpec.schema.$ref).toEqual('#/definitions/MyTypeWithUnion');
         expect(myTypeDefinition.type).toEqual('string');
         expect(myTypeDefinition.enum).toEqual(['value1', 'value2']);

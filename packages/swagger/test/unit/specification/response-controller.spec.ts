@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import jsonata from 'jsonata';
 import { read } from 'locter';
@@ -32,6 +32,7 @@ describe('ResponseController', () => {
 
     it('should support multiple response decorators on controller', async () => {
         let expression = jsonata('paths."/response".get.responses."400".description');
+
         expect(await expression.evaluate(spec)).toEqual('The request format was incorrect.');
         expression = jsonata('paths."/response".get.responses."500".description');
         expect(await expression.evaluate(spec)).toEqual('There was an unexpected error.');
@@ -39,6 +40,7 @@ describe('ResponseController', () => {
 
     it('should support decorators on controller and method', async () => {
         let expression = jsonata('paths."/response/test".get.responses."400".description');
+
         expect(await expression.evaluate(spec)).toEqual('The request format was incorrect.');
         expression = jsonata('paths."/response/test".get.responses."500".description');
         expect(await expression.evaluate(spec)).toEqual('There was an unexpected error.');

@@ -10,4 +10,6 @@ export const ConfigErrorCode = {
     PRESET_NOT_FOUND: 'CONFIG_PRESET_NOT_FOUND',
     PRESET_MISSING: 'CONFIG_PRESET_MISSING',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type ConfigErrorCode = typeof ConfigErrorCode[keyof typeof ConfigErrorCode];

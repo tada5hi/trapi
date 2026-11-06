@@ -35,11 +35,14 @@ export function pathVariables(path: string) : string[] {
 // `'/'` + `'/'` — to an empty string, which strict validators reject.
 export function joinPaths(...segments: string[]): string {
     let result = segments.join('/').replace(/\/{2,}/g, '/');
+
     if (!result.startsWith('/')) {
         result = `/${result}`;
     }
+
     if (result.length > 1 && result.endsWith('/')) {
         result = result.slice(0, -1);
     }
+
     return result;
 }

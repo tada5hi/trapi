@@ -16,6 +16,7 @@ export const ParamKind = {
     QueryProp: 'queryProp',
     Path: 'path',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type ParamKind = typeof ParamKind[keyof typeof ParamKind];
 
 export const CollectionKind = {
@@ -25,6 +26,7 @@ export const CollectionKind = {
     Pipes: 'pipes',
     Multi: 'multi',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type CollectionKind = typeof CollectionKind[keyof typeof CollectionKind];
 
 export const DecoratorTargetKind = {
@@ -33,6 +35,7 @@ export const DecoratorTargetKind = {
     Parameter: 'parameter',
     Property: 'property',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type DecoratorTargetKind = typeof DecoratorTargetKind[keyof typeof DecoratorTargetKind];
 
 export const DecoratorArgumentKindName = {
@@ -42,6 +45,7 @@ export const DecoratorArgumentKindName = {
     Identifier: 'identifier',
     Unresolvable: 'unresolvable',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type DecoratorArgumentKindName = typeof DecoratorArgumentKindName[keyof typeof DecoratorArgumentKindName];
 
 export const MarkerName = {
@@ -49,6 +53,7 @@ export const MarkerName = {
     Deprecated: 'deprecated',
     Extension: 'extension',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type MarkerName = typeof MarkerName[keyof typeof MarkerName];
 
 export const NumericKind = {
@@ -57,4 +62,5 @@ export const NumericKind = {
     Float: 'float',
     Double: 'double',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type NumericKind = typeof NumericKind[keyof typeof NumericKind];

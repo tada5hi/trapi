@@ -271,6 +271,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const specialReference = TypeNodeResolver.resolveSpecialReference(typeReference.typeName);
+
             if (typeof specialReference !== 'undefined') {
                 return specialReference;
             }
@@ -317,6 +318,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const contextual = this.context[typeReference.typeName.text];
+
             if (contextual) {
                 return this.resolveNestedType(
                     contextual,
@@ -334,6 +336,7 @@ export class TypeNodeResolver extends ResolverBase {
             const referenceType = this.getReferenceType(typeReference);
 
             this.current.addReferenceType(referenceType);
+
             return referenceType;
         } catch (err) {
             // When the model declaration walker fails (e.g. for global types
@@ -446,6 +449,7 @@ export class TypeNodeResolver extends ResolverBase {
         if (!parentNode) {
             return { typeName: TypeName.DATETIME };
         }
+
         const tags = getJSDocTagNames(parentNode).filter((name) => ['isDate', 'isDateTime'].includes(name));
 
         if (tags.length === 0) {
@@ -466,6 +470,7 @@ export class TypeNodeResolver extends ResolverBase {
 
     private getReferenceType(node: TypeReferenceType): ReferenceType {
         let type: EntityName;
+
         if (isTypeReferenceNode(node)) {
             type = node.typeName;
         } else if (isExpressionWithTypeArguments(node)) {
@@ -476,6 +481,7 @@ export class TypeNodeResolver extends ResolverBase {
 
         // Can't invoke getText on Synthetic Nodes
         let resolvableName = node.pos !== -1 ? node.getText() : (type as Identifier).text;
+
         if (node.pos === -1 && 'typeArguments' in node && Array.isArray(node.typeArguments)) {
             // Add typeArguments for Synthetic nodes (e.g. Record<> in TestClassModel.indexedResponse)
             const argumentsString = node.typeArguments
@@ -483,10 +489,15 @@ export class TypeNodeResolver extends ResolverBase {
                     if (isLiteralTypeNode(arg)) {
                         return `'${String(getLiteralValue(arg))}'`;
                     }
+
                     const resolvedType = this.primitiveResolver.resolveSyntaxKind(arg.kind);
+
                     if (
                         typeof resolvedType === 'undefined'
-                    ) { return 'any'; }
+                    ) {
+                        return 'any';
+                    }
+
                     return resolvedType;
                 });
 
@@ -499,6 +510,7 @@ export class TypeNodeResolver extends ResolverBase {
 
         try {
             const existingType = this.current.resolverCache.getCachedType(name);
+
             if (existingType) {
                 return existingType;
             }
@@ -513,6 +525,7 @@ export class TypeNodeResolver extends ResolverBase {
                 const refName = TypeNodeResolver.getRefTypeName(name);
                 const declarations = this.getModelTypeDeclarations(type);
                 const referenceTypes: ReferenceType[] = [];
+
                 for (const declaration of declarations) {
                     if (isTypeAliasDeclaration(declaration)) {
                         referenceTypes.push(
@@ -540,6 +553,7 @@ export class TypeNodeResolver extends ResolverBase {
                 const referenceType = this.referenceResolver.merge(referenceTypes);
 
                 this.current.resolverCache.setCachedType(name, referenceType);
+
                 return referenceType;
             } finally {
                 this.current.resolverCache.clearInProgress(name);
@@ -571,6 +585,7 @@ export class TypeNodeResolver extends ResolverBase {
 
             if (!skipReferenceType) {
                 const referenceType = this.getReferenceType(innerRef);
+
                 if (referenceType.refName === refName) {
                     return referenceType;
                 }
@@ -614,8 +629,10 @@ export class TypeNodeResolver extends ResolverBase {
         if (!modelType.name) {
             throw new ResolverError('Can\'t get Symbol from anonymous class', modelType);
         }
+
         const type = this.current.typeChecker.getTypeAtLocation(modelType.name);
         const toJSON = this.current.typeChecker.getPropertyOfType(type, 'toJSON');
+
         if (
             toJSON &&
             toJSON.valueDeclaration &&
@@ -625,10 +642,13 @@ export class TypeNodeResolver extends ResolverBase {
             )
         ) {
             let nodeType = toJSON.valueDeclaration.type;
+
             if (!nodeType) {
                 const signature = this.current.typeChecker.getSignatureFromDeclaration(toJSON.valueDeclaration);
+
                 if (signature) {
                     const implicitType = this.current.typeChecker.getReturnTypeOfSignature(signature);
+
                     nodeType = this.current.typeChecker.typeToTypeNode(implicitType, undefined, NodeBuilderFlags.NoTruncation) as TypeNode;
                 } else {
                     throw new ResolverError('Can\'t get signature from toJson value declaration', modelType);
@@ -707,14 +727,17 @@ export class TypeNodeResolver extends ResolverBase {
 
         this.current.registerDependencyResolver((referenceTypes) => {
             const realReferenceType : ReferenceType | undefined = referenceTypes[refName];
+
             if (!realReferenceType) {
                 return;
             }
 
             referenceType.description = realReferenceType.description;
+
             if (realReferenceType.typeName === 'refObject' && referenceType.typeName === 'refObject') {
                 referenceType.properties = realReferenceType.properties;
             }
+
             referenceType.typeName = realReferenceType.typeName as `${TypeName.REF_OBJECT}`;
             referenceType.refName = realReferenceType.refName;
         });
@@ -739,8 +762,10 @@ export class TypeNodeResolver extends ResolverBase {
         let typeName = type.kind === SyntaxKind.Identifier ? type.text : type.right.text;
 
         let symbol : TsSymbol | undefined = this.getSymbolAtLocation(type);
+
         if (!symbol && type.kind === SyntaxKind.QualifiedName) {
             const fullEnumSymbol = this.getSymbolAtLocation(type.left);
+
             symbol = fullEnumSymbol.exports?.get(typeName as any);
         }
 
@@ -751,6 +776,7 @@ export class TypeNodeResolver extends ResolverBase {
         }
 
         const declarations = symbol.getDeclarations();
+
         if (!declarations || declarations.length === 0) {
             throw new ResolverError(
                 `No declarations found for referenced type ${typeName}.`,
@@ -767,6 +793,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const modelTypeDeclaration = node as UsableDeclaration;
+
             return (modelTypeDeclaration.name as Identifier)?.text === typeName;
         });
 
@@ -778,8 +805,8 @@ export class TypeNodeResolver extends ResolverBase {
 
         if (modelTypes.length > 1) {
             // remove types that are from typescript e.g. 'Account'
-            modelTypes = modelTypes.filter((modelType) => modelType.getSourceFile()
-                .fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules/typescript') <= -1);
+            modelTypes = modelTypes.filter((modelType) => !modelType.getSourceFile()
+                .fileName.replace(/\\/g, '/').toLowerCase().includes('node_modules/typescript'));
 
             modelTypes = TypeNodeResolver.getDesignatedModels(modelTypes, typeName);
         }
@@ -792,6 +819,7 @@ export class TypeNodeResolver extends ResolverBase {
 
         const symbol = this.getSymbolAtLocation(type);
         const declarations = symbol.getDeclarations();
+
         if (!declarations || declarations.length === 0) {
             throw new ResolverError(
                 `No models found for referenced type ${typeName}.`,
@@ -808,6 +836,7 @@ export class TypeNodeResolver extends ResolverBase {
             }
 
             const modelTypeDeclaration = node as UsableDeclaration;
+
             return (modelTypeDeclaration.name as Identifier)?.text === typeName;
         });
 
@@ -819,11 +848,12 @@ export class TypeNodeResolver extends ResolverBase {
 
         if (modelTypes.length > 1) {
             // remove types that are from typescript e.g. 'Account'
-            modelTypes = modelTypes.filter((modelType) => modelType.getSourceFile()
-                .fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules/typescript') <= -1);
+            modelTypes = modelTypes.filter((modelType) => !modelType.getSourceFile()
+                .fileName.replace(/\\/g, '/').toLowerCase().includes('node_modules/typescript'));
 
             modelTypes = TypeNodeResolver.getDesignatedModels(modelTypes, typeName);
         }
+
         if (modelTypes.length > 1) {
             const conflicts = modelTypes.map((modelType) => modelType.getSourceFile().fileName).join('"; "');
             throw new ResolverError(
@@ -840,6 +870,7 @@ export class TypeNodeResolver extends ResolverBase {
 
     private getSymbolAtLocation(type: Node) : TsSymbol {
         const symbol = this.current.typeChecker.getSymbolAtLocation(type) || ((type as any).symbol as TsSymbol);
+
         // resolve alias if it is an alias, otherwise take symbol directly
         return (
             symbol &&
@@ -893,6 +924,7 @@ export class TypeNodeResolver extends ResolverBase {
         }
 
         let required = !propertySignature.questionToken;
+
         if (overrideToken && overrideToken.kind === SyntaxKind.MinusToken) {
             required = true;
         } else if (overrideToken && overrideToken.kind === SyntaxKind.QuestionToken) {
@@ -916,6 +948,7 @@ export class TypeNodeResolver extends ResolverBase {
             ),
             validators: getDeclarationValidators(propertySignature) || {},
         };
+
         return property;
     }
 
@@ -928,6 +961,7 @@ export class TypeNodeResolver extends ResolverBase {
 
         if (!typeNode) {
             const tsType = this.current.typeChecker.getTypeAtLocation(propertyDeclaration);
+
             typeNode = this.current.typeChecker.typeToTypeNode(tsType, undefined, NodeBuilderFlags.NoTruncation);
         }
 
@@ -938,6 +972,7 @@ export class TypeNodeResolver extends ResolverBase {
         const type = this.resolveNestedType(typeNode, propertyDeclaration, this.context, typeNode);
 
         let required = !propertyDeclaration.questionToken && !propertyDeclaration.initializer;
+
         if (overrideToken && overrideToken.kind === SyntaxKind.MinusToken) {
             required = true;
         } else if (overrideToken && overrideToken.kind === SyntaxKind.QuestionToken) {
@@ -956,12 +991,14 @@ export class TypeNodeResolver extends ResolverBase {
             type,
             validators: getDeclarationValidators(propertyDeclaration) || {},
         };
+
         return property;
     }
 
     private getModelAdditionalProperties(node: UsableDeclaration) {
         if (node.kind === SyntaxKind.InterfaceDeclaration) {
             const indexMember = node.members.find((member) => member.kind === SyntaxKind.IndexSignature);
+
             if (!indexMember) {
                 return undefined;
             }
@@ -991,6 +1028,7 @@ export class TypeNodeResolver extends ResolverBase {
         // this.context = {};
 
         const declaration = this.getModelTypeDeclaration(targetEntity);
+
         if (typeof declaration === 'undefined' || !('typeParameters' in declaration)) {
             return context;
         }
@@ -1006,6 +1044,7 @@ export class TypeNodeResolver extends ResolverBase {
                 const contextual = typeArg && isTypeReferenceNode(typeArg) && isIdentifier(typeArg.typeName) ?
                     context[typeArg.typeName.text] :
                     undefined;
+
                 if (contextual) {
                     resolvedType = contextual;
                 } else if (typeArg) {
@@ -1022,6 +1061,7 @@ export class TypeNodeResolver extends ResolverBase {
                 };
             }
         }
+
         return context;
     }
 
@@ -1031,6 +1071,7 @@ export class TypeNodeResolver extends ResolverBase {
         let properties: ResolverProperty[] = [];
 
         const { heritageClauses } = modelTypeDeclaration;
+
         if (!heritageClauses) {
             return properties;
         }
@@ -1047,9 +1088,11 @@ export class TypeNodeResolver extends ResolverBase {
                 const resetCtx = this.typeArgumentsToContext(t, baseEntityName, this.context);
 
                 const referenceType = this.getReferenceType(t);
+
                 if (referenceType) {
                     if (isRefAliasType(referenceType)) {
                         let type: Type = referenceType;
+
                         while (isRefAliasType(type)) {
                             type = type.type;
                         }

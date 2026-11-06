@@ -30,6 +30,7 @@ export type OutputForVersion<V extends `${Version}`> = V extends typeof Version.
     SpecV3;
 
 declare module '@trapi/core' {
+    // eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
     interface ValidatorMeta {
         openApi?: ValidatorOpenApiMeta;
     }

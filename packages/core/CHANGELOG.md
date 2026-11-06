@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.3](https://github.com/tada5hi/trapi/compare/core-v2.1.2...core-v2.1.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#952](https://github.com/tada5hi/trapi/issues/952)) ([3d7087d](https://github.com/tada5hi/trapi/commit/3d7087d90efa1821ecccecce203f64bd740cf28e))
+* **deps:** bump zod from 4.5.4 to 4.6.7 ([#940](https://github.com/tada5hi/trapi/issues/940)) ([66f6753](https://github.com/tada5hi/trapi/commit/66f6753c344035fb4d03b999e91b361260d95e4d))
+
 ## [2.1.2](https://github.com/tada5hi/trapi/compare/core-v2.1.1...core-v2.1.2) (2026-09-08)
 
 

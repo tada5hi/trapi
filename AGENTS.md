@@ -40,6 +40,8 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 
 ## Detailed Guides
 
+
+AGENTS.md is the loaded entry point and the guide index. Read the linked guides when working on their topics.
 - **[Project Structure](.agents/structure.md)** — Source layout, packages, and dependency layers
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
 - **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns

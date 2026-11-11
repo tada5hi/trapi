@@ -6,9 +6,9 @@
  */
 
 import type {
-    Identifier, 
-    JSDoc, 
-    JSDocTag, 
+    Identifier,
+    JSDoc,
+    JSDocTag,
     Node,
 } from 'typescript';
 import { ts } from '../../../core/compiler';
@@ -22,6 +22,7 @@ import { transformJSDocComment } from './utils';
 // -----------------------------------------
 export function getJSDocDescription(node: Node, index?: number) : string | undefined {
     const jsDoc = getJSDoc(node, index);
+
     if (!jsDoc) {
         return undefined;
     }
@@ -45,6 +46,7 @@ export function getJSDoc(node: Node, index?: number) : undefined | JSDoc {
     }
 
     index = index ?? 0;
+
     return jsDoc.length > index && index >= 0 ? jsDoc[index] : undefined; // jsDoc[0] else case
 }
 
@@ -58,6 +60,7 @@ export function getJSDocTags(
         ((tag: JSDocTag) => boolean),
 ) : JSDocTag[] {
     const jsDoc = getJSDoc(node);
+
     if (typeof jsDoc === 'undefined') {
         return [];
     }
@@ -94,9 +97,11 @@ export function hasJSDocTag(node: Node, tagName: ((tag: JSDocTag) => boolean) | 
 export function getJSDocTagComment(node: Node, tagName: ((tag: JSDocTag) => boolean) | `${JSDocTagName}`) : undefined | string {
     const tags : JSDocTag[] = getJSDocTags(node, tagName);
     const first = tags[0];
+
     if (!first || typeof first.comment !== 'string') {
         return undefined;
     }
+
     return first.comment;
 }
 
@@ -110,12 +115,16 @@ export function getJSDocTagNames(node: Node, requireTagName = false) : string[] 
     /* istanbul ignore next */
     if (node.kind === ts.SyntaxKind.Parameter) {
         const parameterName = ((node as any).name as Identifier).text;
+
         tags = getJSDocTags(node.parent as any, (tag) => {
             if (ts.isJSDocParameterTag(tag)) {
                 return false;
-            } if (tag.comment === undefined) {
+            }
+
+            if (tag.comment === undefined) {
                 throw new MetadataError(`Orphan tag: @${String(tag.tagName.text || tag.tagName.escapedText)} must be followed by a parameter name.`);
             }
+
             return typeof tag.comment === 'string' ? tag.comment.startsWith(parameterName) : false;
         });
     } else {

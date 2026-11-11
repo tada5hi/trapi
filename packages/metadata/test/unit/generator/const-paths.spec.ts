@@ -21,7 +21,9 @@ describe('constant decorator paths', () => {
 
     const controllerNamed = (name: string): Controller => {
         const controller = metadata.controllers.find((c) => c.name === name);
+
         expect(controller).toBeDefined();
+
         return controller!;
     };
 
@@ -40,36 +42,43 @@ describe('constant decorator paths', () => {
     // the swagger emitter puts it back.
     it('should resolve a mount declared by an imported constant', () => {
         const controller = controllerNamed('ImportedConstController');
+
         expect(controller.paths).toEqual(['const-mount']);
     });
 
     it('should resolve a method path declared by an imported constant', () => {
         const controller = controllerNamed('ImportedConstController');
+
         expect(controller.methods[0]!.path).toEqual('const-sub');
     });
 
     it('should resolve every element of an array of imported constants', () => {
         const controller = controllerNamed('ImportedConstArrayController');
+
         expect(controller.paths).toEqual(['mount-a', 'mount-b']);
     });
 
     it('should resolve a mount declared by a template expression', () => {
         const controller = controllerNamed('TemplateExpressionController');
+
         expect(controller.paths).toEqual(['segment']);
     });
 
     it('should resolve a method path declared by a template expression', () => {
         const controller = controllerNamed('TemplateExpressionController');
+
         expect(controller.methods[0]!.path).toEqual('segment-sub');
     });
 
     it('should resolve a mount declared by a constant re-exported through a barrel', () => {
         const controller = controllerNamed('BarrelConstController');
+
         expect(controller.paths).toEqual(['const-mount']);
     });
 
     it('should keep resolving a mount declared by a local constant', () => {
         const controller = controllerNamed('LocalConstController');
+
         expect(controller.paths).toEqual(['local-mount']);
     });
 
@@ -77,16 +86,19 @@ describe('constant decorator paths', () => {
     // it, so this one can only be resolved by following the import alias.
     it('should resolve a mount declared by an explicitly typed imported constant', () => {
         const controller = controllerNamed('TypedImportedConstController');
+
         expect(controller.paths).toEqual(['typed-mount']);
     });
 
     it('should resolve a mount declared by an as-const object property', () => {
         const controller = controllerNamed('ConstObjectPropertyController');
+
         expect(controller.paths).toEqual(['object-mount']);
     });
 
     it('should resolve a mount declared by an enum member', () => {
         const controller = controllerNamed('EnumMemberController');
+
         expect(controller.paths).toEqual(['enum-mount']);
     });
 });

@@ -20,11 +20,13 @@ function claimParameter(
 ): ParameterHandler['apply'] {
     return (ctx, draft) => {
         const argName = readString(ctx.argument(0));
+
         if (argName !== undefined && namedKind) {
             draft.in = namedKind;
             draft.name = argName;
         } else {
             draft.in = kind;
+
             if (argName !== undefined) {
                 draft.name = argName;
             }
@@ -35,8 +37,12 @@ function claimParameter(
 function namedClaim(kind: typeof ParamKind[keyof typeof ParamKind]): ParameterHandler['apply'] {
     return (ctx, draft) => {
         const name = readString(ctx.argument(0));
+
         draft.in = kind;
-        if (name) draft.name = name;
+
+        if (name) {
+            draft.name = name;
+        }
     };
 }
 
@@ -115,17 +121,23 @@ const parameterParamHandler = parameter({
 
 const requestContextHandler = parameter({
     match: { name: 'Request', on: 'parameter' },
-    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+    apply: (_ctx, draft) => {
+        draft.in = ParamKind.Context;
+    },
 });
 
 const responseContextHandler = parameter({
     match: { name: 'Response', on: 'parameter' },
-    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+    apply: (_ctx, draft) => {
+        draft.in = ParamKind.Context;
+    },
 });
 
 const nextContextHandler = parameter({
     match: { name: 'Next', on: 'parameter' },
-    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+    apply: (_ctx, draft) => {
+        draft.in = ParamKind.Context;
+    },
 });
 
 // `@Headers()` (no arg) binds the entire request headers object → not
@@ -135,6 +147,7 @@ const headersHandler = parameter({
     match: { name: 'Headers', on: 'parameter' },
     apply: (ctx, draft) => {
         const name = readString(ctx.argument(0));
+
         if (name !== undefined) {
             draft.in = ParamKind.Header;
             draft.name = name;
@@ -148,6 +161,7 @@ const cookiesHandler = parameter({
     match: { name: 'Cookies', on: 'parameter' },
     apply: (ctx, draft) => {
         const name = readString(ctx.argument(0));
+
         if (name !== undefined) {
             draft.in = ParamKind.Cookie;
             draft.name = name;
@@ -164,6 +178,7 @@ const paramsHandler = parameter({
     match: { name: 'Params', on: 'parameter' },
     apply: (ctx, draft) => {
         const name = readString(ctx.argument(0));
+
         if (name !== undefined) {
             draft.in = ParamKind.Path;
             draft.name = name;
@@ -187,6 +202,7 @@ const parameterExtensionHandler = parameter({
 function numericValidator(kind: NumericKind, format: string): ParameterHandler['apply'] {
     return (_ctx, draft) => {
         const name = `is${kind[0]!.toUpperCase()}${kind.slice(1)}`;
+
         draft.validators[name] = {
             value: kind,
             meta: { openApi: { kind: 'format', format } },

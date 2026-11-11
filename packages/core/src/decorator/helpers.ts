@@ -17,9 +17,18 @@ import type {
  * (`@Foo(SOME_CONSTANT)`). Returns `undefined` for any other argument shape.
  */
 export function readString(arg: DecoratorArgument | undefined): string | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'string') return arg.raw;
-    if (arg.kind === 'identifier' && typeof arg.raw === 'string') return arg.raw;
+    if (!arg) {
+        return undefined;
+    }
+
+    if (arg.kind === 'literal' && typeof arg.raw === 'string') {
+        return arg.raw;
+    }
+
+    if (arg.kind === 'identifier' && typeof arg.raw === 'string') {
+        return arg.raw;
+    }
+
     return undefined;
 }
 
@@ -27,8 +36,14 @@ export function readString(arg: DecoratorArgument | undefined): string | undefin
  * Read a positional argument as a number. Only matches numeric literals.
  */
 export function readNumber(arg: DecoratorArgument | undefined): number | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'number') return arg.raw;
+    if (!arg) {
+        return undefined;
+    }
+
+    if (arg.kind === 'literal' && typeof arg.raw === 'number') {
+        return arg.raw;
+    }
+
     return undefined;
 }
 
@@ -36,8 +51,14 @@ export function readNumber(arg: DecoratorArgument | undefined): number | undefin
  * Read a positional argument as a boolean. Only matches boolean literals.
  */
 export function readBoolean(arg: DecoratorArgument | undefined): boolean | undefined {
-    if (!arg) return undefined;
-    if (arg.kind === 'literal' && typeof arg.raw === 'boolean') return arg.raw;
+    if (!arg) {
+        return undefined;
+    }
+
+    if (arg.kind === 'literal' && typeof arg.raw === 'boolean') {
+        return arg.raw;
+    }
+
     return undefined;
 }
 
@@ -51,15 +72,21 @@ export function readStringOrStringArray(
     arg: DecoratorArgument | undefined,
 ): string[] | undefined {
     const single = readString(arg);
+
     if (single !== undefined) {
         return [single];
     }
+
     if (arg?.kind === 'array' && Array.isArray(arg.raw)) {
-        if (arg.raw.every((item) => typeof item === 'string')) {
+        const matchesRaw = arg.raw.every((item) => typeof item === 'string');
+
+        if (matchesRaw) {
             return arg.raw;
         }
+
         return undefined;
     }
+
     return undefined;
 }
 
@@ -87,6 +114,7 @@ export function setMethodPath(
     arg: DecoratorArgument | undefined,
 ): void {
     const path = readString(arg);
+
     if (path !== undefined) {
         draft.path = path;
     }

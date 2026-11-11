@@ -15,24 +15,27 @@ import { findDecoratorsByName } from '../../../decorator';
 
 export function getNodeExtensions(node: Node, registry: Registry) : Extension[] {
     const names = namesForMarker(registry, isExtensionMarker);
+
     if (names.size === 0) {
         return [];
     }
 
     const output : Extension[] = [];
+
     for (const name of names) {
         const decorators = findDecoratorsByName(node, name);
+
         for (const decorator of decorators) {
             const keyArg = decorator.arguments[0];
             const valueArg = decorator.arguments[1];
-            if (!keyArg || keyArg.kind !== 'literal' || typeof keyArg.raw !== 'string') {
+
+            if (!keyArg || keyArg.kind !== 'literal' || typeof keyArg.raw !== 'string' || !valueArg || valueArg.kind === 'unresolvable' || typeof valueArg.raw === 'undefined') {
                 continue;
             }
-            if (!valueArg || valueArg.kind === 'unresolvable' || typeof valueArg.raw === 'undefined') {
-                continue;
-            }
+
             output.push({ key: keyArg.raw, value: valueArg.raw as never });
         }
     }
+
     return output;
 }

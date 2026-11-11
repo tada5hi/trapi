@@ -147,7 +147,9 @@ describe('security schemes', () => {
 
         it('should translate OAuth2 implicit flow', () => {
             expect(specV2.securityDefinitions!.oauth2Implicit).toBeDefined();
+
             const def = specV2.securityDefinitions!.oauth2Implicit as any;
+
             expect(def.type).toEqual('oauth2');
             expect(def.flow).toEqual('implicit');
             expect(def.authorizationUrl).toEqual('https://auth.example.com/authorize');
@@ -156,7 +158,9 @@ describe('security schemes', () => {
 
         it('should translate OAuth2 password flow', () => {
             expect(specV2.securityDefinitions!.oauth2Password).toBeDefined();
+
             const def = specV2.securityDefinitions!.oauth2Password as any;
+
             expect(def.type).toEqual('oauth2');
             expect(def.flow).toEqual('password');
             expect(def.tokenUrl).toEqual('https://auth.example.com/token');
@@ -165,7 +169,9 @@ describe('security schemes', () => {
 
         it('should translate OAuth2 authorization code as accessCode', () => {
             expect(specV2.securityDefinitions!.oauth2AccessCode).toBeDefined();
+
             const def = specV2.securityDefinitions!.oauth2AccessCode as any;
+
             expect(def.type).toEqual('oauth2');
             expect(def.flow).toEqual('accessCode');
             expect(def.tokenUrl).toEqual('https://auth.example.com/token');
@@ -174,7 +180,9 @@ describe('security schemes', () => {
 
         it('should translate OAuth2 client credentials as application', () => {
             expect(specV2.securityDefinitions!.oauth2Application).toBeDefined();
+
             const def = specV2.securityDefinitions!.oauth2Application as any;
+
             expect(def.type).toEqual('oauth2');
             expect(def.flow).toEqual('application');
         });
@@ -183,16 +191,19 @@ describe('security schemes', () => {
     describe('V2 - operation security', () => {
         it('should set security on protected endpoint', () => {
             const op = specV2.paths['/secure/protected'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }]);
         });
 
         it('should support AND security (multiple schemes in one object)', () => {
             const op = specV2.paths['/secure/multi'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [], apiKey: [] }]);
         });
 
         it('should support OR security (multiple objects)', () => {
             const op = specV2.paths['/secure/either'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }, { apiKey: [] }]);
         });
     });
@@ -200,6 +211,7 @@ describe('security schemes', () => {
     describe('V3 - components/securitySchemes', () => {
         it('should pass through HTTP security scheme', () => {
             const scheme = specV3.components.securitySchemes!.bearerAuth as any;
+
             expect(scheme).toBeDefined();
             expect(scheme.type).toEqual('http');
             expect(scheme.scheme).toEqual('basic');
@@ -207,6 +219,7 @@ describe('security schemes', () => {
 
         it('should pass through API key security', () => {
             const scheme = specV3.components.securitySchemes!.apiKey as any;
+
             expect(scheme.type).toEqual('apiKey');
             expect(scheme.name).toEqual('X-API-Key');
             expect(scheme.in).toEqual('header');
@@ -214,6 +227,7 @@ describe('security schemes', () => {
 
         it('should pass through OAuth2 with flows', () => {
             const scheme = specV3.components.securitySchemes!.oauth2 as any;
+
             expect(scheme.type).toEqual('oauth2');
             expect(scheme.flows).toBeDefined();
             expect(scheme.flows.implicit).toBeDefined();
@@ -226,16 +240,19 @@ describe('security schemes', () => {
     describe('V3 - operation security', () => {
         it('should set security on protected endpoint', () => {
             const op = specV3.paths['/secure/protected'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }]);
         });
 
         it('should support AND security', () => {
             const op = specV3.paths['/secure/multi'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [], apiKey: [] }]);
         });
 
         it('should support OR security', () => {
             const op = specV3.paths['/secure/either'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }, { apiKey: [] }]);
         });
     });

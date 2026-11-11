@@ -16,6 +16,7 @@ export const ParameterSource = {
     QUERY_PROP: 'queryProp',
     PATH: 'path',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type ParameterSource = typeof ParameterSource[keyof typeof ParameterSource];
 
 export const CollectionFormat = {
@@ -25,6 +26,7 @@ export const CollectionFormat = {
     PIPES: 'pipes',
     MULTI: 'multi',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public contract.
 export type CollectionFormat = typeof CollectionFormat[keyof typeof CollectionFormat];
 
 export const ParameterErrorCode = {

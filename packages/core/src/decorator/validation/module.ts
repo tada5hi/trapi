@@ -117,6 +117,7 @@ export const presetSchema = z.object({
 
 export function createPresetContainer(): Container<Preset> {
     const container = new Container<Preset>();
+
     container.mount('name', createValidator(presetSchema.shape.name));
     container.mount('extends', { optional: true }, createValidator(presetSchema.shape.extends));
     container.mount('controllers', { optional: true }, createValidator(presetSchema.shape.controllers));
@@ -125,6 +126,7 @@ export function createPresetContainer(): Container<Preset> {
     container.mount('controllerJsDoc', { optional: true }, createValidator(presetSchema.shape.controllerJsDoc));
     container.mount('methodJsDoc', { optional: true }, createValidator(presetSchema.shape.methodJsDoc));
     container.mount('parameterJsDoc', { optional: true }, createValidator(presetSchema.shape.parameterJsDoc));
+
     return container;
 }
 
@@ -134,5 +136,6 @@ export async function validatePreset(input: unknown): Promise<Preset> {
     if (input === null || typeof input !== 'object' || Array.isArray(input)) {
         throw new TypeError('preset input must be an object');
     }
+
     return sharedContainer.run(input as Record<string, unknown>) as Promise<Preset>;
 }

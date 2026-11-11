@@ -75,6 +75,7 @@ describe('root path emission', () => {
                     metadata,
                     data: { servers },
                 });
+
                 expect(Object.keys(spec.paths)).toEqual(['/']);
             });
 
@@ -84,6 +85,7 @@ describe('root path emission', () => {
                     metadata,
                     data: { servers },
                 });
+
                 expect(Object.keys(spec.paths)).toEqual(['/']);
             });
         });
@@ -110,6 +112,7 @@ describe('root path emission', () => {
             metadata,
             data: { servers },
         });
+
         expect(Object.keys(v3.paths)).toEqual(['/events']);
 
         const v2 = await generateSwagger({
@@ -117,6 +120,7 @@ describe('root path emission', () => {
             metadata,
             data: { servers },
         });
+
         expect(Object.keys(v2.paths)).toEqual(['/events']);
     });
 
@@ -153,6 +157,7 @@ describe('root path emission', () => {
             metadata,
             data: { servers },
         });
+
         expect(Object.keys(spec.paths).sort()).toEqual(['/', '/events']);
     });
 });

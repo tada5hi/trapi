@@ -1,130 +1,189 @@
-# TRAPI
+<p align="center"><img src=".github/assets/logo.svg" width="160" height="160" alt="Decorated TypeScript passes through an aperture into an API specification, the approved TRAPI mark"></p>
+<h1 align="center">TRAPI</h1>
+<p align="center"><strong>Generate API metadata and OpenAPI documents from decorated TypeScript.</strong></p>
+<p align="center">Keep your framework's decorators. Describe their meaning with a preset, then reuse the extracted metadata.</p>
+<p align="center">
+  <a href="https://github.com/tada5hi/trapi/actions/workflows/main.yml"><img src="https://github.com/tada5hi/trapi/actions/workflows/main.yml/badge.svg" alt="CI status"></a>
+  <a href="https://www.npmjs.com/package/@trapi/metadata"><img src="https://img.shields.io/npm/v/%40trapi%2Fmetadata" alt="Metadata package version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
+<p align="center"><a href="#why-trapi">Why</a> · <a href="#packages">Packages</a> · <a href="#installation">Installation</a> · <a href="#usage">Usage</a> · <a href="#custom-presets">Custom presets</a> · <a href="#documentation">Documentation</a></p>
 
-[![main](https://github.com/Tada5hi/trapi/actions/workflows/main.yml/badge.svg)](https://github.com/Tada5hi/trapi/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/Tada5hi/trapi/branch/main/graph/badge.svg?token=ZUJ8F5TTSX)](https://codecov.io/gh/Tada5hi/trapi)
-[![Known Vulnerabilities](https://snyk.io/test/github/Tada5hi/trapi/badge.svg)](https://snyk.io/test/github/Tada5hi/trapi)
-
-**T**ypeScript **R**est **API** generates OpenAPI specifications and API metadata from TypeScript decorators — without locking you into a specific decorator library.
+---
 
 ## Why TRAPI?
 
-Most tools that generate OpenAPI from decorators force you to adopt their own decorator set. TRAPI takes a different approach: **bring your own decorators**. You define a mapping from your framework's decorators to TRAPI's metadata model, and TRAPI handles the rest.
+Your routes and types already live in TypeScript. TRAPI reads them through a decorator mapping so you can generate documentation without maintaining a second route/schema model.
 
-- **Decorator-agnostic** — works with any decorator-based HTTP framework (Express, Koa, Fastify, or your own)
-- **Pure static analysis** — decorators are no-ops at runtime; metadata is extracted via the TypeScript compiler API
-- **Zero runtime overhead** — all work happens at build time, nothing is added to your application
-- **Framework presets** — ships with presets for [typescript-rest](https://github.com/thiagobustamante/typescript-rest) and [@decorators/express](https://github.com/serhiisol/node-decorators), or create your own
-- **OpenAPI 2.0, 3.0, 3.1 & 3.2** — generates spec-compliant JSON/YAML output
+| Concern | Without a shared extraction pipeline | With TRAPI |
+| --- | --- | --- |
+| Framework decorators | A generator can require its own annotation set | A preset maps your decorator names into a framework-neutral model |
+| Multiple document targets | Repeat source analysis or maintain separate generators | Extract `Metadata` once and emit multiple OpenAPI versions/formats |
+| Build-time control | Documentation generation is tied to starting the application | Analyse TypeScript source, then run the emitter as a separate build step |
+| Mapping mistakes | Unrecognised decorators can silently disappear from documentation | Opt into unmatched-decorator reporting or `strict: 'throw'` |
+
+<p align="center"><img src=".github/assets/metadata-flow.svg" width="960" alt="generateMetadata analyses decorated TypeScript with preset handlers and returns controllers plus referenceTypes. Reuse that Metadata with generateSwagger for OpenAPI 2.0, 3.0, 3.1 or 3.2, then save one JSON or YAML file per call."></p>
+
+`@trapi/swagger` consumes the metadata contract without depending on the TypeScript compiler. Controller extraction and document emission are separate operations.
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [@trapi/core](./packages/core) | Framework-neutral contract: IR types, decorator/preset machinery, authoring helpers (no `typescript` dep) |
-| [@trapi/metadata](./packages/metadata) | Extracts API metadata from TypeScript decorators (depends on `@trapi/core`) |
-| [@trapi/swagger](./packages/swagger) | Transforms metadata into OpenAPI 2.0, 3.0, 3.1 & 3.2 specifications |
-| [@trapi/preset-decorators-express](./packages/preset-decorators-express) | Self-contained preset for @decorators/express (routing + TRAPI markers + JSDoc) |
-| [@trapi/preset-typescript-rest](./packages/preset-typescript-rest) | Self-contained preset for typescript-rest (routing + TRAPI markers + JSDoc) |
-| [@trapi/cli](./packages/cli) | `trapi` CLI — generate OpenAPI specs straight from the shell |
+| Package | Version | Purpose |
+| --- | --- | --- |
+| [@trapi/core](packages/core) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fcore)](https://www.npmjs.com/package/@trapi/core) | Metadata contracts, handler builders and preset machinery |
+| [@trapi/metadata](packages/metadata) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fmetadata)](https://www.npmjs.com/package/@trapi/metadata) | TypeScript source analysis and metadata extraction |
+| [@trapi/swagger](packages/swagger) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fswagger)](https://www.npmjs.com/package/@trapi/swagger) | OpenAPI 2.0, 3.0, 3.1 and 3.2 emitters, JSON/YAML saving |
+| [@trapi/preset-decorators-express](packages/preset-decorators-express) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fpreset-decorators-express)](https://www.npmjs.com/package/@trapi/preset-decorators-express) | Mapping for `@decorators/express`, TRAPI markers and JSDoc |
+| [@trapi/preset-typescript-rest](packages/preset-typescript-rest) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fpreset-typescript-rest)](https://www.npmjs.com/package/@trapi/preset-typescript-rest) | Mapping for `typescript-rest`, TRAPI markers and JSDoc |
+| [@trapi/cli](packages/cli) | [![npm](https://img.shields.io/npm/v/%40trapi%2Fcli)](https://www.npmjs.com/package/@trapi/cli) | Generate documents from flags or a configuration file |
 
-## Quick Start
+## Installation
+
+For an existing application using `@decorators/express`:
 
 ```bash
-npm install @trapi/metadata @trapi/swagger @trapi/preset-decorators-express @decorators/express
+npm install --save-dev @trapi/metadata @trapi/swagger @trapi/preset-decorators-express
 ```
+
+The framework's runtime decorators belong to your application. Use `@trapi/preset-typescript-rest` for `typescript-rest`, or define a mapping for another decorator library.
+
+Packages expose ESM entry points. The Swagger and CLI package manifests require Node 24+; metadata extraction retains its documented Node 22 compatibility. Contributor tooling requires Node 24.11+ on the 24.x line or Node 26+. Package-specific requirements remain in their manifests.
+
+## Usage
+
+Point `entryPoint` at your decorated controllers. In this example, the same metadata produces two documents:
 
 ```typescript
 import { generateMetadata } from '@trapi/metadata';
 import { generateSwagger, saveSwagger } from '@trapi/swagger';
 
-// Extract metadata from your decorated TypeScript source
 const metadata = await generateMetadata({
-    entryPoint: './src/controllers/**/*.ts',
+    entryPoint: 'src/controllers/**/*.ts',
     preset: '@trapi/preset-decorators-express',
+    tsconfig: 'tsconfig.json',
 });
 
-// Generate OpenAPI spec
-const spec = await generateSwagger({
-    version: 'v3',
-    metadata,
-    data: { name: 'My API', version: '1.0.0' },
-});
+for (const version of ['v3.1', 'v3.2'] as const) {
+    const spec = await generateSwagger({
+        version,
+        metadata,
+        data: { name: 'Example API', version: '1.0.0' },
+    });
 
-// Write spec to disk
-await saveSwagger(spec, { cwd: './docs' });
+    await saveSwagger(spec, {
+        cwd: 'docs',
+        name: `openapi-${version}`,
+        format: 'json',
+    });
+}
 ```
 
-Or skip the script entirely and run it from the shell with [`@trapi/cli`](./packages/cli):
+This writes `docs/openapi-v3.1.json` and `docs/openapi-v3.2.json`. Use `format: 'yaml'` for YAML. Each `saveSwagger` call writes one file, creating the destination directory if needed.
+
+### CLI
+
+Install the CLI alongside your preset, then run its local binary:
 
 ```bash
+npm install --save-dev @trapi/cli @trapi/preset-decorators-express
 npx trapi generate \
   --preset @trapi/preset-decorators-express \
-  --entry-point 'src/**/*.ts' \
+  --entry-point 'src/controllers/**/*.ts' \
   --output docs/openapi.json \
   --version 3.1
 ```
 
-## How It Works
+The output extension selects JSON or YAML unless `--format` overrides it. For multiple targets, transforms or watch mode, use the [CLI guide](https://trapi.tada5hi.net/guide/cli).
 
-TRAPI uses the TypeScript compiler API to statically analyze your source code. It reads decorator metadata from the AST — no `reflect-metadata`, no runtime type information.
+## How it works
 
-```text
-TypeScript Source Code  -->  Metadata Extraction  -->  OpenAPI Specification
-   (your decorators)        (@trapi/metadata)          (@trapi/swagger)
-```
+TRAPI uses the TypeScript compiler API to read decorators, signatures and types from the source AST. Extraction does not invoke controller decorators or require `reflect-metadata` or runtime type information. Generation runs at build time; it does not add a TRAPI runtime component to your application. Your framework's own decorators can still have runtime behavior.
 
-A **preset** is a collection of **handlers** that match decorators by name and mutate a draft (controller, method, parameter, ...). Each handler declares what it matches and how it contributes:
+A preset is a named collection of handlers. A handler matches a decorator name on a class, method or parameter and mutates that node's draft; the extractor finalises the drafts into framework-neutral metadata. `@trapi/core` supplies the contracts and authoring helpers without depending on TypeScript. You can consume the metadata directly instead of emitting OpenAPI.
+
+The shipped presets are self-contained: each includes its framework's routing mappings, TRAPI markers and JSDoc handlers. A custom preset can map another decorator-based framework when its routes and types are statically representable; installing Express, Koa, Fastify or another framework alone does not supply that mapping. See [key concepts](https://trapi.tada5hi.net/guide/concepts) for the extraction, type-resolution and emission layers.
+
+## Custom presets
+
+This preset adds `@Route(...)` for controllers and `@HttpGet(...)` for methods while inheriting the shipped Express mappings:
 
 ```typescript
 import { controller, method } from '@trapi/core';
-
-const controllerHandler = controller({
-    match: { name: 'Controller', on: 'class' },
-    apply: (ctx, draft) => {
-        const arg = ctx.argument(0);
-        if (typeof arg?.raw === 'string') {
-            draft.path = arg.raw;
-        }
-    },
-});
-
-const getHandler = method({
-    match: { name: 'Get', on: 'method' },
-    apply: (ctx, draft) => {
-        draft.method = 'get';
-        const arg = ctx.argument(0);
-        if (typeof arg?.raw === 'string') {
-            draft.path = arg.raw;
-        }
-    },
-});
+import type { Preset } from '@trapi/core';
 
 export default {
-    name: 'my-preset',
-    controllers: [controllerHandler],
-    methods: [getHandler],
-    parameters: [/* ... */],
-};
+    name: 'example-routes',
+    extends: ['@trapi/preset-decorators-express'],
+    controllers: [controller({
+        match: { name: 'Route', on: 'class' },
+        apply(ctx, draft) {
+            const argument = ctx.argument(0);
+
+            if (typeof argument?.raw === 'string') {
+                draft.paths = [argument.raw];
+            }
+        },
+    })],
+    methods: [method({
+        match: { name: 'HttpGet', on: 'method' },
+        apply(ctx, draft) {
+            draft.verb = 'get';
+            const argument = ctx.argument(0);
+
+            if (typeof argument?.raw === 'string') {
+                draft.path = argument.raw;
+            }
+        },
+    })],
+} satisfies Preset;
 ```
 
-Presets can `extend` other presets to inherit and override handlers. The shipped framework presets (`@trapi/preset-decorators-express`, `@trapi/preset-typescript-rest`) are self-contained — each ships its own routing handlers, TRAPI markers, and JSDoc handlers — but a user-authored preset can extend either by name. JSDoc tags use the same model through dedicated `controllerJsDoc` / `methodJsDoc` / `parameterJsDoc` handler arrays.
+Pass this object through `generateMetadata({ entryPoint, preset })`, or resolve a preset module by name/path. Presets compose via `extends`. Inherited and local handlers run additively; `replaces: true` shadows matching parent handlers, while `replaces: '<presetName>'` targets one parent. Same-preset siblings remain additive. Parameter mappings live in `parameters`; JSDoc mappings use `controllerJsDoc`, `methodJsDoc` and `parameterJsDoc`. Read [preset authoring](https://trapi.tada5hi.net/guide/advanced-custom-presets) for replacement and ordering rules.
 
-This means any HTTP framework built on TypeScript decorators can get metadata extraction and OpenAPI generation for free — without changing application code.
+## Options
+
+Selected metadata options, checked against `MetadataGenerateOptions`:
+
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `entryPoint` | Required | Source glob(s) or structured entry-point options |
+| `preset` | Unset | Preset package/path or inline preset object |
+| `registry` | Unset | Append already-resolved handlers after the preset's handlers |
+| `tsconfig` | Unset | TypeScript configuration path or parsed configuration object |
+| `cache` | Off | Enable or configure metadata caching |
+| `strict` | `false` | `true` reports unmatched decorators; `'throw'` makes them an error |
+| `onUnmatchedDecorator` | Unset | Receive unmatched reports instead of the built-in warning/error action |
+
+These are extraction options, not HTTP server settings. Full option/API references are linked below.
 
 ## Documentation
 
-The full docs live at [https://trapi.tada5hi.net](https://trapi.tada5hi.net). Highlights:
+- [Quick start](https://trapi.tada5hi.net/guide/quick-start) and [framework integration](https://trapi.tada5hi.net/guide/framework-integration)
+- [Metadata configuration](https://trapi.tada5hi.net/guide/metadata-configuration) and [public API](https://trapi.tada5hi.net/guide/metadata-api-reference)
+- [Swagger generation](https://trapi.tada5hi.net/guide/swagger-generation), [document data](https://trapi.tada5hi.net/guide/swagger-document-data) and [public API](https://trapi.tada5hi.net/guide/swagger-api-reference)
+- [Supported TypeScript types](https://trapi.tada5hi.net/guide/advanced-type-support) and [custom presets](https://trapi.tada5hi.net/guide/advanced-custom-presets)
 
-- **[Quick Start](https://trapi.tada5hi.net/guide/quick-start)** — get an OpenAPI spec on disk in five minutes
-- **[Key Concepts](https://trapi.tada5hi.net/guide/concepts)** — the mental model: decorators, mappings, metadata, emitters
-- **[Framework Integration](https://trapi.tada5hi.net/guide/framework-integration)** — using TRAPI with typescript-rest, @decorators/express, or your own decorators
-- **[CLI](https://trapi.tada5hi.net/guide/cli)** — `trapi generate` from the shell, no script required
-- **[Supported TypeScript Types](https://trapi.tada5hi.net/guide/advanced-type-support)** — what the resolver understands
-- **[Custom Presets](https://trapi.tada5hi.net/guide/advanced-custom-presets)** — publish a decorator mapping others can reuse
-- **[API Reference](https://trapi.tada5hi.net/guide/metadata-api-reference)** — stable public surface for both packages
+## Notes
+
+- **Mapping is explicit.** Installing a framework does not automatically teach TRAPI its annotations. Choose or write a preset.
+- **Analysis has limits.** TRAPI resolves supported TypeScript types and selected static expressions, not arbitrary runtime route-building code. Unmatched reporting covers decorators, not ordinary JSDoc tags.
+- **Application code is not started.** Controller annotations are analysed from the AST. Configuration and preset modules are loaded and can execute their own code.
+- **No runtime validation or routing.** Generated documentation does not enforce request validation, authenticate requests or register routes in your server.
+- **Transforms need care.** The CLI accepts document transforms; transformed output is not automatically revalidated against an OpenAPI schema.
+
+## Development
+
+```bash
+npm ci
+npm run build
+npm test
+npm run lint
+```
+
+Use small regression fixtures for metadata/type-resolution changes. Keep the metadata contract stable across extractors and emitters, and preserve the supported consumer runtime independently of build-tool requirements.
 
 ## License
 
 Made with 💚
 
-Published under [MIT License](./LICENSE).
+Published under the [MIT License](LICENSE).

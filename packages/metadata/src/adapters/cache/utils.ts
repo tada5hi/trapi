@@ -1,3 +1,4 @@
+import type { CacheKeyParts, CacheOptions, CacheOptionsInput  } from './types';
 /*
  * Copyright (c) 2021.
  * Author Peter Placzek (tada5hi)
@@ -12,7 +13,6 @@ import process from 'node:process';
 import type { CompilerOptions } from 'typescript';
 import type { Registry } from '@trapi/core';
 import { CACHE_DEFAULT_MAX_AGE_MS } from './constants';
-import type { CacheOptions, CacheOptionsInput } from './types';
 
 export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) : CacheOptions {
     if (typeof input === 'string') {
@@ -29,6 +29,7 @@ export function buildCacheOptions(input?: string | boolean | CacheOptionsInput) 
     input = input || {};
 
     let directoryPath = tmpdir();
+
     if (typeof input.directoryPath === 'string') {
         directoryPath = path.isAbsolute(input.directoryPath) ?
             input.directoryPath :
@@ -49,20 +50,9 @@ function normalizeMaxAgeMs(input: number | undefined): number {
         // Only `0` (explicit disable) and positive finite values are honored.
         return CACHE_DEFAULT_MAX_AGE_MS;
     }
+
     return input;
 }
-
-// -----------------------------------------------------------------------------
-// Cache key composition
-// -----------------------------------------------------------------------------
-
-export type CacheKeyParts = {
-    schemaVersion: string;
-    sourceFilesHash: string;
-    compilerOptionsHash: string;
-    registryHash: string;
-    presetName?: string;
-};
 
 /**
  * Combines all key contributors into a single sha256 hex string. The order is
@@ -70,6 +60,7 @@ export type CacheKeyParts = {
  */
 export function composeCacheKey(parts: CacheKeyParts): string {
     const hash = crypto.createHash('sha256');
+
     hash.update(parts.schemaVersion);
     hash.update('\0');
     hash.update(parts.sourceFilesHash);
@@ -79,6 +70,7 @@ export function composeCacheKey(parts: CacheKeyParts): string {
     hash.update(parts.registryHash);
     hash.update('\0');
     hash.update(parts.presetName ?? '');
+
     return hash.digest('hex');
 }
 
@@ -88,7 +80,9 @@ export function composeCacheKey(parts: CacheKeyParts): string {
  */
 export function hashCompilerOptions(options?: CompilerOptions): string {
     const hash = crypto.createHash('sha256');
+
     hash.update(stableStringify(options ?? {}));
+
     return hash.digest('hex');
 }
 
@@ -109,10 +103,13 @@ export function hashRegistry(registry: Registry): string {
         'methodJsDoc',
         'parameterJsDoc',
     ] as const;
+
     for (const kind of kinds) {
         hash.update(kind);
         hash.update('\0');
+
         const handlers = registry[kind] ?? [];
+
         for (const handler of handlers) {
             hash.update(stableStringify(handler.match));
             hash.update('\0');
@@ -123,8 +120,10 @@ export function hashRegistry(registry: Registry): string {
             hash.update(handler.apply.toString());
             hash.update('\0');
         }
+
         hash.update('\x01');
     }
+
     return hash.digest('hex');
 }
 
@@ -136,11 +135,14 @@ function stableStringify(value: unknown): string {
     return JSON.stringify(value, (_key, val) => {
         if (val && typeof val === 'object' && !Array.isArray(val)) {
             const sorted: Record<string, unknown> = {};
+
             for (const k of Object.keys(val as Record<string, unknown>).sort()) {
                 sorted[k] = (val as Record<string, unknown>)[k];
             }
+
             return sorted;
         }
+
         return val;
     });
 }

@@ -13,7 +13,13 @@ import {
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Controller, Metadata  } from '@trapi/core';
+import type {
+    ArrayParameter,
+    ArrayType,
+    Controller,
+    Metadata,
+    Method,
+} from '@trapi/core';
 import { generateMetadata } from '../../../src';
 
 describe('parameter metadata extraction', () => {
@@ -45,6 +51,7 @@ describe('parameter metadata extraction', () => {
             const testRequired = test2.parameters.find(
                 (p) => p.name === 'testRequired',
             );
+
             expect(testRequired).toBeDefined();
             expect(testRequired!.in).toEqual('queryProp');
             expect(testRequired!.required).toBe(true);
@@ -56,6 +63,7 @@ describe('parameter metadata extraction', () => {
             const testOptional = test2.parameters.find(
                 (p) => p.name === 'testOptional',
             );
+
             expect(testOptional).toBeDefined();
             expect(testOptional!.required).toBe(false);
         });
@@ -65,6 +73,7 @@ describe('parameter metadata extraction', () => {
             const testDefault = test2.parameters.find(
                 (p) => p.name === 'testDefault',
             );
+
             expect(testDefault).toBeDefined();
             expect(testDefault!.required).toBe(false);
             expect(testDefault!.default).toEqual('value');
@@ -75,6 +84,7 @@ describe('parameter metadata extraction', () => {
             const testEnum = test2.parameters.find(
                 (p) => p.name === 'testEnum',
             );
+
             expect(testEnum).toBeDefined();
             expect(testEnum!.required).toBe(false);
             // Should reference the enum type
@@ -86,8 +96,44 @@ describe('parameter metadata extraction', () => {
             const testNumericEnum = test2.parameters.find(
                 (p) => p.name === 'testNumericEnum',
             );
+
             expect(testNumericEnum).toBeDefined();
             expect(testNumericEnum!.type.typeName).toEqual('refEnum');
+        });
+    });
+
+    // A bare `@Query()` marks the whole query bag. The generator resolves it to
+    // named keys for every supported shape, not just object types — anything
+    // left as `in: 'query'` is grouped away by both swagger emitters (#910).
+    describe('bare @Query() bag resolution', () => {
+        let list: Method;
+
+        beforeAll(() => {
+            list = metadata.controllers
+                .find((c) => c.name === 'QueryBagController')!
+                .methods.find((m) => m.name === 'list')!;
+        });
+
+        it('should resolve a scalar @Query() to a named queryProp', () => {
+            const search = list.parameters.find((p) => p.name === 'search')!;
+
+            expect(search.in).toEqual('queryProp');
+            expect(search.parameterName).toEqual('search');
+            expect(search.required).toBe(true);
+            expect(search.type.typeName).toEqual('string');
+        });
+
+        it('should resolve an array @Query() to a named queryProp', () => {
+            const tags = list.parameters.find((p) => p.name === 'tags')! as ArrayParameter;
+
+            expect(tags.in).toEqual('queryProp');
+            expect(tags.collectionFormat).toEqual('multi');
+            expect(tags.type.typeName).toEqual('array');
+            expect((tags.type as ArrayType).elementType.typeName).toEqual('string');
+        });
+
+        it('should never emit in: \'query\' from the parameter generator', () => {
+            expect(list.parameters.map((p) => p.in)).toEqual(['queryProp', 'queryProp']);
         });
     });
 
@@ -97,6 +143,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testDefaultQuery',
             )!;
             const numParam = method.parameters.find((p) => p.name === 'num');
+
             expect(numParam).toBeDefined();
             expect(numParam!.default).toEqual(5);
             expect(numParam!.required).toBe(false);
@@ -107,6 +154,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testDefaultQuery',
             )!;
             const strParam = method.parameters.find((p) => p.name === 'str');
+
             expect(strParam).toBeDefined();
             expect(strParam!.default).toEqual('default value');
         });
@@ -117,6 +165,7 @@ describe('parameter metadata extraction', () => {
             )!;
             const bool1Param = method.parameters.find((p) => p.name === 'bool1');
             const bool2Param = method.parameters.find((p) => p.name === 'bool2');
+
             expect(bool1Param!.default).toEqual(true);
             expect(bool2Param!.default).toEqual(false);
         });
@@ -126,6 +175,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testDefaultQuery',
             )!;
             const arrParam = method.parameters.find((p) => p.name === 'arr');
+
             expect(arrParam).toBeDefined();
             expect(arrParam!.default).toEqual(['a', 'b', 'c']);
             expect(arrParam!.type.typeName).toEqual('array');
@@ -138,6 +188,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testMultiQuery',
             )!;
             const idParam = method.parameters.find((p) => p.name === 'id');
+
             expect(idParam).toBeDefined();
             expect(idParam!.type.typeName).toEqual('array');
             expect(idParam!.required).toBe(true);
@@ -148,6 +199,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testMultiQuery',
             )!;
             const nameParam = method.parameters.find((p) => p.name === 'name');
+
             expect(nameParam).toBeDefined();
             expect(nameParam!.required).toBe(false);
         });
@@ -162,14 +214,25 @@ describe('parameter metadata extraction', () => {
             const bodyParam = method.parameters.find(
                 (p) => p.in === 'body' || p.in === 'bodyProp',
             );
+
             expect(bodyParam).toBeDefined();
             expect(bodyParam!.type.typeName).toEqual('string');
+        });
+
+        it('should allow several @BodyProp parameters on one method', () => {
+            const method = myService.methods.find(
+                (m) => m.name === 'testMultiBodyProp',
+            )!;
+            const bodyProps = method.parameters.filter((p) => p.in === 'bodyProp');
+
+            expect(bodyProps.map((p) => p.name)).toEqual(['title', 'count']);
         });
 
         it('should extract object body parameter', () => {
             const method = myService.methods.find(
                 (m) => m.name === 'testPostObject',
             )!;
+
             expect(method.parameters.length).toBeGreaterThan(0);
         });
     });
@@ -182,6 +245,7 @@ describe('parameter metadata extraction', () => {
             const formParam = method.parameters.find(
                 (p) => p.in === 'formData',
             );
+
             expect(formParam).toBeDefined();
             expect(formParam!.name).toEqual('id');
             expect(formParam!.type.typeName).toEqual('string');
@@ -194,6 +258,7 @@ describe('parameter metadata extraction', () => {
                 (m) => m.name === 'testGetSingle',
             )!;
             const pathParam = method.parameters.find((p) => p.in === 'path');
+
             expect(pathParam).toBeDefined();
             expect(pathParam!.name).toEqual('id');
             expect(pathParam!.type.typeName).toEqual('string');
@@ -209,6 +274,7 @@ describe('parameter metadata extraction', () => {
             const testParam = method.parameters.find(
                 (p) => p.name === 'testParam',
             );
+
             expect(testParam).toBeDefined();
             expect(testParam!.required).toBe(false);
         });

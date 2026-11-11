@@ -1,3 +1,5 @@
+import type { ResolvedOutput } from './types';
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -15,30 +17,29 @@ export const FORMAT_VALUES = Object.values(DocumentFormat);
 
 export function normalizeVersion(input: string): `${Version}` {
     const value = input.startsWith('v') ? input : `v${input}`;
+
     if (!(VERSION_VALUES as string[]).includes(value)) {
         throw new CLIUserError(
             `Unknown OpenAPI version "${input}". Supported: ${VERSION_VALUES.join(', ')}.`,
         );
     }
+
     return value as `${Version}`;
 }
 
 export function detectFormatFromPath(filePath: string): `${DocumentFormat}` | undefined {
     const ext = path.extname(filePath).toLowerCase();
+
     if (ext === '.yaml' || ext === '.yml') {
         return DocumentFormat.YAML;
     }
+
     if (ext === '.json') {
         return DocumentFormat.JSON;
     }
+
     return undefined;
 }
-
-export type ResolvedOutput = {
-    cwd: string;
-    name: string;
-    format: `${DocumentFormat}`;
-};
 
 /**
  * Split an absolute output file path into the `(cwd, name, format)` triple
@@ -60,8 +61,10 @@ export function splitOutputPath(
                     `Unknown output format "${formatOverride}". Supported: ${FORMAT_VALUES.join(', ')}.`,
                 );
             }
+
             return formatOverride as `${DocumentFormat}`;
         }
+
         return detectFormatFromPath(absolutePath) ?? DocumentFormat.JSON;
     })();
 
@@ -91,10 +94,12 @@ export function splitCsv(input: string | undefined): string[] | undefined {
     if (input === undefined) {
         return undefined;
     }
+
     const parts = input
         .split(',')
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
+
     return parts.length > 0 ? parts : undefined;
 }
 
@@ -102,15 +107,19 @@ export function parseStrict(input: string | undefined): boolean | 'throw' | unde
     if (input === undefined) {
         return undefined;
     }
+
     if (input === 'throw') {
         return 'throw';
     }
+
     if (input === 'true' || input === '') {
         return true;
     }
+
     if (input === 'false') {
         return false;
     }
+
     throw new CLIUserError(`Unknown --strict value "${input}". Use "true", "false", or "throw".`);
 }
 
@@ -118,15 +127,18 @@ export function parseSecurityDefinitions(input: string | undefined): Record<stri
     if (!input) {
         return undefined;
     }
+
     try {
         const value = JSON.parse(input) as unknown;
+
         if (!value || typeof value !== 'object' || Array.isArray(value)) {
             throw new Error('expected a JSON object');
         }
+
         return value as Record<string, unknown>;
     } catch (err) {
         throw new CLIUserError(
-            `Failed to parse --security-definitions JSON: ${err instanceof Error ? err.message : String(err)}`,
+            `Failed to parse --security-definitions JSON: ${(err instanceof Error) ? err.message : String(err)}`,
         );
     }
 }

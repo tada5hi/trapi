@@ -9,6 +9,9 @@
 // with their own keys via `declare module '@trapi/core'`. Stays empty
 // here so the core layer remains framework-agnostic.
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface ValidatorMeta {}
 
 export type Validator = {

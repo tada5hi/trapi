@@ -6,9 +6,9 @@
  */
 
 import type {
-    ClassDeclaration, 
-    Expression, 
-    MethodDeclaration, 
+    ClassDeclaration,
+    Expression,
+    MethodDeclaration,
     TypeNode,
 } from 'typescript';
 import { ts } from '../../../core/compiler';
@@ -53,6 +53,7 @@ export class ControllerGenerator implements IControllerGenerator {
                 code: GeneratorErrorCode.CONTROLLER_NO_SOURCE_FILE,
             });
         }
+
         if (!this.node.name) {
             throw new GeneratorError({
                 message: 'Controller node doesn\'t have a valid name.',
@@ -67,6 +68,7 @@ export class ControllerGenerator implements IControllerGenerator {
         });
 
         const options = this.applyOptions();
+
         applyDecoratorHandlers(this.node, this.current.registry.controllers, draft, options);
         applyJsDocHandlers(this.node, this.current.registry.controllerJsDoc, draft, options);
 
@@ -123,32 +125,39 @@ export class ControllerGenerator implements IControllerGenerator {
 
             const generator = new MethodGenerator(member, this.current);
             const methodName = generator.getMethodName();
+
             if (set.has(methodName)) {
                 continue;
             }
 
             const method = generator.generate(controllerPaths);
+
             if (!method) {
                 continue;
             }
+
             set.add(methodName);
             output.push(method);
         }
 
         // Then process inherited methods from base classes
         const inheritedMethods = this.collectInheritedMethodDeclarations(this.node);
+
         for (const node of inheritedMethods) {
             const generator = new MethodGenerator(node, this.current);
             const methodName = generator.getMethodName();
+
             if (set.has(methodName)) {
                 continue;
             }
 
             try {
                 const method = generator.generate(controllerPaths);
+
                 if (!method) {
                     continue;
                 }
+
                 set.add(methodName);
                 output.push(method);
             } catch (error: unknown) {
@@ -184,6 +193,7 @@ export class ControllerGenerator implements IControllerGenerator {
 
             for (const type of clause.types) {
                 const baseDeclaration = this.resolveBaseClassDeclaration(type.expression);
+
                 if (!baseDeclaration) {
                     continue;
                 }
@@ -205,6 +215,7 @@ export class ControllerGenerator implements IControllerGenerator {
 
     private resolveBaseClassDeclaration(expression: Expression): ClassDeclaration | undefined {
         let symbol = this.current.typeChecker.getSymbolAtLocation(expression);
+
         if (!symbol) {
             return undefined;
         }
@@ -215,11 +226,13 @@ export class ControllerGenerator implements IControllerGenerator {
         }
 
         const declarations = symbol.getDeclarations();
+
         if (!declarations || declarations.length === 0) {
             return undefined;
         }
 
         const declaration = declarations[0];
+
         if (declaration && ts.isClassDeclaration(declaration)) {
             return declaration;
         }

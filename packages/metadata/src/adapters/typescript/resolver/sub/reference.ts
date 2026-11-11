@@ -32,11 +32,15 @@ export class ReferenceResolver extends ResolverBase {
             return referenceTypes[0]!;
         }
 
-        if (referenceTypes.every((refType) => refType.refName === TypeName.REF_ENUM)) {
+        const matchesReferenceTypes = referenceTypes.every((refType) => refType.refName === TypeName.REF_ENUM);
+
+        if (matchesReferenceTypes) {
             return this.mergeManyRefEnums(referenceTypes as RefEnumType[]);
         }
 
-        if (referenceTypes.every((refType) => refType.refName === TypeName.REF_OBJECT)) {
+        const matchesReferenceTypesResult = referenceTypes.every((refType) => refType.refName === TypeName.REF_OBJECT);
+
+        if (matchesReferenceTypesResult) {
             return this.mergeManyRefObjects(referenceTypes as RefObjectType[]);
         }
 
@@ -47,6 +51,7 @@ export class ReferenceResolver extends ResolverBase {
 
     public mergeManyRefEnums(many: RefEnumType[]): RefEnumType {
         let merged = this.mergeRefEnums(many[0]!, many[1]!);
+
         for (let i = 2; i < many.length; ++i) {
             merged = this.mergeRefEnums(merged, many[i]!);
         }
@@ -56,6 +61,7 @@ export class ReferenceResolver extends ResolverBase {
 
     public mergeRefEnums(first: RefEnumType, second: RefEnumType): RefEnumType {
         let description : string | undefined;
+
         if (first.description || second.description) {
             if (!first.description) {
                 description = second.description;
@@ -85,14 +91,17 @@ export class ReferenceResolver extends ResolverBase {
 
     public mergeManyRefObjects(many: RefObjectType[]) {
         let merged = this.mergeRefObject(many[0]!, many[1]!);
+
         for (let i = 2; i < many.length; ++i) {
             merged = this.mergeRefObject(merged, many[i]!);
         }
+
         return merged;
     }
 
     public mergeRefObject(first: RefObjectType, second: RefObjectType) : RefObjectType {
         let description : string | undefined;
+
         if (first.description || second.description) {
             if (!first.description) {
                 description = second.description;
@@ -109,6 +118,7 @@ export class ReferenceResolver extends ResolverBase {
         ];
 
         let additionalProperties : Type | undefined;
+
         if (first.additionalProperties || second.additionalProperties) {
             if (!first.additionalProperties) {
                 additionalProperties = second.additionalProperties;

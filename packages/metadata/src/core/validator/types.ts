@@ -8,7 +8,10 @@
 // Augmentation point: consumers (e.g. @trapi/swagger) extend this interface
 // with their own keys via `declare module '@trapi/metadata'`. Stays empty
 // here so the metadata layer remains framework-agnostic.
- 
+
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface ValidatorMeta {}
 
 export type Validator = {

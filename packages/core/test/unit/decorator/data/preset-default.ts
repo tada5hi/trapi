@@ -12,7 +12,9 @@ const preset: Preset = {
     methods: [
         {
             match: { name: 'Post', on: 'method' },
-            apply: (_ctx, draft) => { draft.verb = 'post'; },
+            apply: (_ctx, draft) => {
+                draft.verb = 'post';
+            },
         },
     ],
 };

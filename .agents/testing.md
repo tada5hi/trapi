@@ -2,7 +2,7 @@
 
 ## Setup
 
-- **Framework**: Vitest 4
+- **Framework**: Vitest 5
 - **Coverage**: v8 provider (built-in)
 - **Pattern**: `*.spec.ts` and `*.test.ts` files in `test/unit/` directories
 - **Config**: Per-package `test/vitest.config.ts`
@@ -135,7 +135,7 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `intersection-types.spec.ts` | V2 flattened properties, V3 `allOf` |
 | `additional-properties.spec.ts` | V2 boolean vs V3 typed schema |
 | `edge-cases.spec.ts` | Empty required arrays, void responses, spec structure |
-| `error-paths.spec.ts` | Duplicate body params, body+form conflict, cookie filtering, hidden methods |
+| `error-paths.spec.ts` | Duplicate body params, body+form and bodyProp+form conflict, cookie filtering, hidden methods |
 | `schema-validation.spec.ts` | V2/V3 output validated against official OAI JSON Schemas |
 | `config-variations.spec.ts` | specificationExtra merging, collectionFormat, info defaults |
 | `generate-swagger.spec.ts` | `generateSwagger()` entry-point wiring (pre-built metadata vs options) |
@@ -145,5 +145,9 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `primitive-endpoint.spec.ts`, `parameterized-endpoint.spec.ts`, `type-endpoint.spec.ts`, `abstract-entity-endpoint.spec.ts` | End-to-end endpoint coverage from fixture controllers |
 | `v3.spec.ts` | V3-family version dispatch (v3 vs v3.1 vs v3.2) |
 | `tag-cascade.spec.ts` | Controller→method tag/response cascade in V3, omitted empty `tags` |
-| `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters |
+| `path-variables.spec.ts` | Undeclared path-template variables synthesized as required path parameters; `data.pathParameters` descriptions for synthesized and declared path parameters |
+| `parameter-flags.spec.ts` | `allowEmptyValue` emitted only for query parameters (V3) and nowhere in V2; `allowReserved` never emitted; the only `validateV31Spec` coverage of a document carrying operation parameters — the v3.0 schema is Draft-04 and cannot catch the query-only rule |
 | `content-types.spec.ts` | Consumes/produces resolution: method, controller cascade, document defaults, form-data |
+| `metadata-immutability.spec.ts` | Emission leaves `Metadata` byte-identical; repeated and cross-version emission from one object is stable; the `@BodyProp` merge runs once per operation rather than accumulating across mounts |
+| `body-bodyprop-named-type.spec.ts` | `@Body` of a non-object-literal type plus `@BodyProp` keeps both halves: V3 composes with `allOf` (refObject, refAlias, `any`, `object`), V2 flattens a refObject (through `referenceTypes`, with full property/model annotation fidelity) or an alias chain onto one; an intersection or an open `any`/`object` body is also flattened — `getSchemaForIntersectionType` carries `required` across but not per-member property annotations. A `refObject` body rejects in both emitters if its `refName` has no matching (or a wrong-kind) `referenceTypes` entry, rather than V3 composing a dangling/wrong `$ref`. A body with no object shape at all (scalar, array, **union**, alias over any of them, **cyclic alias**) is rejected by both emitters with `SWAGGER_BODY_PROP_TYPE_CONFLICT` rather than emitting an unsatisfiable schema or losing a half. Every case is asserted for both emitters — the V2/V3 parity is the point |
+| `v2-parameter-types.spec.ts` | Swagger 2.0 non-body parameters carry an inline `type`: `refEnum`/`refAlias` dereferenced, cyclic aliases guarded, `object`/unmodellable shapes floored to `string`, body parameters keep their `$ref` |

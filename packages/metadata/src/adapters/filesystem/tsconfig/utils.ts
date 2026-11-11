@@ -39,6 +39,7 @@ function normalizeLib(value: unknown[], basePath: string) : string[] {
 
         const { options, errors } = ts.convertCompilerOptionsFromJson({ lib: [entry] }, basePath);
         const [converted] = options.lib || [];
+
         if (errors.length > 0 || typeof converted !== 'string') {
             throwInvalidValue('lib', entry);
         }
@@ -62,17 +63,21 @@ export function normalizeCompilerOptions(
     const output : CompilerOptions = {};
 
     const keys = Object.keys(input);
+
     for (const key of keys) {
         const value = input[key];
 
         if (key === 'lib' && Array.isArray(value)) {
             output.lib = normalizeLib(value, basePath);
+
             continue;
         }
 
         const { options, errors } = ts.convertCompilerOptionsFromJson({ [key]: value }, basePath);
+
         if (errors.length === 0 && key in options) {
             output[key] = options[key];
+
             continue;
         }
 

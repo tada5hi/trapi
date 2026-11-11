@@ -1,3 +1,4 @@
+/* eslint-disable @tada5hi/no-reexport-shims -- Preserve the existing public forwarding module. */
 /*
  * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
@@ -34,6 +35,7 @@ export function appendExtensionToDraft(
     const keyArg = ctx.argument(0);
     const valueArg = ctx.argument(1);
     const key = readString(keyArg);
+
     if (
         !key ||
         !valueArg ||
@@ -42,5 +44,6 @@ export function appendExtensionToDraft(
     ) {
         return;
     }
+
     draft.extensions.push({ key, value: valueArg.raw as never });
 }

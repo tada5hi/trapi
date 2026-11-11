@@ -24,9 +24,9 @@ describe('controller -> method security cascade (#832)', () => {
     const securityDefinitions: SecurityDefinitions = {
         bearerAuth: { type: 'http', scheme: 'basic' },
         apiKey: {
-            type: 'apiKey', 
-            name: 'X-API-Key', 
-            in: 'header', 
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
         },
     };
 
@@ -67,11 +67,13 @@ describe('controller -> method security cascade (#832)', () => {
 
         it('V2 should cascade controller security onto the operation', () => {
             const op = specV2.paths['/secure/inherit'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }]);
         });
 
         it('V3 should cascade controller security onto the operation', () => {
             const op = specV3.paths['/secure/inherit'].get!;
+
             expect(op.security).toEqual([{ bearerAuth: [] }]);
         });
     });
@@ -113,11 +115,13 @@ describe('controller -> method security cascade (#832)', () => {
 
         it('V2 should use the method security and ignore controller security', () => {
             const op = specV2.paths['/secure/override'].get!;
+
             expect(op.security).toEqual([{ apiKey: [] }]);
         });
 
         it('V3 should use the method security and ignore controller security', () => {
             const op = specV3.paths['/secure/override'].get!;
+
             expect(op.security).toEqual([{ apiKey: [] }]);
         });
     });
@@ -162,11 +166,13 @@ describe('controller -> method security cascade (#832)', () => {
         // not emit an empty array.
         it('V2 should omit operation security', () => {
             const op = specV2.paths['/open/endpoint'].get!;
+
             expect(op.security).toBeUndefined();
         });
 
         it('V3 should omit operation security', () => {
             const op = specV3.paths['/open/endpoint'].get!;
+
             expect(op.security).toBeUndefined();
         });
     });

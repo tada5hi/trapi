@@ -7,3 +7,4 @@
 
 export * from './types';
 export * from './constants';
+export { ParameterSourceV2 } from './constants';

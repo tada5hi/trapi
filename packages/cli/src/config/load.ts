@@ -1,3 +1,5 @@
+import type { LoadConfigOptions } from './types';
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -7,24 +9,12 @@
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import {
-    buildFilePath,
-    locate,
-    read,
-} from 'locter';
+import { buildFilePath, locate, read } from 'locter';
 import { isObject } from 'smob';
 import { CLIUserError } from '../logger.ts';
 import type { LoadedConfig, TrapiConfigEntry } from './types.ts';
 
 const CONFIG_FILE_PATTERN = 'trapi.config.{ts,mts,cts,mjs,cjs,js,json}';
-
-export type LoadConfigOptions = {
-    cwd: string;
-    /** Explicit config path from `--config`. Skips discovery. */
-    configPath?: string;
-    /** When `true`, do not attempt discovery; returns an empty result. */
-    disabled?: boolean;
-};
 
 export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConfig> {
     if (options.disabled) {
@@ -32,11 +22,14 @@ export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConf
     }
 
     const explicit = options.configPath;
+
     if (explicit) {
         const resolved = path.isAbsolute(explicit) ?
             explicit :
             path.resolve(options.cwd, explicit);
+
         await assertReadable(resolved);
+
         return readConfigFile(resolved);
     }
 
@@ -44,11 +37,13 @@ export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConf
         cwd: options.cwd,
         onlyFiles: true,
     });
+
     if (found) {
         return readConfigFile(buildFilePath(found));
     }
 
     const fromPackageJson = await readPackageJsonField(options.cwd);
+
     if (fromPackageJson) {
         return fromPackageJson;
     }
@@ -58,21 +53,24 @@ export async function loadConfig(options: LoadConfigOptions): Promise<LoadedConf
 
 async function readConfigFile(filePath: string): Promise<LoadedConfig> {
     let mod: unknown;
+
     try {
         mod = await read(filePath);
     } catch (err) {
         throw new CLIUserError(
-            `Failed to load config "${filePath}": ${err instanceof Error ? err.message : String(err)}`,
+            `Failed to load config "${filePath}": ${(err instanceof Error) ? err.message : String(err)}`,
         );
     }
 
     const value = unwrapDefault(mod);
+
     return { path: filePath, entries: normalizeEntries(value, filePath) };
 }
 
 async function readPackageJsonField(cwd: string): Promise<LoadedConfig | undefined> {
     const pkgPath = path.join(cwd, 'package.json');
     let raw: string;
+
     try {
         raw = await fs.readFile(pkgPath, 'utf-8');
     } catch {
@@ -80,11 +78,12 @@ async function readPackageJsonField(cwd: string): Promise<LoadedConfig | undefin
     }
 
     let parsed: { trapi?: unknown };
+
     try {
         parsed = JSON.parse(raw) as { trapi?: unknown };
     } catch (err) {
         throw new CLIUserError(
-            `Failed to parse "${pkgPath}": ${err instanceof Error ? err.message : String(err)}`,
+            `Failed to parse "${pkgPath}": ${(err instanceof Error) ? err.message : String(err)}`,
         );
     }
 
@@ -114,9 +113,12 @@ function unwrapDefault(mod: unknown): unknown {
 function normalizeEntries(value: unknown, source: string): TrapiConfigEntry[] {
     if (Array.isArray(value)) {
         value.forEach((entry, idx) => assertEntry(entry, `${source} (entry ${idx})`));
+
         return value as TrapiConfigEntry[];
     }
+
     assertEntry(value, source);
+
     return [value as TrapiConfigEntry];
 }
 
@@ -132,5 +134,6 @@ export function defaultConfigCwd(loaded: LoadedConfig, fallbackCwd: string): str
     if (loaded.path) {
         return path.dirname(loaded.path);
     }
+
     return fallbackCwd;
 }

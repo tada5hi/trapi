@@ -14,6 +14,10 @@ export type ServerOption = {
     description?: string,
 };
 
+export type PathParameterOption = {
+    description?: string,
+};
+
 export type SpecGeneratorOptions = {
     /**
      * API host, e.g. localhost:3000 or https://myapi.com
@@ -78,6 +82,21 @@ export type SpecGeneratorOptions = {
      * `schema` ref and a V3 `content` entry come out of the same input.
      */
     responses?: Response[];
+
+    /**
+     * Documentation for path-template variables, keyed by variable name.
+     *
+     * A variable the emitter synthesizes — one the path template declares but no
+     * decorated argument does — has no declaration to read a description from,
+     * and it appears on every verb of the mount, so no per-method handler covers
+     * it either. Path variable names are global in practice, so a document-wide
+     * map is the level that matches.
+     *
+     * Also fills in for a *declared* path parameter that carries no description
+     * of its own, so one entry reads the same on every operation the variable
+     * appears in. A decorated description always wins.
+     */
+    pathParameters?: Record<string, PathParameterOption>;
 
     /**
      * Default collectionFormat property for query parameters of array type.
@@ -173,6 +192,13 @@ export type SwaggerGenerateData = {
      * same `status` wins.
      */
     responses?: Response[];
+
+    /**
+     * Descriptions for path-template variables, keyed by variable name. Covers
+     * variables the emitter synthesizes and declared path parameters that have
+     * no description of their own.
+     */
+    pathParameters?: Record<string, PathParameterOption>;
 
     /**
      * Default collection format for array query parameters.

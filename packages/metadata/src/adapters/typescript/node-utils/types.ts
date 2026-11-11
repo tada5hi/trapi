@@ -5,6 +5,9 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface NodeDecorator {
     text: string;
     arguments: any[];

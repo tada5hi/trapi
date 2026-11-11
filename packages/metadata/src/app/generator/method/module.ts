@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-error-is-error -- Keep compatibility with the published Node.js runtime requirement. */
 /*
  * Copyright (c) 2021-2026.
  * Author Peter Placzek (tada5hi)
@@ -54,6 +55,7 @@ export class MethodGenerator {
 
     public getMethodName(): string {
         const identifier = this.node.name as Identifier;
+
         return identifier.text;
     }
 
@@ -62,18 +64,17 @@ export class MethodGenerator {
         const draft = newMethodDraft({ name });
 
         const options = this.applyOptions();
+
         applyDecoratorHandlers(this.node, this.current.registry.methods, draft, options);
         applyJsDocHandlers(this.node, this.current.registry.methodJsDoc, draft, options);
 
         // Not a route method (no HTTP verb decorator matched).
-        if (!draft.verb) {
+        if ((!draft.verb) || (draft.hidden)) {
             return null;
         }
 
         // Skip hidden methods entirely (matches v1 behaviour for class member iteration).
-        if (draft.hidden) {
-            return null;
-        }
+
 
         // Resolve return type.
         const returnType = this.resolveReturnType();
@@ -119,6 +120,7 @@ export class MethodGenerator {
 
     private applyOptions(): ApplyHandlersOptions {
         const parentName = (this.node.parent as ClassDeclaration).name?.text;
+
         return {
             target: 'method',
             host: { name: this.getMethodName(), parentName },
@@ -132,15 +134,20 @@ export class MethodGenerator {
 
     private resolveReturnType(): BaseType {
         let nodeType = this.node.type;
+
         if (!nodeType) {
             const { typeChecker } = this.current;
             const signature = typeChecker.getSignatureFromDeclaration(this.node);
+
             if (!signature) {
                 throw new GeneratorError({ message: 'Could not resolve method signature.' });
             }
+
             const implicitType = typeChecker.getReturnTypeOfSignature(signature);
+
             nodeType = typeChecker.typeToTypeNode(implicitType, undefined, ts.NodeBuilderFlags.NoTruncation) as TypeNode;
         }
+
         return new TypeNodeResolver(nodeType, this.current).resolve();
     }
 
@@ -159,6 +166,7 @@ export class MethodGenerator {
 
         const output: Parameter[] = [];
         let bodyParameterCount = 0;
+        let bodyPropParameterCount = 0;
         let formParameterCount = 0;
 
         for (const [i, declaration] of this.node.parameters.entries()) {
@@ -176,15 +184,21 @@ export class MethodGenerator {
                     if (parameter.in === ParameterSource.BODY) {
                         bodyParameterCount += 1;
                     }
+
+                    if (parameter.in === ParameterSource.BODY_PROP) {
+                        bodyPropParameterCount += 1;
+                    }
+
                     if (parameter.in === ParameterSource.FORM_DATA) {
                         formParameterCount += 1;
                     }
+
                     if (parameter.in !== ParameterSource.CONTEXT) {
                         output.push(parameter);
                     }
                 }
             } catch (e) {
-                const causeMsg = e instanceof Error ? `: ${e.message}` : '';
+                const causeMsg = (e instanceof Error) ? `: ${e.message}` : '';
                 throw new GeneratorError({
                     message: `Parameter generation failed for '${controllerId.text}.${methodId.text}' argument index ${i}${causeMsg}`,
                     code: GeneratorErrorCode.PARAMETER_GENERATION_FAILED,
@@ -200,7 +214,10 @@ export class MethodGenerator {
             });
         }
 
-        if (bodyParameterCount > 0 && formParameterCount > 0) {
+        // `@BodyProp` names a key *in* the body, so it conflicts with a form-encoded
+        // request exactly as `@Body` does. Counted separately because the check
+        // above rejects a second *body*, while several `@BodyProp` are legal.
+        if ((bodyParameterCount > 0 || bodyPropParameterCount > 0) && formParameterCount > 0) {
             throw new GeneratorError({
                 message: `Cannot mix body and form parameters in '${controllerId.text}.${methodId.text}' method.`,
                 code: GeneratorErrorCode.BODY_FORM_CONFLICT,
@@ -213,6 +230,7 @@ export class MethodGenerator {
 
 function buildDefaultResponse(returnType: BaseType, examples: Example[]): Response {
     const isVoid = isVoidType(returnType);
+
     return {
         description: isVoid ? 'No content' : 'Ok',
         examples,
@@ -226,13 +244,17 @@ function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Res
     if (handlerResponses.length === 0) {
         return [defaultResponse];
     }
+
     const target = handlerResponses.find((r) => r.status === defaultResponse.status);
+
     if (target) {
         if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
             (!target.examples || target.examples.length === 0)) {
             target.examples = defaultResponse.examples;
         }
+
         return handlerResponses;
     }
+
     return [...handlerResponses, defaultResponse];
 }

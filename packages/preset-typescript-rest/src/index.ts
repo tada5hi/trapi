@@ -46,7 +46,9 @@ const methodPathHandler = method({
 });
 
 function verb(verbValue: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'): MethodHandler['apply'] {
-    return (_ctx, draft) => { draft.verb = verbValue; };
+    return (_ctx, draft) => {
+        draft.verb = verbValue;
+    };
 }
 
 const methodGet = method({ match: { name: 'GET', on: 'method' }, apply: verb('get') });
@@ -69,7 +71,9 @@ const contextNames = [
 ];
 const contextHandlers = contextNames.map((name) => parameter({
     match: { name, on: 'parameter' },
-    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+    apply: (_ctx, draft) => {
+        draft.in = ParamKind.Context;
+    },
 }));
 
 function paramHandler(name: string, kind: typeof ParamKind[keyof typeof ParamKind]) {
@@ -77,8 +81,12 @@ function paramHandler(name: string, kind: typeof ParamKind[keyof typeof ParamKin
         match: { name, on: 'parameter' },
         apply: (ctx, draft) => {
             draft.in = kind;
+
             const argName = readString(ctx.argument(0));
-            if (argName) draft.name = argName;
+
+            if (argName) {
+                draft.name = argName;
+            }
         },
     });
 }
@@ -101,11 +109,13 @@ const methodDescription = method({
     apply: (ctx, draft) => {
         const statusArg = ctx.argument(0);
         let status = '200';
+
         if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'string') {
             status = statusArg.raw;
         } else if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'number') {
             status = String(statusArg.raw);
         }
+
         const descriptionArg = ctx.argument(1);
         const description = descriptionArg?.kind === 'literal' && typeof descriptionArg.raw === 'string' ?
             descriptionArg.raw :
@@ -115,6 +125,7 @@ const methodDescription = method({
             [{ value: payload.raw }] :
             [];
         const typeArg = ctx.typeArgument(0);
+
         draft.responses.push({
             name: status,
             status,
@@ -129,7 +140,11 @@ const methodExample = method({
     match: { name: 'Example', on: 'method' },
     apply: (ctx, draft) => {
         const payload = ctx.argument(0);
-        if (!payload || payload.kind === 'unresolvable') return;
+
+        if (!payload || payload.kind === 'unresolvable') {
+            return;
+        }
+
         draft.defaultResponseExamples.push({ value: payload.raw });
     },
 });
@@ -143,16 +158,20 @@ const methodSecurity = method({
             nameArg.raw :
             'default';
         const scopes: string[] = [];
+
         if (scopesArg?.kind === 'array' && Array.isArray(scopesArg.raw)) {
             // Malformed array: keep the security entry so the endpoint stays
             // secured, but drop ALL scopes rather than emit partial. Returning
             // early would leave the endpoint appearing unsecured.
-            if (scopesArg.raw.every((item) => typeof item === 'string')) {
+            const matchesRaw = scopesArg.raw.every((item) => typeof item === 'string');
+
+            if (matchesRaw) {
                 scopes.push(...scopesArg.raw);
             }
         } else if (scopesArg?.kind === 'literal' && typeof scopesArg.raw === 'string') {
             scopes.push(scopesArg.raw);
         }
+
         draft.security ??= [];
         draft.security.push({ [name]: scopes });
     },

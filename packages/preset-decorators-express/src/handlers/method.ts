@@ -109,10 +109,13 @@ const methodExampleHandler = method({
     match: { name: 'Example', on: 'method' },
     apply: (ctx, draft) => {
         const payload = ctx.argument(0);
+
         if (!payload || payload.kind === 'unresolvable') {
             return;
         }
+
         const label = readString(ctx.argument(1));
+
         draft.defaultResponseExamples.push(
             label === undefined ?
                 { value: payload.raw } :

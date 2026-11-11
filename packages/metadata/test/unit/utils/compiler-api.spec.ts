@@ -25,9 +25,11 @@ function createLoader(modules: Record<string, unknown>) {
     const requested : string[] = [];
     const load = (id: string) => {
         requested.push(id);
+
         if (!(id in modules)) {
             throw new Error(`Cannot find module '${id}'`);
         }
+
         return modules[id];
     };
 
@@ -76,6 +78,7 @@ describe('core/compiler', () => {
         const { load } = createLoader({ [CompilerApiModule.TYPESCRIPT]: v7Stub });
 
         const error = catchError(() => resolveCompilerApi(load));
+
         expect(error).toBeInstanceOf(ConfigError);
         expect((error as ConfigError).code).toEqual(ConfigErrorCode.COMPILER_API_UNAVAILABLE);
         expect((error as ConfigError).message).toContain('\'typescript@7.0.2\' does not expose the compiler API');
@@ -86,6 +89,7 @@ describe('core/compiler', () => {
         const { load } = createLoader({});
 
         const error = catchError(() => resolveCompilerApi(load));
+
         expect(error).toBeInstanceOf(ConfigError);
         expect((error as ConfigError).code).toEqual(ConfigErrorCode.COMPILER_API_UNAVAILABLE);
         expect((error as ConfigError).message).toContain('\'typescript\' could not be loaded');

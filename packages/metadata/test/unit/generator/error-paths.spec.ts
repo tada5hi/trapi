@@ -10,7 +10,10 @@ import {
     expect,
     it,
 } from 'vitest';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { generateMetadata } from '../../../src';
+import { GeneratorErrorCode } from '../../../src/core/error/generator-codes';
 
 describe('metadata generation error paths', () => {
     describe('invalid entry points', () => {
@@ -43,6 +46,28 @@ describe('metadata generation error paths', () => {
 
             expect(metadata).toBeDefined();
             expect(metadata.controllers).toEqual([]);
+        });
+    });
+
+    describe('body and form conflict', () => {
+        // `@BodyProp` names a key in the body; it cannot coexist with a
+        // form-encoded request any more than `@Body` can. Before this was
+        // counted, the pair reached both emitters — V2 emitted `in: body`
+        // beside `in: formData`, V3 silently dropped the upload.
+        it('should throw when a method mixes @BodyProp and a file parameter', async () => {
+            await expect(
+                generateMetadata({
+                    entryPoint: [{
+                        cwd: path.resolve(
+                            path.dirname(fileURLToPath(import.meta.url)),
+                            '../../data/body-form-conflict',
+                        ),
+                        pattern: '**/*.ts',
+                    }],
+                    cache: false,
+                    preset: '@trapi/preset-decorators-express',
+                }),
+            ).rejects.toMatchObject({ code: GeneratorErrorCode.BODY_FORM_CONFLICT });
         });
     });
 

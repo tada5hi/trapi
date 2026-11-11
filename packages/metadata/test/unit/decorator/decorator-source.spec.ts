@@ -27,9 +27,11 @@ function findClass(sf: SourceFile, name: string): ClassDeclaration {
         (s): s is ClassDeclaration =>
             ts.isClassDeclaration(s) && s.name?.text === name,
     );
+
     if (!found) {
         throw new Error(`class ${name} not found`);
     }
+
     return found;
 }
 
@@ -137,6 +139,7 @@ describe('buildDecoratorSources', () => {
             host: { name: 'C' },
             resolveTypeNode: (node) => {
                 calls.push(node.getText());
+
                 return { typeName: 'any' } as Type;
             },
         });

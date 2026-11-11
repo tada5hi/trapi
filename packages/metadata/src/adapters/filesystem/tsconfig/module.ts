@@ -24,6 +24,7 @@ export async function loadTSConfig(
     // read() returns the raw parsed value for data formats —
     // mutable, so compilerOptions can be reassigned below
     const content = await read(filePath);
+
     if (!isObject(content)) {
         throw new ConfigError({
             message: `The tsconfig file '${filePath}' is malformed.`,

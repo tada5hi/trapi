@@ -22,6 +22,7 @@ export function resolveTypeOperatorType(
 
     if (typeNode.operator === ts.SyntaxKind.KeyOfKeyword) {
         const type = ctx.typeChecker.getTypeFromTypeNode(typeNode);
+
         try {
             return ctx.resolveType(
                 toTypeNodeOrFail(ctx.typeChecker, type, undefined, ts.NodeBuilderFlags.NoTruncation),

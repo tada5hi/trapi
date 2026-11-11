@@ -5,7 +5,33 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-export * from './core';
+export {
+    ConfigError,
+    ConfigErrorCode,
+    GeneratorError,
+    GeneratorErrorCode,
+    MetadataError,
+    ParameterError,
+    ParameterErrorCode,
+    ResolverError,
+    ValidatorError,
+    ValidatorErrorCode,
+    isGeneratorError,
+    isResolverError,
+    prettyLocationOfNode,
+    prettyTroubleCause,
+} from './core';
+export type {
+    EntryPoint,
+    EntryPointOptions,
+    IGeneratorContext,
+    IMetadataGenerator,
+    IReferenceTypeRegistry,
+    IResolverContext,
+    MetadataGenerateOptions,
+    MetadataGeneratorContext,
+    MetadataGeneratorOptions,
+} from './core';
 export * from './adapters';
 export * from './app';
 export * from './core/utils';

@@ -89,6 +89,7 @@ const deprecatedJsDoc: ParameterJsDocHandler = {
 describe('namesForMarker', () => {
     it('returns empty set for an empty registry', () => {
         const names = namesForMarker(createRegistry(), isHiddenMarker);
+
         expect([...names]).toEqual([]);
     });
 
@@ -98,22 +99,26 @@ describe('namesForMarker', () => {
             methods: [hiddenMethod, extensionMethod],
             parameters: [intParameter],
         });
+
         expect([...namesForMarker(registry, isHiddenMarker)].sort()).toEqual(['Hide', 'Skip']);
     });
 
     it('skips handlers without a marker', () => {
         const registry = buildRegistry({ controllers: [unmarkedController, hiddenController] });
+
         expect([...namesForMarker(registry, isHiddenMarker)]).toEqual(['Skip']);
     });
 
     it('deduplicates same-name handlers tagged with the marker', () => {
         const second: ControllerHandler = { ...hiddenController };
         const registry = buildRegistry({ controllers: [hiddenController, second] });
+
         expect([...namesForMarker(registry, isHiddenMarker)]).toEqual(['Skip']);
     });
 
     it('does not include JSDoc handlers (those go through tagsForMarker)', () => {
         const registry = buildRegistry({ controllerJsDoc: [hiddenJsDoc] });
+
         expect([...namesForMarker(registry, isHiddenMarker)]).toEqual([]);
     });
 
@@ -122,6 +127,7 @@ describe('namesForMarker', () => {
             controllers: [hiddenController, deprecatedController],
             methods: [extensionMethod],
         });
+
         expect([...namesForMarker(registry, isExtensionMarker)]).toEqual(['Ext']);
         expect([...namesForMarker(registry, isDeprecatedMarker)]).toEqual(['Gone']);
     });
@@ -130,6 +136,7 @@ describe('namesForMarker', () => {
 describe('tagsForMarker', () => {
     it('returns empty set for an empty registry', () => {
         const tags = tagsForMarker(createRegistry(), isHiddenMarker);
+
         expect([...tags]).toEqual([]);
     });
 
@@ -138,6 +145,7 @@ describe('tagsForMarker', () => {
             controllerJsDoc: [hiddenJsDoc],
             parameterJsDoc: [deprecatedJsDoc],
         });
+
         expect([...tagsForMarker(registry, isHiddenMarker)]).toEqual(['gone']);
         expect([...tagsForMarker(registry, isDeprecatedMarker)]).toEqual(['old']);
     });
@@ -145,6 +153,7 @@ describe('tagsForMarker', () => {
     it('skips JSDoc handlers without a marker', () => {
         const plain: ControllerJsDocHandler = { match: { tag: 'note' }, apply: noop };
         const registry = buildRegistry({ controllerJsDoc: [plain, hiddenJsDoc] });
+
         expect([...tagsForMarker(registry, isHiddenMarker)]).toEqual(['gone']);
     });
 });
@@ -169,6 +178,7 @@ describe('numeric marker discovery', () => {
         const registry = buildRegistry({ parameters: [intParameter, longParameter] });
         const intNames = namesForMarker(registry, (m) => numericMarkerKind(m) === 'int');
         const longNames = namesForMarker(registry, (m) => numericMarkerKind(m) === 'long');
+
         expect([...intNames]).toEqual(['AsInt']);
         expect([...longNames]).toEqual(['AsLong']);
     });

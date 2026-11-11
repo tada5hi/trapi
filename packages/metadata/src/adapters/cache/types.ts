@@ -7,6 +7,9 @@
 
 import type { Metadata } from '@trapi/core';
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public name and declaration merging.
 export interface CacheOptions {
     /**
      * Specify if the cache driver should be enabled.
@@ -59,3 +62,17 @@ export interface ICacheClient {
     /** Prune cache files older than `maxAgeMs`. Safe to call concurrently. */
     evict(): Promise<void>;
 }
+
+
+
+// -----------------------------------------------------------------------------
+// Cache key composition
+// -----------------------------------------------------------------------------
+
+export type CacheKeyParts = {
+    schemaVersion: string;
+    sourceFilesHash: string;
+    compilerOptionsHash: string;
+    registryHash: string;
+    presetName?: string;
+};

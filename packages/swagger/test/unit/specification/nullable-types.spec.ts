@@ -112,17 +112,20 @@ describe('nullable types', () => {
     describe('V2', () => {
         it('should use x-nullable for nullable string union', () => {
             const prop = specV2.definitions!.NullableModel.properties!.nullableString;
+
             expect(prop.type).toEqual('string');
             expect(prop['x-nullable']).toBe(true);
         });
 
         it('should handle nullable reference type', () => {
             const prop = specV2.definitions!.NullableModel.properties!.nullableRef;
+
             expect(prop.$ref).toBeDefined();
         });
 
         it('should not mark non-nullable fields as nullable', () => {
             const prop = specV2.definitions!.NullableModel.properties!.requiredField;
+
             expect(prop.type).toEqual('string');
             expect(prop['x-nullable']).toBeFalsy();
         });
@@ -131,12 +134,14 @@ describe('nullable types', () => {
     describe('V3', () => {
         it('should use nullable for nullable string union', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.nullableString;
+
             expect(prop.type).toEqual('string');
             expect(prop.nullable).toBe(true);
         });
 
         it('should handle nullable reference type with allOf wrapper', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.nullableRef;
+
             // V3 wraps nullable refs in allOf to avoid sibling properties next to $ref
             expect(prop).not.toHaveProperty('$ref');
             expect(prop).toHaveProperty('allOf');
@@ -147,12 +152,14 @@ describe('nullable types', () => {
 
         it('should not mark non-nullable fields as nullable', () => {
             const prop = specV3.components.schemas!.NullableModel.properties!.requiredField;
+
             expect(prop.type).toEqual('string');
             expect(prop.nullable).toBeFalsy();
         });
 
         it('should handle nullable alias type', () => {
             const schema = specV3.components.schemas!.NullableAlias;
+
             expect(schema).toBeDefined();
             expect(schema.nullable).toBe(true);
             expect(schema.type).toEqual('string');

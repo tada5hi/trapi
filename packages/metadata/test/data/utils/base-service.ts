@@ -11,8 +11,6 @@ export class BaseService {
     @Delete()
     @Mount(':id')
     public testDelete(@Path('id') id: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            resolve();
-        });
+        return Promise.resolve();
     }
 }

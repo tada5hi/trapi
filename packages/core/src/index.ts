@@ -15,3 +15,4 @@ export * from './parameter';
 export * from './resolver';
 export * from './validator';
 export * from './variable';
+export type { VariableType } from './types';

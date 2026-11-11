@@ -17,4 +17,5 @@ export const CompilerApiModule = {
     TYPESCRIPT: 'typescript',
     TYPESCRIPT6: '@typescript/typescript6',
 } as const;
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type CompilerApiModule = typeof CompilerApiModule[keyof typeof CompilerApiModule];

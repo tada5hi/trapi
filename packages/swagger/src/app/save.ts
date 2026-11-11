@@ -18,6 +18,7 @@ const EXTENSION_PATTERN = /\.(json|ya?ml)$/i;
 
 function resolveFileName(name: string | undefined, format: `${DocumentFormat}`): string {
     const base = (name ?? 'swagger').replace(EXTENSION_PATTERN, '');
+
     return `${base}.${format}`;
 }
 
@@ -25,6 +26,7 @@ function serialise(spec: SpecV2 | SpecV3, format: `${DocumentFormat}`): string {
     if (format === DocumentFormat.YAML) {
         return new YAMLWriter().stringify(spec);
     }
+
     return JSON.stringify(spec, null, 4);
 }
 
@@ -35,6 +37,7 @@ export async function saveSwagger(
     const format: `${DocumentFormat}` = options.format ?? DocumentFormat.JSON;
 
     let cwd = process.cwd();
+
     if (options.cwd) {
         cwd = path.isAbsolute(options.cwd) ? options.cwd : path.join(process.cwd(), options.cwd);
     }
@@ -45,6 +48,7 @@ export async function saveSwagger(
     await fs.promises.mkdir(cwd, { recursive: true });
 
     const content = serialise(spec, format);
+
     await fs.promises.writeFile(filePath, content, { encoding: 'utf-8' });
 
     return {

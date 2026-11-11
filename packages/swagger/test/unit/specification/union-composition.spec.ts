@@ -185,6 +185,7 @@ describe('union composition (oneOf / discriminator)', () => {
     describe('V3 oneOf', () => {
         it('should use oneOf for object union (User | ErrorModel)', () => {
             const { schema } = specV3.paths['/composition/result'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema).not.toHaveProperty('anyOf');
             expect(schema.oneOf).toHaveLength(2);
@@ -194,6 +195,7 @@ describe('union composition (oneOf / discriminator)', () => {
 
         it('should use enum for string literal union (not oneOf)', () => {
             const { schema } = specV3.paths['/composition/status'].get!.responses['200'].content['application/json'];
+
             expect(schema).not.toHaveProperty('oneOf');
             expect(schema).not.toHaveProperty('anyOf');
             expect(schema.type).toEqual('string');
@@ -205,6 +207,7 @@ describe('union composition (oneOf / discriminator)', () => {
 
         it('should use anyOf for mixed union (object + primitive)', () => {
             const { schema } = specV3.paths['/composition/mixed'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('anyOf');
             expect(schema).not.toHaveProperty('oneOf');
             expect(schema.anyOf).toHaveLength(2);
@@ -212,6 +215,7 @@ describe('union composition (oneOf / discriminator)', () => {
 
         it('should use oneOf with nullable for nullable object union', () => {
             const { schema } = specV3.paths['/composition/nullable'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema.oneOf).toHaveLength(2);
             expect(schema.nullable).toBe(true);
@@ -221,6 +225,7 @@ describe('union composition (oneOf / discriminator)', () => {
     describe('V3.1 oneOf (type: null instead of nullable)', () => {
         it('should use oneOf for object union', () => {
             const { schema } = specV31.paths['/composition/result'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema).not.toHaveProperty('anyOf');
             expect(schema.oneOf).toHaveLength(2);
@@ -230,10 +235,13 @@ describe('union composition (oneOf / discriminator)', () => {
 
         it('should use { type: "null" } instead of nullable for nullable object union', () => {
             const { schema } = specV31.paths['/composition/nullable'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema).not.toHaveProperty('nullable');
+
             // 3.1+: nullable members are represented as { type: 'null' } in the oneOf array
             const nullMember = schema.oneOf!.find((s: any) => s.type === 'null');
+
             expect(nullMember).toBeDefined();
             // Two object refs + null type member
             expect(schema.oneOf).toHaveLength(3);
@@ -243,10 +251,13 @@ describe('union composition (oneOf / discriminator)', () => {
     describe('V3 discriminator', () => {
         it('should detect discriminator for discriminated union (Circle | Square)', () => {
             const { schema } = specV3.paths['/composition/shape'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema.oneOf).toHaveLength(2);
             expect(schema).toHaveProperty('discriminator');
+
             const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+
             expect(disc.propertyName).toEqual('kind');
             expect(disc.mapping).toEqual({
                 circle: '#/components/schemas/Circle',
@@ -256,6 +267,7 @@ describe('union composition (oneOf / discriminator)', () => {
 
         it('should not add discriminator for non-discriminated object union', () => {
             const { schema } = specV3.paths['/composition/result'].get!.responses['200'].content['application/json'];
+
             expect(schema).toHaveProperty('oneOf');
             expect(schema).not.toHaveProperty('discriminator');
         });
@@ -264,6 +276,7 @@ describe('union composition (oneOf / discriminator)', () => {
     describe('V2 unchanged', () => {
         it('should not use oneOf in V2 output', () => {
             const response = specV2.paths['/composition/result'].get!.responses['200'];
+
             expect(response.schema).not.toHaveProperty('oneOf');
         });
     });
@@ -326,10 +339,13 @@ describe('discriminator with refAlias members (#783)', () => {
 
     it('should detect discriminator for union of refAlias members', () => {
         const { schema } = specV3Alias.paths['/alias/shape'].get!.responses['200'].content['application/json'];
+
         expect(schema).toHaveProperty('oneOf');
         expect(schema.oneOf).toHaveLength(2);
         expect(schema).toHaveProperty('discriminator');
+
         const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+
         expect(disc.propertyName).toEqual('kind');
         expect(disc.mapping).toEqual({
             circle: '#/components/schemas/CircleAlias',
@@ -399,10 +415,13 @@ describe('discriminator with refAlias wrapping nestedObjectLiteral (#783)', () =
 
     it('should detect discriminator for refAlias wrapping nestedObjectLiteral', () => {
         const { schema } = specV3.paths['/inline/shape'].get!.responses['200'].content['application/json'];
+
         expect(schema).toHaveProperty('oneOf');
         expect(schema.oneOf).toHaveLength(2);
         expect(schema).toHaveProperty('discriminator');
+
         const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+
         expect(disc.propertyName).toEqual('kind');
         expect(disc.mapping).toEqual({
             circle: '#/components/schemas/InlineCircle',
@@ -467,10 +486,13 @@ describe('discriminator with mixed refObject + refAlias members (#783)', () => {
 
     it('should detect discriminator for mixed refObject + refAlias union', () => {
         const { schema } = specV3.paths['/mixed/shape'].get!.responses['200'].content['application/json'];
+
         expect(schema).toHaveProperty('oneOf');
         expect(schema.oneOf).toHaveLength(2);
         expect(schema).toHaveProperty('discriminator');
+
         const disc = schema.discriminator as { propertyName: string; mapping?: Record<string, string> };
+
         expect(disc.propertyName).toEqual('kind');
         expect(disc.mapping).toEqual({
             circle: '#/components/schemas/Circle',

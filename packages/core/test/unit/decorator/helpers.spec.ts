@@ -27,6 +27,7 @@ describe('into', () => {
     it('positional(i) writes literal arg into draft key', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
         const apply = into('name').positional(0);
+
         apply(makeContext([{ raw: 'Renamed', kind: 'literal' }]), draft);
         expect(draft.name).toEqual('Renamed');
     });
@@ -34,6 +35,7 @@ describe('into', () => {
     it('positional(i) writes identifier arg into draft key', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
         const apply = into('name').positional(0);
+
         apply(makeContext([{ raw: 'Ident', kind: 'identifier' }]), draft);
         expect(draft.name).toEqual('Ident');
     });
@@ -41,6 +43,7 @@ describe('into', () => {
     it('positional(i) skips when arg is unresolvable', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
         const apply = into('name').positional(0);
+
         apply(makeContext([{ raw: undefined, kind: 'unresolvable' }]), draft);
         expect(draft.name).toEqual('C');
     });
@@ -48,6 +51,7 @@ describe('into', () => {
     it('positional(i) does nothing when arg is missing', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
         const apply = into('name').positional(0);
+
         apply(makeContext([]), draft);
         expect(draft.name).toEqual('C');
     });
@@ -56,6 +60,7 @@ describe('into', () => {
         const draft = newMethodDraft({ name: 'list' });
         const stub = { typeName: 'string' } as unknown as Type;
         const apply = into('type').typeArgument();
+
         apply(makeContext([], [{ resolve: () => stub }]), draft);
         expect(draft.type).toEqual(stub);
     });
@@ -65,6 +70,7 @@ describe('append', () => {
     it('positional(i) appends literal arg to existing array', () => {
         const draft = newMethodDraft({ name: 'list' });
         const apply = append('produces').positional(0);
+
         apply(makeContext([{ raw: 'application/json', kind: 'literal' }]), draft);
         expect(draft.produces).toEqual(['application/json']);
     });
@@ -72,6 +78,7 @@ describe('append', () => {
     it('positional(i) flattens an array argument', () => {
         const draft = newMethodDraft({ name: 'list' });
         const apply = append('produces').positional(0);
+
         apply(makeContext([{ raw: ['a', 'b'], kind: 'array' }]), draft);
         expect(draft.produces).toEqual(['a', 'b']);
     });
@@ -79,6 +86,7 @@ describe('append', () => {
     it('positionalAll() appends all args', () => {
         const draft = newMethodDraft({ name: 'list' });
         const apply = append('tags').positionalAll();
+
         apply(
             makeContext([
                 { raw: 'auth', kind: 'literal' },
@@ -92,6 +100,7 @@ describe('append', () => {
     it('positionalAll() flattens array args', () => {
         const draft = newMethodDraft({ name: 'list' });
         const apply = append('tags').positionalAll();
+
         apply(
             makeContext([
                 { raw: ['a', 'b'], kind: 'array' },
@@ -105,14 +114,18 @@ describe('append', () => {
     it('appends to a fresh array when key not yet set', () => {
         const draft = newParameterDraft({ parameterName: 'p' });
         const apply = append('exampleLabels').positional(0);
+
         apply(makeContext([{ raw: 'first', kind: 'literal' }]), draft);
         expect(draft.exampleLabels).toEqual(['first']);
     });
 
     it('throws when existing key holds a non-array value', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
+
         (draft as Record<string, unknown>).name = 'scalar';
+
         const apply = append('name').positional(0);
+
         expect(() => apply(makeContext([{ raw: 'x', kind: 'literal' }]), draft))
             .toThrow(/not an array/);
     });
@@ -122,6 +135,7 @@ describe('flag', () => {
     it('sets the key to true by default', () => {
         const draft = newControllerDraft({ name: 'C', location: 'test.ts' });
         const apply = flag('hidden');
+
         apply(makeContext([]), draft);
         expect(draft.hidden).toBe(true);
     });
@@ -129,6 +143,7 @@ describe('flag', () => {
     it('sets a custom value', () => {
         const draft = newMethodDraft({ name: 'list' });
         const apply = flag('verb', 'get');
+
         apply(makeContext([]), draft);
         expect(draft.verb).toEqual('get');
     });

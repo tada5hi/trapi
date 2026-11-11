@@ -1,5 +1,3 @@
-<!-- NOTE: Keep this file and all corresponding files in the .agents directory updated as the project evolves. When making architectural changes, adding new patterns, or discovering important conventions, update the relevant sections. -->
-
 # TRAPI — Agent Guide
 
 TRAPI (TypeScript REST API) is a monorepo that generates REST API metadata and OpenAPI/Swagger documentation from TypeScript decorators. It analyzes decorated source code using the TypeScript compiler, extracts a normalized metadata representation, and transforms it into OpenAPI 2.0, 3.0, 3.1, or 3.2 specifications.
@@ -16,7 +14,7 @@ npx nx run-many -t test
 npm run lint
 ```
 
-- **Node.js**: >=24.0.0
+- **Development Node.js**: 24.11+ on the 24.x line, or 26+ (CI runs on 24). Published runtime requirements are declared in each package manifest.
 - **Package manager**: npm (workspaces)
 - **Module format**: ESM (`"type": "module"`)
 - **Build orchestrator**: NX + tsdown
@@ -42,10 +40,20 @@ Packages are libraries published to npm. The `docs` package is a private VitePre
 
 ## Detailed Guides
 
+
 - **[Project Structure](.agents/structure.md)** — Source layout, packages, and dependency layers
 - **[Architecture](.agents/architecture.md)** — Metadata extraction pipeline, type resolution, and generator patterns
 - **[Testing](.agents/testing.md)** — Vitest setup, coverage thresholds, and test patterns
 - **[Conventions](.agents/conventions.md)** — Commit conventions, linting, CI/CD, and release process
+
+### Writing agent docs
+
+Keep the guides factual and focused on contracts a future change could silently break.
+
+- Keep existing commands, paths and factual descriptions current. Add guide content only for an invariant or cross-cutting rule. Put defect stories and verification details in the PR, and user-facing changes in the documentation site or release notes.
+- Keep subsystem detail in `.agents/topics/` and link it from the relevant guide.
+- Describe current behavior and cite issues or PRs, rather than local plan files or a running history of completed work.
+- `npm run lint` enforces the shared config's agent-doc size, import-budget and history checks. Preserve the critical contracts when splitting a guide.
 
 ## Commits
 

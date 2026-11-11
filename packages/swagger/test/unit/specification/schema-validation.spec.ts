@@ -43,6 +43,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -56,6 +57,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -81,10 +83,10 @@ describe('OAI schema validation', () => {
                             path: '{id}',
                             parameters: [
                                 createParameter({
-                                    name: 'id', 
-                                    in: 'path', 
-                                    type: stringType(), 
-                                    required: true, 
+                                    name: 'id',
+                                    in: 'path',
+                                    type: stringType(),
+                                    required: true,
                                 }),
                             ],
                             responses: [createResponse({ status: '200', schema: refObjectType('User') })],
@@ -96,16 +98,16 @@ describe('OAI schema validation', () => {
                             path: '',
                             parameters: [
                                 createParameter({
-                                    name: 'body', 
-                                    in: 'body', 
-                                    type: refObjectType('User'), 
+                                    name: 'body',
+                                    in: 'body',
+                                    type: refObjectType('User'),
                                 }),
                             ],
                             responses: [
                                 createResponse({
-                                    status: '201', 
-                                    schema: refObjectType('User'), 
-                                    description: 'Created', 
+                                    status: '201',
+                                    schema: refObjectType('User'),
+                                    description: 'Created',
                                 }),
                             ],
                             type: refObjectType('User'),
@@ -116,10 +118,10 @@ describe('OAI schema validation', () => {
                             path: '{id}',
                             parameters: [
                                 createParameter({
-                                    name: 'id', 
-                                    in: 'path', 
-                                    type: stringType(), 
-                                    required: true, 
+                                    name: 'id',
+                                    in: 'path',
+                                    type: stringType(),
+                                    required: true,
                                 }),
                             ],
                             responses: [createResponse({ status: '204', description: 'Deleted' })],
@@ -130,14 +132,14 @@ describe('OAI schema validation', () => {
             {
                 User: createRefObject('User', [
                     createProperty({
-                        name: 'id', 
-                        type: stringType(), 
-                        required: true, 
+                        name: 'id',
+                        type: stringType(),
+                        required: true,
                     }),
                     createProperty({
-                        name: 'name', 
-                        type: stringType(), 
-                        required: true, 
+                        name: 'name',
+                        type: stringType(),
+                        required: true,
                     }),
                     createProperty({ name: 'email', type: stringType() }),
                     createProperty({ name: 'age', type: integerType() }),
@@ -153,6 +155,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -165,6 +168,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -204,14 +208,14 @@ describe('OAI schema validation', () => {
                             path: 'upload',
                             parameters: [
                                 createParameter({
-                                    name: 'file', 
-                                    in: 'formData', 
-                                    type: fileType(), 
+                                    name: 'file',
+                                    in: 'formData',
+                                    type: fileType(),
                                 }),
                                 createParameter({
-                                    name: 'description', 
-                                    in: 'formData', 
-                                    type: stringType(), 
+                                    name: 'description',
+                                    in: 'formData',
+                                    type: stringType(),
                                 }),
                             ],
                         }),
@@ -221,23 +225,23 @@ describe('OAI schema validation', () => {
             {
                 Item: createRefObject('Item', [
                     createProperty({
-                        name: 'id', 
-                        type: integerType(), 
-                        required: true, 
+                        name: 'id',
+                        type: integerType(),
+                        required: true,
                     }),
                     createProperty({
-                        name: 'name', 
-                        type: stringType(), 
-                        required: true, 
+                        name: 'name',
+                        type: stringType(),
+                        required: true,
                     }),
                     createProperty({ name: 'tags', type: arrayType(stringType()) }),
                 ]),
                 Status: createRefEnum('Status', ['active', 'inactive', 'pending']),
                 NullableModel: createRefObject('NullableModel', [
                     createProperty({
-                        name: 'value', 
-                        type: stringType(), 
-                        required: true, 
+                        name: 'value',
+                        type: stringType(),
+                        required: true,
                     }),
                     createProperty({
                         name: 'optional',
@@ -255,6 +259,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -267,6 +272,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -282,7 +288,9 @@ describe('OAI schema validation', () => {
             });
 
             expect(spec.openapi).toEqual('3.1.0');
+
             const result = validateV31Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -307,16 +315,16 @@ describe('OAI schema validation', () => {
                                 path: '',
                                 parameters: [
                                     createParameter({
-                                        name: 'body', 
-                                        in: 'body', 
-                                        type: refObjectType('Item'), 
+                                        name: 'body',
+                                        in: 'body',
+                                        type: refObjectType('Item'),
                                     }),
                                 ],
                                 type: refObjectType('Item'),
                                 responses: [createResponse({
-                                    status: '201', 
-                                    schema: refObjectType('Item'), 
-                                    description: 'Created', 
+                                    status: '201',
+                                    schema: refObjectType('Item'),
+                                    description: 'Created',
                                 })],
                             }),
                         ],
@@ -325,14 +333,14 @@ describe('OAI schema validation', () => {
                 {
                     Item: createRefObject('Item', [
                         createProperty({
-                            name: 'id', 
-                            type: stringType(), 
-                            required: true, 
+                            name: 'id',
+                            type: stringType(),
+                            required: true,
                         }),
                         createProperty({
-                            name: 'name', 
-                            type: stringType(), 
-                            required: true, 
+                            name: 'name',
+                            type: stringType(),
+                            required: true,
                         }),
                     ]),
                 },
@@ -345,6 +353,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV31Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -358,12 +367,14 @@ describe('OAI schema validation', () => {
             });
 
             expect(spec.openapi).toEqual('3.2.0');
+
             // V3.2 schema not yet available from OAI; validate against 3.1 schema
             // but filter out the version pattern mismatch (3.1 schema expects 3.1.x)
             const result = validateV31Spec(spec);
             const nonVersionErrors = result.errors.filter(
                 (e) => !e.includes('must match pattern'),
             );
+
             expect(nonVersionErrors, nonVersionErrors.join('\n')).toEqual([]);
         });
     });
@@ -396,6 +407,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV2Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });
@@ -427,6 +439,7 @@ describe('OAI schema validation', () => {
             });
 
             const result = validateV3Spec(spec);
+
             expect(result.errors, result.errors.join('\n')).toEqual([]);
             expect(result.valid).toBe(true);
         });

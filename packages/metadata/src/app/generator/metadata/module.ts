@@ -28,8 +28,8 @@ import type {
     Metadata,
     ReferenceType,
     ReferenceTypes,
-    Registry, 
-    UnmatchedDecoratorReport, 
+    Registry,
+    UnmatchedDecoratorReport,
 } from '@trapi/core';
 import {
     createRegistry,
@@ -40,8 +40,8 @@ import {
 } from '@trapi/core';
 import { ConfigError } from '../../../core/error/config';
 import { ConfigErrorCode } from '../../../core/error/config-codes';
-import { GeneratorError } from '../../../core/error/generator';
 import { GeneratorErrorCode } from '../../../core/error/generator-codes';
+import { GeneratorError } from '../../../core/error/generator';
 import { ResolverCache } from '../../../adapters/typescript/resolver/cache';
 import { normalizeCompilerOptions } from '../../../adapters/filesystem/tsconfig';
 import { ControllerGenerator } from '../controller';
@@ -101,6 +101,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         // share a name) would silently serve stale metadata.
         let presetRegistry: Registry | undefined;
         let presetName: string | undefined;
+
         if (typeof this.config.preset === 'string') {
             presetName = this.config.preset;
             presetRegistry = await loadRegistryByName(this.config.preset);
@@ -163,15 +164,15 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     }
 
     private assertPresetProducedControllers(): void {
-        if (this.config.preset || this.config.registry || this.controllers.length > 0) {
+        if ((this.config.preset || this.config.registry || this.controllers.length > 0) || (this.nodes.length === 0)) {
             return;
         }
+
         // Only fault a missing preset when we actually scanned source files —
         // an empty entry point is a different misconfiguration that shouldn't
         // surface as a preset error.
-        if (this.nodes.length === 0) {
-            return;
-        }
+
+
         throw new ConfigError({
             message: 'No preset or registry configured and no controllers detected. Provide `preset: \'@trapi/preset-decorators-express\'` (or another preset), or pass an inline `registry`, so handlers can match your decorators.',
             code: ConfigErrorCode.PRESET_MISSING,
@@ -181,10 +182,13 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
     public reportUnmatchedDecorator(report: UnmatchedDecoratorReport): void {
         const key = `${report.target}:${report.name}`;
         const existing = this.unmatchedDecorators.get(key);
+
         if (existing) {
             existing.push(report);
+
             return;
         }
+
         this.unmatchedDecorators.set(key, [report]);
     }
 
@@ -194,6 +198,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         }
 
         const flat: UnmatchedDecoratorReport[] = [];
+
         for (const reports of this.unmatchedDecorators.values()) {
             flat.push(...reports);
         }
@@ -201,6 +206,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
         // User-supplied callback short-circuits the default warn/throw path.
         if (this.config.onUnmatchedDecorator) {
             this.config.onUnmatchedDecorator(flat);
+
             return;
         }
 
@@ -219,18 +225,23 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
 
     private formatUnmatchedSummary(): string {
         const lines: string[] = ['[trapi] strict mode: decorators with no matching handler:'];
+
         for (const reports of this.unmatchedDecorators.values()) {
             const first = reports[0];
+
             if (!first) {
                 continue;
             }
+
             const occurrences = reports.length;
             const location = `${first.file}:${first.line}`;
             const suffix = occurrences > 1 ?
                 ` (${occurrences} occurrences; first at ${location})` :
                 ` (${location})`;
+
             lines.push(`  - @${first.name} on ${first.target} '${first.host.name}'${suffix}`);
         }
+
         return lines.join('\n');
     }
 
@@ -266,6 +277,7 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
                         node.body.statements.forEach((statement) => {
                             this.nodes.push(statement);
                         });
+
                         return;
                     }
                 }
@@ -340,11 +352,13 @@ export class MetadataGenerator implements IGeneratorContext, IMetadataGenerator 
             }
 
             const generator = new ControllerGenerator(node, this);
+
             if (!generator.isValid()) {
                 continue;
             }
 
             const controller = generator.generate();
+
             if (controller) {
                 this.controllers.push(controller);
             }

@@ -19,6 +19,7 @@ export async function generateMetadata(
 
     if (options.tsconfig) {
         let { tsconfig } = options;
+
         if (typeof tsconfig === 'string') {
             tsconfig = await softLoadTsconfig({ name: tsconfig });
             compilerOptions = tsconfig.compilerOptions;

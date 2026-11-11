@@ -60,8 +60,6 @@ export class PromiseService extends BaseService {
     @Mount('myFile')
     @Produces('application/pdf')
     public testFile(@QueryProp('testParam') test?: string): Promise<Return.DownloadBinaryData> {
-        return new Promise<Return.DownloadBinaryData>((resolve, reject) => {
-            resolve(null);
-        });
+        return Promise.resolve<Return.DownloadBinaryData>(null);
     }
 }

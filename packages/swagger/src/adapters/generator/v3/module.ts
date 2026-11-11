@@ -18,8 +18,8 @@ import type {
     RefObjectType,
     ResolverProperty,
     Response,
-    Type, 
-    UnionType, 
+    Type,
+    UnionType,
 } from '@trapi/core';
 import {
     ParameterSource,
@@ -29,6 +29,7 @@ import {
     isIntersectionType,
     isNestedObjectLiteralType,
     isNeverType,
+    isObjectType,
     isRefAliasType,
     isRefObjectType,
     isUndefinedType,
@@ -96,6 +97,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         const tags = this.buildTags();
+
         if (tags.length > 0) {
             spec.tags = tags;
         }
@@ -140,12 +142,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             switch (securityDefinition.type) {
                 case 'http':
                     output[key] = securityDefinition;
+
                     break;
                 case 'oauth2':
                     output[key] = securityDefinition;
+
                     break;
                 case 'apiKey':
                     output[key] = securityDefinition;
+
                     break;
             }
         }
@@ -171,7 +176,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
                 // OpenAPI has no controller-level `deprecated` — cascade
                 // controller deprecation to every emitted operation.
-                method.deprecated = method.deprecated || controller.deprecated;
+                method.deprecated = method.deprecated || controller.deprecated || false;
 
                 // Inherit controller security only when the method declared none of its own.
                 // OpenAPI 3.x: an operation's `security: []` explicitly removes any inherited
@@ -191,9 +196,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     const path = normalizePathParameters(joinPaths(controllerPath, method.path));
 
                     const pathItem = output[path] ?? (output[path] = {});
+
                     if (pathItem[method.method]) {
                         this.warnDuplicateOperation(controller.name, method, path);
                     }
+
                     pathItem[method.method] = this.buildMethod(controller.name, method, path, usedOperationIds);
                 }
             }
@@ -212,6 +219,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         output.description = method.description;
         output.summary = method.summary;
+
         if (method.tags.length) {
             output.tags = method.tags;
         }
@@ -245,18 +253,24 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // A path variable need not be a decorated argument; declare the rest so
         // the operation stays valid (and callable from Swagger UI / generated clients).
         output.parameters.push(
-            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => ({
-                name,
-                in: ParameterSourceV3.PATH,
-                required: true,
-                schema: { type: DataTypeName.STRING },
-            })),
+            ...this.undeclaredPathVariables(emittedPath, pathParams).map((name) => {
+                const description = this.pathParameterDescription(name);
+
+                return {
+                    name,
+                    in: ParameterSourceV3.PATH,
+                    required: true,
+                    schema: { type: DataTypeName.STRING },
+                    ...(description ? { description } : {}),
+                };
+            }),
         );
 
         // ignore ParameterSource.QUERY!
 
         const bodyParams = parameters[ParameterSource.BODY] || [];
         const formParams = parameters[ParameterSource.FORM_DATA] || [];
+        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
 
         if (bodyParams.length > 1) {
             throw new SwaggerError({
@@ -265,15 +279,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             });
         }
 
-        if (bodyParams.length > 0 && formParams.length > 0) {
+        // bodyProp counts here because the block below synthesizes a body from it,
+        // which made `firstBodyParam` truthy and sent emission down the
+        // `buildRequestBody` arm — silently discarding every form/file parameter.
+        if ((bodyParams.length > 0 || bodyPropParams.length > 0) && formParams.length > 0) {
             throw new SwaggerError({
                 message: `Cannot mix body and form parameters in method '${method.name}'.`,
                 code: SwaggerErrorCode.BODY_FORM_CONFLICT,
             });
         }
 
-        const bodyPropParams = parameters[ParameterSource.BODY_PROP] || [];
         const firstBodyProp = bodyPropParams[0];
+
         if (firstBodyProp) {
             if (bodyParams.length === 0) {
                 bodyParams.push({
@@ -293,22 +310,72 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             const firstBody = bodyParams[0]!;
+            const bodyPropObjectType : NestedObjectLiteralType = {
+                typeName: TypeName.NESTED_OBJECT_LITERAL,
+                properties: bodyPropParams.map((bodyPropParam) => ({
+                    default: bodyPropParam.default,
+                    validators: bodyPropParam.validators,
+                    description: bodyPropParam.description,
+                    name: bodyPropParam.name,
+                    type: bodyPropParam.type,
+                    required: bodyPropParam.required,
+                    deprecated: bodyPropParam.deprecated ?? false,
+                })),
+            };
+
             if (isNestedObjectLiteralType(firstBody.type)) {
-                for (const bodyPropParam of bodyPropParams) {
-                    firstBody.type.properties.push({
-                        default: bodyPropParam.default,
-                        validators: bodyPropParam.validators,
-                        description: bodyPropParam.description,
-                        name: bodyPropParam.name,
-                        type: bodyPropParam.type,
-                        required: bodyPropParam.required,
-                        deprecated: bodyPropParam.deprecated ?? false,
-                    });
-                }
+                // Merge into a copy, never into the metadata's own nested literal.
+                // `buildOperation` runs once per (controllerPath × methodPath) and a
+                // `Metadata` is reused across emitted documents, so pushing in place
+                // appended the same properties again on every pass — `required`
+                // came out as ["name", "name"] on a controller's second mount.
+                bodyParams[0] = {
+                    ...firstBody,
+                    type: {
+                        ...firstBody.type,
+                        properties: [
+                            ...firstBody.type.properties,
+                            ...bodyPropObjectType.properties,
+                        ],
+                    },
+                };
+            } else if (!this.isBodyMergeableType(firstBody.type)) {
+                // A scalar/array/union/enum/tuple body (or an alias over one, a
+                // cyclic alias included) has no object shape the properties could
+                // join. Composing anyway would emit
+                // `allOf: [{type: 'string'}, {type: 'object', ...}]` — schema-valid but
+                // unsatisfiable by any JSON value, so every request would fail
+                // validation with nothing in the document explaining why. Reject the
+                // combination instead, exactly as `@BodyProp` beside a form parameter
+                // is rejected above (#921/#922) for the same reason: no coherent single
+                // representation exists. V2 raises the same code for the same input.
+                throw new SwaggerError({
+                    message: `Cannot mix a non-object body type with body properties in method '${method.name}'.`,
+                    code: SwaggerErrorCode.BODY_PROP_TYPE_CONFLICT,
+                });
+            } else {
+                // Object-like but not an inline shape whose properties can be spliced —
+                // a named `refObject`/`refAlias`, or an intersection. Compose the
+                // declared body type with the `@BodyProp` properties the way an
+                // ordinary intersection type is composed, rather than dropping either
+                // half (#923). The synthesized node's own `typeName` is `'intersection'`,
+                // and every branch `getSchemaForType` checks before it tests a concrete
+                // `typeName` (`isReferenceType` included), so none of them match it and
+                // it renders through the existing `getSchemaForIntersectionType` —
+                // `allOf` of whatever the two members emit, no new schema-building code
+                // and no per-typeName special casing here.
+                bodyParams[0] = {
+                    ...firstBody,
+                    type: {
+                        typeName: TypeName.INTERSECTION,
+                        members: [firstBody.type, bodyPropObjectType],
+                    },
+                };
             }
         }
 
         const firstBodyParam = bodyParams[0];
+
         if (firstBodyParam || formParams.length > 0) {
             const consumes = this.resolveConsumes(
                 method,
@@ -348,6 +415,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         };
 
         const content: Record<string, MediaTypeV3> = {};
+
         for (const contentType of consumes) {
             content[contentType] = { schema };
         }
@@ -360,6 +428,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildRequestBody(parameter: Parameter, consumes: string[]): RequestBodyV3 {
         const content: Record<string, MediaTypeV3> = {};
+
         for (const contentType of consumes) {
             content[contentType] = this.buildMediaType(parameter);
         }
@@ -373,6 +442,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private buildMediaType(parameter: Parameter): MediaTypeV3 {
         const examples = this.transformParameterExamples(parameter);
+
         return {
             schema: this.getSchemaForType(parameter.type),
             ...(Object.keys(examples).length > 0 && { examples }),
@@ -385,6 +455,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         for (const res of input) {
             const name : string = res.status || 'default';
             const response: ResponseV3 = { description: res.description };
+
             output[name] = response;
 
             if (
@@ -393,9 +464,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 !isNeverType(res.schema)
             ) {
                 const examples : Record<string, Example> = {};
+
                 if (res.examples) {
                     for (const [i, ex] of res.examples.entries()) {
                         const label = ex.label || `example${i + 1}`;
+
                         examples[label] = { value: ex.value };
                     }
                 }
@@ -403,6 +476,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 const content = response.content ?? (response.content = {});
 
                 const contentTypes = res.produces?.length ? res.produces : produces;
+
                 for (const contentType of contentTypes) {
                     content[contentType] = {
                         schema: this.getSchemaForType(res.schema),
@@ -413,6 +487,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             if (res.headers) {
                 const headers: Record<string, HeaderV3> = {};
+
                 if (isRefObjectType(res.headers)) {
                     headers[res.headers.refName] = {
                         schema: this.getSchemaForReferenceType(res.headers) as SchemaV3,
@@ -445,12 +520,15 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                 this.resolveProduces(method),
             ),
         };
+
         if (method.description) {
             operation.description = method.description;
         }
+
         if (method.security?.length) {
             operation.security = method.security;
         }
+
         if (method.deprecated) {
             operation.deprecated = method.deprecated;
         }
@@ -499,6 +577,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     protected buildParameter(input: Parameter): ParameterV3 {
         const sourceIn = this.transformParameterSource(input.in);
+
         if (!sourceIn) {
             throw new SwaggerError({
                 message: `The parameter source '${input.in}' for parameter '${input.name}' is not supported in OpenAPI 3.x.`,
@@ -507,9 +586,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const parameter : ParameterV3 = {
-            allowEmptyValue: false,
             deprecated: false,
-            description: input.description,
+            description: input.in === ParameterSource.PATH ?
+                this.pathParameterDescription(input.name, input.description) :
+                input.description,
             in: sourceIn,
             name: input.name,
             required: input.required,
@@ -520,6 +600,13 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             },
         };
 
+        // `allowEmptyValue` is defined only for query parameters (OAS 3.1 §4.8.11.1);
+        // the Parameter Object closes every other `in` branch with
+        // `unevaluatedProperties: false`, so emitting it elsewhere fails validation.
+        if (sourceIn === ParameterSourceV3.QUERY) {
+            parameter.allowEmptyValue = input.allowEmptyValue ?? false;
+        }
+
         Object.assign(parameter, this.transformExtensions(input.extensions));
 
         if (input.deprecated) {
@@ -528,12 +615,14 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const parameterType = this.getSchemaForType(input.type);
         const schema = parameter.schema!;
+
         if (parameterType.format) {
             schema.format = parameterType.format;
         }
 
         if (parameterType.$ref) {
             parameter.schema = parameterType;
+
             return parameter;
         }
 
@@ -543,6 +632,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             if (parameterType.type) {
                 schema.type = parameterType.type as DataTypeName;
             }
+
             schema.items = parameterType.items;
             schema.enum = parameterType.enum;
         }
@@ -554,9 +644,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
     private transformParameterExamples(parameter: Parameter) : Record<string, Example> {
         const output : Record<string, Example> = {};
+
         if (parameter.examples) {
             for (const [i, ex] of parameter.examples.entries()) {
                 const label = ex.label || `example${i + 1}`;
+
                 output[label] = { value: ex.value };
             }
         }
@@ -567,8 +659,10 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
     private buildServers() : ServerV3[] {
         const servers: ServerV3[] = [];
         const configured = this.config.servers ?? [];
+
         for (const entry of configured) {
             const url = new URL(entry.url, 'http://localhost:3000/');
+
             servers.push({
                 url: `${url.protocol}//${url.host}${url.pathname || ''}`,
                 ...(entry.description ? { description: entry.description } : {}),
@@ -653,17 +747,21 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         let nullable = false;
         const enumMembers : Record<string, Array<string | number | boolean>> = {};
+
         for (const member of type.members) {
             if (isEnumType(member)) {
                 for (const memberChild of member.members) {
                     if (memberChild === null || memberChild === undefined) {
                         nullable = true;
+
                         continue;
                     }
 
                     const typeOf = typeof memberChild;
+
                     if (typeOf === 'string' || typeOf === 'number' || typeOf === 'boolean') {
                         const bucket = enumMembers[typeOf] ?? (enumMembers[typeOf] = []);
+
                         bucket.push(memberChild);
                     }
                 }
@@ -680,16 +778,19 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         }
 
         const schemas : SchemaV3[] = [];
+
         for (const member of members) {
             schemas.push(this.getSchemaForType(member));
         }
 
         const enumMembersKeys = Object.keys(enumMembers);
+
         for (const enumMembersKey of enumMembersKeys) {
             const enumType : EnumType = {
                 typeName: 'enum',
                 members: enumMembers[enumMembersKey]!,
             };
+
             schemas.push(this.getSchemaForEnumType(enumType));
         }
 
@@ -710,9 +811,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             }
 
             const schema: SchemaV3 = { [compositionKey]: schemas };
+
             if (useOneOf) {
                 this.applyDiscriminator(schema, members);
             }
+
             return schema;
         }
 
@@ -731,13 +834,20 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
             [compositionKey]: schemas,
             ...(nullable ? { nullable } : {}),
         };
+
         if (useOneOf) {
             this.applyDiscriminator(schema, members);
         }
+
         return schema;
     }
 
-    private static isObjectLikeType(type: Type): boolean {
+    /**
+     * Whether a type is object-shaped: used to decide `oneOf` vs `anyOf` for union
+     * composition (below) and, via `isBodyMergeableType`, whether a `@Body` type can
+     * hold `@BodyProp` properties alongside it.
+     */
+    private static isObjectLikeType(type: Type, seen?: Set<string>): boolean {
         if (isRefObjectType(type) ||
             isNestedObjectLiteralType(type) ||
             isIntersectionType(type)) {
@@ -746,15 +856,77 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         // Unwrap refAlias to check the underlying type — a refAlias
         // wrapping a primitive (e.g. `type Id = string`) is not object-like.
+        //
+        // `seen` stops an alias chain that returns to itself. TypeScript rejects a
+        // circular alias (TS2456), so `@trapi/metadata` cannot produce one — but
+        // `generateSwagger` takes caller-supplied `Metadata` from any producer, and a
+        // `RangeError` is a poor answer for one. A cycle is not object-like.
         if (isRefAliasType(type)) {
-            return V3Generator.isObjectLikeType(type.type);
+            const visited = seen ?? new Set<string>();
+
+            if (visited.has(type.refName)) {
+                return false;
+            }
+
+            visited.add(type.refName);
+
+            return V3Generator.isObjectLikeType(type.type, visited);
         }
 
         return false;
     }
 
+    /**
+     * Whether a declared `@Body` type can hold the `@BodyProp` properties alongside
+     * it. Counterpart to V2's `buildFlattenedBodySchema` — the two must answer for
+     * the same set of types, or the emitters disagree on the same metadata. An
+     * instance method (unlike `isObjectLikeType`) because a `refObject` needs
+     * `this.metadata.referenceTypes` to tell a resolvable reference from a dangling
+     * or wrong-kind one.
+     *
+     * Every `isObjectLikeType` type qualifies, plus `any`/`object`: neither declares
+     * properties of its own, but neither excludes any either, so composing with the
+     * bodyProp properties via `allOf` is satisfiable. Deliberately NOT folded into
+     * `isObjectLikeType` itself — that method also decides `oneOf` vs `anyOf` for
+     * union composition, where treating an `any`/`object` member as object-like
+     * would wrongly route a union containing one into `oneOf`'s exactly-one-match
+     * semantics instead of `anyOf`.
+     */
+    private isBodyMergeableType(type: Type, seen?: Set<string>): boolean {
+        if (isAnyType(type) || isObjectType(type)) {
+            return true;
+        }
+
+        // `isObjectLikeType` accepts any `refObject` structurally, without
+        // resolving it — fine for its own caller (union composition, which doesn't
+        // compose a dangling reference into anything). Here, an unresolved or
+        // wrong-kind reference would still get merged into an `allOf` as a `$ref`
+        // that points at nothing (or at the wrong entry) — reject it the same way
+        // V2's `buildFlattenedBodySchema` does, via the identical lookup.
+        if (isRefObjectType(type)) {
+            const referenceType = this.metadata.referenceTypes[type.refName];
+
+            return !!referenceType && isRefObjectType(referenceType);
+        }
+
+        if (isRefAliasType(type)) {
+            const visited = seen ?? new Set<string>();
+
+            if (visited.has(type.refName)) {
+                return false;
+            }
+
+            visited.add(type.refName);
+
+            return this.isBodyMergeableType(type.type, visited);
+        }
+
+        return V3Generator.isObjectLikeType(type);
+    }
+
     private applyDiscriminator(schema: SchemaV3, members: Type[]): void {
         const discriminator = this.detectDiscriminator(members);
+
         if (discriminator) {
             schema.discriminator = discriminator;
         }
@@ -766,16 +938,26 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
         // Resolve each member to { refName, properties }. Supports both
         // refObject and refAlias members (#783).
         const resolvedMembers = members.map((m) => this.resolveDiscriminatorMember(m));
-        if (resolvedMembers.some((m) => !m)) {
+
+        const matchesResolvedMembers = resolvedMembers.some((m) => !m);
+
+        if (matchesResolvedMembers) {
             return undefined;
         }
 
         // Find a common property with distinct enum literal values in each member
         const firstProps = resolvedMembers[0]!.properties;
+
         for (const prop of firstProps) {
-            if (prop.type.typeName !== 'enum') continue;
+            if (prop.type.typeName !== 'enum') {
+                continue;
+            }
+
             const enumType = prop.type as EnumType;
-            if (enumType.members.length !== 1) continue;
+
+            if (enumType.members.length !== 1) {
+                continue;
+            }
 
             const propName = prop.name;
             const mapping: Record<string, string> = {};
@@ -783,6 +965,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
             for (const member of resolvedMembers) {
                 const memberProp = member!.properties.find((p) => p.name === propName);
+
                 if (
                     !memberProp ||
                     !memberProp.required ||
@@ -790,14 +973,18 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     (memberProp.type as EnumType).members.length !== 1
                 ) {
                     isDiscriminator = false;
+
                     break;
                 }
 
                 const value = String((memberProp.type as EnumType).members[0]);
+
                 if (mapping[value]) {
                     isDiscriminator = false;
+
                     break;
                 }
+
                 mapping[value] = `${this.getRefPrefix()}${member!.refName}`;
             }
 
@@ -824,6 +1011,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         const { refName } = member as RefObjectType | RefAliasType;
         const referenceType = this.metadata.referenceTypes[refName];
+
         if (!referenceType) {
             return undefined;
         }
@@ -834,21 +1022,28 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         if (referenceType.typeName === 'refAlias') {
             let inner: Type = (referenceType as RefAliasType).type;
+
             for (let depth = 0; depth < 10; depth++) {
                 if (isRefObjectType(inner)) {
                     const resolved = this.metadata.referenceTypes[inner.refName];
+
                     if (resolved?.typeName === 'refObject') {
                         return { refName, properties: (resolved as RefObjectType).properties };
                     }
+
                     return undefined;
                 }
+
                 if (isNestedObjectLiteralType(inner)) {
                     return { refName, properties: (inner as NestedObjectLiteralType).properties };
                 }
+
                 if (isRefAliasType(inner)) {
                     inner = (inner as RefAliasType).type;
+
                     continue;
                 }
+
                 return undefined;
             }
         }

@@ -22,6 +22,7 @@ export function resolveTupleType(
     const elements = typeNode.elements.map((element) => {
         const isNamed = ts.isNamedTupleMember(element);
         const actualType = isNamed ? element.type : element;
+
         return {
             type: ctx.resolveType(actualType, ctx.parentNode, ctx.context),
             ...(isNamed && { name: element.name.text }),

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="trapi-a-title trapi-a-desc">
+<title id="trapi-a-title">TRAPI — Source to specification</title>
+<desc id="trapi-a-desc">A decorated source sheet passes through an aperture and becomes an OpenAPI document.</desc>
+<style>
+:root{--accent:#6366d8;--second:#159cb2;--ink:#253447;--paper:#f7fafc;--line:#8394a7;--wash:#6366d818}
+@media(prefers-color-scheme:dark){:root{--ink:#e4ebf3;--paper:#182332;--line:#8495aa;--wash:#6366d822}}
+.a{stroke:var(--accent)}.b{stroke:var(--second)}.af{fill:var(--accent)}.bf{fill:var(--second)}.ink{fill:var(--ink)}.paper{stroke:var(--line)}.line{stroke:var(--line)}.wash{fill:var(--wash)}.white{fill:#fff}.neutral{fill:var(--paper)}
+</style>
+<path d="M26 42 H93 L116 65 V178 H26 Z" class="paper" stroke-width="4" fill="var(--paper)" stroke-linecap="round" stroke-linejoin="round" /><path d="M93 42 V65 H116" class="paper" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" /><text x="68" y="99" class="af" font-size="38" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" >@</text><path d="M44 122 H88 M44 140 H76" class="a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" /><path d="M104 112 H154 M140 99 L154 112 L140 125" class="b" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" /><path d="M148 82 H207 L230 105 V218 H148 Z" class="paper" stroke-width="4" fill="var(--paper)" stroke-linecap="round" stroke-linejoin="round" /><path d="M207 82 V105 H230" class="paper" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" /><rect x="165" y="124" width="48" height="15" rx="3" class="bf" /><path d="M165 153 H211 M165 169 H196 M165 185 H205" class="b" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" /><circle cx="126" cy="48" r="5" class="bf" />
+</svg>

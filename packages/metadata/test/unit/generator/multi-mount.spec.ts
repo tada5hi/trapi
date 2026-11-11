@@ -32,6 +32,7 @@ describe('multi-mount controller paths', () => {
 
     it('should expose every mount path in controller.paths', () => {
         const controller = metadata.controllers.find((c) => c.name === 'RolesController');
+
         expect(controller).toBeDefined();
         expect(controller!.paths).toEqual(['roles', 'realms/:realmId/roles']);
     });
@@ -42,8 +43,11 @@ describe('multi-mount controller paths', () => {
         // of all controller mounts × method.path.
         const controller = metadata.controllers.find((c) => c.name === 'RolesController');
         const detail = controller!.methods.find((m) => m.name === 'detail');
+
         expect(detail).toBeDefined();
+
         const idParam = detail!.parameters.find((p) => p.name === 'id');
+
         expect(idParam).toBeDefined();
         expect(idParam!.in).toEqual('path');
     });

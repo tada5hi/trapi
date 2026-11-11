@@ -52,6 +52,7 @@ describe('security metadata extraction', () => {
             const accessTokenSecurity = security.find(
                 (s) => Object.keys(s).includes('access_token'),
             );
+
             expect(accessTokenSecurity).toBeDefined();
             expect(accessTokenSecurity!.access_token).toContain('ROLE_1');
             expect(accessTokenSecurity!.access_token).toContain('ROLE_2');
@@ -61,6 +62,7 @@ describe('security metadata extraction', () => {
             const getMethod = secureController.methods.find(
                 (m) => m.name === 'get',
             );
+
             expect(getMethod).toBeDefined();
             // Method should inherit controller security
             expect(getMethod!.security).toBeDefined();
@@ -70,12 +72,15 @@ describe('security metadata extraction', () => {
             const postMethod = secureController.methods.find(
                 (m) => m.name === 'post',
             );
+
             expect(postMethod).toBeDefined();
             expect(postMethod!.security).toBeDefined();
+
             // Should have user_email scheme
             const userEmailSecurity = postMethod!.security!.find(
                 (s) => Object.keys(s).includes('user_email'),
             );
+
             expect(userEmailSecurity).toBeDefined();
         });
     });
@@ -92,6 +97,7 @@ describe('security metadata extraction', () => {
             const getMethod = superSecureController.methods.find(
                 (m) => m.name === 'get',
             );
+
             expect(getMethod).toBeDefined();
             expect(getMethod!.security).toBeDefined();
         });

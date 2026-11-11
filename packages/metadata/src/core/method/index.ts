@@ -7,3 +7,4 @@
 
 export * from './types';
 export * from './constants';
+export { MethodName } from './constants';

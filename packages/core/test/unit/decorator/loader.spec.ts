@@ -18,11 +18,14 @@ const noopApply = () => {
 
 function makeResolver(presets: Preset[]): PresetResolver {
     const map = new Map(presets.map((p) => [p.name, p]));
+
     return (name) => {
         const found = map.get(name);
+
         if (!found) {
             throw new Error(`unknown preset: ${name}`);
         }
+
         return found;
     };
 }
@@ -31,6 +34,7 @@ describe('loadRegistry', () => {
     it('returns empty registry for a preset with no handlers', async () => {
         const preset: Preset = { name: 'empty' };
         const registry = await loadRegistry(preset, { resolver: makeResolver([]) });
+
         expect(registry.controllers).toEqual([]);
         expect(registry.methods).toEqual([]);
         expect(registry.parameters).toEqual([]);
@@ -45,6 +49,7 @@ describe('loadRegistry', () => {
             ],
         };
         const registry = await loadRegistry(preset, { resolver: makeResolver([]) });
+
         expect(registry.methods.map((h) => h.match.name)).toEqual(['Get', 'Post']);
     });
 
@@ -59,6 +64,7 @@ describe('loadRegistry', () => {
             methods: [{ match: { name: 'Post' }, apply: noopApply }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
         expect(registry.methods.map((h) => h.match.name)).toEqual(['Get', 'Post']);
     });
 
@@ -73,6 +79,7 @@ describe('loadRegistry', () => {
             methods: [{ match: { name: 'Get' }, apply: noopApply }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
         expect(registry.methods).toHaveLength(2);
     });
 
@@ -89,12 +96,13 @@ describe('loadRegistry', () => {
             name: 'child',
             extends: ['parentA', 'parentB'],
             methods: [{
-                match: { name: 'Get' }, 
-                replaces: true, 
-                apply: noopApply, 
+                match: { name: 'Get' },
+                replaces: true,
+                apply: noopApply,
             }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parentA, parentB]) });
+
         expect(registry.methods).toHaveLength(1);
         expect(registry.methods[0].replaces).toBe(true);
     });
@@ -112,12 +120,13 @@ describe('loadRegistry', () => {
             name: 'child',
             extends: ['parentA', 'parentB'],
             methods: [{
-                match: { name: 'Get' }, 
-                replaces: 'parentA', 
-                apply: noopApply, 
+                match: { name: 'Get' },
+                replaces: 'parentA',
+                apply: noopApply,
             }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parentA, parentB]) });
+
         expect(registry.methods).toHaveLength(2);
         expect(registry.methods.map((h) => h.replaces)).toEqual([undefined, 'parentA']);
     });
@@ -140,9 +149,12 @@ describe('loadRegistry', () => {
             }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
         // Body handler from parent is shadowed; child's Body and parent's Form survive.
         expect(registry.methods).toHaveLength(2);
+
         const survivors = registry.methods.map((h) => h.match.name).sort();
+
         expect(survivors).toEqual(['Body', 'Form']);
     });
 
@@ -150,11 +162,12 @@ describe('loadRegistry', () => {
         const child: Preset = {
             name: 'child',
             methods: [{
-                match: { name: 'Get' }, 
-                replaces: true, 
-                apply: noopApply, 
+                match: { name: 'Get' },
+                replaces: true,
+                apply: noopApply,
             }],
         };
+
         await expect(
             loadRegistry(child, { resolver: makeResolver([]), strict: true }),
         ).rejects.toThrow(/did not match any parent/);
@@ -170,6 +183,7 @@ describe('loadRegistry', () => {
             }],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([]) });
+
         expect(registry.methods).toHaveLength(1);
     });
 
@@ -179,13 +193,14 @@ describe('loadRegistry', () => {
             methods: [
                 { match: { name: 'Get' }, apply: noopApply },
                 {
-                    match: { name: 'Get' }, 
-                    replaces: true, 
-                    apply: noopApply, 
+                    match: { name: 'Get' },
+                    replaces: true,
+                    apply: noopApply,
                 },
             ],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([]) });
+
         expect(registry.methods).toHaveLength(2);
         expect(registry.methods.map((h) => h.replaces)).toEqual([undefined, true]);
     });
@@ -196,12 +211,13 @@ describe('loadRegistry', () => {
             methods: [
                 { match: { name: 'Get' }, apply: noopApply },
                 {
-                    match: { name: 'Get' }, 
-                    replaces: true, 
-                    apply: noopApply, 
+                    match: { name: 'Get' },
+                    replaces: true,
+                    apply: noopApply,
                 },
             ],
         };
+
         await expect(
             loadRegistry(child, { resolver: makeResolver([]), strict: true }),
         ).rejects.toThrow(/did not match any parent/);
@@ -210,6 +226,7 @@ describe('loadRegistry', () => {
     it('detects extends cycles', async () => {
         const a: Preset = { name: 'a', extends: ['b'] };
         const b: Preset = { name: 'b', extends: ['a'] };
+
         await expect(
             loadRegistry(a, { resolver: makeResolver([a, b]) }),
         ).rejects.toThrow(/cycle/i);
@@ -224,6 +241,7 @@ describe('loadRegistry', () => {
         const right: Preset = { name: 'right', extends: ['base'] };
         const child: Preset = { name: 'child', extends: ['left', 'right'] };
         const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
+
         expect(registry.methods).toHaveLength(2);
     });
 
@@ -237,13 +255,14 @@ describe('loadRegistry', () => {
             extends: ['parent'],
             controllers: [
                 {
-                    match: { name: 'Controller' }, 
-                    replaces: true, 
-                    apply: noopApply, 
+                    match: { name: 'Controller' },
+                    replaces: true,
+                    apply: noopApply,
                 },
             ],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
         expect(registry.controllers).toHaveLength(1);
         expect(registry.controllers[0].replaces).toBe(true);
     });
@@ -251,6 +270,7 @@ describe('loadRegistry', () => {
     it('wraps preset-validation failures as CoreError(PRESET_INVALID)', async () => {
         // Missing `name` is a zod schema violation that surfaces from validup.
         const invalid = { methods: [] } as unknown as Preset;
+
         await expect(
             loadRegistry(invalid, { resolver: makeResolver([]) }),
         ).rejects.toMatchObject({ code: 'CORE_PRESET_INVALID' });
@@ -266,14 +286,15 @@ describe('loadRegistry', () => {
             extends: ['parent'],
             methodJsDoc: [
                 {
-                    match: { tag: 'hidden' }, 
-                    replaces: 'parent', 
-                    apply: noopApply, 
+                    match: { tag: 'hidden' },
+                    replaces: 'parent',
+                    apply: noopApply,
                 },
                 { match: { tag: 'deprecated' }, apply: noopApply },
             ],
         };
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
         expect(registry.methodJsDoc.map((h) => h.match.tag)).toEqual(['hidden', 'deprecated']);
     });
 });

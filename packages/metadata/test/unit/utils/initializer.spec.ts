@@ -40,28 +40,37 @@ function buildProgram(source: string) {
         getDefaultLibFileName: () => 'lib.d.ts',
     };
     const program = ts.createProgram([FILE_NAME], compilerOptions, host);
+
     return { program, sourceFile: program.getSourceFile(FILE_NAME) as SourceFile };
 }
 
 function firstClassDecoratorArgument(sf: SourceFile): Expression {
     const cls = sf.statements.find(ts.isClassDeclaration);
+
     if (!cls) {
         throw new Error('class not found');
     }
+
     const modifiers = cls.modifiers ?? ([] as readonly ModifierLike[]);
+
     for (const modifier of modifiers) {
         if (modifier.kind !== ts.SyntaxKind.Decorator) {
             continue;
         }
+
         const decorator = modifier as unknown as { expression: Expression };
+
         if (!ts.isCallExpression(decorator.expression)) {
             continue;
         }
+
         const [first] = decorator.expression.arguments;
+
         if (first) {
             return first;
         }
     }
+
     throw new Error('no decorator argument found');
 }
 
@@ -98,6 +107,7 @@ describe('getInitializerValue', () => {
         const objectLiteralArg = call.arguments[1];
 
         const checker = program.getTypeChecker();
+
         expect(() => getInitializerValue(objectLiteralArg, checker)).not.toThrow();
         expect(getInitializerValue(objectLiteralArg, checker)).toEqual({
             ancestorColumnName: undefined,

@@ -6,14 +6,10 @@
  */
 
 import { createRequire } from 'node:module';
-import type * as TypeScript from 'typescript';
 import { ConfigError } from '../error/config';
 import { ConfigErrorCode } from '../error/config-codes';
 import { CompilerApiModule } from './constants';
-
-export type CompilerApi = typeof TypeScript;
-
-export type CompilerApiLoader = (id: string) => unknown;
+import type { CompilerApi, CompilerApiLoader } from './types';
 
 function isCompilerApi(input: unknown): input is CompilerApi {
     return typeof input === 'object' &&
@@ -27,6 +23,7 @@ function readVersion(input: unknown) : string | undefined {
     }
 
     const { version } = input as Record<string, unknown>;
+
     return typeof version === 'string' ? version : undefined;
 }
 
@@ -41,8 +38,10 @@ export function resolveCompilerApi(load: CompilerApiLoader) : CompilerApi {
     let typescriptVersion : string | undefined;
 
     const ids = [CompilerApiModule.TYPESCRIPT, CompilerApiModule.TYPESCRIPT6];
+
     for (const id of ids) {
         let mod : unknown;
+
         try {
             mod = load(id);
         } catch {

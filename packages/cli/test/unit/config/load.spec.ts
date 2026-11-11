@@ -8,12 +8,12 @@
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
-import { 
-    afterEach, 
-    beforeEach, 
-    describe, 
-    expect, 
-    it, 
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import { loadConfig } from '../../../src/config/load.ts';
 import { CLIUserError } from '../../../src/logger.ts';
@@ -31,6 +31,7 @@ describe('loadConfig', () => {
 
     it('returns empty entries when no config exists', async () => {
         const result = await loadConfig({ cwd: dir });
+
         expect(result.entries).toEqual([]);
         expect(result.path).toBeUndefined();
     });
@@ -40,18 +41,23 @@ describe('loadConfig', () => {
             path.join(dir, 'trapi.config.json'),
             JSON.stringify({ metadata: { entryPoint: 'src/**/*.ts' } }),
         );
+
         const result = await loadConfig({ cwd: dir, disabled: true });
+
         expect(result.entries).toEqual([]);
         expect(result.path).toBeUndefined();
     });
 
     it('loads a JSON config file from cwd', async () => {
         const cfgPath = path.join(dir, 'trapi.config.json');
+
         await fs.writeFile(
             cfgPath,
             JSON.stringify({ metadata: { entryPoint: 'src/api.ts' } }),
         );
+
         const result = await loadConfig({ cwd: dir });
+
         expect(result.path).toBe(cfgPath);
         expect(result.entries).toHaveLength(1);
         expect(result.entries[0]?.metadata?.entryPoint).toBe('src/api.ts');
@@ -65,7 +71,9 @@ describe('loadConfig', () => {
                 { metadata: { entryPoint: 'src/b.ts' } },
             ]),
         );
+
         const result = await loadConfig({ cwd: dir });
+
         expect(result.entries).toHaveLength(2);
         expect(result.entries[0]?.metadata?.entryPoint).toBe('src/a.ts');
         expect(result.entries[1]?.metadata?.entryPoint).toBe('src/b.ts');
@@ -73,11 +81,14 @@ describe('loadConfig', () => {
 
     it('honours an explicit configPath', async () => {
         const cfgPath = path.join(dir, 'custom.json');
+
         await fs.writeFile(
             cfgPath,
             JSON.stringify({ metadata: { entryPoint: 'src/custom.ts' } }),
         );
+
         const result = await loadConfig({ cwd: dir, configPath: cfgPath });
+
         expect(result.path).toBe(cfgPath);
         expect(result.entries[0]?.metadata?.entryPoint).toBe('src/custom.ts');
     });
@@ -90,6 +101,7 @@ describe('loadConfig', () => {
 
     it('reads package.json#trapi when no dedicated config file exists', async () => {
         const pkgPath = path.join(dir, 'package.json');
+
         await fs.writeFile(
             pkgPath,
             JSON.stringify({
@@ -97,13 +109,16 @@ describe('loadConfig', () => {
                 trapi: { metadata: { entryPoint: 'src/pkg.ts' } },
             }),
         );
+
         const result = await loadConfig({ cwd: dir });
+
         expect(result.path).toBe(pkgPath);
         expect(result.entries[0]?.metadata?.entryPoint).toBe('src/pkg.ts');
     });
 
     it('prefers a dedicated config file over package.json#trapi', async () => {
         const cfgPath = path.join(dir, 'trapi.config.json');
+
         await fs.writeFile(
             cfgPath,
             JSON.stringify({ metadata: { entryPoint: 'src/dedicated.ts' } }),
@@ -112,7 +127,9 @@ describe('loadConfig', () => {
             path.join(dir, 'package.json'),
             JSON.stringify({ trapi: { metadata: { entryPoint: 'src/from-pkg.ts' } } }),
         );
+
         const result = await loadConfig({ cwd: dir });
+
         expect(result.path).toBe(cfgPath);
         expect(result.entries[0]?.metadata?.entryPoint).toBe('src/dedicated.ts');
     });

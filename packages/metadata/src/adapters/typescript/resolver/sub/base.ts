@@ -16,6 +16,7 @@ export class ResolverBase {
         }
 
         const modifiers = ts.getModifiers(node);
+
         if (!modifiers) {
             return true;
         }
@@ -42,12 +43,15 @@ export class ResolverBase {
         }
 
         const modifiers = ts.getModifiers(node);
+
         if (!modifiers) {
             return false;
         }
 
         // public || public readonly
-        if (modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword)) {
+        const matchesModifiers = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PublicKeyword);
+
+        if (matchesModifiers) {
             return true;
         }
 

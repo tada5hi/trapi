@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import { read } from 'locter';
 import jsonata from 'jsonata';
@@ -32,11 +32,13 @@ describe('AbstractEntityEndpoint', () => {
 
     it('should not duplicate inherited properties in the required list', async () => {
         const expression = jsonata('definitions.NamedEntity.required');
+
         expect(await expression.evaluate(spec)).toStrictEqual(['id', 'name']);
     });
 
     it('should use property description from base class if not defined in child', async () => {
         const expression = jsonata('definitions.NamedEntity.properties.id.description');
+
         expect(await expression.evaluate(spec)).toEqual('A numeric identifier');
     });
 });

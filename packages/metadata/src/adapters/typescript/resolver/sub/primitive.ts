@@ -18,12 +18,12 @@ import {
     numericMarkerKind,
     tagsForMarker,
 } from '@trapi/core';
-import type { 
-    NeverType, 
-    PrimitiveType, 
-    Registry, 
-    ResolverMarker, 
-    VoidType,  
+import type {
+    NeverType,
+    PrimitiveType,
+    Registry,
+    ResolverMarker,
+    VoidType,
 } from '@trapi/core';
 import { hasDecoratorNamed } from '../../../decorator';
 import { getJSDocTagNames } from '../../js-doc';
@@ -44,6 +44,7 @@ export class PrimitiveResolver {
 
     resolve(node: TypeNode, parentNode?: Node) : PrimitiveType | NeverType | VoidType | undefined {
         const resolved = this.resolveSyntaxKind(node.kind);
+
         if (resolved) {
             if (resolved === 'string') {
                 return { typeName: TypeName.STRING };
@@ -85,10 +86,12 @@ export class PrimitiveResolver {
                 const presentJsDocTags = new Set(
                     getJSDocTagNames(parentNode).map((tag) => tag.toLowerCase()),
                 );
+
                 for (const kind of [NumericKind.Int, NumericKind.Long, NumericKind.Float, NumericKind.Double] as const) {
                     const matchKind = (m: ResolverMarker) => numericMarkerKind(m) === kind;
 
                     const decoratorNames = namesForMarker(this.registry, matchKind);
+
                     for (const name of decoratorNames) {
                         if (hasDecoratorNamed(parentNode, name)) {
                             return { typeName: NUMERIC_KIND_TO_TYPE_NAME[kind] } as PrimitiveType;
@@ -96,6 +99,7 @@ export class PrimitiveResolver {
                     }
 
                     const jsDocTags = tagsForMarker(this.registry, matchKind);
+
                     for (const tag of jsDocTags) {
                         if (presentJsDocTags.has(tag.toLowerCase())) {
                             return { typeName: NUMERIC_KIND_TO_TYPE_NAME[kind] } as PrimitiveType;

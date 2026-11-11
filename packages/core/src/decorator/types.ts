@@ -6,8 +6,7 @@
  */
 
 import type { Example, Response, Security } from '../generator/types';
-import type { Extension } from '../resolver/extension';
-import type { BaseType, Type } from '../resolver/types';
+import type { BaseType, Extension, Type  } from '../resolver/types';
 import type { MethodType } from '../method/types';
 import type { Parameter } from '../parameter/types';
 import type { Validator } from '../validator/types';
@@ -19,6 +18,7 @@ import type {
     NumericKind,
     ParamKind,
 } from './constants';
+
 
 // -----------------------------------------------------------------------------
 // Source (Layer 1)
@@ -278,4 +278,11 @@ export type PresetResolver = (name: string) => Promise<Preset> | Preset;
 export type LoadRegistryOptions = {
     resolver: PresetResolver;
     strict?: boolean;
+};
+
+export type CreateHandlerContextInput = {
+    args?: DecoratorArgument[];
+    typeArgs?: DecoratorTypeArgument[];
+    host?: DecoratorHost;
+    parameterType?: Type;
 };

@@ -13,4 +13,6 @@ export const GeneratorErrorCode = {
     BODY_FORM_CONFLICT: 'GENERATOR_BODY_FORM_CONFLICT',
     STRICT_UNMATCHED_DECORATORS: 'GENERATOR_STRICT_UNMATCHED_DECORATORS',
 } as const;
+
+// eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.
 export type GeneratorErrorCode = typeof GeneratorErrorCode[keyof typeof GeneratorErrorCode];

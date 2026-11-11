@@ -7,3 +7,4 @@
 
 export * from './base';
 export * from './codes';
+export { CoreErrorCode } from './codes';

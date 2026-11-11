@@ -6,14 +6,17 @@
  */
 
 import {
-    Controller, 
-    Get, 
-    Mount, 
+    Controller,
+    Get,
+    Mount,
     Path,
 } from '../_stubs';
 import type { BasicModel } from '../type';
 import { BasicEndpoint } from './basic-endpoint';
 
+
+
+// eslint-disable-next-line @typescript-eslint/naming-convention -- Preserve the public contract.
 export interface MyDatatype extends BasicModel {
     property1: string;
 }

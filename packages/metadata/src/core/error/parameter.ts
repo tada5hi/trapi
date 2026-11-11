@@ -39,6 +39,7 @@ type ScopeRequiredContext = {
 export class ParameterError extends MetadataError {
     static typeUnsupported(context: UnsupportedTypeContext) {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not support '${context.type.typeName}' type${location ? ` at ${location}` : ''}.`,
             code: ParameterErrorCode.TYPE_UNSUPPORTED,
@@ -47,6 +48,7 @@ export class ParameterError extends MetadataError {
 
     static methodUnsupported(context: UnsupportedMethodContext) {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not support method '${context.method}'${location ? ` at ${location}` : ''}.`,
             code: ParameterErrorCode.METHOD_UNSUPPORTED,
@@ -55,6 +57,7 @@ export class ParameterError extends MetadataError {
 
     static invalidPathMatch(context: PathMatchInvalidContext) {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+
         return new ParameterError({
             message: `@${context.decoratorName}('${context.propertyName}') does not exist in path '${context.path}'${location ? ` at ${location}` : ''}.`,
             code: ParameterErrorCode.PATH_MISMATCH,
@@ -63,6 +66,7 @@ export class ParameterError extends MetadataError {
 
     static scopeRequired(context: ScopeRequiredContext) {
         const location = context.node ? ParameterError.getCurrentLocation(context.node) : undefined;
+
         return new ParameterError({
             message: `@${context.decoratorName}() requires a scope argument${location ? ` at ${location}` : ''}.`,
             code: ParameterErrorCode.SCOPE_REQUIRED,

@@ -72,6 +72,7 @@ type SwaggerGenerateData = {
     consumes?: string[];
     produces?: string[];
     responses?: Response[];
+    pathParameters?: Record<string, { description?: string }>;
     collectionFormat?: 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi';
     operationIdStrategy?: 'method' | 'path';
     extra?: Record<string, any>;

@@ -44,6 +44,7 @@ export function getNodeDecorators(
                         if (ts.isStringLiteral(argument) || ts.isNumericLiteral(argument)) {
                             return argument.text;
                         }
+
                         return argument;
                     });
                 }

@@ -5,11 +5,11 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { 
-    beforeAll, 
-    describe, 
-    expect, 
-    it, 
+import {
+    beforeAll,
+    describe,
+    expect,
+    it,
 } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,33 +41,47 @@ describe('src/generator/metadata', () => {
         const controller = metadata.controllers.find(
             (c) => c.name === 'UtilityTypes',
         )!;
+
         expect(controller).toBeDefined();
 
         // pick
         const pick = controller.methods.find((m) => m.name === 'pick')!;
+
         expect(pick).toBeDefined();
         expect(pick.type.typeName).toEqual('refAlias');
+
         const pickAlias = pick.type as RefAliasType;
+
         expect(pickAlias.type.typeName).toEqual('nestedObjectLiteral');
+
         const pickObj = pickAlias.type as NestedObjectLiteralType;
+
         expect(pickObj.properties).toHaveLength(1);
         expect(pickObj.properties[0].name).toEqual('bar');
 
         // omit
         const omit = controller.methods.find((m) => m.name === 'omit')!;
+
         expect(omit).toBeDefined();
         expect(omit.type.typeName).toEqual('refAlias');
+
         const omitAlias = omit.type as RefAliasType;
+
         expect(omitAlias.type.typeName).toEqual('nestedObjectLiteral');
+
         const omitObj = omitAlias.type as NestedObjectLiteralType;
+
         expect(omitObj.properties).toHaveLength(1);
         expect(omitObj.properties[0].name).toEqual('baz');
 
         // partial
         const partial = controller.methods.find((m) => m.name === 'partial')!;
+
         expect(partial).toBeDefined();
         expect(partial.type.typeName).toEqual('refAlias');
+
         const partialAlias = partial.type as RefAliasType;
+
         expect(partialAlias.type.typeName).toEqual('nestedObjectLiteral');
     });
 
@@ -75,6 +89,7 @@ describe('src/generator/metadata', () => {
         const index = metadata.controllers.findIndex(
             (controller) => controller.name === 'TestUnionType',
         );
+
         expect(index).toBeGreaterThanOrEqual(0);
 
         const controller = metadata.controllers[index];

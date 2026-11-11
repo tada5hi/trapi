@@ -18,6 +18,7 @@ const noopApply = () => {
 describe('validatePreset', () => {
     it('accepts a minimal valid preset', async () => {
         const preset = { name: 'my-preset' };
+
         await expect(validatePreset(preset)).resolves.toMatchObject({ name: 'my-preset' });
     });
 
@@ -28,15 +29,16 @@ describe('validatePreset', () => {
             controllers: [{ match: { name: 'Controller' }, apply: noopApply }],
             methods: [{ match: { name: 'Get', on: 'method' as const }, apply: noopApply }],
             parameters: [{
-                match: { name: 'Body' }, 
-                replaces: true as const, 
-                apply: noopApply, 
+                match: { name: 'Body' },
+                replaces: true as const,
+                apply: noopApply,
             }],
             controllerJsDoc: [{ match: { tag: 'hidden' }, apply: noopApply }],
             methodJsDoc: [{ match: { tag: 'deprecated' }, apply: noopApply }],
             parameterJsDoc: [{ match: { tag: 'param' }, apply: noopApply }],
         };
         const result = await validatePreset(preset);
+
         expect(result.name).toEqual('full-preset');
         expect(result.controllers).toHaveLength(1);
         expect(result.methodJsDoc).toHaveLength(1);
@@ -48,6 +50,7 @@ describe('validatePreset', () => {
 
     it('rejects when name is empty string', async () => {
         const preset = { name: '' };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -56,6 +59,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             controllers: [{ match: { name: 'Controller' }, apply: 'not-a-fn' }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -64,6 +68,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             methods: [{ match: {}, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -72,6 +77,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             methods: [{ match: { name: 'Get', on: 'middleware' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -79,11 +85,12 @@ describe('validatePreset', () => {
         const preset = {
             name: 'bad-preset',
             methods: [{
-                match: { name: 'Get' }, 
-                replaces: 123, 
-                apply: noopApply, 
+                match: { name: 'Get' },
+                replaces: 123,
+                apply: noopApply,
             }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -103,6 +110,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             methodJsDoc: [{ match: {}, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -111,6 +119,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             controllers: [{ match: { name: 'Controller', on: 'method' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -119,6 +128,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             methods: [{ match: { name: 'Get', on: 'class' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -127,6 +137,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             parameters: [{ match: { name: 'Body', on: 'method' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -135,6 +146,7 @@ describe('validatePreset', () => {
             name: 'bad-preset',
             controllerJsDoc: [{ match: { tag: 'note', on: 'parameter' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
     });
 
@@ -145,6 +157,7 @@ describe('validatePreset', () => {
             methods: [{ match: { name: 'Get' }, apply: noopApply }],
             parameters: [{ match: { name: 'Body' }, apply: noopApply }],
         };
+
         await expect(validatePreset(preset)).resolves.toMatchObject({ name: 'good-preset' });
     });
 });

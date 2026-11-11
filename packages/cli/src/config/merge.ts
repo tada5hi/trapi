@@ -1,3 +1,4 @@
+import type { GenerateFlags, ResolvedTarget } from './types';
 /*
  * Copyright (c) 2026.
  * Author Peter Placzek (tada5hi)
@@ -7,47 +8,9 @@
 
 import path from 'node:path';
 import type { MetadataGenerateOptions } from '@trapi/metadata';
-import type {
-    DocumentFormat,
-    ServerOption,
-    SwaggerGenerateData,
-    Version,
-} from '@trapi/swagger';
+import type { ServerOption, SwaggerGenerateData, Version } from '@trapi/swagger';
 import { CLIUserError } from '../logger.ts';
-import type { SwaggerTransform, TrapiConfigEntry } from './types.ts';
-
-export type GenerateFlags = {
-    cwd?: string;
-    entryPoint?: string | string[];
-    preset?: string;
-    tsconfig?: string;
-    ignore?: string[];
-    allow?: string[];
-    strict?: boolean | 'throw';
-    cache?: boolean;
-    output?: string;
-    format?: `${DocumentFormat}`;
-    version?: `${Version}`;
-    name?: string;
-    apiVersion?: string;
-    description?: string;
-    servers?: string[];
-    securityDefinitions?: SwaggerGenerateData['securityDefinitions'];
-};
-
-export type ResolvedTarget = {
-    cwd: string;
-    metadata: MetadataGenerateOptions;
-    swagger: {
-        version: `${Version}`;
-        data: SwaggerGenerateData;
-        transform?: SwaggerTransform;
-    };
-    output: {
-        path: string;
-        format?: `${DocumentFormat}`;
-    };
-};
+import type { TrapiConfigEntry } from './types.ts';
 
 const DEFAULT_VERSION: `${Version}` = 'v3';
 
@@ -67,6 +30,7 @@ export function resolveEntry(
     const outputConfig = entry.output ?? {};
 
     const entryPoint = flags.entryPoint ?? metadataConfig.entryPoint;
+
     if (entryPoint === undefined) {
         throw new CLIUserError(
             'No `entryPoint` provided. Set `metadata.entryPoint` in your config or pass `--entry-point`.',
@@ -81,35 +45,45 @@ export function resolveEntry(
     if (flags.preset !== undefined) {
         metadata.preset = flags.preset;
     }
+
     if (flags.tsconfig !== undefined) {
         metadata.tsconfig = flags.tsconfig;
     }
+
     if (flags.ignore !== undefined) {
         metadata.ignore = flags.ignore;
     }
+
     if (flags.allow !== undefined) {
         metadata.allow = flags.allow;
     }
+
     if (flags.strict !== undefined) {
         metadata.strict = flags.strict;
     }
+
     if (flags.cache !== undefined) {
         metadata.cache = flags.cache;
     }
 
     const data: SwaggerGenerateData = { ...(swaggerConfig.data ?? {}) };
+
     if (flags.name !== undefined) {
         data.name = flags.name;
     }
+
     if (flags.apiVersion !== undefined) {
         data.version = flags.apiVersion;
     }
+
     if (flags.description !== undefined) {
         data.description = flags.description;
     }
+
     if (flags.servers !== undefined) {
         data.servers = serversToOptions(flags.servers);
     }
+
     if (flags.securityDefinitions !== undefined) {
         data.securityDefinitions = flags.securityDefinitions;
     }
@@ -119,6 +93,7 @@ export function resolveEntry(
     // A JSON config (or the `trapi` field in package.json) can carry any value
     // here, so reject a non-function loudly instead of crashing at emit time.
     const { transform } = swaggerConfig;
+
     if (transform !== undefined && typeof transform !== 'function') {
         throw new CLIUserError(
             '`swagger.transform` must be a function. A JSON config (or the `trapi` field in package.json) cannot carry one — use a `trapi.config.{ts,mts,mjs,js}` file.',
@@ -135,9 +110,9 @@ export function resolveEntry(
         cwd,
         metadata,
         swagger: {
-            version, 
-            data, 
-            transform, 
+            version,
+            data,
+            transform,
         },
         output: { path: absoluteOutput, format: outputFormat },
     };

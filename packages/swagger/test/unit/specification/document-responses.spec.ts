@@ -89,6 +89,7 @@ describe('document responses', () => {
         // accommodation schema-validation.spec.ts makes.
         const result = version === Version.V3 ? validateV3Spec(spec) : validateV31Spec(spec);
         const errors = result.errors.filter((e) => !e.includes('must match pattern'));
+
         expect(errors, errors.join('\n')).toEqual([]);
     });
 

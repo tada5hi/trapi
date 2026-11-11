@@ -8,14 +8,20 @@
 export function uniqueOperationId(base: string, used: Set<string>): string {
     if (!used.has(base)) {
         used.add(base);
+
         return base;
     }
+
     let counter = 2;
+
     while (used.has(`${base}_${counter}`)) {
         counter += 1;
     }
+
     const candidate = `${base}_${counter}`;
+
     used.add(candidate);
+
     return candidate;
 }
 
@@ -52,6 +58,7 @@ export function operationIdFromPath(verb: string, path: string): string {
         }
 
         const parameter = /^\{(.*)\}$/.exec(segment);
+
         output += parameter ? `By${segmentToName(parameter[1]!)}` : segmentToName(segment);
     }
 

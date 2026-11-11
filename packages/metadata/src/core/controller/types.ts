@@ -4,7 +4,7 @@
  * For the full copyright and license information,
  * view the LICENSE file that was distributed with this source code.
  */
-import type { Extension } from '../resolver/extension';
+import type { Extension } from '../resolver/types';
 import type { Response, Security } from '../generator/types';
 import type { Method } from '../method/types';
 

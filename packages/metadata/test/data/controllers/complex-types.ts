@@ -5,13 +5,7 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import {
-    Controller,
-    Get,
-    Mount,
-    Path,
-    Post,
-} from '../_stubs';
+import { Controller, Get, Mount } from '../_stubs';
 import type {
     DeprecatedModel,
     GenericWrapper,
@@ -69,9 +63,9 @@ export class ComplexTypesController {
     @Mount('intersection')
     public getIntersection(): TimestampedPerson {
         return {
-            name: 'test', 
-            createdAt: '', 
-            updatedAt: '', 
+            name: 'test',
+            createdAt: '',
+            updatedAt: '',
         };
     }
 

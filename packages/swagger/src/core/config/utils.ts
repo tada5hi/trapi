@@ -9,6 +9,7 @@ import type { ServerOption, SpecGeneratorOptions, SpecGeneratorOptionsInput } fr
 
 export function buildSpecGeneratorOptions(input: SpecGeneratorOptionsInput) : SpecGeneratorOptions {
     const servers : ServerOption[] = [];
+
     if (input.servers) {
         if (Array.isArray(input.servers)) {
             for (const server of input.servers) {

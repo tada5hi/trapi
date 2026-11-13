@@ -159,8 +159,13 @@ export interface SchemaV3 extends Omit<BaseSchema<SchemaV3>, 'discriminator'> {
     deprecated?: boolean;
 }
 
-export type BasicSecurityV3 = BaseSecurity & {
+export type HttpSecurityV3 = BaseSecurity & {
     type: typeof SecurityType.HTTP;
+    scheme: string;
+    bearerFormat?: string;
+};
+
+export type BasicSecurityV3 = HttpSecurityV3 & {
     scheme: 'basic';
 };
 
@@ -196,6 +201,6 @@ export type OAuth2ClientCredentialsFlowV3 = Oauth2BaseFlowV3 & {
     tokenUrl: string;
 };
 
-export type SecurityV3 =        BasicSecurityV3 |
+export type SecurityV3 =        HttpSecurityV3 |
         OAuth2SecurityV3 |
         ApiKeySecurity;

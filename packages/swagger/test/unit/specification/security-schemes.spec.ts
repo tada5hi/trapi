@@ -19,6 +19,7 @@ import {
     createMethod,
     createResponse,
 } from '../../helpers/metadata-builder';
+import { validateV2Spec } from '../../helpers/schema-validator';
 
 describe('security schemes', () => {
     let specV2: SpecV2;
@@ -254,6 +255,82 @@ describe('security schemes', () => {
             const op = specV3.paths['/secure/either'].get!;
 
             expect(op.security).toEqual([{ bearerAuth: [] }, { apiKey: [] }]);
+        });
+    });
+
+    describe('HTTP bearer', () => {
+        const bearerDefinitions: SecurityDefinitions = {
+            bearer: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
+            described: {
+                type: 'http',
+                scheme: 'bearer',
+                description: 'Token issued by the identity service.',
+            },
+        };
+
+        const bearerMetadata = createMetadata([
+            createController({
+                name: 'TokenController',
+                paths: ['token'],
+                methods: [createMethod({
+                    name: 'get',
+                    method: 'get',
+                    path: '',
+                    security: [{ bearer: [] }, { described: [] }],
+                })],
+            }),
+        ]);
+
+        it.each([Version.V3, Version.V3_1, Version.V3_2])('should pass scheme and bearerFormat through in %s', async (version) => {
+            const spec = await generateSwagger({
+                version,
+                metadata: bearerMetadata,
+                data: { securityDefinitions: bearerDefinitions },
+            });
+
+            expect(spec.components.securitySchemes).toEqual({
+                bearer: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+                described: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    description: 'Token issued by the identity service.',
+                },
+            });
+        });
+
+        // Swagger 2.0 knows no `http` type besides `basic`. Dropping the scheme
+        // would leave every operation requiring an undefined definition, so it
+        // becomes an API key in the `Authorization` header.
+        it('should emit a bearer scheme as an Authorization header API key in v2', async () => {
+            const spec = await generateSwagger({
+                version: Version.V2,
+                metadata: bearerMetadata,
+                data: { securityDefinitions: bearerDefinitions },
+            });
+
+            expect(spec.securityDefinitions).toEqual({
+                bearer: {
+                    type: 'apiKey',
+                    name: 'Authorization',
+                    in: 'header',
+                    description: 'HTTP bearer authentication: send "Authorization: Bearer <JWT>".',
+                },
+                described: {
+                    type: 'apiKey',
+                    name: 'Authorization',
+                    in: 'header',
+                    description: 'Token issued by the identity service.',
+                },
+            });
+            expect(validateV2Spec(spec).errors).toEqual([]);
         });
     });
 });

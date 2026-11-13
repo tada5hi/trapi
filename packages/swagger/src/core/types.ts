@@ -52,8 +52,26 @@ export type ApiKeySecurity = BaseSecurity & {
     in: 'query' | 'header';
 };
 
-export type BasicSecurity = BaseSecurity & {
+/**
+ * An HTTP authentication scheme (OpenAPI 3 `type: 'http'`).
+ *
+ * OpenAPI 3 emits it as given. Swagger 2.0 has only `basic`: every other
+ * scheme is emitted there as an API key in the `Authorization` header.
+ */
+export type HttpSecurity = BaseSecurity & {
     type: typeof SecurityType.HTTP;
+    /**
+     * A scheme of the IANA HTTP Authentication Scheme Registry, e.g. `basic`,
+     * `bearer` or `digest`.
+     */
+    scheme: 'basic' | 'bearer' | (string & {});
+    /**
+     * How the bearer token is formatted, e.g. `JWT`. Documentation only.
+     */
+    bearerFormat?: string;
+};
+
+export type BasicSecurity = HttpSecurity & {
     scheme: 'basic';
 };
 
@@ -89,7 +107,7 @@ export type OAuth2ClientCredentialsFlow = Oauth2BaseFlow & {
     tokenUrl: string;
 };
 
-export type SecurityDefinition = ApiKeySecurity | BasicSecurity | OAuth2Security;
+export type SecurityDefinition = ApiKeySecurity | HttpSecurity | OAuth2Security;
 
 export type SecurityDefinitions = {
     [key: string]: SecurityDefinition;

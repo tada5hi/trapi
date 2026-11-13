@@ -11,7 +11,12 @@ import {
     expect,
     it,
 } from 'vitest';
-import type { SecurityDefinitions, SpecV2, SpecV3  } from '../../../src';
+import type {
+    SecurityDefinition,
+    SecurityDefinitions,
+    SpecV2,
+    SpecV3,
+} from '../../../src';
 import { Version, generateSwagger } from '../../../src';
 import {
     createController,
@@ -19,7 +24,7 @@ import {
     createMethod,
     createResponse,
 } from '../../helpers/metadata-builder';
-import { validateV2Spec } from '../../helpers/schema-validator';
+import { validateV2Spec, validateV31Spec, validateV3Spec } from '../../helpers/schema-validator';
 
 describe('security schemes', () => {
     let specV2: SpecV2;
@@ -304,6 +309,68 @@ describe('security schemes', () => {
                     description: 'Token issued by the identity service.',
                 },
             });
+
+            // No OAI schema exists for 3.2 yet; it is validated against the
+            // 3.1 one minus that schema's `openapi: 3.1.x` version pattern.
+            const result = version === Version.V3 ? validateV3Spec(spec) : validateV31Spec(spec);
+            const errors = result.errors.filter((e) => !e.includes('must match pattern'));
+
+            expect(errors, errors.join('\n')).toEqual([]);
+        });
+
+        it('should reject bearerFormat on a scheme other than bearer at the type level', () => {
+            const definitions: SecurityDefinitions = {
+                // @ts-expect-error bearerFormat exists only with scheme 'bearer'
+                basic: { type: 'http', scheme: 'basic', bearerFormat: 'JWT' },
+                // @ts-expect-error bearerFormat exists only with scheme 'bearer'
+                digest: { type: 'http', scheme: 'digest', bearerFormat: 'JWT' },
+            };
+
+            expect(Object.keys(definitions)).toEqual(['basic', 'digest']);
+        });
+
+        // A cast config must not yield an invalid document: OpenAPI 3 allows
+        // `bearerFormat` only beside the bearer scheme.
+        it.each([Version.V3, Version.V3_1, Version.V3_2])('should drop bearerFormat from a non-bearer scheme in %s', async (version) => {
+            const spec = await generateSwagger({
+                version,
+                metadata: bearerMetadata,
+                data: {
+                    securityDefinitions: {
+                        bearer: { type: 'http', scheme: 'basic', bearerFormat: 'JWT' } as unknown as SecurityDefinition,
+                        described: { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT' } as unknown as SecurityDefinition,
+                    },
+                },
+            });
+
+            expect(spec.components.securitySchemes).toEqual({
+                bearer: { type: 'http', scheme: 'basic' },
+                described: { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT' },
+            });
+
+            const result = version === Version.V3 ? validateV3Spec(spec) : validateV31Spec(spec);
+            const errors = result.errors.filter((e) => !e.includes('must match pattern'));
+
+            expect(errors, errors.join('\n')).toEqual([]);
+        });
+
+        it('should emit a basic scheme in any casing as v2 basic', async () => {
+            const spec = await generateSwagger({
+                version: Version.V2,
+                metadata: bearerMetadata,
+                data: {
+                    securityDefinitions: {
+                        bearer: { type: 'http', scheme: 'Basic' },
+                        described: { type: 'http', scheme: 'BASIC' },
+                    },
+                },
+            });
+
+            expect(spec.securityDefinitions).toEqual({
+                bearer: { type: 'basic' },
+                described: { type: 'basic' },
+            });
+            expect(validateV2Spec(spec).errors).toEqual([]);
         });
 
         // Swagger 2.0 knows no `http` type besides `basic`. Dropping the scheme

@@ -140,10 +140,17 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
 
         for (const [key, securityDefinition] of Object.entries(securityDefinitions)) {
             switch (securityDefinition.type) {
-                case 'http':
-                    output[key] = securityDefinition;
+                case 'http': {
+                    // `bearerFormat` is valid beside the bearer scheme only; a
+                    // cast config must not turn into an invalid document.
+                    const { bearerFormat, ...rest } = securityDefinition;
+
+                    output[key] = bearerFormat !== undefined && rest.scheme.toLowerCase() === 'bearer' ?
+                        { ...rest, scheme: rest.scheme as 'bearer', bearerFormat } :
+                        rest;
 
                     break;
+                }
                 case 'oauth2':
                     output[key] = securityDefinition;
 

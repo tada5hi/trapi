@@ -159,15 +159,29 @@ export interface SchemaV3 extends Omit<BaseSchema<SchemaV3>, 'discriminator'> {
     deprecated?: boolean;
 }
 
-export type HttpSecurityV3 = BaseSecurity & {
+type HttpSecurityBaseV3 = BaseSecurity & {
     type: typeof SecurityType.HTTP;
-    scheme: string;
+};
+
+export type BasicSecurityV3 = HttpSecurityBaseV3 & {
+    scheme: 'basic';
+    bearerFormat?: never;
+};
+
+export type BearerSecurityV3 = HttpSecurityBaseV3 & {
+    scheme: 'bearer';
     bearerFormat?: string;
 };
 
-export type BasicSecurityV3 = HttpSecurityV3 & {
-    scheme: 'basic';
+export type OtherHttpSecurityV3 = HttpSecurityBaseV3 & {
+    scheme: 'basic' | 'bearer' | (string & {});
+    bearerFormat?: never;
 };
+
+/**
+ * OpenAPI 3 allows `bearerFormat` only beside the bearer scheme.
+ */
+export type HttpSecurityV3 = BasicSecurityV3 | BearerSecurityV3 | OtherHttpSecurityV3;
 
 export type OAuth2SecurityV3 = BaseSecurity & {
     type: typeof SecurityType.OAUTH2;

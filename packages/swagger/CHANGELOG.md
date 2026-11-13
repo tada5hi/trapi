@@ -178,6 +178,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.2.0](https://github.com/tada5hi/trapi/compare/swagger-v2.1.2...swagger-v2.2.0) (2026-11-13)
+
+
+### Features
+
+* **core,metadata,swagger:** handler-set success status, context parameter types, any http auth scheme ([#955](https://github.com/tada5hi/trapi/issues/955)) ([3d3e120](https://github.com/tada5hi/trapi/commit/3d3e120d5078716d2c4d21af51195e214f500a7a))
+
+
+### Bug Fixes
+
+* **deps:** bump the minorandpatch group across 1 directory with 4 updates ([#952](https://github.com/tada5hi/trapi/issues/952)) ([3d7087d](https://github.com/tada5hi/trapi/commit/3d7087d90efa1821ecccecce203f64bd740cf28e))
+* **swagger:** merge or reject @BodyProp beside a non-object-literal @Body ([#924](https://github.com/tada5hi/trapi/issues/924)) ([3e46b8e](https://github.com/tada5hi/trapi/commit/3e46b8eeb375d24c462123e2e432e4079c14bdc2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.1.2 to 2.2.0
+
 ## [2.1.2](https://github.com/tada5hi/trapi/compare/swagger-v2.1.1...swagger-v2.1.2) (2026-09-08)
 
 

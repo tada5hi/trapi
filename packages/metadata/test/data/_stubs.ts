@@ -52,6 +52,9 @@ export const Files: any = noopFactory;
 export const Param: any = noopFactory;
 export const Params: any = noopFactory;
 export const Context: any = noopFactory;
+export const Request: any = noopFactory;
+export const Response: any = noopFactory;
+export const Next: any = noopFactory;
 
 // --- Doc / metadata-only ---------------------------------------------------
 

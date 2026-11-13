@@ -101,6 +101,21 @@ methodJsDoc({
 
 Decorator handlers always run before JSDoc handlers on the same node — JSDoc acts as the override layer.
 
+## Draft fields with special handling
+
+Most draft fields are copied onto the finished `Controller`/`Method`/`Parameter` as they are. These are interpreted by the generator:
+
+### Context parameters
+
+A parameter handler that sets `draft.in = ParamKind.Context` marks a framework object (request, response, `next`, a whole headers or params bag). The parameter produces no OpenAPI parameter, and the generator stops before it resolves the parameter's TypeScript type: nothing reachable only through that type reaches `referenceTypes` or the document's schemas. A type that a real parameter, the body or a response also references is still registered through that route.
+
+```typescript
+parameter({
+    match: { name: 'Request', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+```
+
 ## `replaces` semantics
 
 When a preset uses `extends`, parent handlers run additively by default. To shadow a parent handler, set `replaces`:

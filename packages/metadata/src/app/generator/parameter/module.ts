@@ -93,6 +93,15 @@ export class ParameterGenerator implements IParameterGenerator {
         applyDecoratorHandlers(this.parameter, this.current.registry.parameters, draft, options);
         applyJsDocHandlers(this.parameter, this.current.registry.parameterJsDoc, draft, options);
 
+        // A context parameter (framework request/response/next objects) produces
+        // no OpenAPI parameter. Stop before resolving its type: resolution
+        // registers every named type it reaches, so the framework's whole type
+        // graph would land in the reference-type map and in the document's
+        // schemas without anything referencing it.
+        if (draft.in === ParamKind.Context) {
+            return [];
+        }
+
         // TS-resolved type
         const type = this.resolveType();
 

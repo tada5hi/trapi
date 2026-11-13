@@ -193,9 +193,7 @@ export class MethodGenerator {
                         formParameterCount += 1;
                     }
 
-                    if (parameter.in !== ParameterSource.CONTEXT) {
-                        output.push(parameter);
-                    }
+                    output.push(parameter);
                 }
             } catch (e) {
                 const causeMsg = (e instanceof Error) ? `: ${e.message}` : '';

@@ -146,7 +146,11 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     const { bearerFormat, ...rest } = securityDefinition;
 
                     output[key] = bearerFormat !== undefined && rest.scheme.toLowerCase() === 'bearer' ?
-                        { ...rest, scheme: rest.scheme as 'bearer', bearerFormat } :
+                        {
+                            ...rest,
+                            scheme: rest.scheme as 'bearer',
+                            bearerFormat,
+                        } :
                         rest;
 
                     break;

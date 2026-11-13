@@ -320,10 +320,18 @@ describe('security schemes', () => {
 
         it('should reject bearerFormat on a scheme other than bearer at the type level', () => {
             const definitions: SecurityDefinitions = {
-                // @ts-expect-error bearerFormat exists only with scheme 'bearer'
-                basic: { type: 'http', scheme: 'basic', bearerFormat: 'JWT' },
-                // @ts-expect-error bearerFormat exists only with scheme 'bearer'
-                digest: { type: 'http', scheme: 'digest', bearerFormat: 'JWT' },
+                basic: {
+                    type: 'http',
+                    scheme: 'basic',
+                    // @ts-expect-error bearerFormat exists only with scheme 'bearer'
+                    bearerFormat: 'JWT',
+                },
+                digest: {
+                    type: 'http',
+                    scheme: 'digest',
+                    // @ts-expect-error bearerFormat exists only with scheme 'bearer'
+                    bearerFormat: 'JWT',
+                },
             };
 
             expect(Object.keys(definitions)).toEqual(['basic', 'digest']);
@@ -337,15 +345,27 @@ describe('security schemes', () => {
                 metadata: bearerMetadata,
                 data: {
                     securityDefinitions: {
-                        bearer: { type: 'http', scheme: 'basic', bearerFormat: 'JWT' } as unknown as SecurityDefinition,
-                        described: { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT' } as unknown as SecurityDefinition,
+                        bearer: {
+                            type: 'http',
+                            scheme: 'basic',
+                            bearerFormat: 'JWT',
+                        } as unknown as SecurityDefinition,
+                        described: {
+                            type: 'http',
+                            scheme: 'Bearer',
+                            bearerFormat: 'JWT',
+                        } as unknown as SecurityDefinition,
                     },
                 },
             });
 
             expect(spec.components.securitySchemes).toEqual({
                 bearer: { type: 'http', scheme: 'basic' },
-                described: { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT' },
+                described: {
+                    type: 'http',
+                    scheme: 'Bearer',
+                    bearerFormat: 'JWT',
+                },
             });
 
             const result = version === Version.V3 ? validateV3Spec(spec) : validateV31Spec(spec);

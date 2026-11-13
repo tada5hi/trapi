@@ -65,6 +65,22 @@ describe('src/cache', () => {
             expect(output!.controllers).toEqual([]);
         });
 
+        it('does not serve metadata written under schema version 7', async () => {
+            // Version 7 files carry the types of context parameters in
+            // `referenceTypes`; the generator no longer registers them.
+            const cache = new CacheClient({ enabled: true, directoryPath: dir });
+
+            await cache.save({
+                controllers: [],
+                referenceTypes: {},
+                cacheKey: 'key-v7',
+                schemaVersion: '7',
+            });
+
+            expect(CACHE_SCHEMA_VERSION).not.toEqual('7');
+            expect(await cache.get('key-v7')).toBeUndefined();
+        });
+
         it('preserves controllers and reference types', async () => {
             const cache = new CacheClient({ enabled: true, directoryPath: dir });
 

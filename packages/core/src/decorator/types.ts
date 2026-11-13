@@ -146,8 +146,8 @@ export type MethodDraft = {
      * that answers e.g. `201` or `202` on success. Unset, the return type is
      * documented under `200` (`204` for a `void` method).
      *
-     * With a value (an HTTP status code or range such as `202` or `2XX`;
-     * anything else fails generation), the generator documents the return
+     * With a value (a three-digit HTTP status code such as `201` or `202`;
+     * anything else, a range such as `2XX` included, fails generation), the generator documents the return
      * type under that status and adds no `200`. A handler response already declared at the status
      * keeps its description and receives the return type as its schema when it
      * has none; `defaultResponseExamples` attach to it as they would to the

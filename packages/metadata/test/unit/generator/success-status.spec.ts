@@ -155,11 +155,14 @@ describe('success status validation', () => {
         }),
     });
 
-    it.each(['', 'abc', 'undefined', '600', '20', '2XXX'])('should reject the success status %j', async (value) => {
-        await expect(generate(value)).rejects.toMatchObject({ code: GeneratorErrorCode.SUCCESS_STATUS_INVALID });
+    it.each(['', 'abc', 'undefined', '600', '20', '2XX', '2xx', '2XXX'])('should reject the success status %j', async (value) => {
+        await expect(generate(value)).rejects.toMatchObject({
+            code: GeneratorErrorCode.SUCCESS_STATUS_INVALID,
+            message: expect.stringContaining('three-digit HTTP status code'),
+        });
     });
 
-    it.each(['201', '202', '2XX'])('should accept the success status %j', async (value) => {
+    it.each(['201', '202', '204'])('should accept the success status %j', async (value) => {
         const metadata = await generate(value);
 
         expect(metadata.controllers[0]!.methods[0]!.responses.map((r) => r.status)).toEqual([value]);

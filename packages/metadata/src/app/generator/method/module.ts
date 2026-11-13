@@ -43,8 +43,9 @@ import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
 
-// An HTTP status code (`201`) or an OpenAPI status range (`2XX`).
-const SUCCESS_STATUS_PATTERN = /^[1-5](?:\d\d|XX)$/;
+// One concrete HTTP status code: a success status is never a range, and
+// Swagger 2.0 accepts no range as a response key.
+const SUCCESS_STATUS_PATTERN = /^[1-5]\d\d$/;
 
 export class MethodGenerator {
     protected readonly node: MethodDeclaration;
@@ -137,7 +138,7 @@ export class MethodGenerator {
 
         throw new GeneratorError({
             message: `Invalid success status '${status}' on '${parentName}.${this.getMethodName()}': ` +
-                'expected an HTTP status code or range such as \'201\' or \'2XX\'.',
+                'a three-digit HTTP status code such as \'201\' or \'202\' is required.',
             code: GeneratorErrorCode.SUCCESS_STATUS_INVALID,
         });
     }

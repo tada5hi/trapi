@@ -101,6 +101,49 @@ methodJsDoc({
 
 Decorator handlers always run before JSDoc handlers on the same node — JSDoc acts as the override layer.
 
+## Draft fields with special handling
+
+Most draft fields are copied onto the finished `Controller`/`Method`/`Parameter` as they are. These are interpreted by the generator:
+
+### Context parameters
+
+A parameter handler that sets `draft.in = ParamKind.Context` marks a framework object (request, response, `next`, a whole headers or params bag). The parameter produces no OpenAPI parameter, and the generator stops before it resolves the parameter's TypeScript type: nothing reachable only through that type reaches `referenceTypes` or the document's schemas. A type that a real parameter, the body or a response also references is still registered through that route.
+
+```typescript
+parameter({
+    match: { name: 'Request', on: 'parameter' },
+    apply: (_ctx, draft) => { draft.in = ParamKind.Context; },
+});
+```
+
+### Success status
+
+The generator documents a method's return type as a response of its own: `200` with the return type as schema (`204` for a `void` method), unless a handler already pushed a response at that status. A route that answers `201` or `202` on success sets `draft.successStatus`, and the return type is documented under that status instead; no `200` is added.
+
+```typescript
+import { method, readNumber, readString } from '@trapi/core';
+
+// @Status(202)
+method({
+    match: { name: 'Status', on: 'method' },
+    apply: (ctx, draft) => {
+        const arg = ctx.argument(0);
+        const status = readString(arg) ?? readNumber(arg);
+
+        if (status !== undefined) {
+            draft.successStatus = String(status);
+        }
+    },
+});
+```
+
+- The value is one three-digit HTTP status code (`201`, `202`, `204`). Anything else (a range such as `2XX`, an empty string, `'undefined'` from a missing argument) fails generation with `GENERATOR_SUCCESS_STATUS_INVALID`.
+- A response a handler pushed at the same status keeps its description, schema and examples; it receives the return type as its schema only when it declares none, and the `draft.defaultResponseExamples` (`@Example`) only when it has no examples of its own.
+- The generated response is described as `Ok` (`No content` for a `void` method) whatever the status. To describe it, declare the description at that status with the preset's description decorator, for example `@Status(201)` with `@Description(201, 'The user was created.')`: the return type fills that response's schema.
+- Other handler responses (`400`, `500`, …) stay as they are. A `200` declared on the method, on the controller or document-wide (`data.responses` of `@trapi/swagger`) still appears on a method with another success status: the implicit `200` no longer covers it. A method's own response still wins over a document response at the same status.
+- When two handlers set the field, the last one wins.
+- Without `successStatus` the output is unchanged: the return type stays under `200`/`204`, and a handler response at `200` keeps whatever schema it declared.
+
 ## `replaces` semantics
 
 When a preset uses `extends`, parent handlers run additively by default. To shadow a parent handler, set `replaces`:

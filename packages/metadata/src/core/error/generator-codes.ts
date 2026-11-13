@@ -12,6 +12,7 @@ export const GeneratorErrorCode = {
     BODY_PARAMETER_DUPLICATE: 'GENERATOR_BODY_PARAMETER_DUPLICATE',
     BODY_FORM_CONFLICT: 'GENERATOR_BODY_FORM_CONFLICT',
     STRICT_UNMATCHED_DECORATORS: 'GENERATOR_STRICT_UNMATCHED_DECORATORS',
+    SUCCESS_STATUS_INVALID: 'GENERATOR_SUCCESS_STATUS_INVALID',
 } as const;
 
 // eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.

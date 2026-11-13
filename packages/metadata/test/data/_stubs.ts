@@ -52,6 +52,9 @@ export const Files: any = noopFactory;
 export const Param: any = noopFactory;
 export const Params: any = noopFactory;
 export const Context: any = noopFactory;
+export const Request: any = noopFactory;
+export const Response: any = noopFactory;
+export const Next: any = noopFactory;
 
 // --- Doc / metadata-only ---------------------------------------------------
 
@@ -69,6 +72,9 @@ export function Example<_T = unknown>(..._args: any[]): any {
     return () => { /* no-op */ };
 }
 export const Extension: any = noopFactory;
+// Not part of the bundled presets: the success-status spec registers an inline
+// handler for it.
+export const Status: any = noopFactory;
 
 // --- Numeric markers (parameter + property) --------------------------------
 // Used as `@IsInt` (no parens), so they are direct decorators rather than

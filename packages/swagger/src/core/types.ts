@@ -52,10 +52,48 @@ export type ApiKeySecurity = BaseSecurity & {
     in: 'query' | 'header';
 };
 
-export type BasicSecurity = BaseSecurity & {
+type HttpSecurityBase = BaseSecurity & {
     type: typeof SecurityType.HTTP;
-    scheme: 'basic';
 };
+
+export type BasicSecurity = HttpSecurityBase & {
+    scheme: 'basic';
+    bearerFormat?: never;
+};
+
+export type BearerSecurity = HttpSecurityBase & {
+    /**
+     * HTTP scheme names are case-insensitive; these are the casings written
+     * in practice.
+     */
+    scheme: 'bearer' | 'Bearer' | 'BEARER';
+    /**
+     * How the bearer token is formatted, e.g. `JWT`. Documentation only.
+     */
+    bearerFormat?: string;
+};
+
+/**
+ * Any other scheme of the IANA HTTP Authentication Scheme Registry, e.g.
+ * `digest`. `bearerFormat` belongs to the bearer scheme only.
+ */
+export type OtherHttpSecurity = HttpSecurityBase & {
+    /**
+     * TypeScript cannot exclude the basic and bearer literals from `string`;
+     * `bearerFormat?: never` keeps a bearer scheme with a format on the
+     * bearer member. `string & {}` keeps their autocompletion.
+     */
+    scheme: string & {};
+    bearerFormat?: never;
+};
+
+/**
+ * An HTTP authentication scheme (OpenAPI 3 `type: 'http'`).
+ *
+ * OpenAPI 3 emits it as given. Swagger 2.0 has only `basic`: every other
+ * scheme is emitted there as an API key in the `Authorization` header.
+ */
+export type HttpSecurity = BasicSecurity | BearerSecurity | OtherHttpSecurity;
 
 export type OAuth2Security = BaseSecurity & {
     type: typeof SecurityType.OAUTH2;
@@ -89,7 +127,7 @@ export type OAuth2ClientCredentialsFlow = Oauth2BaseFlow & {
     tokenUrl: string;
 };
 
-export type SecurityDefinition = ApiKeySecurity | BasicSecurity | OAuth2Security;
+export type SecurityDefinition = ApiKeySecurity | HttpSecurity | OAuth2Security;
 
 export type SecurityDefinitions = {
     [key: string]: SecurityDefinition;

@@ -105,14 +105,38 @@ export class V2Generator extends AbstractSpecGenerator<SpecV2, SchemaV2> {
         return spec;
     }
 
+    private static describeHttpScheme(scheme: string, bearerFormat?: string) : string {
+        const name = scheme.charAt(0).toUpperCase() + scheme.slice(1);
+        let credentials = '<credentials>';
+
+        if (bearerFormat) {
+            credentials = `<${bearerFormat}>`;
+        } else if (scheme.toLowerCase() === 'bearer') {
+            credentials = '<token>';
+        }
+
+        return `HTTP ${scheme} authentication: send "Authorization: ${name} ${credentials}".`;
+    }
+
     private static translateSecurityDefinitions(securityDefinitions: SecurityDefinitions) : Record<string, SecurityV2> {
         const definitions : Record<string, SecurityV2> = {};
 
         for (const [key, securityDefinition] of Object.entries(securityDefinitions)) {
             switch (securityDefinition.type) {
                 case 'http':
-                    if (securityDefinition.scheme === 'basic') {
+                    if (securityDefinition.scheme.toLowerCase() === 'basic') {
                         definitions[key] = { type: 'basic' };
+                    } else {
+                        // Swagger 2.0 has no other HTTP scheme. Dropping the
+                        // definition would leave operations requiring an
+                        // undefined one, so describe the Authorization header.
+                        definitions[key] = {
+                            type: 'apiKey',
+                            name: 'Authorization',
+                            in: 'header',
+                            description: securityDefinition.description ??
+                                V2Generator.describeHttpScheme(securityDefinition.scheme, securityDefinition.bearerFormat),
+                        };
                     }
 
                     break;

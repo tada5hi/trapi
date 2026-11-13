@@ -159,10 +159,38 @@ export interface SchemaV3 extends Omit<BaseSchema<SchemaV3>, 'discriminator'> {
     deprecated?: boolean;
 }
 
-export type BasicSecurityV3 = BaseSecurity & {
+type HttpSecurityBaseV3 = BaseSecurity & {
     type: typeof SecurityType.HTTP;
-    scheme: 'basic';
 };
+
+export type BasicSecurityV3 = HttpSecurityBaseV3 & {
+    scheme: 'basic';
+    bearerFormat?: never;
+};
+
+export type BearerSecurityV3 = HttpSecurityBaseV3 & {
+    /**
+     * HTTP scheme names are case-insensitive; these are the casings written
+     * in practice.
+     */
+    scheme: 'bearer' | 'Bearer' | 'BEARER';
+    bearerFormat?: string;
+};
+
+export type OtherHttpSecurityV3 = HttpSecurityBaseV3 & {
+    /**
+     * TypeScript cannot exclude the basic and bearer literals from `string`;
+     * `bearerFormat?: never` keeps a bearer scheme with a format on the
+     * bearer member. `string & {}` keeps their autocompletion.
+     */
+    scheme: string & {};
+    bearerFormat?: never;
+};
+
+/**
+ * OpenAPI 3 allows `bearerFormat` only beside the bearer scheme.
+ */
+export type HttpSecurityV3 = BasicSecurityV3 | BearerSecurityV3 | OtherHttpSecurityV3;
 
 export type OAuth2SecurityV3 = BaseSecurity & {
     type: typeof SecurityType.OAUTH2;
@@ -196,6 +224,6 @@ export type OAuth2ClientCredentialsFlowV3 = Oauth2BaseFlowV3 & {
     tokenUrl: string;
 };
 
-export type SecurityV3 =        BasicSecurityV3 |
+export type SecurityV3 =        HttpSecurityV3 |
         OAuth2SecurityV3 |
         ApiKeySecurity;

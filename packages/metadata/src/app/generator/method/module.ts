@@ -43,6 +43,10 @@ import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
 
+// One concrete HTTP status code: a success status is never a range, and
+// Swagger 2.0 accepts no range as a response key.
+const SUCCESS_STATUS_PATTERN = /^[1-5]\d\d$/;
+
 export class MethodGenerator {
     protected readonly node: MethodDeclaration;
 
@@ -76,13 +80,15 @@ export class MethodGenerator {
         // Skip hidden methods entirely (matches v1 behaviour for class member iteration).
 
 
+        this.assertSuccessStatus(draft.successStatus);
+
         // Resolve return type.
         const returnType = this.resolveReturnType();
 
         // Build responses: handler-supplied first, then a derived default that
         // carries any handler-contributed default-response examples.
-        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples);
-        const responses = mergeDefaultResponse(draft.responses, defaultResponse);
+        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples, draft.successStatus);
+        const responses = mergeDefaultResponse(draft.responses, defaultResponse, draft.successStatus !== undefined);
 
         // Walk parameters. Handler-contributed ones are appended after the
         // signature-derived ones, so a handler can add to the operation but
@@ -116,6 +122,25 @@ export class MethodGenerator {
             type: returnType,
             parameters,
         };
+    }
+
+    /**
+     * `successStatus` comes from handler code, so a bad value (an empty string,
+     * `String(undefined)` from a missing decorator argument) would otherwise
+     * become a response key no OpenAPI document accepts.
+     */
+    private assertSuccessStatus(status: string | undefined): void {
+        if (status === undefined || SUCCESS_STATUS_PATTERN.test(status)) {
+            return;
+        }
+
+        const parentName = (this.node.parent as ClassDeclaration).name?.text;
+
+        throw new GeneratorError({
+            message: `Invalid success status '${status}' on '${parentName}.${this.getMethodName()}': ` +
+                'a three-digit HTTP status code such as \'201\' or \'202\' is required.',
+            code: GeneratorErrorCode.SUCCESS_STATUS_INVALID,
+        });
     }
 
     private applyOptions(): ApplyHandlersOptions {
@@ -193,9 +218,7 @@ export class MethodGenerator {
                         formParameterCount += 1;
                     }
 
-                    if (parameter.in !== ParameterSource.CONTEXT) {
-                        output.push(parameter);
-                    }
+                    output.push(parameter);
                 }
             } catch (e) {
                 const causeMsg = (e instanceof Error) ? `: ${e.message}` : '';
@@ -228,19 +251,30 @@ export class MethodGenerator {
     }
 }
 
-function buildDefaultResponse(returnType: BaseType, examples: Example[]): Response {
+function buildDefaultResponse(returnType: BaseType, examples: Example[], successStatus?: string): Response {
     const isVoid = isVoidType(returnType);
+    const status = successStatus ?? (isVoid ? '204' : '200');
 
     return {
         description: isVoid ? 'No content' : 'Ok',
         examples,
         schema: returnType,
-        status: isVoid ? '204' : '200',
-        name: isVoid ? '204' : '200',
+        status,
+        name: status,
     };
 }
 
-function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Response): Response[] {
+/**
+ * @param explicit - the status came from `draft.successStatus`: a handler
+ * response declared at that status then carries the return type, so it gets
+ * the schema when it has none. Without an opt-in a handler response at
+ * `200`/`204` stays as declared.
+ */
+function mergeDefaultResponse(
+    handlerResponses: Response[],
+    defaultResponse: Response,
+    explicit: boolean,
+): Response[] {
     if (handlerResponses.length === 0) {
         return [defaultResponse];
     }
@@ -251,6 +285,10 @@ function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Res
         if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
             (!target.examples || target.examples.length === 0)) {
             target.examples = defaultResponse.examples;
+        }
+
+        if (explicit && !target.schema) {
+            target.schema = defaultResponse.schema;
         }
 
         return handlerResponses;

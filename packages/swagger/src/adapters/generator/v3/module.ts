@@ -38,6 +38,7 @@ import {
 import { URL } from 'node:url';
 import { merge } from 'smob';
 import type {
+    BearerSecurityV3,
     Example,
     HeaderV3,
     MediaTypeV3,
@@ -148,7 +149,7 @@ export class V3Generator extends AbstractSpecGenerator<SpecV3, SchemaV3> {
                     output[key] = bearerFormat !== undefined && rest.scheme.toLowerCase() === 'bearer' ?
                         {
                             ...rest,
-                            scheme: rest.scheme as 'bearer',
+                            scheme: rest.scheme as BearerSecurityV3['scheme'],
                             bearerFormat,
                         } :
                         rest;

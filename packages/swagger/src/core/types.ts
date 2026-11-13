@@ -62,7 +62,11 @@ export type BasicSecurity = HttpSecurityBase & {
 };
 
 export type BearerSecurity = HttpSecurityBase & {
-    scheme: 'bearer';
+    /**
+     * HTTP scheme names are case-insensitive; these are the casings written
+     * in practice.
+     */
+    scheme: 'bearer' | 'Bearer' | 'BEARER';
     /**
      * How the bearer token is formatted, e.g. `JWT`. Documentation only.
      */
@@ -74,7 +78,12 @@ export type BearerSecurity = HttpSecurityBase & {
  * `digest`. `bearerFormat` belongs to the bearer scheme only.
  */
 export type OtherHttpSecurity = HttpSecurityBase & {
-    scheme: 'basic' | 'bearer' | (string & {});
+    /**
+     * TypeScript cannot exclude the basic and bearer literals from `string`;
+     * `bearerFormat?: never` keeps a bearer scheme with a format on the
+     * bearer member. `string & {}` keeps their autocompletion.
+     */
+    scheme: string & {};
     bearerFormat?: never;
 };
 

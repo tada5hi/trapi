@@ -169,12 +169,21 @@ export type BasicSecurityV3 = HttpSecurityBaseV3 & {
 };
 
 export type BearerSecurityV3 = HttpSecurityBaseV3 & {
-    scheme: 'bearer';
+    /**
+     * HTTP scheme names are case-insensitive; these are the casings written
+     * in practice.
+     */
+    scheme: 'bearer' | 'Bearer' | 'BEARER';
     bearerFormat?: string;
 };
 
 export type OtherHttpSecurityV3 = HttpSecurityBaseV3 & {
-    scheme: 'basic' | 'bearer' | (string & {});
+    /**
+     * TypeScript cannot exclude the basic and bearer literals from `string`;
+     * `bearerFormat?: never` keeps a bearer scheme with a format on the
+     * bearer member. `string & {}` keeps their autocompletion.
+     */
+    scheme: string & {};
     bearerFormat?: never;
 };
 

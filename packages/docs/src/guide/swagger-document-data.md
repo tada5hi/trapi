@@ -92,7 +92,7 @@ data: {
 }
 ```
 
-Supported schemes: `apiKey` (header/query), `http` with any HTTP authentication scheme (`basic`, `bearer`, …; `bearerFormat` only with `bearer`, and the 3.x emitters drop it from any other scheme), and `oauth2` with any of the four OAuth2 flow types (`implicit`, `password`, `authorizationCode`, `clientCredentials`).
+Supported schemes: `apiKey` (header/query), `http` with any HTTP authentication scheme (`basic`, `bearer`, …; `bearerFormat` only with `bearer`, written `bearer`, `Bearer` or `BEARER`; the 3.x emitters drop it from any other scheme), and `oauth2` with any of the four OAuth2 flow types (`implicit`, `password`, `authorizationCode`, `clientCredentials`).
 
 ```typescript
 securityDefinitions: {

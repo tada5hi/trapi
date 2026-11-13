@@ -350,11 +350,12 @@ describe('security schemes', () => {
                             scheme: 'basic',
                             bearerFormat: 'JWT',
                         } as unknown as SecurityDefinition,
+                        // HTTP scheme names are case-insensitive: typed, no cast.
                         described: {
                             type: 'http',
                             scheme: 'Bearer',
                             bearerFormat: 'JWT',
-                        } as unknown as SecurityDefinition,
+                        },
                     },
                 },
             });

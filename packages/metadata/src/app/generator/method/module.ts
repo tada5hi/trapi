@@ -81,8 +81,8 @@ export class MethodGenerator {
 
         // Build responses: handler-supplied first, then a derived default that
         // carries any handler-contributed default-response examples.
-        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples);
-        const responses = mergeDefaultResponse(draft.responses, defaultResponse);
+        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples, draft.successStatus);
+        const responses = mergeDefaultResponse(draft.responses, defaultResponse, draft.successStatus !== undefined);
 
         // Walk parameters. Handler-contributed ones are appended after the
         // signature-derived ones, so a handler can add to the operation but
@@ -226,19 +226,30 @@ export class MethodGenerator {
     }
 }
 
-function buildDefaultResponse(returnType: BaseType, examples: Example[]): Response {
+function buildDefaultResponse(returnType: BaseType, examples: Example[], successStatus?: string): Response {
     const isVoid = isVoidType(returnType);
+    const status = successStatus ?? (isVoid ? '204' : '200');
 
     return {
         description: isVoid ? 'No content' : 'Ok',
         examples,
         schema: returnType,
-        status: isVoid ? '204' : '200',
-        name: isVoid ? '204' : '200',
+        status,
+        name: status,
     };
 }
 
-function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Response): Response[] {
+/**
+ * @param explicit - the status came from `draft.successStatus`: a handler
+ * response declared at that status then carries the return type, so it gets
+ * the schema when it has none. Without an opt-in a handler response at
+ * `200`/`204` stays as declared.
+ */
+function mergeDefaultResponse(
+    handlerResponses: Response[],
+    defaultResponse: Response,
+    explicit: boolean,
+): Response[] {
     if (handlerResponses.length === 0) {
         return [defaultResponse];
     }
@@ -249,6 +260,10 @@ function mergeDefaultResponse(handlerResponses: Response[], defaultResponse: Res
         if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
             (!target.examples || target.examples.length === 0)) {
             target.examples = defaultResponse.examples;
+        }
+
+        if (explicit && !target.schema) {
+            target.schema = defaultResponse.schema;
         }
 
         return handlerResponses;

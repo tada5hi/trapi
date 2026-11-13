@@ -53,6 +53,8 @@ Each generator builds a draft via `applyDecoratorHandlers` + `applyJsDocHandlers
 
 **Context parameters are never resolved.** `ParameterGenerator.generate` returns no parameter for a draft whose `in` is `context` and returns before `resolveType()`: type resolution registers every named type it reaches in `referenceTypes`, so resolving a framework request/response object would put its whole type graph into the document's schemas with nothing referencing it.
 
+**Default response.** `MethodGenerator` documents the return type under `draft.successStatus`, or `200` (`204` for `void`) when it is unset, and appends it unless a handler response has that status. Only an explicit `successStatus` fills a schema-less handler response at that status: without the opt-in the output stays byte-identical, which consumers whose routes answer 201/202 at runtime rely on.
+
 **Multi-mount controllers.** `Controller.paths: string[]` (always non-empty) holds every URL prefix the controller is mounted at — `@Controller(['/roles', '/realms/:id/roles'])` produces two entries, `@Controller('/roles')` produces one. Method paths stay scalar; the swagger emitter expands the cross product (see "Swagger Generator" below). Path-parameter validation in the parameter generator accepts a name if it appears in **any** `(controllerPath × methodPath)` combination, so `@Path('id')` is valid as long as `:id` shows up in at least one mount.
 
 ## Type Resolution

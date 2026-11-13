@@ -72,6 +72,9 @@ export function Example<_T = unknown>(..._args: any[]): any {
     return () => { /* no-op */ };
 }
 export const Extension: any = noopFactory;
+// Not part of the bundled presets: the success-status spec registers an inline
+// handler for it.
+export const Status: any = noopFactory;
 
 // --- Numeric markers (parameter + property) --------------------------------
 // Used as `@IsInt` (no parens), so they are direct decorators rather than

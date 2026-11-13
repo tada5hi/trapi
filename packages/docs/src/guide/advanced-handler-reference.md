@@ -116,6 +116,32 @@ parameter({
 });
 ```
 
+### Success status
+
+The generator documents a method's return type as a response of its own: `200` with the return type as schema (`204` for a `void` method), unless a handler already pushed a response at that status. A route that answers `201` or `202` on success sets `draft.successStatus`, and the return type is documented under that status instead; no `200` is added.
+
+```typescript
+import { method, readNumber, readString } from '@trapi/core';
+
+// @Status(202)
+method({
+    match: { name: 'Status', on: 'method' },
+    apply: (ctx, draft) => {
+        const arg = ctx.argument(0);
+        const status = readString(arg) ?? readNumber(arg);
+
+        if (status !== undefined) {
+            draft.successStatus = String(status);
+        }
+    },
+});
+```
+
+- A response a handler pushed at the same status (e.g. `@Description(202, 'Accepted')`) keeps its description and receives the return type as its schema when it declares none.
+- `draft.defaultResponseExamples` (`@Example`) attach to the success-status response.
+- Other handler responses (`400`, `500`, …) and the document-wide `responses` of `@trapi/swagger` stay as they are; a method's own response still wins over a document response at the same status.
+- Without `successStatus` the output is unchanged: the return type stays under `200`/`204`, and a handler response at `200` keeps whatever schema it declared.
+
 ## `replaces` semantics
 
 When a preset uses `extends`, parent handlers run additively by default. To shadow a parent handler, set `replaces`:

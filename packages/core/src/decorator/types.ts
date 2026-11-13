@@ -140,6 +140,18 @@ export type MethodDraft = {
      * default 200/204 response when finalising the method.
      */
     defaultResponseExamples: Example[];
+    /**
+     * The status the method's return type is documented under, for a route
+     * that answers e.g. `201` or `202` on success. Unset, the return type is
+     * documented under `200` (`204` for a `void` method).
+     *
+     * With a value, the generator documents the return type under that status
+     * and adds no `200`. A handler response already declared at the status
+     * keeps its description and receives the return type as its schema when it
+     * has none; `defaultResponseExamples` attach to it as they would to the
+     * implicit `200`.
+     */
+    successStatus?: string;
 };
 
 export type ParameterDraft = {

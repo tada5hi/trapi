@@ -53,6 +53,35 @@ export class SuccessStatusController {
         return { id: '1' };
     }
 
+    @Post('/legacy')
+    @Status(202)
+    @Description(200, 'Legacy')
+    public withLegacy(): IRunView {
+        return { id: '1' };
+    }
+
+    @Post('/own-schema')
+    @Status(201)
+    @Description<string>(201, 'Created')
+    public withOwnSchema(): IRunView {
+        return { id: '1' };
+    }
+
+    @Post('/own-examples')
+    @Status(202)
+    @Description(202, 'Accepted', { id: '2' })
+    @Example<IRunView>({ id: '1' })
+    public withOwnExamples(): IRunView {
+        return { id: '1' };
+    }
+
+    @Post('/twice')
+    @Status(201)
+    @Status(202)
+    public twice(): IRunView {
+        return { id: '1' };
+    }
+
     @Delete('/')
     @Status(202)
     public remove(): void {

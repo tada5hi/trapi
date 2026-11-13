@@ -43,6 +43,9 @@ import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
 
+// An HTTP status code (`201`) or an OpenAPI status range (`2XX`).
+const SUCCESS_STATUS_PATTERN = /^[1-5](?:\d\d|XX)$/;
+
 export class MethodGenerator {
     protected readonly node: MethodDeclaration;
 
@@ -75,6 +78,8 @@ export class MethodGenerator {
 
         // Skip hidden methods entirely (matches v1 behaviour for class member iteration).
 
+
+        this.assertSuccessStatus(draft.successStatus);
 
         // Resolve return type.
         const returnType = this.resolveReturnType();
@@ -116,6 +121,25 @@ export class MethodGenerator {
             type: returnType,
             parameters,
         };
+    }
+
+    /**
+     * `successStatus` comes from handler code, so a bad value (an empty string,
+     * `String(undefined)` from a missing decorator argument) would otherwise
+     * become a response key no OpenAPI document accepts.
+     */
+    private assertSuccessStatus(status: string | undefined): void {
+        if (status === undefined || SUCCESS_STATUS_PATTERN.test(status)) {
+            return;
+        }
+
+        const parentName = (this.node.parent as ClassDeclaration).name?.text;
+
+        throw new GeneratorError({
+            message: `Invalid success status '${status}' on '${parentName}.${this.getMethodName()}': ` +
+                'expected an HTTP status code or range such as \'201\' or \'2XX\'.',
+            code: GeneratorErrorCode.SUCCESS_STATUS_INVALID,
+        });
     }
 
     private applyOptions(): ApplyHandlersOptions {

@@ -137,9 +137,11 @@ method({
 });
 ```
 
-- A response a handler pushed at the same status (e.g. `@Description(202, 'Accepted')`) keeps its description and receives the return type as its schema when it declares none.
-- `draft.defaultResponseExamples` (`@Example`) attach to the success-status response.
-- Other handler responses (`400`, `500`, …) and the document-wide `responses` of `@trapi/swagger` stay as they are; a method's own response still wins over a document response at the same status.
+- The value is an HTTP status code or range (`201`, `202`, `2XX`); anything else (an empty string, `'undefined'` from a missing argument) fails generation with `GENERATOR_SUCCESS_STATUS_INVALID`.
+- A response a handler pushed at the same status keeps its description, schema and examples; it receives the return type as its schema only when it declares none, and the `draft.defaultResponseExamples` (`@Example`) only when it has no examples of its own.
+- The generated response is described as `Ok` (`No content` for a `void` method) whatever the status. To describe it, declare the description at that status with the preset's description decorator, for example `@Status(201)` with `@Description(201, 'The user was created.')`: the return type fills that response's schema.
+- Other handler responses (`400`, `500`, …) stay as they are. A `200` declared on the method, on the controller or document-wide (`data.responses` of `@trapi/swagger`) still appears on a method with another success status: the implicit `200` no longer covers it. A method's own response still wins over a document response at the same status.
+- When two handlers set the field, the last one wins.
 - Without `successStatus` the output is unchanged: the return type stays under `200`/`204`, and a handler response at `200` keeps whatever schema it declared.
 
 ## `replaces` semantics

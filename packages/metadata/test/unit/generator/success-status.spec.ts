@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Metadata, Method } from '@trapi/core';
 import { createRegistry, method, readNumber } from '@trapi/core';
-import { generateMetadata } from '../../../src';
+import { GeneratorErrorCode, generateMetadata } from '../../../src';
 
 const runView = {
     typeName: 'refObject',
@@ -40,7 +40,11 @@ describe('success status', () => {
                     method({
                         match: { name: 'Status', on: 'method' },
                         apply: (ctx, draft) => {
-                            draft.successStatus = String(readNumber(ctx.argument(0)));
+                            const status = readNumber(ctx.argument(0));
+
+                            if (status !== undefined) {
+                                draft.successStatus = String(status);
+                            }
                         },
                     }),
                 ],
@@ -96,5 +100,68 @@ describe('success status', () => {
 
         expect(responses).toHaveLength(1);
         expect(responses[0]).toMatchObject({ status: '202', schema: { typeName: 'void' } });
+    });
+
+    it('should keep a handler 200 beside a different success status', () => {
+        const { responses } = findMethod('withLegacy');
+
+        expect(responses.map((r) => r.status)).toEqual(['200', '202']);
+        expect(responses[0]!.schema).toBeUndefined();
+        expect(responses[1]).toMatchObject({ status: '202', schema: runView });
+    });
+
+    it('should not overwrite the schema of a handler response at the success status', () => {
+        const { responses } = findMethod('withOwnSchema');
+
+        expect(responses).toHaveLength(1);
+        expect(responses[0]).toMatchObject({ status: '201', schema: { typeName: 'string' } });
+    });
+
+    it('should not merge default examples into a handler response that has its own', () => {
+        const { responses } = findMethod('withOwnExamples');
+
+        expect(responses).toHaveLength(1);
+        expect(responses[0]!.examples).toEqual([{ value: { id: '2' } }]);
+    });
+
+    it('should let the last handler that sets the success status win', () => {
+        const { responses } = findMethod('twice');
+
+        expect(responses.map((r) => r.status)).toEqual(['202']);
+    });
+});
+
+describe('success status validation', () => {
+    const generate = (successStatus: string) => generateMetadata({
+        entryPoint: [{
+            cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/inline-registry'),
+            pattern: '**/*.ts',
+        }],
+        cache: false,
+        registry: createRegistry({
+            controllers: [{
+                match: { name: 'Controller', on: 'class' },
+                apply: (_ctx, draft) => {
+                    draft.paths = ['/widgets'];
+                },
+            }],
+            methods: [{
+                match: { name: 'Get', on: 'method' },
+                apply: (_ctx, draft) => {
+                    draft.verb = 'get';
+                    draft.successStatus = successStatus;
+                },
+            }],
+        }),
+    });
+
+    it.each(['', 'abc', 'undefined', '600', '20', '2XXX'])('should reject the success status %j', async (value) => {
+        await expect(generate(value)).rejects.toMatchObject({ code: GeneratorErrorCode.SUCCESS_STATUS_INVALID });
+    });
+
+    it.each(['201', '202', '2XX'])('should accept the success status %j', async (value) => {
+        const metadata = await generate(value);
+
+        expect(metadata.controllers[0]!.methods[0]!.responses.map((r) => r.status)).toEqual([value]);
     });
 });

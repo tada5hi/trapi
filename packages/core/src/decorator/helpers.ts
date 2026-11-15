@@ -8,8 +8,11 @@
 import type {
     ControllerDraft,
     DecoratorArgument,
+    HandlerContext,
     MethodDraft,
 } from './types';
+import { CoreError } from '../error/base';
+import { CoreErrorCode } from '../error/codes';
 
 /**
  * Read a positional argument as a string. Accepts both literal string args
@@ -33,7 +36,10 @@ export function readString(arg: DecoratorArgument | undefined): string | undefin
 }
 
 /**
- * Read a positional argument as a number. Only matches numeric literals.
+ * Read a positional argument as a number. Accepts both numeric literals
+ * (`@Foo(201)`) and identifier references that resolve to a number
+ * (`@Foo(HttpStatus.CREATED)`, a `const`, an enum or `as const` member).
+ * Returns `undefined` for any other argument shape.
  */
 export function readNumber(arg: DecoratorArgument | undefined): number | undefined {
     if (!arg) {
@@ -41,6 +47,10 @@ export function readNumber(arg: DecoratorArgument | undefined): number | undefin
     }
 
     if (arg.kind === 'literal' && typeof arg.raw === 'number') {
+        return arg.raw;
+    }
+
+    if (arg.kind === 'identifier' && typeof arg.raw === 'number') {
         return arg.raw;
     }
 
@@ -60,6 +70,64 @@ export function readBoolean(arg: DecoratorArgument | undefined): boolean | undef
     }
 
     return undefined;
+}
+
+/**
+ * Read positional argument `index` through `read`, failing loudly instead of
+ * falling back: returns `undefined` only when the argument is absent, and
+ * throws a `DECORATOR_ARGUMENT_INVALID` {@link CoreError} when it is present
+ * but `read` cannot make sense of it (e.g. an unresolvable constant).
+ * `expected` completes the message "must be …", e.g. `'a number'`.
+ */
+export function requireArgument<T>(
+    ctx: HandlerContext,
+    index: number,
+    read: (arg: DecoratorArgument) => T | undefined,
+    expected: string,
+): T | undefined {
+    const arg = ctx.argument(index);
+
+    if (arg === undefined) {
+        return undefined;
+    }
+
+    const value = read(arg);
+
+    if (value !== undefined) {
+        return value;
+    }
+
+    const host = ctx.host.parentName ?
+        `${ctx.host.parentName}.${ctx.host.name}` :
+        ctx.host.name;
+
+    let message = `Argument ${index} of '@${ctx.decorator.name}' on '${host}' must be ${expected}, ` +
+        'but could not be resolved to one.';
+
+    if (ctx.decorator.location) {
+        message += ` (${ctx.decorator.location.file}:${ctx.decorator.location.line})`;
+    }
+
+    throw new CoreError({
+        message,
+        code: CoreErrorCode.DECORATOR_ARGUMENT_INVALID,
+    });
+}
+
+/**
+ * Strict {@link readNumber}: `undefined` when absent, throws when present but
+ * not a number.
+ */
+export function requireNumber(ctx: HandlerContext, index: number): number | undefined {
+    return requireArgument(ctx, index, readNumber, 'a number');
+}
+
+/**
+ * Strict {@link readString}: `undefined` when absent, throws when present but
+ * not a string.
+ */
+export function requireString(ctx: HandlerContext, index: number): string | undefined {
+    return requireArgument(ctx, index, readString, 'a string');
 }
 
 /**

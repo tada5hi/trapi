@@ -68,6 +68,7 @@ export function newControllerDraft(input: Pick<ControllerDraft, 'name' | 'locati
         responses: [],
         security: [],
         extensions: [],
+        successProduces: [],
     };
 }
 
@@ -85,6 +86,7 @@ export function newMethodDraft(input: Pick<MethodDraft, 'name'>): MethodDraft {
         extensions: [],
         parameters: [],
         defaultResponseExamples: [],
+        successProduces: [],
     };
 }
 
@@ -120,6 +122,8 @@ export function createRegistry(input: Partial<Registry> = {}): Registry {
         controllerJsDoc: input.controllerJsDoc ? [...input.controllerJsDoc] : [],
         methodJsDoc: input.methodJsDoc ? [...input.methodJsDoc] : [],
         parameterJsDoc: input.parameterJsDoc ? [...input.parameterJsDoc] : [],
+        methodFinalizers: input.methodFinalizers ? [...input.methodFinalizers] : [],
+        controllerFinalizers: input.controllerFinalizers ? [...input.controllerFinalizers] : [],
     };
 }
 
@@ -136,6 +140,9 @@ export function mergeRegistries(a: Registry, b: Registry): Registry {
         controllerJsDoc: [...a.controllerJsDoc, ...b.controllerJsDoc],
         methodJsDoc: [...a.methodJsDoc, ...b.methodJsDoc],
         parameterJsDoc: [...a.parameterJsDoc, ...b.parameterJsDoc],
+        // Either side may be a hand-built literal without finalizer arrays.
+        methodFinalizers: [...(a.methodFinalizers ?? []), ...(b.methodFinalizers ?? [])],
+        controllerFinalizers: [...(a.controllerFinalizers ?? []), ...(b.controllerFinalizers ?? [])],
     };
 }
 

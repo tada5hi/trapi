@@ -10,6 +10,7 @@ export const CoreErrorCode = {
     PRESET_CYCLE: 'CORE_PRESET_CYCLE',
     PRESET_REPLACES_NO_MATCH: 'CORE_PRESET_REPLACES_NO_MATCH',
     PRESET_INVALID: 'CORE_PRESET_INVALID',
+    DECORATOR_ARGUMENT_INVALID: 'CORE_DECORATOR_ARGUMENT_INVALID',
 } as const;
 
 // eslint-disable-next-line @tada5hi/type-declaration-location -- Preserve the merged public value and type.

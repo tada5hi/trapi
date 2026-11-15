@@ -423,9 +423,9 @@ describe('finalize hooks and the cache', () => {
         entryPoint: [{ cwd: path.join(dataDir, 'finalize'), pattern: '**/*.ts' }],
         cache: { enabled: true, directoryPath: dir },
         registry: createRegistry({
-            controllers, 
-            methods, 
-            methodFinalizers: [finalizer], 
+            controllers,
+            methods,
+            methodFinalizers: [finalizer],
         }),
     });
 

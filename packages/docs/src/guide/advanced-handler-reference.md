@@ -209,7 +209,7 @@ const preset: Preset = {
 
 - `finalizeMethod` runs once per route method — a verb was set and the method is not hidden — after its decorator and JSDoc handlers, and before the success status is checked and the default response is built. A finalizer that hides the method or clears `draft.verb` removes it from the controller.
 - `ctx.returnType()` resolves the method's return type at most once: repeated calls and the default response built afterwards share the result.
-- `finalizeController` runs only for a class a controller handler claimed (`draft.paths` set), after its decorator and JSDoc handlers and before its methods are generated, so it cannot see the methods.
+- `finalizeController` runs only for a class a controller handler claimed (`draft.paths` set), after its decorator and JSDoc handlers and before its methods are generated, so it cannot see the methods. A finalizer that unsets `draft.paths` drops the class as a controller.
 - Along an `extends` chain the parents' finalizers run first, then the preset's own, then those of an inline `registry`. Finalizers are always additive: there is no `replaces` for them.
 - A throwing finalizer fails generation, like a throwing handler.
 

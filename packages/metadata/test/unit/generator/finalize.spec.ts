@@ -5,7 +5,14 @@
  * view the LICENSE file that was distributed with this source code.
  */
 
-import { describe, expect, it } from 'vitest';
+import {
+    afterEach,
+    describe,
+    expect,
+    it,
+} from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
@@ -14,11 +21,15 @@ import type {
     MethodFinalizer,
     MethodHandler,
     MethodJsDocHandler,
+    Preset,
     Registry,
     Type,
 } from '@trapi/core';
 import { createRegistry } from '@trapi/core';
 import { generateMetadata } from '../../../src';
+import { CACHE_FILE_PREFIX } from '../../../src/adapters/cache/constants';
+
+const dataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data');
 
 const controllers: ControllerHandler[] = [{
     match: { name: 'Controller', on: 'class' },
@@ -53,7 +64,7 @@ const methodJsDoc: MethodJsDocHandler[] = [{
 
 const generate = (registry: Registry) => generateMetadata({
     entryPoint: [{
-        cwd: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/finalize'),
+        cwd: path.join(dataDir, 'finalize'),
         pattern: '**/*.ts',
     }],
     cache: false,
@@ -81,7 +92,7 @@ describe('finalize hooks', () => {
         }[] = [];
 
         await withFinalizers({
-            methodFinalizers: [(draft, ctx) => {
+            methodFinalizers: [(ctx, draft) => {
                 seen.push({
                     name: draft.name,
                     verb: draft.verb,
@@ -114,7 +125,7 @@ describe('finalize hooks', () => {
         const types: Record<string, Type> = {};
 
         const metadata = await withFinalizers({
-            methodFinalizers: [(draft, ctx) => {
+            methodFinalizers: [(ctx, draft) => {
                 types[draft.name] = ctx.returnType();
             }],
         });
@@ -131,7 +142,7 @@ describe('finalize hooks', () => {
 
     it('can set successStatus and responses before the default response is built', async () => {
         const metadata = await withFinalizers({
-            methodFinalizers: [(draft) => {
+            methodFinalizers: [(_ctx, draft) => {
                 if (draft.name !== 'create') {
                     return;
                 }
@@ -164,7 +175,7 @@ describe('finalize hooks', () => {
 
     it('omits a method the finalizer hides', async () => {
         const metadata = await withFinalizers({
-            methodFinalizers: [(draft) => {
+            methodFinalizers: [(_ctx, draft) => {
                 if (draft.name === 'list') {
                     draft.hidden = true;
                 }
@@ -176,7 +187,7 @@ describe('finalize hooks', () => {
 
     it('omits a method the finalizer strips of its verb', async () => {
         const metadata = await withFinalizers({
-            methodFinalizers: [(draft) => {
+            methodFinalizers: [(_ctx, draft) => {
                 if (draft.name === 'list') {
                     draft.verb = undefined;
                 }
@@ -190,11 +201,11 @@ describe('finalize hooks', () => {
         const log: string[] = [];
 
         const metadata = await withFinalizers({
-            controllerFinalizers: [(draft, ctx) => {
+            controllerFinalizers: [(ctx, draft) => {
                 log.push(`controller:${ctx.host.name}:${draft.paths!.join(',')}`);
                 draft.tags.push('finalized');
             }],
-            methodFinalizers: [(draft) => {
+            methodFinalizers: [(_ctx, draft) => {
                 log.push(`method:${draft.name}`);
             }],
         });
@@ -211,7 +222,7 @@ describe('finalize hooks', () => {
         const seen: string[] = [];
 
         const metadata = await withFinalizers({
-            controllerFinalizers: [(_draft, ctx) => {
+            controllerFinalizers: [(ctx) => {
                 seen.push(ctx.host.name);
             }],
         });
@@ -227,10 +238,10 @@ describe('finalize hooks', () => {
 
         await withFinalizers({
             methodFinalizers: [
-                (draft) => {
+                (_ctx, draft) => {
                     log.push(`a:${draft.name}`);
                 },
-                (draft) => {
+                (_ctx, draft) => {
                     log.push(`b:${draft.name}`);
                 },
             ],
@@ -274,5 +285,182 @@ describe('finalize hooks', () => {
             examples: [],
             schema: expect.objectContaining({ typeName: 'refObject', refName: 'IItem' }),
         }]);
+    });
+});
+
+describe('finalize hooks: runtime tolerance', () => {
+    it('treats a successProduces a method finalizer unset as empty', async () => {
+        const metadata = await withFinalizers({
+            methodFinalizers: [(_ctx, draft) => {
+                draft.successProduces = undefined as unknown as string[];
+            }],
+        });
+
+        const create = metadata.controllers[0]!.methods.find((m) => m.name === 'create')!;
+
+        expect(create.responses).toHaveLength(1);
+        expect('produces' in create.responses[0]!).toBe(false);
+    });
+
+    it('treats a successProduces a controller finalizer unset as empty', async () => {
+        const metadata = await withFinalizers({
+            controllerFinalizers: [(_ctx, draft) => {
+                draft.successProduces = undefined as unknown as string[];
+            }],
+        });
+
+        const create = metadata.controllers[0]!.methods.find((m) => m.name === 'create')!;
+
+        expect('produces' in create.responses[0]!).toBe(false);
+    });
+
+    it('drops the controller when a controller finalizer clears its paths', async () => {
+        const metadata = await withFinalizers({
+            controllerFinalizers: [(_ctx, draft) => {
+                draft.paths = undefined;
+            }],
+        });
+
+        expect(metadata.controllers).toEqual([]);
+    });
+
+    it('copies the controller successProduces into each method without mutating the draft list', async () => {
+        let controllerList: string[] = [];
+
+        const metadata = await withFinalizers({
+            controllerFinalizers: [(_ctx, draft) => {
+                draft.successProduces = ['application/xml'];
+                controllerList = draft.successProduces;
+            }],
+        });
+
+        const [list, create] = metadata.controllers[0]!.methods;
+        const listProduces = list!.responses[0]!.produces;
+        const createProduces = create!.responses[0]!.produces;
+
+        expect(listProduces).toEqual(['application/xml']);
+        expect(createProduces).toEqual(['application/xml']);
+        expect(listProduces).not.toBe(createProduces);
+        expect(listProduces).not.toBe(controllerList);
+        expect(createProduces).not.toBe(controllerList);
+        expect(controllerList).toEqual(['application/xml']);
+    });
+});
+
+describe('finalize hooks through a preset', () => {
+    const presetFinalizers = {
+        finalizeController: (_ctx, draft) => {
+            draft.tags.push('controller:preset');
+        },
+        finalizeMethod: (_ctx, draft) => {
+            draft.tags.push('method:preset');
+        },
+    } satisfies Pick<Preset, 'finalizeController' | 'finalizeMethod'>;
+
+    const inlineRegistry = createRegistry({
+        controllerFinalizers: [(_ctx, draft) => {
+            draft.tags.push('controller:inline');
+        }],
+        methodFinalizers: [(_ctx, draft) => {
+            draft.tags.push('method:inline');
+        }],
+    });
+
+    const run = (preset: Preset) => generateMetadata({
+        entryPoint: [{ cwd: path.join(dataDir, 'finalize'), pattern: '**/*.ts' }],
+        cache: false,
+        preset,
+        registry: inlineRegistry,
+    });
+
+    it('runs the preset finalizers before the inline registry ones', async () => {
+        const metadata = await run({
+            name: 'finalize-inline',
+            controllers,
+            methods,
+            ...presetFinalizers,
+        });
+
+        const [owner] = metadata.controllers;
+
+        expect(owner!.tags).toEqual(['controller:preset', 'controller:inline']);
+        expect(owner!.methods.map((m) => [m.name, m.tags])).toEqual([
+            ['list', ['method:preset', 'method:inline']],
+            ['create', ['method:preset', 'method:inline']],
+        ]);
+    });
+
+    it('runs a parent preset finalizer first', async () => {
+        const metadata = await run({
+            name: 'finalize-child',
+            extends: [path.join(dataDir, 'finalize-preset', 'parent.ts')],
+            controllers,
+            methods,
+            ...presetFinalizers,
+        });
+
+        const [owner] = metadata.controllers;
+
+        expect(owner!.tags).toEqual(['controller:parent', 'controller:preset', 'controller:inline']);
+        expect(owner!.methods.map((m) => [m.name, m.tags])).toEqual([
+            ['list', ['method:parent', 'method:preset', 'method:inline']],
+            ['create', ['method:parent', 'method:preset', 'method:inline']],
+        ]);
+    });
+});
+
+describe('finalize hooks and the cache', () => {
+    const dir = path.join(
+        os.tmpdir(),
+        `trapi-cache-finalize-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    );
+
+    afterEach(async () => {
+        await fs.promises.rm(dir, { recursive: true, force: true });
+    });
+
+    const run = (finalizer: MethodFinalizer) => generateMetadata({
+        entryPoint: [{ cwd: path.join(dataDir, 'finalize'), pattern: '**/*.ts' }],
+        cache: { enabled: true, directoryPath: dir },
+        registry: createRegistry({
+            controllers, 
+            methods, 
+            methodFinalizers: [finalizer], 
+        }),
+    });
+
+    const cacheFiles = async () => (await fs.promises.readdir(dir))
+        .filter((f) => f.startsWith(CACHE_FILE_PREFIX));
+
+    it('serves a second run from the cache and misses it when the finalizer changes', async () => {
+        let calls = 0;
+
+        const first = await run((_ctx, draft) => {
+            calls += 1;
+            draft.tags.push('a');
+        });
+
+        expect(calls).toEqual(2);
+        expect(await cacheFiles()).toHaveLength(1);
+
+        const second = await run((_ctx, draft) => {
+            calls += 1;
+            draft.tags.push('a');
+        });
+
+        // Same finalizer body: a cache hit, the finalizer does not run.
+        expect(calls).toEqual(2);
+        expect(second).toEqual(first);
+        expect(await cacheFiles()).toHaveLength(1);
+
+        const third = await run((_ctx, draft) => {
+            calls += 1;
+            draft.tags.push('b');
+        });
+
+        // Different finalizer body: a different key, a fresh run.
+        expect(calls).toEqual(4);
+        expect(await cacheFiles()).toHaveLength(2);
+        expect(third.controllers[0]!.methods.map((m) => m.tags)).toEqual([['b'], ['b']]);
     });
 });

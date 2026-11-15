@@ -32,6 +32,7 @@ const readStrings = (raw: unknown): string[] => (Array.isArray(raw) ? raw.filter
 
 describe('success response', () => {
     let metadata: Metadata;
+    const finalized: string[] = [];
 
     const findMethod = (controllerName: string, name: string): Method => {
         const owner = metadata.controllers.find((c) => c.name === controllerName)!;
@@ -54,6 +55,9 @@ describe('success response', () => {
             cache: false,
             preset: '@trapi/preset-decorators-express',
             registry: createRegistry({
+                methodFinalizers: [(ctx) => {
+                    finalized.push(`${ctx.host.parentName}.${ctx.host.name}`);
+                }],
                 controllers: [
                     controller({
                         match: { name: 'SuccessProduces', on: 'class' },
@@ -158,6 +162,33 @@ describe('success response', () => {
             });
         });
 
+        it('should run the method finalizer for an inherited method', () => {
+            // The host names the class that declares the method, not the
+            // controller that inherits it.
+            expect(finalized).toContain('ReportBase.inherited');
+        });
+
+        it('should not attach media types to a never method', () => {
+            const { responses } = own('neverReturns');
+
+            expect(responses).toHaveLength(1);
+            expect(responses[0]!.schema).toEqual({ typeName: 'never' });
+            expect('produces' in responses[0]!).toBe(false);
+        });
+
+        it('should de-duplicate the media types, keeping their order', () => {
+            expect(successResponse(own('duplicateProduces')).produces).toEqual(['application/pdf', 'application/xml']);
+        });
+
+        it('should give each method its own copy of the controller media types', () => {
+            const a = successResponse(xml('xml')).produces;
+            const b = successResponse(xml('inherited')).produces;
+
+            expect(a).toEqual(['application/xml']);
+            expect(b).toEqual(['application/xml']);
+            expect(a).not.toBe(b);
+        });
+
         it('should not attach media types to a void method', () => {
             const ownVoid = successResponse(own('voidProduces'));
             const inheritedVoid = successResponse(xml('voided'));
@@ -229,6 +260,7 @@ describe('success response', () => {
                 schema: undefined,
             }]);
             expect(m.responses[0]!.schema).toBeUndefined();
+            expect('schema' in m.responses[0]!).toBe(false);
             expect(m.type).toEqual({ typeName: 'enum', members: [null] });
         });
 
@@ -242,6 +274,7 @@ describe('success response', () => {
             expect(m.responses[0]!.status).toEqual(status);
             expect(m.responses[0]!.description).toEqual(description);
             expect(m.responses[0]!.schema).toBeUndefined();
+            expect('schema' in m.responses[0]!).toBe(false);
             expect(m.type).toMatchObject(report);
         });
 

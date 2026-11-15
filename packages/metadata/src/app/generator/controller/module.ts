@@ -87,7 +87,12 @@ export class ControllerGenerator implements IControllerGenerator {
         // program), and before paths are normalised and methods generated, so
         // the finalizer settles the state both build on.
         for (const finalize of this.current.registry.controllerFinalizers ?? []) {
-            finalize(draft, { host: options.host });
+            finalize({ host: options.host }, draft);
+        }
+
+        // A finalizer may have un-claimed the class, as no handler did.
+        if (draft.paths === undefined) {
+            return null;
         }
 
         // Normalize and dedupe — a user passing `@Controller(['/roles', '/roles'])`
@@ -95,7 +100,8 @@ export class ControllerGenerator implements IControllerGenerator {
         // OpenAPI path keys downstream.
         const normalized = (draft.paths.length === 0 ? [''] : draft.paths).map(normalizePath);
         const paths = [...new Set(normalized)];
-        const methods = this.buildMethods(paths, draft.successProduces);
+        // `?? []`: the type requires the list, but a finalizer may unset it.
+        const methods = this.buildMethods(paths, draft.successProduces ?? []);
 
         return {
             consumes: draft.consumes,

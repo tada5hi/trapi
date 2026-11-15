@@ -16,6 +16,7 @@ import type {
 } from 'typescript';
 import {
     ParameterSource,
+    isNeverType,
     isVoidType,
     newMethodDraft,
 } from '@trapi/core';
@@ -43,7 +44,7 @@ import {
 import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
-import { HttpReasonPhrase, NO_CONTENT_STATUSES } from './constants';
+import { NO_CONTENT_STATUSES, SuccessStatusDescription } from './constants';
 
 // One concrete HTTP status code: a success status is never a range, and
 // Swagger 2.0 accepts no range as a response key.
@@ -89,7 +90,7 @@ export class MethodGenerator {
         };
 
         for (const finalize of this.current.registry.methodFinalizers ?? []) {
-            finalize(draft, { host: options.host, returnType: resolveReturnType });
+            finalize({ host: options.host, returnType: resolveReturnType }, draft);
         }
 
         // A finalizer may have dropped the verb or hidden the method.
@@ -99,18 +100,26 @@ export class MethodGenerator {
 
         this.assertSuccessStatus(draft.successStatus);
 
+        // Only an explicit no-content status drops the body: an implicit 204
+        // (a void method) keeps documenting its void schema as it always has.
+        const noContent = isNoContentStatus(draft.successStatus);
+
         // Build responses: handler-supplied first, then a derived default that
         // carries any handler-contributed default-response examples.
         const defaultResponse = buildDefaultResponse({
             returnType: resolveReturnType(),
             examples: draft.defaultResponseExamples,
             successStatus: draft.successStatus,
+            noContent,
         });
-        // A method's own list overrides the controller's; an explicit
-        // no-content status documents no body to describe.
-        let successProduces = draft.successProduces.length > 0 ? draft.successProduces : controllerSuccessProduces;
 
-        if (isNoContentStatus(draft.successStatus)) {
+        // A method's own list overrides the controller's; an explicit
+        // no-content status documents no body to describe. `?? []`: the type
+        // requires the list, but a finalizer or a hand-built draft may unset it.
+        const ownSuccessProduces = draft.successProduces ?? [];
+        let successProduces = ownSuccessProduces.length > 0 ? ownSuccessProduces : controllerSuccessProduces;
+
+        if (noContent) {
             successProduces = [];
         }
 
@@ -286,15 +295,16 @@ type DefaultResponseInput = {
     returnType: BaseType,
     examples: Example[],
     successStatus?: string,
+    /**
+     * `successStatus` is a status that never carries a body.
+     */
+    noContent: boolean,
 };
 
 function buildDefaultResponse(input: DefaultResponseInput): Response {
     const isVoid = isVoidType(input.returnType);
     const explicit = input.successStatus !== undefined;
     const status = input.successStatus ?? (isVoid ? '204' : '200');
-    // Only an explicit no-content status drops the body: an implicit 204 (a
-    // void method) keeps documenting its void schema as it always has.
-    const noContent = isNoContentStatus(input.successStatus);
 
     let description: string;
 
@@ -305,10 +315,12 @@ function buildDefaultResponse(input: DefaultResponseInput): Response {
         description = isVoid ? 'No content' : 'Ok';
     }
 
+    // No `schema` key at all under a no-content status, so a fresh result
+    // and one read back from the cache have the same shape.
     return {
         description,
         examples: input.examples,
-        schema: noContent ? undefined : input.returnType,
+        ...(input.noContent ? {} : { schema: input.returnType }),
         status,
         name: status,
     };
@@ -318,17 +330,19 @@ function buildDefaultResponse(input: DefaultResponseInput): Response {
  * Gives the response carrying the return type the success media types, but
  * only when it documents a body and declares no media types of its own. An
  * empty list adds no key, so output without `successProduces` is unchanged.
+ * Duplicates are dropped, first occurrence kept.
  */
 function attachSuccessProduces(response: Response, successProduces: string[]): void {
     if (successProduces.length === 0 || (response.produces && response.produces.length > 0)) {
         return;
     }
 
-    if (!response.schema || isVoidType(response.schema)) {
+    // `void` and `never` are body-less: the emitters document no schema.
+    if (!response.schema || isVoidType(response.schema) || isNeverType(response.schema)) {
         return;
     }
 
-    response.produces = [...successProduces];
+    response.produces = [...new Set(successProduces)];
 }
 
 function isNoContentStatus(status: string | undefined): boolean {
@@ -336,7 +350,7 @@ function isNoContentStatus(status: string | undefined): boolean {
 }
 
 function describeStatus(status: string): string {
-    return (HttpReasonPhrase as Record<string, string>)[status] ?? 'Ok';
+    return (SuccessStatusDescription as Record<string, string>)[status] ?? 'Ok';
 }
 
 /**

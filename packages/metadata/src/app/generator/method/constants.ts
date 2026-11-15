@@ -6,11 +6,11 @@
  */
 
 /**
- * IANA-registered HTTP reason phrases, used as the default response
- * description for an explicit `successStatus`. `200` and `204` keep the
- * spelling documents have always carried (`Ok`, `No content`).
+ * The default response description per status, used for an explicit
+ * `successStatus`: the HTTP reason phrase, except that `200` and `204` keep
+ * the spelling existing documents carry (`Ok`, `No content`).
  */
-export const HttpReasonPhrase = {
+export const SuccessStatusDescription = {
     100: 'Continue',
     101: 'Switching Protocols',
     102: 'Processing',

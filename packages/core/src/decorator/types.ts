@@ -305,13 +305,15 @@ export type ControllerFinalizeContext = {
 /**
  * Runs once per method draft after every decorator and JSDoc handler, so a
  * preset whose decorators depend on each other can reconcile the final state.
+ * Takes `(ctx, draft)`, in the order handlers' `apply` does.
  */
-export type MethodFinalizer = (draft: MethodDraft, ctx: MethodFinalizeContext) => void;
+export type MethodFinalizer = (ctx: MethodFinalizeContext, draft: MethodDraft) => void;
 
 /**
  * Runs once per controller draft after every decorator and JSDoc handler.
+ * Takes `(ctx, draft)`, in the order handlers' `apply` does.
  */
-export type ControllerFinalizer = (draft: ControllerDraft, ctx: ControllerFinalizeContext) => void;
+export type ControllerFinalizer = (ctx: ControllerFinalizeContext, draft: ControllerDraft) => void;
 
 // -----------------------------------------------------------------------------
 // Preset & Registry (Layer 6)

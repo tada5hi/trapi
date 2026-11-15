@@ -140,6 +140,20 @@ export class SuccessResponseController {
         // no-content status: never a body
     }
 
+    @Get('/never')
+    @SuccessProduces('application/xml')
+    public neverReturns(): never {
+        throw new Error('never returns');
+    }
+
+    @Get('/duplicate-produces')
+    @SuccessProduces('application/pdf')
+    @SuccessProduces('application/xml')
+    @SuccessProduces('application/pdf')
+    public duplicateProduces(): IReport {
+        return { id: '1' };
+    }
+
     @Delete('/handler-no-content')
     @Status(204)
     @Description(204, 'Deleted')

@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import {
     type DecoratorArgument,
     type DecoratorTypeArgument,
+    type HandlerContext,
     append,
     createHandlerContext,
     flag,
@@ -234,6 +235,24 @@ describe('requireNumber', () => {
         });
 
         expect(() => requireNumber(ctx, 0)).toThrow(expect.objectContaining({ message: "Argument 0 of '@Returns' on 'create' must be a number, but could not be resolved to one." }));
+    });
+
+    it('throws the CoreError for a hand-built context without decorator', () => {
+        // A literal written before `decorator` existed on the context.
+        const args = [unresolvableArg()];
+        const ctx = {
+            host: { name: 'create', parentName: 'UserController' },
+            argument: (index: number) => args[index],
+            arguments: () => [...args],
+            typeArgument: (): undefined => undefined,
+            typeArguments: (): DecoratorTypeArgument[] => [],
+            parameterType: (): undefined => undefined,
+        } as unknown as HandlerContext;
+
+        expect(() => requireNumber(ctx, 0)).toThrow(expect.objectContaining({
+            code: CoreErrorCode.DECORATOR_ARGUMENT_INVALID,
+            message: "Argument 0 of '@<unknown>' on 'UserController.create' must be a number, but could not be resolved to one.",
+        }));
     });
 });
 

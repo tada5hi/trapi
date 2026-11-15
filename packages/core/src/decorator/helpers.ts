@@ -101,11 +101,15 @@ export function requireArgument<T>(
         `${ctx.host.parentName}.${ctx.host.name}` :
         ctx.host.name;
 
-    let message = `Argument ${index} of '@${ctx.decorator.name}' on '${host}' must be ${expected}, ` +
+    // `decorator` is required on the type, but a hand-built context literal
+    // may lack it; the error must still be the CoreError, not a TypeError.
+    const { decorator } = ctx as Partial<Pick<HandlerContext, 'decorator'>>;
+
+    let message = `Argument ${index} of '@${decorator?.name ?? '<unknown>'}' on '${host}' must be ${expected}, ` +
         'but could not be resolved to one.';
 
-    if (ctx.decorator.location) {
-        message += ` (${ctx.decorator.location.file}:${ctx.decorator.location.line})`;
+    if (decorator?.location) {
+        message += ` (${decorator.location.file}:${decorator.location.line})`;
     }
 
     throw new CoreError({

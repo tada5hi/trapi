@@ -719,13 +719,13 @@ describe('src/cache', () => {
 
             expect(hashRegistry({
                 ...emptyRegistry,
-                methodFinalizers: [(draft) => {
+                methodFinalizers: [(_ctx, draft) => {
                     draft.successStatus = '201';
                 }],
             })).not.toEqual(empty);
             expect(hashRegistry({
                 ...emptyRegistry,
-                controllerFinalizers: [(draft) => {
+                controllerFinalizers: [(_ctx, draft) => {
                     draft.hidden = true;
                 }],
             })).not.toEqual(empty);
@@ -734,13 +734,13 @@ describe('src/cache', () => {
         it('changes when a finalizer body changes', () => {
             const a = hashRegistry({
                 ...emptyRegistry,
-                methodFinalizers: [(draft) => {
+                methodFinalizers: [(_ctx, draft) => {
                     draft.successStatus = '201';
                 }],
             });
             const b = hashRegistry({
                 ...emptyRegistry,
-                methodFinalizers: [(draft) => {
+                methodFinalizers: [(_ctx, draft) => {
                     draft.successStatus = '202';
                 }],
             });

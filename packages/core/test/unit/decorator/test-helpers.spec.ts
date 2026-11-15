@@ -51,6 +51,13 @@ describe('test-helpers', () => {
         expect(ctx.argument(0)).toBeUndefined();
         expect(ctx.arguments()).toEqual([]);
         expect(ctx.host.name).toBe('TestHost');
+        expect(ctx.decorator).toEqual({ name: 'Test' });
+    });
+
+    it('createHandlerContext passes a supplied decorator through', () => {
+        const ctx = createHandlerContext({ decorator: { name: 'Returns', location: { file: 'users.ts', line: 12 } } });
+
+        expect(ctx.decorator).toEqual({ name: 'Returns', location: { file: 'users.ts', line: 12 } });
     });
 
     it('arg builders produce the expected shapes', () => {

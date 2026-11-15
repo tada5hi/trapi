@@ -7,9 +7,14 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+    type ControllerFinalizer,
+    type MethodFinalizer,
     type Preset,
     type PresetResolver,
+    type Registry,
+    createRegistry,
     loadRegistry,
+    mergeRegistries,
 } from '../../../src/decorator';
 
 const noopApply = () => {
@@ -296,5 +301,144 @@ describe('loadRegistry', () => {
         const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
 
         expect(registry.methodJsDoc.map((h) => h.match.tag)).toEqual(['hidden', 'deprecated']);
+    });
+
+    it('collects finalizers parents-first', async () => {
+        const grandMethod: MethodFinalizer = () => { /* grandparent */ };
+        const parentMethod: MethodFinalizer = () => { /* parent */ };
+        const ownMethod: MethodFinalizer = () => { /* own */ };
+        const grandController: ControllerFinalizer = () => { /* grandparent */ };
+        const ownController: ControllerFinalizer = () => { /* own */ };
+
+        const grandparent: Preset = {
+            name: 'grandparent',
+            finalizeMethod: grandMethod,
+            finalizeController: grandController,
+        };
+        const parent: Preset = {
+            name: 'parent',
+            extends: ['grandparent'],
+            finalizeMethod: parentMethod,
+        };
+        const child: Preset = {
+            name: 'child',
+            extends: ['parent'],
+            finalizeMethod: ownMethod,
+            finalizeController: ownController,
+        };
+        const registry = await loadRegistry(child, { resolver: makeResolver([grandparent, parent]) });
+
+        expect(registry.methodFinalizers).toHaveLength(3);
+        expect(registry.methodFinalizers![0]).toBe(grandMethod);
+        expect(registry.methodFinalizers![1]).toBe(parentMethod);
+        expect(registry.methodFinalizers![2]).toBe(ownMethod);
+        expect(registry.controllerFinalizers).toHaveLength(2);
+        expect(registry.controllerFinalizers![0]).toBe(grandController);
+        expect(registry.controllerFinalizers![1]).toBe(ownController);
+    });
+
+    it('collects a shared ancestor finalizer once', async () => {
+        const baseMethod: MethodFinalizer = () => { /* base */ };
+        const baseController: ControllerFinalizer = () => { /* base */ };
+        const leftMethod: MethodFinalizer = () => { /* left */ };
+        const rightMethod: MethodFinalizer = () => { /* right */ };
+        const ownMethod: MethodFinalizer = () => { /* own */ };
+
+        const base: Preset = {
+            name: 'base',
+            finalizeMethod: baseMethod,
+            finalizeController: baseController,
+        };
+        const left: Preset = {
+            name: 'left',
+            extends: ['base'],
+            finalizeMethod: leftMethod,
+        };
+        const right: Preset = {
+            name: 'right',
+            extends: ['base'],
+            finalizeMethod: rightMethod,
+        };
+        const child: Preset = {
+            name: 'child',
+            extends: ['left', 'right'],
+            finalizeMethod: ownMethod,
+        };
+        const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
+
+        expect(registry.methodFinalizers).toHaveLength(4);
+        expect(registry.methodFinalizers![0]).toBe(baseMethod);
+        expect(registry.methodFinalizers![1]).toBe(leftMethod);
+        expect(registry.methodFinalizers![2]).toBe(rightMethod);
+        expect(registry.methodFinalizers![3]).toBe(ownMethod);
+        expect(registry.controllerFinalizers).toHaveLength(1);
+        expect(registry.controllerFinalizers![0]).toBe(baseController);
+    });
+
+    it('wraps a non-function finalizeMethod as CoreError(PRESET_INVALID)', async () => {
+        const invalid = { name: 'bad', finalizeMethod: 'not-a-fn' } as unknown as Preset;
+
+        await expect(
+            loadRegistry(invalid, { resolver: makeResolver([]) }),
+        ).rejects.toMatchObject({ code: 'CORE_PRESET_INVALID' });
+    });
+
+    it('registry has empty finalizer arrays when no preset declares one', async () => {
+        const parent: Preset = { name: 'parent' };
+        const child: Preset = { name: 'child', extends: ['parent'] };
+        const registry = await loadRegistry(child, { resolver: makeResolver([parent]) });
+
+        expect(registry.methodFinalizers).toEqual([]);
+        expect(registry.controllerFinalizers).toEqual([]);
+    });
+});
+
+describe('createRegistry', () => {
+    it('defaults finalizer arrays to []', () => {
+        const registry = createRegistry();
+
+        expect(registry.methodFinalizers).toEqual([]);
+        expect(registry.controllerFinalizers).toEqual([]);
+    });
+});
+
+describe('mergeRegistries', () => {
+    it('appends finalizers', () => {
+        const a1: MethodFinalizer = () => { /* a */ };
+        const b1: MethodFinalizer = () => { /* b */ };
+        const ac: ControllerFinalizer = () => { /* a */ };
+        const bc: ControllerFinalizer = () => { /* b */ };
+
+        const merged = mergeRegistries(
+            createRegistry({ methodFinalizers: [a1], controllerFinalizers: [ac] }),
+            createRegistry({ methodFinalizers: [b1], controllerFinalizers: [bc] }),
+        );
+
+        expect(merged.methodFinalizers).toHaveLength(2);
+        expect(merged.methodFinalizers![0]).toBe(a1);
+        expect(merged.methodFinalizers![1]).toBe(b1);
+        expect(merged.controllerFinalizers).toHaveLength(2);
+        expect(merged.controllerFinalizers![0]).toBe(ac);
+        expect(merged.controllerFinalizers![1]).toBe(bc);
+    });
+
+    it('tolerates registries without finalizer arrays', () => {
+        const fin: MethodFinalizer = () => { /* b */ };
+        // A hand-built literal (pre-finalizer shape) carries no finalizer arrays.
+        const bare: Registry = {
+            controllers: [],
+            methods: [],
+            parameters: [],
+            controllerJsDoc: [],
+            methodJsDoc: [],
+            parameterJsDoc: [],
+        };
+
+        const merged = mergeRegistries(bare, createRegistry({ methodFinalizers: [fin] }));
+
+        expect(merged.methodFinalizers).toHaveLength(1);
+        expect(merged.methodFinalizers![0]).toBe(fin);
+        expect(merged.controllerFinalizers).toEqual([]);
+        expect(mergeRegistries(bare, bare).methodFinalizers).toEqual([]);
     });
 });

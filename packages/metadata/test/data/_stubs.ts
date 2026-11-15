@@ -75,6 +75,10 @@ export const Extension: any = noopFactory;
 // Not part of the bundled presets: the success-status spec registers an inline
 // handler for it.
 export const Status: any = noopFactory;
+// Not part of the bundled presets either: the success-response spec registers
+// inline handlers for them.
+export const SuccessProduces: any = noopFactory;
+export const Respond: any = noopFactory;
 
 // --- Numeric markers (parameter + property) --------------------------------
 // Used as `@IsInt` (no parens), so they are direct decorators rather than

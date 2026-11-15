@@ -185,6 +185,30 @@ describe('applyDecoratorHandlers', () => {
         expect(draft.extensions).toContainEqual({ key: 'type-arg', value: 'present' });
     });
 
+    it('exposes the decorator name and location on the handler context', () => {
+        const sf = compile([
+            'class Wrap {}',
+            '',
+            '@Other()',
+            '@Controller("/users")',
+            'class UsersController {}',
+        ].join('\n'));
+        const node = findClass(sf, 'UsersController');
+        const draft = newControllerDraft({ name: 'UsersController', location: 'sample.ts' });
+        const seen: unknown[] = [];
+        const handlers: ControllerHandler[] = [
+            {
+                match: { name: 'Controller' },
+                apply: (ctx) => {
+                    seen.push(ctx.decorator);
+                },
+            },
+        ];
+
+        applyDecoratorHandlers(node, handlers, draft, options('UsersController'));
+        expect(seen).toEqual([{ name: 'Controller', location: { file: 'sample.ts', line: 4 } }]);
+    });
+
     it('does nothing when handlers array is empty', () => {
         const sf = compile('@Controller() class C {}');
         const node = findClass(sf, 'C');

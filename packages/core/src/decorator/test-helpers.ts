@@ -84,6 +84,7 @@ export function createHandlerContext(input: CreateHandlerContextInput = {}): Han
 
     return {
         host: input.host ?? { name: 'TestHost' },
+        decorator: input.decorator ?? { name: 'Test' },
         argument: (index) => args[index],
         arguments: () => [...args],
         typeArgument: (index) => typeArgs[index],

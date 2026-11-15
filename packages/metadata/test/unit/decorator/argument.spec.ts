@@ -6,7 +6,15 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { ScriptTarget, createSourceFile } from 'typescript';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+    ScriptTarget,
+    createProgram,
+    createSourceFile,
+    isCallExpression,
+    isExpressionStatement,
+} from 'typescript';
 import type { CallExpression, Expression, ExpressionStatement } from 'typescript';
 import { buildDecoratorArgument } from '../../../src/adapters/decorator/typescript/utils';
 
@@ -82,5 +90,24 @@ describe('buildDecoratorArgument', () => {
 
         expect(result.kind).toEqual('unresolvable');
         expect(result.raw).toBeUndefined();
+    });
+});
+
+describe('buildDecoratorArgument with a type checker', () => {
+    const file = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../data/numeric-constants/usage.ts');
+    const program = createProgram([file], {});
+    const checker = program.getTypeChecker();
+    const calls = program.getSourceFile(file)!.statements
+        .filter(isExpressionStatement)
+        .map((statement) => statement.expression)
+        .filter(isCallExpression);
+
+    it.each([
+        ['a local const', 0],
+        ['an imported const', 1],
+        ['a numeric enum member', 2],
+        ['an `as const` object member', 3],
+    ])('resolves %s to its number', (_label, index) => {
+        expect(buildDecoratorArgument(calls[index]!.arguments[0]!, checker)).toEqual({ kind: 'identifier', raw: 409 });
     });
 });

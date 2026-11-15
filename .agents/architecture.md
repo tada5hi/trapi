@@ -53,7 +53,7 @@ Each generator builds a draft via `applyDecoratorHandlers` + `applyJsDocHandlers
 
 **Context parameters are never resolved.** `ParameterGenerator.generate` returns no parameter for a draft whose `in` is `context` and returns before `resolveType()`: type resolution registers every named type it reaches in `referenceTypes`, so resolving a framework request/response object would put its whole type graph into the document's schemas with nothing referencing it.
 
-**Default response.** `MethodGenerator` documents the return type under `draft.successStatus`, or `200` (`204` for `void`) when it is unset, and appends it unless a handler response has that status. Only an explicit `successStatus` fills a schema-less handler response at that status. Without the opt-in every document stays byte-identical, which existing consumers rely on (authup documents its runtime 201/202 routes as 200 today).
+**Default response.** `MethodGenerator` documents the return type under `draft.successStatus`, or `200` (`204` for `void`) when it is unset, and appends it unless a handler response has that status. Only an explicit `successStatus` fills a schema-less handler response at that status. An explicit `204`/`205`/`304` documents no schema whatever the return type; the return type is still resolved (registering its named types in `referenceTypes`) because `Method.type` keeps it. An explicit status is described by its reason phrase (`200` → `Ok`, `204` → `No content`, unknown → `Ok`). `successProduces` (method's if non-empty, else controller's) becomes `produces` of the response at the success status de-duplicated, only if it has a non-void, non-never schema and no `produces` of its own. Without `successStatus`, `successProduces` or a finalizer every document stays byte-identical, which existing consumers rely on (authup documents its runtime 201/202 routes as 200 today).
 
 **Multi-mount controllers.** `Controller.paths: string[]` (always non-empty) holds every URL prefix the controller is mounted at — `@Controller(['/roles', '/realms/:id/roles'])` produces two entries, `@Controller('/roles')` produces one. Method paths stay scalar; the swagger emitter expands the cross product (see "Swagger Generator" below). Path-parameter validation in the parameter generator accepts a name if it appears in **any** `(controllerPath × methodPath)` combination, so `@Path('id')` is valid as long as `:id` shows up in at least one mount.
 
@@ -91,16 +91,16 @@ const controllerHandler = controller({
 });
 ```
 
-A `Preset` has `name`, optional `extends: string[]`, and arrays of handlers per kind: `controllers`, `methods`, `parameters`, `controllerJsDoc`, `methodJsDoc`, `parameterJsDoc`. `loadRegistry(preset, { resolver })` resolves the `extends` chain and applies `replaces` semantics, returning a flat `Registry`.
+A `Preset` has `name`, optional `extends: string[]`, and arrays of handlers per kind: `controllers`, `methods`, `parameters`, `controllerJsDoc`, `methodJsDoc`, `parameterJsDoc`, plus optional `finalizeMethod({ host, returnType }, draft)` / `finalizeController({ host }, draft)` hooks. Method finalizers run once per route method after its handlers (before the success-status check); controller finalizers only for claimed classes (`draft.paths` set), before methods. Finalizers collect parents-first along `extends`, then an inline `registry`'s — additive, no `replaces`. `loadRegistry(preset, { resolver })` resolves the `extends` chain and applies `replaces` semantics, returning a flat `Registry`.
 
 **Layers:**
 
 - **Layer 1 — Source** (`@trapi/metadata/src/adapters/decorator/typescript/`): `buildDecoratorSources` extracts AST-agnostic `DecoratorSource[]` from a TS node; `buildJsDocSources` does the same for JSDoc tags. `readNodeDecorators` is a lightweight read-only variant for the type resolver. Lives in `@trapi/metadata` because it touches the TS compiler.
 - **Layer 2 — Drafts**: `ControllerDraft`/`MethodDraft`/`ParameterDraft` are mutable accumulators. Handlers contribute by mutating; the orchestrator finalises into the public `Controller`/`Method`/`Parameter` types.
-- **Layer 3 — Handlers + Context**: `HandlerContext` exposes `argument(i)`, `arguments()`, `typeArgument(i)`, `parameterType()`, `host`. `JsDocHandlerContext` exposes `source`, `host`, `parameterType()`. Decorator and JSDoc handlers are separate kinds.
+- **Layer 3 — Handlers + Context**: `HandlerContext` exposes `argument(i)`, `arguments()`, `typeArgument(i)`, `parameterType()`, `host`, `decorator` (`name`, optional `location`, used by the throwing `requireArgument`/`requireNumber`/`requireString` readers). `JsDocHandlerContext` exposes `source`, `host`, `parameterType()`. Decorator and JSDoc handlers are separate kinds.
 - **Layer 4 — Helpers**: `into('path').positional(0)`, `append('tags').positionalAll()`, `flag('hidden')`, identity builders (`controller(...)`, `method(...)`).
 - **Layer 5 — Registry**: `Registry` is a flat per-kind list. The orchestrator iterates it for each TS node.
-- **Layer 6 — Preset**: declarative `{ name, extends, controllers, methods, parameters, controllerJsDoc, methodJsDoc, parameterJsDoc }`.
+- **Layer 6 — Preset**: declarative `{ name, extends, controllers, methods, parameters, controllerJsDoc, methodJsDoc, parameterJsDoc, finalizeMethod?, finalizeController? }`; the `Registry` collects the hooks as optional `methodFinalizers` / `controllerFinalizers`.
 
 **Locked design decisions** (Q1–Q10, see `.agents/plans/000-decorator-redesign.md`):
 
@@ -188,7 +188,7 @@ The metadata package includes an optional cache layer keyed on a composite SHA-2
 1. **`CACHE_SCHEMA_VERSION`** — manually bumped whenever the on-disk shape changes (`Controller`/`Method`/`Parameter`/resolver type nodes/cache wrapper).
 2. **Source files** — file path + full text of every non-ignored source file in the TypeScript program. Catches any edit including same-length identifier renames.
 3. **Compiler options** — stable JSON of `program.getCompilerOptions()`. Catches `tsconfig.json` changes (`target`, `strict`, `paths`, `jsx`, …).
-4. **Resolved registry** — handler `match` / `marker` / `replaces` / `apply.toString()` for every kind. Catches local preset edits, preset upgrades, `extends`-chain changes.
+4. **Resolved registry** — handler `match` / `marker` / `replaces` / `apply.toString()` for every kind, plus each finalizer's `toString()`. Catches local preset edits, preset upgrades, `extends`-chain changes.
 5. **Preset name** — included verbatim for fast attribution.
 
 The five parts are null-separated and folded into one sha256 hex digest (`composeCacheKey`). On a hit, controller and type-resolution work is skipped; the source-file walk that feeds the source-files hash still runs (it has to, to compute the key). Preset loading also runs on every call (even before the cache check) so its registry can contribute to the key — intentional, one `require` of cost.

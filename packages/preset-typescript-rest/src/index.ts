@@ -12,7 +12,9 @@ import {
     controller,
     method,
     parameter,
+    readNumber,
     readString,
+    requireArgument,
     setControllerPaths,
     setMethodPath,
 } from '@trapi/core';
@@ -107,15 +109,14 @@ const paramHandlerEntry = paramHandler('Param', ParamKind.QueryProp);
 const methodDescription = method({
     match: { name: 'Description', on: 'method' },
     apply: (ctx, draft) => {
-        const statusArg = ctx.argument(0);
-        let status = '200';
-
-        if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'string') {
-            status = statusArg.raw;
-        } else if (statusArg?.kind === 'literal' && typeof statusArg.raw === 'number') {
-            status = String(statusArg.raw);
-        }
-
+        // An absent status means 200; one that is present but unresolvable
+        // fails generation rather than being documented under the wrong code.
+        const status = String(requireArgument(
+            ctx,
+            0,
+            (arg) => readString(arg) ?? readNumber(arg),
+            'a status code (string or number)',
+        ) ?? '200');
         const descriptionArg = ctx.argument(1);
         const description = descriptionArg?.kind === 'literal' && typeof descriptionArg.raw === 'string' ?
             descriptionArg.raw :

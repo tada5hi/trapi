@@ -11,6 +11,7 @@ Decorator handlers receive a `HandlerContext` as the first argument to `apply`:
 ```typescript
 type HandlerContext = {
     host: { name: string; parentName?: string };
+    decorator: { name: string; location?: { file: string; line: number } };
     argument: (index: number) => DecoratorArgument | undefined;
     arguments: () => DecoratorArgument[];
     typeArgument: (index: number) => DecoratorTypeArgument | undefined;
@@ -32,6 +33,8 @@ type DecoratorTypeArgument = {
 | --- | --- | --- |
 | `host.name` | class / method / parameter name as written in source | always defined |
 | `host.parentName` | enclosing class name | populated for method and parameter handlers |
+| `decorator.name` | the decorator name as written in source | lets a handler name the decorator in an error message |
+| `decorator.location` | `file` and 1-based `line` of the decorator | set when the source file is available |
 | `argument(i)` | the `i`-th positional argument | `undefined` if the user wrote fewer args |
 | `arguments()` | every positional argument | use for spread-like semantics (`@Tags('a','b','c')`) |
 | `typeArgument(i)` | the `i`-th generic type argument as a lazy resolver | `.resolve()` triggers the TS type checker — only call when needed |
@@ -139,10 +142,82 @@ method({
 
 - The value is one three-digit HTTP status code (`201`, `202`, `204`). Anything else (a range such as `2XX`, an empty string, `'undefined'` from a missing argument) fails generation with `GENERATOR_SUCCESS_STATUS_INVALID`.
 - A response a handler pushed at the same status keeps its description, schema and examples; it receives the return type as its schema only when it declares none, and the `draft.defaultResponseExamples` (`@Example`) only when it has no examples of its own.
-- The generated response is described as `Ok` (`No content` for a `void` method) whatever the status. To describe it, declare the description at that status with the preset's description decorator, for example `@Status(201)` with `@Description(201, 'The user was created.')`: the return type fills that response's schema.
+- The generated response is described by the status's HTTP reason phrase (`201` → `Created`, `202` → `Accepted`, …), except `200` → `Ok` and `204` → `No content`; a status without a registered phrase reads `Ok`. To describe it yourself, declare the description at that status with the preset's description decorator, for example `@Status(201)` with `@Description(201, 'The user was created.')`: the return type fills that response's schema.
+- `204`, `205` and `304` carry no body: under one of them the generated response has no schema whatever the return type, and a handler response at that status is not given one. `Method.type` still holds the real return type.
 - Other handler responses (`400`, `500`, …) stay as they are. A `200` declared on the method, on the controller or document-wide (`data.responses` of `@trapi/swagger`) still appears on a method with another success status: the implicit `200` no longer covers it. A method's own response still wins over a document response at the same status.
 - When two handlers set the field, the last one wins.
-- Without `successStatus` the output is unchanged: the return type stays under `200`/`204`, and a handler response at `200` keeps whatever schema it declared.
+- Without `successStatus` the return type stays under `200`/`204`, described as `Ok`/`No content`, and a handler response at `200` keeps whatever schema it declared.
+
+### Success media types
+
+`draft.produces` applies to every response of the operation. `draft.successProduces` scopes media types to the response that carries the return type — a route that streams a PDF on success but answers errors as JSON:
+
+```typescript
+import { method, readStringOrStringArray } from '@trapi/core';
+
+// @SuccessProduces('application/pdf') — only the success response is a PDF
+method({
+    match: { name: 'SuccessProduces', on: 'method' },
+    apply: (ctx, draft) => {
+        const types = readStringOrStringArray(ctx.argument(0));
+
+        if (types) {
+            draft.successProduces.push(...types);
+        }
+    },
+});
+```
+
+- `ControllerDraft.successProduces` covers every method of the controller, inherited base-class methods included. A method with a non-empty list of its own uses that list instead of the controller's; the two are not merged.
+- The list becomes the `produces` of the response at the success status: the generated one, or a handler response at that status that declares no `produces` of its own.
+- A response without a body gets no media types: the generated `204` of a `void` method, an explicit `successStatus` of `204`, `205` or `304`, or a handler response that ends up without a schema.
+- OpenAPI 3.x emits the list as the content types of that one response. Swagger 2.0 has media types only per operation: when the operation declares no `produces` of its own, the response's list becomes the operation's and so applies to every response.
+
+## Finalize hooks
+
+A handler sees the draft as the handlers before it left it. When decorators depend on each other (a status decorator that changes what a produces decorator means, a returns decorator that is only valid on a non-`void` method), a preset reconciles them once, after every handler ran:
+
+```typescript
+type Preset = {
+    // …
+    finalizeMethod?: (ctx: MethodFinalizeContext, draft: MethodDraft) => void;
+    finalizeController?: (ctx: ControllerFinalizeContext, draft: ControllerDraft) => void;
+};
+
+type MethodFinalizeContext = {
+    host: { name: string; parentName?: string };
+    returnType: () => Type;
+};
+
+type ControllerFinalizeContext = {
+    host: { name: string; parentName?: string };
+};
+```
+
+```typescript
+const preset: Preset = {
+    name: 'my-app/preset',
+    methods: [/* … */],
+    finalizeMethod: (ctx, draft) => {
+        // A method returning a Buffer streams octets, unless a decorator chose its media types.
+        if (draft.successProduces.length === 0 && ctx.returnType().typeName === 'buffer') {
+            draft.successProduces.push('application/octet-stream');
+        }
+    },
+};
+```
+
+- `finalizeMethod` runs once per route method — a verb was set and the method is not hidden — after its decorator and JSDoc handlers, and before the success status is checked and the default response is built. A finalizer that hides the method or clears `draft.verb` removes it from the controller.
+- `ctx.returnType()` resolves the method's return type at most once: repeated calls and the default response built afterwards share the result.
+- `finalizeController` runs only for a class a controller handler claimed (`draft.paths` set), after its decorator and JSDoc handlers and before its methods are generated, so it cannot see the methods. A finalizer that unsets `draft.paths` drops the class as a controller.
+- Along an `extends` chain the parents' finalizers run first, then the preset's own, then those of an inline `registry`. A preset reached through more than one `extends` path contributes its finalizer once. Finalizers are always additive: there is no `replaces` for them.
+- A throwing finalizer fails generation, like a throwing handler.
+
+Things to know:
+
+- Resolving a type registers every named type it reaches in the document's schemas. Call `ctx.returnType()` only once the method is known to stay visible: a method the finalizer hides afterwards still leaves its return type's named types in the schemas. The same holds for a return type documented under a no-content status (`204`, `205`, `304`): no response references it, but its named types are still in the schemas.
+- A method finalizer runs before the parts derived from the method signature are added. The method's leading JSDoc comment still wins over `draft.description`, and the parameters derived from the signature are not on the draft; only handler-contributed ones are.
+- The strict readers (`requireArgument`, `requireNumber`, `requireString`) name the decorator from `ctx.decorator`. A hand-built `HandlerContext` without it reports the decorator as `<unknown>`; build test contexts with `createHandlerContext` instead.
 
 ## `replaces` semantics
 
@@ -248,7 +323,7 @@ Lower-level helpers that handle the common `kind` checks:
 | Helper | Accepts | Returns |
 | --- | --- | --- |
 | `readString(arg)` | `'literal'` string, `'identifier'` resolving to string | `string \| undefined` |
-| `readNumber(arg)` | `'literal'` number | `number \| undefined` |
+| `readNumber(arg)` | `'literal'` number, `'identifier'` resolving to number (a `const`, a numeric enum member, an `as const` member) | `number \| undefined` |
 | `readBoolean(arg)` | `'literal'` boolean | `boolean \| undefined` |
 | `readStringOrStringArray(arg)` | string literal/identifier OR array of all-strings | `string[] \| undefined` |
 
@@ -261,6 +336,45 @@ parameter({
         const name = readString(ctx.argument(0));
         draft.in = ParamKind.Header;
         if (name) draft.name = name;
+    },
+});
+```
+
+### Strict readers
+
+The readers above return `undefined` both for a missing argument and for one they cannot read, so a handler that falls back to a default documents `@Status(computeStatus())` as if it had no argument. The strict readers tell the two apart:
+
+```typescript
+function requireArgument<T>(
+    ctx: HandlerContext,
+    index: number,
+    read: (arg: DecoratorArgument) => T | undefined,
+    expected: string,
+): T | undefined;
+
+function requireNumber(ctx: HandlerContext, index: number): number | undefined;
+function requireString(ctx: HandlerContext, index: number): string | undefined;
+```
+
+They return `undefined` when the argument is absent and the value when `read` produces one. When the argument is present but `read` returns `undefined`, they throw a `CoreError` with code `DECORATOR_ARGUMENT_INVALID`. The message names the decorator, the argument index, the expected shape, `Class.method`, and `file:line` when the location is known. `requireNumber` and `requireString` wrap `readNumber` and `readString`.
+
+```typescript
+import { method, readNumber, readString, requireArgument } from '@trapi/core';
+
+// @Status(201), @Status('201'), @Status(HttpStatus.Created)
+method({
+    match: { name: 'Status', on: 'method' },
+    apply: (ctx, draft) => {
+        const status = requireArgument(
+            ctx,
+            0,
+            (arg) => readString(arg) ?? readNumber(arg),
+            'a status code (string or number)',
+        );
+
+        if (status !== undefined) {
+            draft.successStatus = String(status);
+        }
     },
 });
 ```
@@ -345,7 +459,7 @@ For programmatic wiring (custom generators, fixture-driven tests, ad-hoc handler
 function createRegistry(input?: Partial<Registry>): Registry;
 ```
 
-Build a `Registry`, optionally seeded with handler arrays. Any kind omitted from `input` falls back to an empty array. The provided arrays are copied — mutating the result does not affect `input`.
+Build a `Registry`, optionally seeded with handler arrays and the finalizer arrays `methodFinalizers` / `controllerFinalizers`. Any kind omitted from `input` falls back to an empty array. The provided arrays are copied — mutating the result does not affect `input`.
 
 ```typescript
 import { createRegistry, method } from '@trapi/core';
@@ -365,7 +479,7 @@ await generateMetadata({ entryPoint: 'src/**/*.ts', registry });
 function mergeRegistries(a: Registry, b: Registry): Registry;
 ```
 
-Concatenate two registries kind-by-kind. Earlier handlers run first inside the orchestrator, so callers wanting override-by-running-later semantics should pass the dominant registry as `b`.
+Concatenate two registries kind-by-kind, finalizers included. Earlier handlers run first inside the orchestrator, so callers wanting override-by-running-later semantics should pass the dominant registry as `b`.
 
 ### `validatePreset(input)`
 
@@ -453,4 +567,4 @@ expect(draft.paths).toEqual(['/users']);
 | `objectArg(obj)` | `{ kind: 'object', raw: obj }` |
 | `unresolvableArg()` | `{ kind: 'unresolvable', raw: undefined }` |
 | `typeArg(type)` | `{ resolve: () => type }` |
-| `createHandlerContext({ host?, args?, typeArgs?, parameterType? })` | a `HandlerContext` |
+| `createHandlerContext({ host?, args?, typeArgs?, parameterType?, decorator? })` | a `HandlerContext` (`decorator` defaults to `{ name: 'Test' }`) |

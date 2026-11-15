@@ -83,12 +83,25 @@ export class ControllerGenerator implements IControllerGenerator {
             return null;
         }
 
+        // Only for a claimed controller (never for every class in the
+        // program), and before paths are normalised and methods generated, so
+        // the finalizer settles the state both build on.
+        for (const finalize of this.current.registry.controllerFinalizers ?? []) {
+            finalize({ host: options.host }, draft);
+        }
+
+        // A finalizer may have un-claimed the class, as no handler did.
+        if (draft.paths === undefined) {
+            return null;
+        }
+
         // Normalize and dedupe — a user passing `@Controller(['/roles', '/roles'])`
         // (or paths that collide after normalization) shouldn't produce duplicate
         // OpenAPI path keys downstream.
         const normalized = (draft.paths.length === 0 ? [''] : draft.paths).map(normalizePath);
         const paths = [...new Set(normalized)];
-        const methods = this.buildMethods(paths);
+        // `?? []`: the type requires the list, but a finalizer may unset it.
+        const methods = this.buildMethods(paths, draft.successProduces ?? []);
 
         return {
             consumes: draft.consumes,
@@ -118,7 +131,7 @@ export class ControllerGenerator implements IControllerGenerator {
         };
     }
 
-    protected buildMethods(controllerPaths: string[]): Method[] {
+    protected buildMethods(controllerPaths: string[], successProduces: string[] = []): Method[] {
         const set = new Set<string>();
         const output: Method[] = [];
 
@@ -135,7 +148,7 @@ export class ControllerGenerator implements IControllerGenerator {
                 continue;
             }
 
-            const method = generator.generate(controllerPaths);
+            const method = generator.generate(controllerPaths, successProduces);
 
             if (!method) {
                 continue;
@@ -157,7 +170,7 @@ export class ControllerGenerator implements IControllerGenerator {
             }
 
             try {
-                const method = generator.generate(controllerPaths);
+                const method = generator.generate(controllerPaths, successProduces);
 
                 if (!method) {
                     continue;

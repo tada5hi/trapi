@@ -37,6 +37,7 @@ export function buildHandlerContext(
 ): HandlerContext {
     return {
         host: source.host,
+        decorator: { name: source.name, location: source.location },
         argument: (i) => source.arguments[i],
         arguments: () => source.arguments,
         typeArgument: (i) => source.typeArguments[i],

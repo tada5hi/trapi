@@ -42,6 +42,18 @@ export type DecoratorHost = {
     parentName?: string;
 };
 
+/**
+ * The decorator a handler is running for, so a handler (or a strict reader
+ * such as `requireNumber`) can name it in an error message.
+ */
+export type DecoratorInfo = {
+    name: string;
+    location?: {
+        file: string;
+        line: number;
+    };
+};
+
 export type DecoratorSource = {
     name: string;
     arguments: DecoratorArgument[];
@@ -100,6 +112,12 @@ export type ControllerDraft = {
     responses: Response[];
     security: Security[];
     extensions: Extension[];
+    /**
+     * Media types of the response that carries the return type, for every
+     * method of the controller that declares none of its own (a method's
+     * non-empty `successProduces` overrides this list, it does not merge).
+     */
+    successProduces: string[];
 };
 
 export type MethodDraft = {
@@ -155,6 +173,12 @@ export type MethodDraft = {
      * implicit `200`.
      */
     successStatus?: string;
+    /**
+     * Media types of the response that carries the method's return type —
+     * unlike `produces`, which applies to every response of the operation.
+     * Empty falls back to the controller's `successProduces`.
+     */
+    successProduces: string[];
 };
 
 export type ParameterDraft = {
@@ -182,6 +206,7 @@ export type ParameterDraft = {
 
 export type HandlerContext = {
     host: DecoratorHost;
+    decorator: DecoratorInfo;
     argument: (index: number) => DecoratorArgument | undefined;
     arguments: () => DecoratorArgument[];
     typeArgument: (index: number) => DecoratorTypeArgument | undefined;
@@ -261,6 +286,36 @@ export type AnyDecoratorHandler = ControllerHandler | MethodHandler | ParameterH
 export type AnyJsDocHandler = ControllerJsDocHandler | MethodJsDocHandler | ParameterJsDocHandler;
 
 // -----------------------------------------------------------------------------
+// Finalizer (Layer 3)
+// -----------------------------------------------------------------------------
+
+export type MethodFinalizeContext = {
+    host: DecoratorHost;
+    /**
+     * The method's resolved return type. Lazy, so a finalizer that does not
+     * need it costs no type resolution.
+     */
+    returnType: () => Type;
+};
+
+export type ControllerFinalizeContext = {
+    host: DecoratorHost;
+};
+
+/**
+ * Runs once per method draft after every decorator and JSDoc handler, so a
+ * preset whose decorators depend on each other can reconcile the final state.
+ * Takes `(ctx, draft)`, in the order handlers' `apply` does.
+ */
+export type MethodFinalizer = (ctx: MethodFinalizeContext, draft: MethodDraft) => void;
+
+/**
+ * Runs once per controller draft after every decorator and JSDoc handler.
+ * Takes `(ctx, draft)`, in the order handlers' `apply` does.
+ */
+export type ControllerFinalizer = (ctx: ControllerFinalizeContext, draft: ControllerDraft) => void;
+
+// -----------------------------------------------------------------------------
 // Preset & Registry (Layer 6)
 // -----------------------------------------------------------------------------
 
@@ -273,6 +328,8 @@ export type Preset = {
     controllerJsDoc?: ControllerJsDocHandler[];
     methodJsDoc?: MethodJsDocHandler[];
     parameterJsDoc?: ParameterJsDocHandler[];
+    finalizeMethod?: MethodFinalizer;
+    finalizeController?: ControllerFinalizer;
 };
 
 export type Registry = {
@@ -282,6 +339,9 @@ export type Registry = {
     controllerJsDoc: ControllerJsDocHandler[];
     methodJsDoc: MethodJsDocHandler[];
     parameterJsDoc: ParameterJsDocHandler[];
+    // Optional so hand-built `Registry` literals keep compiling; read with `?? []`.
+    methodFinalizers?: MethodFinalizer[];
+    controllerFinalizers?: ControllerFinalizer[];
 };
 
 // -----------------------------------------------------------------------------
@@ -300,4 +360,5 @@ export type CreateHandlerContextInput = {
     typeArgs?: DecoratorTypeArgument[];
     host?: DecoratorHost;
     parameterType?: Type;
+    decorator?: DecoratorInfo;
 };

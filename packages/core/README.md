@@ -45,8 +45,8 @@ If you only consume metadata or generate OpenAPI specs, install `@trapi/metadata
 |---|---|
 | **IR vocabulary** | `Type` union (`StringType`, `ObjectType`, `RefAliasType`, …), `Controller`, `Method`, `Parameter`, `Validator`, `Extension`, `Example`, `Response`, `Security`, all `is*Type` guards |
 | **Constants** | `TypeName`, `ParameterSource`, `CollectionFormat`, `MethodName`, `ValidatorName`, `MarkerName`, `ParamKind`, `DecoratorTargetKind` |
-| **Decorator/preset contract** | `Preset`, `Registry`, `ControllerHandler`, `MethodHandler`, `ParameterHandler`, JsDoc handler variants, `HandlerContext`, `JsDocHandlerContext`, `DecoratorSource`, `JsDocSource`, `ResolverMarker`, `UnmatchedDecoratorReport` |
-| **Authoring helpers** | `controller(...)`, `method(...)`, `parameter(...)`, `controllerJsDoc(...)`, `methodJsDoc(...)`, `parameterJsDoc(...)`, `into`, `append`, `flag`, `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray`, `setControllerPaths`, `setMethodPath` |
+| **Decorator/preset contract** | `Preset`, `Registry`, `ControllerHandler`, `MethodHandler`, `ParameterHandler`, JsDoc handler variants, `MethodFinalizer`, `ControllerFinalizer`, `HandlerContext`, `JsDocHandlerContext`, `DecoratorSource`, `JsDocSource`, `ResolverMarker`, `UnmatchedDecoratorReport` |
+| **Authoring helpers** | `controller(...)`, `method(...)`, `parameter(...)`, `controllerJsDoc(...)`, `methodJsDoc(...)`, `parameterJsDoc(...)`, `into`, `append`, `flag`, `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray`, `requireArgument`, `requireNumber`, `requireString`, `setControllerPaths`, `setMethodPath` |
 | **Loader / validator** | `loadRegistry`, `loadRegistryByName`, `resolvePresetByName`, `validatePreset`, `createRegistry`, `mergeRegistries`, `presetSchema` (and per-kind handler schemas) |
 | **Marker lookups** | `namesForMarker`, `tagsForMarker`, `isHiddenMarker`, `isExtensionMarker`, `isDeprecatedMarker`, `numericMarkerKind` |
 | **Errors** | `CoreError`, `CoreErrorCode`, `isCoreError` |

@@ -104,6 +104,13 @@ export const parameterJsDocHandlerSchema = z.object({
     ...handlerBaseShape,
 });
 
+function finalizerSchema(field: string) {
+    return z.custom<(...args: unknown[]) => unknown>(
+        (value) => typeof value === 'function',
+        { message: `${field} must be a function` },
+    );
+}
+
 export const presetSchema = z.object({
     name: z.string().min(1),
     extends: z.array(z.string().min(1)).optional(),
@@ -113,6 +120,8 @@ export const presetSchema = z.object({
     controllerJsDoc: z.array(controllerJsDocHandlerSchema).optional(),
     methodJsDoc: z.array(methodJsDocHandlerSchema).optional(),
     parameterJsDoc: z.array(parameterJsDocHandlerSchema).optional(),
+    finalizeMethod: finalizerSchema('finalizeMethod').optional(),
+    finalizeController: finalizerSchema('finalizeController').optional(),
 });
 
 export function createPresetContainer(): Container<Preset> {
@@ -126,6 +135,8 @@ export function createPresetContainer(): Container<Preset> {
     container.mount('controllerJsDoc', { optional: true }, createValidator(presetSchema.shape.controllerJsDoc));
     container.mount('methodJsDoc', { optional: true }, createValidator(presetSchema.shape.methodJsDoc));
     container.mount('parameterJsDoc', { optional: true }, createValidator(presetSchema.shape.parameterJsDoc));
+    container.mount('finalizeMethod', { optional: true }, createValidator(presetSchema.shape.finalizeMethod));
+    container.mount('finalizeController', { optional: true }, createValidator(presetSchema.shape.finalizeController));
 
     return container;
 }

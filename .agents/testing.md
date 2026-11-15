@@ -58,7 +58,10 @@ packages/metadata/test/
 │   │   ├── conditional-types.spec.ts # Conditional and mapped type resolution
 │   │   ├── utility-types.spec.ts     # Partial/Pick/Omit/Record/NonNullable/... coverage
 │   │   ├── never-type.spec.ts        # never in returns, unions, and exhaustive checks
-│   │   └── error-paths.spec.ts       # Invalid inputs, empty metadata, edge cases
+│   │   ├── error-paths.spec.ts       # Invalid inputs, empty metadata, edge cases
+│   │   ├── finalize.spec.ts          # Finalizer order (preset, extends, inline registry), cache
+│   │   ├── success-response.spec.ts  # successProduces, no-content statuses, reason phrases
+│   │   └── description-status.spec.ts # Preset @Description status resolution
 │   ├── resolver/
 │   └── utils/
 └── data/         # Test fixtures (controller files with decorators)
@@ -150,4 +153,5 @@ The following test files use inline metadata to verify OpenAPI compliance:
 | `content-types.spec.ts` | Consumes/produces resolution: method, controller cascade, document defaults, form-data |
 | `metadata-immutability.spec.ts` | Emission leaves `Metadata` byte-identical; repeated and cross-version emission from one object is stable; the `@BodyProp` merge runs once per operation rather than accumulating across mounts |
 | `body-bodyprop-named-type.spec.ts` | `@Body` of a non-object-literal type plus `@BodyProp` keeps both halves: V3 composes with `allOf` (refObject, refAlias, `any`, `object`), V2 flattens a refObject (through `referenceTypes`, with full property/model annotation fidelity) or an alias chain onto one; an intersection or an open `any`/`object` body is also flattened — `getSchemaForIntersectionType` carries `required` across but not per-member property annotations. A `refObject` body rejects in both emitters if its `refName` has no matching (or a wrong-kind) `referenceTypes` entry, rather than V3 composing a dangling/wrong `$ref`. A body with no object shape at all (scalar, array, **union**, alias over any of them, **cyclic alias**) is rejected by both emitters with `SWAGGER_BODY_PROP_TYPE_CONFLICT` rather than emitting an unsatisfiable schema or losing a half. Every case is asserted for both emitters — the V2/V3 parity is the point |
+| `success-response.spec.ts` | A schema-less `204` emits no body (V2/V3/V3.1); a `200` with its own `produces` next to a `409`: V3 scopes it per response, V2 lists it operation-wide |
 | `v2-parameter-types.spec.ts` | Swagger 2.0 non-body parameters carry an inline `type`: `refEnum`/`refAlias` dereferenced, cyclic aliases guarded, `object`/unmodellable shapes floored to `string`, body parameters keep their `$ref` |

@@ -14,6 +14,8 @@ type Preset = {
     controllerJsDoc?: ControllerJsDocHandler[];
     methodJsDoc?: MethodJsDocHandler[];
     parameterJsDoc?: ParameterJsDocHandler[];
+    finalizeMethod?: MethodFinalizer;      // (ctx, draft) — once per route method, after its handlers
+    finalizeController?: ControllerFinalizer; // (ctx, draft) — once per claimed controller, after its handlers
 };
 ```
 

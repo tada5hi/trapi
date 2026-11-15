@@ -160,4 +160,29 @@ describe('validatePreset', () => {
 
         await expect(validatePreset(preset)).resolves.toMatchObject({ name: 'good-preset' });
     });
+
+    it('accepts finalize functions', async () => {
+        const finalizeMethod = () => { /* no-op */ };
+        const finalizeController = () => { /* no-op */ };
+        const result = await validatePreset({
+            name: 'p',
+            finalizeMethod,
+            finalizeController,
+        });
+
+        expect(result.finalizeMethod).toBe(finalizeMethod);
+        expect(result.finalizeController).toBe(finalizeController);
+    });
+
+    it('rejects a non-function finalizeMethod', async () => {
+        const preset = { name: 'bad-preset', finalizeMethod: 'not-a-fn' };
+
+        await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
+    });
+
+    it('rejects a non-function finalizeController', async () => {
+        const preset = { name: 'bad-preset', finalizeController: 42 };
+
+        await expect(validatePreset(preset)).rejects.toSatisfy((err) => isValidupError(err));
+    });
 });

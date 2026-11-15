@@ -180,8 +180,8 @@ A handler sees the draft as the handlers before it left it. When decorators depe
 ```typescript
 type Preset = {
     // …
-    finalizeMethod?: (draft: MethodDraft, ctx: MethodFinalizeContext) => void;
-    finalizeController?: (draft: ControllerDraft, ctx: ControllerFinalizeContext) => void;
+    finalizeMethod?: (ctx: MethodFinalizeContext, draft: MethodDraft) => void;
+    finalizeController?: (ctx: ControllerFinalizeContext, draft: ControllerDraft) => void;
 };
 
 type MethodFinalizeContext = {
@@ -198,7 +198,7 @@ type ControllerFinalizeContext = {
 const preset: Preset = {
     name: 'my-app/preset',
     methods: [/* … */],
-    finalizeMethod: (draft, ctx) => {
+    finalizeMethod: (ctx, draft) => {
         // A method returning a Buffer streams octets, unless a decorator chose its media types.
         if (draft.successProduces.length === 0 && ctx.returnType().typeName === 'buffer') {
             draft.successProduces.push('application/octet-stream');
@@ -212,6 +212,12 @@ const preset: Preset = {
 - `finalizeController` runs only for a class a controller handler claimed (`draft.paths` set), after its decorator and JSDoc handlers and before its methods are generated, so it cannot see the methods.
 - Along an `extends` chain the parents' finalizers run first, then the preset's own, then those of an inline `registry`. Finalizers are always additive: there is no `replaces` for them.
 - A throwing finalizer fails generation, like a throwing handler.
+
+Things to know:
+
+- Resolving a type registers every named type it reaches in the document's schemas. Call `ctx.returnType()` only once the method is known to stay visible: a method the finalizer hides afterwards still leaves its return type's named types in the schemas. The same holds for a return type documented under a no-content status (`204`, `205`, `304`): no response references it, but its named types are still in the schemas.
+- A method finalizer runs before the parts derived from the method signature are added. The method's leading JSDoc comment still wins over `draft.description`, and the parameters derived from the signature are not on the draft; only handler-contributed ones are.
+- The strict readers (`requireArgument`, `requireNumber`, `requireString`) name the decorator from `ctx.decorator`. A hand-built `HandlerContext` without it reports the decorator as `<unknown>`; build test contexts with `createHandlerContext` instead.
 
 ## `replaces` semantics
 

@@ -143,7 +143,7 @@ A preset can also reconcile a method or controller once every handler has run, t
 const preset: Preset = {
     name: 'my-app/preset',
     extends: ['@trapi/preset-decorators-express'],
-    finalizeMethod: (draft, ctx) => {
+    finalizeMethod: (ctx, draft) => {
         if (draft.successProduces.length === 0 && ctx.returnType().typeName === 'buffer') {
             draft.successProduces.push('application/pdf');
         }

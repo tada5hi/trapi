@@ -222,6 +222,20 @@ type Preset = {
     controllerJsDoc?: ControllerJsDocHandler[];
     methodJsDoc?: MethodJsDocHandler[];
     parameterJsDoc?: ParameterJsDocHandler[];
+    finalizeMethod?: MethodFinalizer;
+    finalizeController?: ControllerFinalizer;
+};
+
+type MethodFinalizer = (ctx: MethodFinalizeContext, draft: MethodDraft) => void;
+type ControllerFinalizer = (ctx: ControllerFinalizeContext, draft: ControllerDraft) => void;
+
+type MethodFinalizeContext = {
+    host: { name: string; parentName?: string };
+    returnType: () => Type;            // resolved lazily, at most once
+};
+
+type ControllerFinalizeContext = {
+    host: { name: string; parentName?: string };
 };
 
 type Match = { name: string; on?: 'class' | 'method' | 'parameter' };
@@ -229,6 +243,10 @@ type JsDocMatch = { tag: string; on?: 'class' | 'method' | 'parameter' };
 
 type HandlerContext = {
     host: { name: string; parentName?: string };
+    decorator: {                       // the decorator being handled
+        name: string;
+        location?: { file: string; line: number };
+    };
     argument: (i: number) => DecoratorArgument | undefined;
     arguments: () => DecoratorArgument[];
     typeArgument: (i: number) => DecoratorTypeArgument | undefined;
@@ -257,6 +275,8 @@ type Registry = {
     controllerJsDoc: ControllerJsDocHandler[];
     methodJsDoc: MethodJsDocHandler[];
     parameterJsDoc: ParameterJsDocHandler[];
+    methodFinalizers?: MethodFinalizer[];        // read as `[]` when absent
+    controllerFinalizers?: ControllerFinalizer[];
 };
 ```
 

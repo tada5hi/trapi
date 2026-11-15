@@ -141,7 +141,7 @@ method({
 ```
 
 - The value is one three-digit HTTP status code (`201`, `202`, `204`). Anything else (a range such as `2XX`, an empty string, `'undefined'` from a missing argument) fails generation with `GENERATOR_SUCCESS_STATUS_INVALID`.
-- A response a handler pushed at the same status keeps its description, schema and examples; it receives the return type as its schema only when it declares none, and the `draft.defaultResponseExamples` (`@Example`) only when it has no examples of its own.
+- A response a handler pushed at the same status keeps its description, schema and examples; it receives the return type as its schema only when it declares none, and the `draft.defaultResponseExamples` (`@Example`) only when it has no examples of its own. When handlers pushed several responses at that status, the last one receives them: it is the one the generated document keeps.
 - The generated response is described by the status's HTTP reason phrase (`201` → `Created`, `202` → `Accepted`, …), except `200` → `Ok` and `204` → `No content`; a status without a registered phrase reads `Ok`. To describe it yourself, declare the description at that status with the preset's description decorator, for example `@Status(201)` with `@Description(201, 'The user was created.')`: the return type fills that response's schema.
 - `204`, `205` and `304` carry no body: under one of them the generated response has no schema whatever the return type, and a handler response at that status is not given one. `Method.type` still holds the real return type.
 - Other handler responses (`400`, `500`, …) stay as they are. A `200` declared on the method, on the controller or document-wide (`data.responses` of `@trapi/swagger`) still appears on a method with another success status: the implicit `200` no longer covers it. A method's own response still wins over a document response at the same status.
@@ -210,7 +210,7 @@ const preset: Preset = {
 - `finalizeMethod` runs once per route method — a verb was set and the method is not hidden — after its decorator and JSDoc handlers, and before the success status is checked and the default response is built. A finalizer that hides the method or clears `draft.verb` removes it from the controller.
 - `ctx.returnType()` resolves the method's return type at most once: repeated calls and the default response built afterwards share the result.
 - `finalizeController` runs only for a class a controller handler claimed (`draft.paths` set), after its decorator and JSDoc handlers and before its methods are generated, so it cannot see the methods. A finalizer that unsets `draft.paths` drops the class as a controller.
-- Along an `extends` chain the parents' finalizers run first, then the preset's own, then those of an inline `registry`. A preset reached through more than one `extends` path contributes its finalizer once. Finalizers are always additive: there is no `replaces` for them.
+- Along an `extends` chain the parents' finalizers run first, then the preset's own, then those of an inline `registry`. A preset reached through more than one `extends` path contributes its handlers and its finalizer once. Finalizers are always additive: there is no `replaces` for them.
 - A throwing finalizer fails generation, like a throwing handler.
 
 Things to know:

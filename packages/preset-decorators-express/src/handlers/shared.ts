@@ -12,7 +12,12 @@ import type {
     MethodDraft,
     ParameterDraft,
 } from '@trapi/core';
-import { append, readNumber, readString } from '@trapi/core';
+import {
+    append,
+    readNumber,
+    readString,
+    requireArgument,
+} from '@trapi/core';
 
 export {
     readNumber,
@@ -36,8 +41,14 @@ export function applyDescriptionToDraft(
     ctx: HandlerContext,
     draft: ControllerDraft | MethodDraft,
 ): void {
-    const statusArg = ctx.argument(0);
-    const status = readString(statusArg) ?? String(readNumber(statusArg) ?? '200');
+    // An absent status means 200; one that is present but unresolvable
+    // fails generation rather than being documented under the wrong code.
+    const status = String(requireArgument(
+        ctx,
+        0,
+        (arg) => readString(arg) ?? readNumber(arg),
+        'a status code (string or number)',
+    ) ?? '200');
     const description = readString(ctx.argument(1)) ?? 'Response';
     const payload = ctx.argument(2);
     const examples = payload && payload.kind !== 'unresolvable' ?

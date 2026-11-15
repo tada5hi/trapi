@@ -9,6 +9,7 @@ import {
     Controller,
     Delete,
     Description,
+    Example,
     Get,
     Post,
     Respond,
@@ -66,6 +67,15 @@ export class SuccessResponseController {
     @Description<string>(200, 'Second')
     @SuccessProduces('application/pdf')
     public respondTwice(): IReport {
+        return { id: '1' };
+    }
+
+    @Post('/declared-twice')
+    @Status(201)
+    @Respond(201, 'First')
+    @Respond(201, 'Second')
+    @Example({ id: '1' })
+    public declaredTwice(): IReport {
         return { id: '1' };
     }
 

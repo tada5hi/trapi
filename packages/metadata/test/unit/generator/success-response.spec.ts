@@ -158,6 +158,26 @@ describe('success response', () => {
             expect(responses[0]!.produces).not.toBe(responses[1]!.produces);
         });
 
+        it('should fill the last handler response declared at the status', () => {
+            const { responses } = own('declaredTwice');
+
+            // Both emitters keep the last response of a status, so that is
+            // the one that has to carry the return type and the examples.
+            expect(responses).toHaveLength(2);
+            expect(responses[0]).toEqual({
+                name: '201',
+                status: '201',
+                description: 'First',
+            });
+            expect(responses[1]).toEqual({
+                name: '201',
+                status: '201',
+                description: 'Second',
+                schema: expect.objectContaining(report),
+                examples: [{ value: { id: '1' } }],
+            });
+        });
+
         it('should apply the controller media types to every method without its own', () => {
             expect(successResponse(xml('xml'))).toMatchObject({ status: '200', produces: ['application/xml'] });
         });

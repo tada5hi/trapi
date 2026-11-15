@@ -365,7 +365,9 @@ function mergeDefaultResponse(
     explicit: boolean,
     successProduces: string[],
 ): Response[] {
-    const target = handlerResponses.find((r) => r.status === defaultResponse.status);
+    // The last one declared at the status: both emitters keep that one when
+    // a status is declared more than once.
+    const target = handlerResponses.filter((r) => r.status === defaultResponse.status).at(-1);
 
     if (!target) {
         attachSuccessProduces(defaultResponse, successProduces);

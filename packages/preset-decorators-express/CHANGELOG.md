@@ -55,6 +55,22 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * peerDependencies
     * @trapi/metadata bumped from 1.2.0 to 1.2.1
 
+## [0.2.12](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.11...preset-decorators-express-v0.2.12) (2026-11-15)
+
+
+### Features
+
+* preset finalize hooks, success media types, strict readers ([#961](https://github.com/tada5hi/trapi/issues/961)) ([78da6da](https://github.com/tada5hi/trapi/commit/78da6da27672d46f9a0ce2a4dd40791f60bff081))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @trapi/core bumped from 2.2.0 to 2.3.0
+  * peerDependencies
+    * @trapi/core bumped from 2.2.0 to 2.3.0
+
 ## [0.2.11](https://github.com/tada5hi/trapi/compare/preset-decorators-express-v0.2.10...preset-decorators-express-v0.2.11) (2026-11-13)
 
 

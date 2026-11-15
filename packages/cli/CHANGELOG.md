@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.3.0](https://github.com/tada5hi/trapi/compare/cli-v2.2.0...cli-v2.3.0) (2026-11-15)
+
+
+### Miscellaneous Chores
+
+* **cli:** Synchronize main versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/metadata bumped from ^2.2.0 to ^2.3.0
+    * @trapi/swagger bumped from ^2.2.0 to ^2.3.0
+
 ## [2.2.0](https://github.com/tada5hi/trapi/compare/cli-v2.1.2...cli-v2.2.0) (2026-11-13)
 
 

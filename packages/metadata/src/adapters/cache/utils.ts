@@ -124,6 +124,22 @@ export function hashRegistry(registry: Registry): string {
         hash.update('\x01');
     }
 
+    // Finalizers carry no match/marker, only their body. Missing arrays (a
+    // hand-built `Registry` literal) hash like empty ones.
+    const finalizerKinds = ['methodFinalizers', 'controllerFinalizers'] as const;
+
+    for (const kind of finalizerKinds) {
+        hash.update(kind);
+        hash.update('\0');
+
+        for (const finalizer of registry[kind] ?? []) {
+            hash.update(finalizer.toString());
+            hash.update('\0');
+        }
+
+        hash.update('\x01');
+    }
+
     return hash.digest('hex');
 }
 

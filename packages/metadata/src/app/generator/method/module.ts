@@ -25,6 +25,7 @@ import type {
     Method,
     Parameter,
     Response,
+    Type,
 } from '@trapi/core';
 import {
     type ApplyHandlersOptions,
@@ -42,6 +43,7 @@ import {
 import { normalizePath } from '../../../core/utils';
 import type { IGeneratorContext } from '../../../core/metadata/types';
 import { ParameterGenerator } from '../parameter';
+import { HttpReasonPhrase, NO_CONTENT_STATUSES } from './constants';
 
 // One concrete HTTP status code: a success status is never a range, and
 // Swagger 2.0 accepts no range as a response key.
@@ -63,7 +65,7 @@ export class MethodGenerator {
         return identifier.text;
     }
 
-    public generate(controllerPaths: string[]): Method | null {
+    public generate(controllerPaths: string[], controllerSuccessProduces: string[] = []): Method | null {
         const name = this.getMethodName();
         const draft = newMethodDraft({ name });
 
@@ -72,22 +74,39 @@ export class MethodGenerator {
         applyDecoratorHandlers(this.node, this.current.registry.methods, draft, options);
         applyJsDocHandlers(this.node, this.current.registry.methodJsDoc, draft, options);
 
-        // Not a route method (no HTTP verb decorator matched).
+        // Not a route method (no HTTP verb decorator matched), or hidden.
         if ((!draft.verb) || (draft.hidden)) {
             return null;
         }
 
-        // Skip hidden methods entirely (matches v1 behaviour for class member iteration).
+        // Memoised: a finalizer asking for the return type and the default
+        // response below share one resolution.
+        let returnType: Type | undefined;
+        const resolveReturnType = (): Type => {
+            returnType ??= this.resolveReturnType();
 
+            return returnType;
+        };
+
+        for (const finalize of this.current.registry.methodFinalizers ?? []) {
+            finalize(draft, { host: options.host, returnType: resolveReturnType });
+        }
+
+        // A finalizer may have dropped the verb or hidden the method.
+        if ((!draft.verb) || (draft.hidden)) {
+            return null;
+        }
 
         this.assertSuccessStatus(draft.successStatus);
 
-        // Resolve return type.
-        const returnType = this.resolveReturnType();
-
         // Build responses: handler-supplied first, then a derived default that
         // carries any handler-contributed default-response examples.
-        const defaultResponse = buildDefaultResponse(returnType, draft.defaultResponseExamples, draft.successStatus);
+        const defaultResponse = buildDefaultResponse({
+            returnType: resolveReturnType(),
+            examples: draft.defaultResponseExamples,
+            successStatus: draft.successStatus,
+            successProduces: draft.successProduces.length > 0 ? draft.successProduces : controllerSuccessProduces,
+        });
         const responses = mergeDefaultResponse(draft.responses, defaultResponse, draft.successStatus !== undefined);
 
         // Walk parameters. Handler-contributed ones are appended after the
@@ -119,7 +138,7 @@ export class MethodGenerator {
             security: draft.security,
             summary,
             tags: draft.tags,
-            type: returnType,
+            type: resolveReturnType(),
             parameters,
         };
     }
@@ -157,7 +176,7 @@ export class MethodGenerator {
         };
     }
 
-    private resolveReturnType(): BaseType {
+    private resolveReturnType(): Type {
         let nodeType = this.node.type;
 
         if (!nodeType) {
@@ -251,17 +270,53 @@ export class MethodGenerator {
     }
 }
 
-function buildDefaultResponse(returnType: BaseType, examples: Example[], successStatus?: string): Response {
-    const isVoid = isVoidType(returnType);
-    const status = successStatus ?? (isVoid ? '204' : '200');
+type DefaultResponseInput = {
+    returnType: BaseType,
+    examples: Example[],
+    successStatus?: string,
+    successProduces: string[],
+};
 
-    return {
-        description: isVoid ? 'No content' : 'Ok',
-        examples,
-        schema: returnType,
+function buildDefaultResponse(input: DefaultResponseInput): Response {
+    const isVoid = isVoidType(input.returnType);
+    const explicit = input.successStatus !== undefined;
+    const status = input.successStatus ?? (isVoid ? '204' : '200');
+    // Only an explicit no-content status drops the body: an implicit 204 (a
+    // void method) keeps documenting its void schema as it always has.
+    const noContent = explicit && isNoContentStatus(status);
+
+    let description: string;
+
+    if (explicit) {
+        description = describeStatus(status);
+    } else {
+        // Unset: keep the descriptions documents have always carried.
+        description = isVoid ? 'No content' : 'Ok';
+    }
+
+    const response: Response = {
+        description,
+        examples: input.examples,
+        schema: noContent ? undefined : input.returnType,
         status,
         name: status,
     };
+
+    // Set only when there is a body to describe, so a method without
+    // `successProduces` keeps a response without the key.
+    if (input.successProduces.length > 0 && !isVoid && !noContent) {
+        response.produces = [...input.successProduces];
+    }
+
+    return response;
+}
+
+function isNoContentStatus(status: string): boolean {
+    return (NO_CONTENT_STATUSES as readonly string[]).includes(status);
+}
+
+function describeStatus(status: string): string {
+    return (HttpReasonPhrase as Record<string, string>)[status] ?? 'Ok';
 }
 
 /**
@@ -287,8 +342,14 @@ function mergeDefaultResponse(
             target.examples = defaultResponse.examples;
         }
 
-        if (explicit && !target.schema) {
+        // An explicit no-content status leaves `defaultResponse.schema`
+        // unset, so the handler response stays without a body too.
+        if (explicit && !target.schema && defaultResponse.schema) {
             target.schema = defaultResponse.schema;
+        }
+
+        if (defaultResponse.produces && (!target.produces || target.produces.length === 0)) {
+            target.produces = defaultResponse.produces;
         }
 
         return handlerResponses;

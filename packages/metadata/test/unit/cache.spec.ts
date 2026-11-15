@@ -713,5 +713,56 @@ describe('src/cache', () => {
 
             expect(a).not.toEqual(b);
         });
+
+        it('changes when a finalizer is added', () => {
+            const empty = hashRegistry(emptyRegistry);
+
+            expect(hashRegistry({
+                ...emptyRegistry,
+                methodFinalizers: [(draft) => {
+                    draft.successStatus = '201';
+                }],
+            })).not.toEqual(empty);
+            expect(hashRegistry({
+                ...emptyRegistry,
+                controllerFinalizers: [(draft) => {
+                    draft.hidden = true;
+                }],
+            })).not.toEqual(empty);
+        });
+
+        it('changes when a finalizer body changes', () => {
+            const a = hashRegistry({
+                ...emptyRegistry,
+                methodFinalizers: [(draft) => {
+                    draft.successStatus = '201';
+                }],
+            });
+            const b = hashRegistry({
+                ...emptyRegistry,
+                methodFinalizers: [(draft) => {
+                    draft.successStatus = '202';
+                }],
+            });
+
+            expect(a).not.toEqual(b);
+        });
+
+        it('distinguishes a method finalizer from a controller finalizer', () => {
+            const finalize = () => {};
+
+            expect(hashRegistry({ ...emptyRegistry, methodFinalizers: [finalize] }))
+                .not.toEqual(hashRegistry({ ...emptyRegistry, controllerFinalizers: [finalize] }));
+        });
+
+        it('treats missing finalizer arrays as empty ones', () => {
+            const {
+                methodFinalizers: _m,
+                controllerFinalizers: _c,
+                ...withoutFinalizers
+            } = emptyRegistry;
+
+            expect(hashRegistry(withoutFinalizers)).toEqual(hashRegistry(emptyRegistry));
+        });
     });
 });

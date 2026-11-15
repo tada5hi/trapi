@@ -77,6 +77,14 @@ export class ControllerGenerator implements IControllerGenerator {
         applyDecoratorHandlers(this.node, this.current.registry.controllers, draft, options);
         applyJsDocHandlers(this.node, this.current.registry.controllerJsDoc, draft, options);
 
+        // Before the controller check, so a finalizer sees (and may settle) the
+        // state every handler left behind; methods are generated afterwards.
+        // It therefore runs for every named class: `draft.paths` is still
+        // unset on one no controller handler claimed.
+        for (const finalize of this.current.registry.controllerFinalizers ?? []) {
+            finalize(draft, { host: options.host });
+        }
+
         // A class is a controller iff a controller-target handler claimed it
         // (convention: the Controller handler sets `draft.paths` to a non-undefined value).
         if (draft.paths === undefined) {
@@ -88,7 +96,7 @@ export class ControllerGenerator implements IControllerGenerator {
         // OpenAPI path keys downstream.
         const normalized = (draft.paths.length === 0 ? [''] : draft.paths).map(normalizePath);
         const paths = [...new Set(normalized)];
-        const methods = this.buildMethods(paths);
+        const methods = this.buildMethods(paths, draft.successProduces);
 
         return {
             consumes: draft.consumes,
@@ -118,7 +126,7 @@ export class ControllerGenerator implements IControllerGenerator {
         };
     }
 
-    protected buildMethods(controllerPaths: string[]): Method[] {
+    protected buildMethods(controllerPaths: string[], successProduces: string[] = []): Method[] {
         const set = new Set<string>();
         const output: Method[] = [];
 
@@ -135,7 +143,7 @@ export class ControllerGenerator implements IControllerGenerator {
                 continue;
             }
 
-            const method = generator.generate(controllerPaths);
+            const method = generator.generate(controllerPaths, successProduces);
 
             if (!method) {
                 continue;
@@ -157,7 +165,7 @@ export class ControllerGenerator implements IControllerGenerator {
             }
 
             try {
-                const method = generator.generate(controllerPaths);
+                const method = generator.generate(controllerPaths, successProduces);
 
                 if (!method) {
                     continue;

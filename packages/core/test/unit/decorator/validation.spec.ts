@@ -165,9 +165,9 @@ describe('validatePreset', () => {
         const finalizeMethod = () => { /* no-op */ };
         const finalizeController = () => { /* no-op */ };
         const result = await validatePreset({
-            name: 'p', 
-            finalizeMethod, 
-            finalizeController, 
+            name: 'p',
+            finalizeMethod,
+            finalizeController,
         });
 
         expect(result.finalizeMethod).toBe(finalizeMethod);

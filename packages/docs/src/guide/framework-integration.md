@@ -36,6 +36,8 @@ await generateMetadata({
 
 Both framework presets above ship handlers for the TRAPI marker decorators (`@Hidden`, `@Tags`, `@Description`, `@IsInt`, `@Extension`, `@Security`, `@Produces`, `@Consumes`, `@Accept`, `@Deprecated`) and JSDoc tags (`/** @hidden */`, `/** @deprecated */`, `/** @summary */`, …). Each preset is **self-contained** — there is no extends-chain, so no risk of duplicate handler invocations when you author a user preset on top.
 
+The status argument of `@Description(status, description, example?)` may be a literal (`404`, `'404'`) or a constant the compiler can resolve — a `const`, an imported constant, a numeric enum member such as `HttpStatus.NotFound`, or an `as const` member. Without it the response is documented under `200`. A status that is present but cannot be resolved (`@Description(computeStatus(), …)`) fails generation with `DECORATOR_ARGUMENT_INVALID`, naming the decorator, the class or method it decorates and its source location.
+
 You can write the marker decorators inline yourself (they are no-op runtime functions) or copy them from [`examples/decorators/src/decorators.ts`](https://github.com/tada5hi/trapi/tree/master/examples/decorators).
 
 ## Using a Custom Decorator Set
@@ -135,6 +137,22 @@ const preset: Preset = {
 
 By default, parent and child handlers are additive — both decorator names are recognised. To shadow a parent handler, set `replaces: true` (or `replaces: '<parentPresetName>'` to scope the override).
 
+A preset can also reconcile a method or controller once every handler has run, through `finalizeMethod` and `finalizeController`. Along an `extends` chain the parents' finalizers run first, then the preset's own; they are always additive. The example below documents the success response of every method that returns a `Buffer` as a PDF, leaving the media types of its error responses alone:
+
+```typescript
+const preset: Preset = {
+    name: 'my-app/preset',
+    extends: ['@trapi/preset-decorators-express'],
+    finalizeMethod: (draft, ctx) => {
+        if (draft.successProduces.length === 0 && ctx.returnType().typeName === 'buffer') {
+            draft.successProduces.push('application/pdf');
+        }
+    },
+};
+```
+
+See [Finalize hooks](/guide/advanced-handler-reference#finalize-hooks) and [Success media types](/guide/advanced-handler-reference#success-media-types) for when each hook runs and where `successProduces` lands.
+
 ## What TRAPI Does Not Do
 
 - **It does not register routes.** That is your framework's job.
@@ -157,22 +175,24 @@ Pair with [caching](/guide/metadata-caching) to keep repeated runs fast during l
 
 ## Type ownership reference
 
-Wrapper packages typically need to forward types from `@trapi/metadata` and `@trapi/swagger` through their public API. The split is by lifecycle stage — types describing source extraction live in `@trapi/metadata`; types describing OpenAPI emission live in `@trapi/swagger`.
+Wrapper packages typically need to forward types from `@trapi/core`, `@trapi/metadata` and `@trapi/swagger` through their public API. The split is by concern — the framework-neutral metadata shapes and the preset machinery live in `@trapi/core`; types describing TypeScript source extraction live in `@trapi/metadata`; types describing OpenAPI emission live in `@trapi/swagger`.
 
 | Type | Package | What it describes |
 |---|---|---|
-| `Metadata` | `@trapi/metadata` | The full metadata document — controllers, methods, parameters, type references. The output of `generateMetadata()`. |
+| `Metadata` | `@trapi/core` | The full metadata document — controllers, methods, parameters, type references. The output of `generateMetadata()`. |
 | `MetadataGenerateOptions` | `@trapi/metadata` | Input options for `generateMetadata()` — entry point, preset, tsconfig, cache, strict mode. |
-| `Controller`, `Method`, `Parameter` | `@trapi/metadata` | The public, post-orchestrator metadata shapes (mutable drafts have `Draft` suffix and live in the same package). |
-| `Preset`, `Registry` | `@trapi/metadata` | Preset declaration and the flattened post-`extends` form. |
-| `ControllerHandler`, `MethodHandler`, `ParameterHandler` | `@trapi/metadata` | Handler signatures and the `controller(...)` / `method(...)` / `parameter(...)` builders. |
-| `HandlerContext`, `JsDocHandlerContext` | `@trapi/metadata` | What a handler's `apply` callback receives — `argument(i)`, `typeArgument(i)`, `parameterType()`. |
-| `DecoratorArgument`, `DecoratorTypeArgument`, `DecoratorSource` | `@trapi/metadata` | The AST-extraction shape handlers consume. |
-| `MarkerName`, `NumericKind`, `ParamKind`, `CollectionKind` | `@trapi/metadata` | Const objects + same-name type aliases for closed enumerations. |
+| `Controller`, `Method`, `Parameter` | `@trapi/core` | The public, post-orchestrator metadata shapes (mutable drafts have `Draft` suffix and live in the same package). |
+| `Preset`, `Registry` | `@trapi/core` | Preset declaration and the flattened post-`extends` form. |
+| `ControllerHandler`, `MethodHandler`, `ParameterHandler` | `@trapi/core` | Handler signatures and the `controller(...)` / `method(...)` / `parameter(...)` builders. |
+| `MethodFinalizer`, `ControllerFinalizer` | `@trapi/core` | The `finalizeMethod` / `finalizeController` hooks of a `Preset`, with their `MethodFinalizeContext` / `ControllerFinalizeContext`. |
+| `HandlerContext`, `JsDocHandlerContext` | `@trapi/core` | What a handler's `apply` callback receives — `argument(i)`, `typeArgument(i)`, `parameterType()`, `decorator`. |
+| `DecoratorArgument`, `DecoratorTypeArgument`, `DecoratorSource` | `@trapi/core` | The AST-extraction shape handlers consume. |
+| `MarkerName`, `NumericKind`, `ParamKind`, `CollectionKind` | `@trapi/core` | Const objects + same-name type aliases for closed enumerations. |
 | `TsConfig`, `TsCompilerOptions` | `@trapi/metadata` | Wrapper around the typescript compiler-options shape. |
-| `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray` | `@trapi/metadata` | Argument readers shared across presets. |
-| `setControllerPaths`, `setMethodPath` | `@trapi/metadata` | Path-assignment helpers covering the singular-vs-plural asymmetry. |
-| `createHandlerContext`, `literalArg`, `arrayArg`, `objectArg`, `identifierArg`, `unresolvableArg`, `typeArg` | `@trapi/metadata` | Test helpers for unit-testing handlers without spinning up the compiler. |
+| `readString`, `readNumber`, `readBoolean`, `readStringOrStringArray` | `@trapi/core` | Argument readers shared across presets. |
+| `requireArgument`, `requireNumber`, `requireString` | `@trapi/core` | Strict argument readers: `undefined` when the argument is absent, a `DECORATOR_ARGUMENT_INVALID` error when it is present but unreadable. |
+| `setControllerPaths`, `setMethodPath` | `@trapi/core` | Path-assignment helpers covering the singular-vs-plural asymmetry. |
+| `createHandlerContext`, `literalArg`, `arrayArg`, `objectArg`, `identifierArg`, `unresolvableArg`, `typeArg` | `@trapi/core` | Test helpers for unit-testing handlers without spinning up the compiler. |
 | `SwaggerGenerateOptions`, `SwaggerGenerateData` | `@trapi/swagger` | Input options for `generateSwagger()` — version, metadata, document data. |
 | `SpecV2`, `SpecV3` | `@trapi/swagger` | Output OpenAPI specification shapes (`SpecV3` covers 3.0 / 3.1 / 3.2). |
 | `Version` | `@trapi/swagger` | Const + same-name type for the supported OpenAPI versions. Use `typeof Version.V2` (not `` `${Version.V2}` ``) inside template-literal types. |
@@ -180,4 +200,4 @@ Wrapper packages typically need to forward types from `@trapi/metadata` and `@tr
 | `DocumentFormat`, `SecurityType` | `@trapi/swagger` | Const objects for output formats and security scheme kinds. |
 | `saveSwagger` | `@trapi/swagger` | Optional file-writer separate from `generateSwagger()`. |
 
-Rule of thumb: if the type describes something *before* the spec exists (source files, decorator handlers, type resolution), it lives in `@trapi/metadata`. If it describes the OpenAPI document itself or how it's emitted, it lives in `@trapi/swagger`.
+Rule of thumb: if the type describes the metadata itself or a preset (decorator handlers, finalizers, argument readers), it lives in `@trapi/core`. If it describes reading TypeScript sources (entry points, tsconfig), it lives in `@trapi/metadata`. If it describes the OpenAPI document itself or how it's emitted, it lives in `@trapi/swagger`.

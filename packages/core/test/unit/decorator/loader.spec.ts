@@ -237,7 +237,7 @@ describe('loadRegistry', () => {
         ).rejects.toThrow(/cycle/i);
     });
 
-    it('handles diamond inheritance (preset loaded twice via different parents)', async () => {
+    it('handles diamond inheritance (preset reached via different parents is no cycle)', async () => {
         const base: Preset = {
             name: 'base',
             methods: [{ match: { name: 'Get' }, apply: noopApply }],
@@ -247,7 +247,7 @@ describe('loadRegistry', () => {
         const child: Preset = { name: 'child', extends: ['left', 'right'] };
         const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
 
-        expect(registry.methods).toHaveLength(2);
+        expect(registry.methods).toHaveLength(1);
     });
 
     it('applies replaces in the order parents are declared', async () => {
@@ -335,6 +335,72 @@ describe('loadRegistry', () => {
         expect(registry.controllerFinalizers).toHaveLength(2);
         expect(registry.controllerFinalizers![0]).toBe(grandController);
         expect(registry.controllerFinalizers![1]).toBe(ownController);
+    });
+
+    it('collects a shared ancestor handler once', async () => {
+        const base: Preset = {
+            name: 'base',
+            controllers: [{ match: { name: 'Controller' }, apply: noopApply }],
+            methods: [
+                { match: { name: 'Get' }, apply: noopApply },
+                // Same-preset siblings stay additive, shared ancestor or not.
+                { match: { name: 'Get' }, apply: noopApply },
+            ],
+            methodJsDoc: [{ match: { tag: 'hidden' }, apply: noopApply }],
+        };
+        const left: Preset = {
+            name: 'left',
+            extends: ['base'],
+            methods: [{ match: { name: 'Post' }, apply: noopApply }],
+        };
+        const right: Preset = {
+            name: 'right',
+            extends: ['base'],
+            methods: [{ match: { name: 'Put' }, apply: noopApply }],
+        };
+        const child: Preset = {
+            name: 'child',
+            extends: ['left', 'right'],
+            methods: [{ match: { name: 'Delete' }, apply: noopApply }],
+        };
+        const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
+
+        expect(registry.controllers.map((h) => h.match.name)).toEqual(['Controller']);
+        expect(registry.methods.map((h) => h.match.name)).toEqual(['Get', 'Get', 'Post', 'Put', 'Delete']);
+        expect(registry.methodJsDoc.map((h) => h.match.tag)).toEqual(['hidden']);
+    });
+
+    it('keeps a shared ancestor handler that only one path replaces', async () => {
+        const baseApply = () => { /* base */ };
+        const leftApply = () => { /* left */ };
+
+        const base: Preset = {
+            name: 'base',
+            methods: [
+                { match: { name: 'Get' }, apply: baseApply },
+                { match: { name: 'Post' }, apply: baseApply },
+            ],
+        };
+        const left: Preset = {
+            name: 'left',
+            extends: ['base'],
+            methods: [{
+                match: { name: 'Get' },
+                replaces: true,
+                apply: leftApply,
+            }],
+        };
+        const right: Preset = { name: 'right', extends: ['base'] };
+        const child: Preset = { name: 'child', extends: ['left', 'right'] };
+        const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
+
+        // `right` still inherits base's `Get`, so it survives once, after the
+        // handlers of the path that replaced it; `Post` is not repeated.
+        expect(registry.methods.map((h) => [h.match.name, h.apply])).toEqual([
+            ['Post', baseApply],
+            ['Get', leftApply],
+            ['Get', baseApply],
+        ]);
     });
 
     it('collects a shared ancestor finalizer once', async () => {

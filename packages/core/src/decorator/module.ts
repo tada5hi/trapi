@@ -32,20 +32,26 @@ import { CoreErrorCode } from '../error/codes';
 const decoratorKinds = ['controllers', 'methods', 'parameters'] as const;
 const jsDocKinds = ['controllerJsDoc', 'methodJsDoc', 'parameterJsDoc'] as const;
 
-type TaggedDecoratorHandler = { origin: string; handler: AnyDecoratorHandler };
-type TaggedJsDocHandler = { origin: string; handler: AnyJsDocHandler };
+/**
+ * Where an entry comes from: the preset and its position in that preset's
+ * own array. A preset reached through several `extends` paths (a diamond) is
+ * loaded once per path, and this pair is what tells its entries apart from
+ * same-preset siblings, which stay additive.
+ */
+type Tag = { origin: string; index: number };
+
+type TaggedDecoratorHandler = Tag & { handler: AnyDecoratorHandler };
+type TaggedJsDocHandler = Tag & { handler: AnyJsDocHandler };
 
 type TaggedRegistry = {
-    controllers: { origin: string; handler: ControllerHandler }[];
-    methods: { origin: string; handler: MethodHandler }[];
-    parameters: { origin: string; handler: ParameterHandler }[];
-    controllerJsDoc: { origin: string; handler: ControllerJsDocHandler }[];
-    methodJsDoc: { origin: string; handler: MethodJsDocHandler }[];
-    parameterJsDoc: { origin: string; handler: ParameterJsDocHandler }[];
-    // The origin keeps a preset reached through several `extends` paths
-    // from contributing its finalizer once per path.
-    methodFinalizers: { origin: string; finalizer: MethodFinalizer }[];
-    controllerFinalizers: { origin: string; finalizer: ControllerFinalizer }[];
+    controllers: (Tag & { handler: ControllerHandler })[];
+    methods: (Tag & { handler: MethodHandler })[];
+    parameters: (Tag & { handler: ParameterHandler })[];
+    controllerJsDoc: (Tag & { handler: ControllerJsDocHandler })[];
+    methodJsDoc: (Tag & { handler: MethodJsDocHandler })[];
+    parameterJsDoc: (Tag & { handler: ParameterJsDocHandler })[];
+    methodFinalizers: (Tag & { finalizer: MethodFinalizer })[];
+    controllerFinalizers: (Tag & { finalizer: ControllerFinalizer })[];
 };
 
 function emptyTaggedRegistry(): TaggedRegistry {
@@ -124,33 +130,49 @@ function applyOwnHandlers(
     for (const kind of decoratorKinds) {
         const handlers = (preset[kind] ?? []) as AnyDecoratorHandler[];
 
-        for (const handler of handlers) {
+        for (const [index, handler] of handlers.entries()) {
             if (handler.replaces) {
                 applyReplacesDecorator(merged, kind, handler, preset.name, strict);
             }
 
-            (merged[kind] as TaggedDecoratorHandler[]).push({ origin: preset.name, handler });
+            (merged[kind] as TaggedDecoratorHandler[]).push({
+                origin: preset.name,
+                index,
+                handler,
+            });
         }
     }
 
     for (const kind of jsDocKinds) {
         const handlers = (preset[kind] ?? []) as AnyJsDocHandler[];
 
-        for (const handler of handlers) {
+        for (const [index, handler] of handlers.entries()) {
             if (handler.replaces) {
                 applyReplacesJsDoc(merged, kind, handler, preset.name, strict);
             }
 
-            (merged[kind] as TaggedJsDocHandler[]).push({ origin: preset.name, handler });
+            (merged[kind] as TaggedJsDocHandler[]).push({
+                origin: preset.name,
+                index,
+                handler,
+            });
         }
     }
 
     if (preset.finalizeMethod) {
-        merged.methodFinalizers.push({ origin: preset.name, finalizer: preset.finalizeMethod });
+        merged.methodFinalizers.push({
+            origin: preset.name,
+            index: 0,
+            finalizer: preset.finalizeMethod,
+        });
     }
 
     if (preset.finalizeController) {
-        merged.controllerFinalizers.push({ origin: preset.name, finalizer: preset.finalizeController });
+        merged.controllerFinalizers.push({
+            origin: preset.name,
+            index: 0,
+            finalizer: preset.finalizeController,
+        });
     }
 }
 
@@ -252,25 +274,26 @@ function describeReplaces(replaces: ReplacesPolicy): string {
 
 function appendTagged(target: TaggedRegistry, source: TaggedRegistry): void {
     for (const kind of decoratorKinds) {
-        (target[kind] as TaggedDecoratorHandler[]).push(...(source[kind] as TaggedDecoratorHandler[]));
+        appendOnce(target[kind] as TaggedDecoratorHandler[], source[kind] as TaggedDecoratorHandler[]);
     }
 
     for (const kind of jsDocKinds) {
-        (target[kind] as TaggedJsDocHandler[]).push(...(source[kind] as TaggedJsDocHandler[]));
+        appendOnce(target[kind] as TaggedJsDocHandler[], source[kind] as TaggedJsDocHandler[]);
     }
 
-    appendFinalizers(target.methodFinalizers, source.methodFinalizers);
-    appendFinalizers(target.controllerFinalizers, source.controllerFinalizers);
+    appendOnce(target.methodFinalizers, source.methodFinalizers);
+    appendOnce(target.controllerFinalizers, source.controllerFinalizers);
 }
 
 /**
- * A finalizer runs once per method or controller, so a preset inherited
- * through more than one `extends` path (a diamond) contributes it once: the
- * first occurrence wins, which keeps the parents-first order.
+ * Appends what `target` does not hold yet, so a preset inherited through
+ * more than one `extends` path contributes each handler and finalizer once.
+ * The first occurrence wins, which keeps the parents-first order. An entry
+ * one path replaced is still appended when another path kept it.
  */
-function appendFinalizers<T extends { origin: string }>(target: T[], source: T[]): void {
+function appendOnce<T extends Tag>(target: T[], source: T[]): void {
     for (const entry of source) {
-        const isNew = target.every((existing) => existing.origin !== entry.origin);
+        const isNew = target.every((existing) => existing.origin !== entry.origin || existing.index !== entry.index);
 
         if (isNew) {
             target.push(entry);

@@ -25,7 +25,7 @@ async function loadRegistry(
 ): Promise<Registry>;
 ```
 
-Resolves a preset's `extends` chain through the supplied resolver and applies `replaces` semantics, returning a flat `Registry` ready for the orchestrator. `LoadRegistryOptions` is `{ resolver: PresetResolver; strict?: boolean }`. With `strict: true`, a `replaces` entry that doesn't match any parent throws.
+Resolves a preset's `extends` chain through the supplied resolver and applies `replaces` semantics, returning a flat `Registry` ready for the orchestrator. `LoadRegistryOptions` is `{ resolver: PresetResolver; strict?: boolean }`. With `strict: true`, a `replaces` entry that doesn't match any parent throws. A preset reached through more than one `extends` path contributes each of its handlers and its finalizers once; a handler that one path replaced stays in the registry when another path still inherits it.
 
 ### `loadRegistryByName(name)`
 

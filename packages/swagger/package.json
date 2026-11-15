@@ -31,7 +31,8 @@
         }
     },
     "files": [
-        "dist"
+        "dist",
+        "assets"
     ],
     "scripts": {
         "build": "npm run build:js && npm run build:types",

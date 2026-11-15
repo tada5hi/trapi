@@ -16,7 +16,8 @@
         }
     },
     "files": [
-        "dist"
+        "dist",
+        "assets"
     ],
     "keywords": [
         "trapi",

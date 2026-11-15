@@ -12,6 +12,10 @@
             "import": "./dist/index.mjs"
         }
     },
+    "files": [
+        "dist",
+        "assets"
+    ],
     "keywords": [
         "metadata",
         "decorators",

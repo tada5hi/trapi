@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="612" viewBox="0 0 960 612" role="img" aria-labelledby="sw-lossy-title sw-lossy-desc">
+<title id="sw-lossy-title">Intersections and tuples: where the emitters lose detail</title>
+<desc id="sw-lossy-desc">An intersection of the refObjects User and Timestamps is flattened by Swagger 2.0 into one object schema with all properties and the combined required list, and composed by OpenAPI 3.x as allOf of two $refs. A tuple with elements x of type double and label of type string becomes, in every version, an array whose items are anyOf number and string, losing element names and positions.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-lossy-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="596" rx="22"/>
+<text class="h" x="30" y="44">Intersections and tuples: where the emitters lose detail</text>
+<rect class="sunk" x="28" y="70" width="330" height="272" rx="13"/>
+<text class="l" x="46" y="94">metadata type (User &amp; Timestamps)</text>
+<text class="c" x="46" y="122">{ typeName: 'intersection',</text>
+<text class="c" x="62" y="144">members: [</text>
+<text class="c" x="78" y="166">{ refName: 'User', … },</text>
+<text class="c" x="78" y="188">{ refName: 'Timestamps', … },</text>
+<text class="c" x="62" y="210">] }</text>
+<rect class="card" x="388" y="70" width="544" height="130" rx="13"/><rect class="ks" x="388" y="84" width="4" height="102" rx="2"/>
+<text class="t" x="406" y="102">v2: flattened</text>
+<text class="c" x="406" y="126">{ "type": "object",</text>
+<text class="c" x="422" y="148">"properties": { "id": …, "createdAt": … },</text>
+<text class="c" x="422" y="170">"required": ["id", "nickname", "role", "createdAt"] }</text>
+<rect class="ww" x="532" y="80" width="126" height="24" rx="12"/><text class="tw" x="595" y="96" text-anchor="middle" font-size="12" font-weight="600">members merged</text>
+<rect class="card" x="388" y="212" width="544" height="130" rx="13"/><rect class="ks" x="388" y="226" width="4" height="102" rx="2"/>
+<text class="t" x="406" y="244">v3 · v3.1 · v3.2: composed</text>
+<text class="c" x="406" y="268">{ <tspan class="ts">"allOf"</tspan>: [</text>
+<text class="c" x="422" y="290">{ "$ref": "#/components/schemas/User" },</text>
+<text class="c" x="422" y="312">{ "$ref": "#/components/schemas/Timestamps" } ] }</text>
+<path class="rail" d="M360 206 H372 V135 H379" marker-end="url(#sw-lossy-arrow)"/>
+<path class="rail" d="M372 206 V277 H379" marker-end="url(#sw-lossy-arrow)"/>
+<rect class="sunk" x="28" y="362" width="330" height="150" rx="13"/>
+<text class="l" x="46" y="386">metadata type (refAlias Point)</text>
+<text class="c" x="46" y="414">{ typeName: 'tuple',</text>
+<text class="c" x="62" y="436">elements: [</text>
+<text class="c" x="78" y="458">{ name: 'x', type: double },</text>
+<text class="c" x="78" y="480">{ name: 'label', type: string },</text>
+<text class="c" x="62" y="502">] }</text>
+<rect class="card" x="388" y="362" width="544" height="150" rx="13"/><rect class="ks" x="388" y="376" width="4" height="122" rx="2"/>
+<text class="t" x="406" y="394">every version</text>
+<text class="c" x="406" y="418">{ "type": "array",</text>
+<text class="c" x="422" y="440">"items": { <tspan class="tw">"anyOf"</tspan>: [</text>
+<text class="c" x="438" y="462">{ "type": "number", "format": "double" },</text>
+<text class="c" x="438" y="484">{ "type": "string" } ] } }</text>
+<rect class="ww" x="540" y="376" width="200" height="24" rx="12"/><text class="tw" x="640" y="392" text-anchor="middle" font-size="12" font-weight="600">names and positions lost</text>
+<path class="rail" d="M360 437 H379" marker-end="url(#sw-lossy-arrow)"/>
+<rect class="sunk dash" x="28" y="530" width="904" height="62" rx="13"/>
+<text class="s" x="46" y="552">v2 flattens only refObject members and copies no per-property descriptions; an inline object member of the</text>
+<text class="s" x="46" y="572">intersection is dropped. v2 also emits the tuple as anyOf although Swagger 2.0 has no anyOf.</text>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="494" viewBox="0 0 960 494" role="img" aria-labelledby="core-mk-title core-mk-desc">
+<title id="core-mk-title">Resolver markers find renamed decorators</title>
+<desc id="core-mk-desc">A preset renames three concepts. A parameters handler matching AsInteger carries marker numeric int, so namesForMarker returns AsInteger and the resolver turns a property @AsInteger() age: number into typeName integer. A controllerJsDoc handler matching the tag gone carries marker deprecated, so tagsForMarker returns gone and an interface documented with @gone becomes a refObject with deprecated true. A parameters handler matching Meta carries marker extension, so namesForMarker returns Meta and @Meta('x-internal', true) on a property becomes the extension with key x-internal and value true. The resolver reads deprecated, extension and numeric markers; a hidden marker is not read, hiding comes from the handler's apply.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="core-mk-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="478" rx="22"/>
+<text class="h" x="30" y="44">Resolver markers find renamed decorators</text>
+
+<text class="l" x="28" y="78">handler in your preset</text>
+<text class="l" x="350" y="78">lookup on the registry</text>
+<text class="l" x="652" y="78">type resolver result</text>
+
+<rect class="card" x="28" y="92" width="290" height="96" rx="13"/><rect class="ka" x="28" y="104" width="4" height="72" rx="2"/>
+<text class="c s" x="46" y="118">in preset.parameters</text>
+<text class="c" x="46" y="144">match: { name: 'AsInteger' }</text>
+<text class="c" x="46" y="166">marker: { numeric: 'int' }</text>
+<rect class="card" x="350" y="92" width="270" height="96" rx="13"/><rect class="ko" x="350" y="104" width="4" height="72" rx="2"/>
+<text class="t" x="368" y="130">namesForMarker</text>
+<text class="c" x="368" y="158">→ Set { 'AsInteger' }</text>
+<rect class="card" x="652" y="92" width="280" height="96" rx="13"/><rect class="ks" x="652" y="104" width="4" height="72" rx="2"/>
+<text class="c" x="670" y="120"><tspan class="ta">@AsInteger</tspan>()</text>
+<text class="c" x="670" y="142">age: number;</text>
+<text class="c ts" x="670" y="168">→ typeName: 'integer'</text>
+
+<rect class="card" x="28" y="204" width="290" height="96" rx="13"/><rect class="ka" x="28" y="216" width="4" height="72" rx="2"/>
+<text class="c s" x="46" y="230">in preset.controllerJsDoc</text>
+<text class="c" x="46" y="256">match: { tag: 'gone' }</text>
+<text class="c" x="46" y="278">marker: 'deprecated'</text>
+<rect class="card" x="350" y="204" width="270" height="96" rx="13"/><rect class="ko" x="350" y="216" width="4" height="72" rx="2"/>
+<text class="t" x="368" y="242">tagsForMarker</text>
+<text class="c" x="368" y="270">→ Set { 'gone' }</text>
+<rect class="card" x="652" y="204" width="280" height="96" rx="13"/><rect class="ks" x="652" y="216" width="4" height="72" rx="2"/>
+<text class="c" x="670" y="232">/** <tspan class="ta">@gone</tspan> */</text>
+<text class="c" x="670" y="254">interface LegacyUser {}</text>
+<text class="c ts" x="670" y="280">→ refObject, deprecated: true</text>
+
+<rect class="card" x="28" y="316" width="290" height="96" rx="13"/><rect class="ka" x="28" y="328" width="4" height="72" rx="2"/>
+<text class="c s" x="46" y="342">in preset.parameters</text>
+<text class="c" x="46" y="368">match: { name: 'Meta' }</text>
+<text class="c" x="46" y="390">marker: 'extension'</text>
+<rect class="card" x="350" y="316" width="270" height="96" rx="13"/><rect class="ko" x="350" y="328" width="4" height="72" rx="2"/>
+<text class="t" x="368" y="354">namesForMarker</text>
+<text class="c" x="368" y="382">→ Set { 'Meta' }</text>
+<rect class="card" x="652" y="316" width="280" height="96" rx="13"/><rect class="ks" x="652" y="328" width="4" height="72" rx="2"/>
+<text class="c" x="670" y="344"><tspan class="ta">@Meta</tspan>('x-internal', true)</text>
+<text class="c" x="670" y="366">secret: string;</text>
+<text class="c ts" x="670" y="392">→ key 'x-internal', value true</text>
+
+<path class="rail" d="M320 140 H342" marker-end="url(#core-mk-arrow)"/>
+<path class="rail" d="M622 140 H644" marker-end="url(#core-mk-arrow)"/>
+<path class="rail" d="M320 252 H342" marker-end="url(#core-mk-arrow)"/>
+<path class="rail" d="M622 252 H644" marker-end="url(#core-mk-arrow)"/>
+<path class="rail" d="M320 364 H342" marker-end="url(#core-mk-arrow)"/>
+<path class="rail" d="M622 364 H644" marker-end="url(#core-mk-arrow)"/>
+
+<rect class="sunk dash" x="28" y="428" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="456">The resolver reads deprecated, extension and numeric markers. A 'hidden' marker is not read: hiding comes from apply().</text>
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="444" viewBox="0 0 960 444" role="img" aria-labelledby="pde-as-title pde-as-desc">
+<title id="pde-as-title">Argument shapes of @Security, @Description and @Example</title>
+<desc id="pde-as-desc">@Security(['user:read'], 'oauth2') writes the requirement oauth2 with scope user:read. @Security(['admin']) without a scheme name uses the name default. @Security with an object writes one requirement naming bearer and apiKey. @Description of User with status 201 and Created adds a 201 response with a User schema, and the return type is still documented under 200 Ok. @Example with a payload and the label sample adds an example to the default 200 response. @Description with a status the compiler cannot resolve throws CORE_DECORATOR_ARGUMENT_INVALID.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="pde-as-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="428" rx="22"/>
+<text class="h" x="30" y="44">Argument shapes of @Security, @Description and @Example</text>
+<rect class="card" x="28" y="70" width="420" height="44" rx="11"/><rect class="ka" x="28" y="80" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="97"><tspan class="ta">@Security</tspan>(['user:read'], 'oauth2')</text>
+<path class="rail" d="M452 92 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="70" width="442" height="44" rx="11"/><rect class="ks" x="490" y="80" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="97">security: [{ oauth2: ['user:read'] }]</text>
+<rect class="card" x="28" y="122" width="420" height="44" rx="11"/><rect class="ka" x="28" y="132" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="149"><tspan class="ta">@Security</tspan>(['admin'])</text>
+<path class="rail" d="M452 144 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="122" width="442" height="44" rx="11"/><rect class="ks" x="490" y="132" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="149">security: [{ default: ['admin'] }]</text>
+<rect class="card" x="28" y="174" width="420" height="44" rx="11"/><rect class="ka" x="28" y="184" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="201"><tspan class="ta">@Security</tspan>({ bearer: [], apiKey: ['a'] })</text>
+<path class="rail" d="M452 196 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="174" width="442" height="44" rx="11"/><rect class="ks" x="490" y="184" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="201">security: [{ bearer: [], apiKey: ['a'] }]</text>
+<rect class="card" x="28" y="226" width="420" height="44" rx="11"/><rect class="ka" x="28" y="236" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="253"><tspan class="ta">@Description</tspan>&lt;User&gt;(201, 'Created')</text>
+<path class="rail" d="M452 248 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="226" width="442" height="44" rx="11"/><rect class="kw" x="490" y="236" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="253">201 'Created', schema: User</text><rect class="ww" x="760" y="236" width="154" height="24" rx="12"/><text class="tw" x="837" y="253" text-anchor="middle" font-size="12" font-weight="600">+ 200 'Ok' as well</text>
+<rect class="card" x="28" y="278" width="420" height="44" rx="11"/><rect class="ka" x="28" y="288" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="305"><tspan class="ta">@Example</tspan>({ name: 'a' }, 'sample')</text>
+<path class="rail" d="M452 300 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="278" width="442" height="44" rx="11"/><rect class="ks" x="490" y="288" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="305">200 'Ok', examples: [{ value, label: 'sample' }]</text>
+<rect class="card" x="28" y="330" width="420" height="44" rx="11"/><rect class="ka" x="28" y="340" width="4" height="24" rx="2"/>
+<text class="c" x="46" y="357"><tspan class="ta">@Description</tspan>(computeStatus(), 'Gone')</text>
+<path class="rail" d="M452 352 H484" marker-end="url(#pde-as-arrow)"/>
+<rect class="card" x="490" y="330" width="442" height="44" rx="11"/><rect class="kd" x="490" y="340" width="4" height="24" rx="2"/>
+<rect class="wd" x="508" y="340" width="372" height="24" rx="12"/><text class="td" x="694" y="357" text-anchor="middle" font-size="12" font-weight="600">throws CORE_DECORATOR_ARGUMENT_INVALID</text>
+<rect class="sunk dash" x="28" y="392" width="904" height="36" rx="13"/>
+<text class="s" x="46" y="415">@Description adds a response; it does not change the success status, so the return type is still documented under 200.</text>
+</svg>

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="544" viewBox="0 0 960 544" role="img" aria-labelledby="ptr-mk-title ptr-mk-desc">
+<title id="ptr-mk-title">TRAPI markers and JSDoc tags this preset handles, per target</title>
+<desc id="ptr-mk-desc">Which markers this preset handles on each target. Hidden: @Hidden and the JSDoc tag @hidden on a class and on a method. Deprecated: @Deprecated on a class, @Deprecated and @deprecated on a method, the JSDoc tag @deprecated on a parameter and on a model property. @Tags, @Produces, and @Consumes or @Accept on a class and a method. @Extension on a class, method, parameter and model property. The JSDoc tag @summary on a method. Numeric markers: @IsInt, @IsLong, @IsFloat and @IsDouble on a parameter and a model property, plus the JSDoc tags @isInt to @isDouble on a model property. Decorator handlers run first on each node, then JSDoc handlers.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+.rule{stroke:var(--border);stroke-width:1}
+</style>
+<rect class="canvas" x="8" y="8" width="944" height="528" rx="22"/>
+<text class="h" x="30" y="44">Markers and JSDoc tags, by where they are read</text>
+<rect class="wa" x="738" y="28" width="92" height="24" rx="12"/><text class="c ta" x="784" y="44" text-anchor="middle" font-size="12">decorator</text>
+<rect class="sunk" x="838" y="28" width="94" height="24" rx="12"/><text class="c" x="885" y="44" text-anchor="middle" font-size="12">JSDoc tag</text>
+<rect class="card" x="28" y="70" width="904" height="370" rx="13"/>
+<text class="l" x="44" y="92">marker</text><text class="l" x="150" y="92">class</text><text class="l" x="346" y="92">method</text><text class="l" x="578" y="92">parameter</text><text class="l" x="754" y="92">model property</text>
+<line class="rule" x1="40" y1="104" x2="920" y2="104"/>
+<text class="s" x="44" y="127">hidden</text>
+<rect class="wa" x="150" y="111" width="74" height="24" rx="12"/><text class="c ta" x="160" y="127" font-size="12">@Hidden</text>
+<rect class="sunk" x="232" y="111" width="74" height="24" rx="12"/><text class="c" x="242" y="127" font-size="12">@hidden</text>
+<rect class="wa" x="346" y="111" width="74" height="24" rx="12"/><text class="c ta" x="356" y="127" font-size="12">@Hidden</text>
+<rect class="sunk" x="428" y="111" width="74" height="24" rx="12"/><text class="c" x="438" y="127" font-size="12">@hidden</text>
+<text class="s" x="586" y="127">–</text>
+<text class="s" x="762" y="127">–</text>
+<line class="rule" x1="40" y1="142" x2="920" y2="142"/>
+<text class="s" x="44" y="165">deprecated</text>
+<rect class="wa" x="150" y="149" width="105" height="24" rx="12"/><text class="c ta" x="160" y="165" font-size="12">@Deprecated</text>
+<rect class="wa" x="346" y="149" width="105" height="24" rx="12"/><text class="c ta" x="356" y="165" font-size="12">@Deprecated</text>
+<rect class="sunk" x="459" y="149" width="105" height="24" rx="12"/><text class="c" x="469" y="165" font-size="12">@deprecated</text>
+<rect class="sunk" x="578" y="149" width="105" height="24" rx="12"/><text class="c" x="588" y="165" font-size="12">@deprecated</text>
+<rect class="sunk" x="754" y="149" width="105" height="24" rx="12"/><text class="c" x="764" y="165" font-size="12">@deprecated</text>
+<line class="rule" x1="40" y1="180" x2="920" y2="180"/>
+<text class="s" x="44" y="203">tags</text>
+<rect class="wa" x="150" y="187" width="58" height="24" rx="12"/><text class="c ta" x="160" y="203" font-size="12">@Tags</text>
+<rect class="wa" x="346" y="187" width="58" height="24" rx="12"/><text class="c ta" x="356" y="203" font-size="12">@Tags</text>
+<text class="s" x="586" y="203">–</text>
+<text class="s" x="762" y="203">–</text>
+<line class="rule" x1="40" y1="218" x2="920" y2="218"/>
+<text class="s" x="44" y="241">produces</text>
+<rect class="wa" x="150" y="225" width="89" height="24" rx="12"/><text class="c ta" x="160" y="241" font-size="12">@Produces</text>
+<rect class="wa" x="346" y="225" width="89" height="24" rx="12"/><text class="c ta" x="356" y="241" font-size="12">@Produces</text>
+<text class="s" x="586" y="241">–</text>
+<text class="s" x="762" y="241">–</text>
+<line class="rule" x1="40" y1="256" x2="920" y2="256"/>
+<text class="s" x="44" y="279">consumes</text>
+<rect class="wa" x="150" y="263" width="89" height="24" rx="12"/><text class="c ta" x="160" y="279" font-size="12">@Consumes</text>
+<rect class="wa" x="247" y="263" width="74" height="24" rx="12"/><text class="c ta" x="257" y="279" font-size="12">@Accept</text>
+<rect class="wa" x="346" y="263" width="89" height="24" rx="12"/><text class="c ta" x="356" y="279" font-size="12">@Consumes</text>
+<rect class="wa" x="443" y="263" width="74" height="24" rx="12"/><text class="c ta" x="453" y="279" font-size="12">@Accept</text>
+<text class="s" x="586" y="279">–</text>
+<text class="s" x="762" y="279">–</text>
+<line class="rule" x1="40" y1="294" x2="920" y2="294"/>
+<text class="s" x="44" y="317">extension</text>
+<rect class="wa" x="150" y="301" width="97" height="24" rx="12"/><text class="c ta" x="160" y="317" font-size="12">@Extension</text>
+<rect class="wa" x="346" y="301" width="97" height="24" rx="12"/><text class="c ta" x="356" y="317" font-size="12">@Extension</text>
+<rect class="wa" x="578" y="301" width="97" height="24" rx="12"/><text class="c ta" x="588" y="317" font-size="12">@Extension</text>
+<rect class="wa" x="754" y="301" width="97" height="24" rx="12"/><text class="c ta" x="764" y="317" font-size="12">@Extension</text>
+<line class="rule" x1="40" y1="332" x2="920" y2="332"/>
+<text class="s" x="44" y="355">summary</text>
+<text class="s" x="158" y="355">–</text>
+<rect class="sunk" x="346" y="339" width="82" height="24" rx="12"/><text class="c" x="356" y="355" font-size="12">@summary</text>
+<text class="s" x="586" y="355">–</text>
+<text class="s" x="762" y="355">–</text>
+<line class="rule" x1="40" y1="370" x2="920" y2="370"/>
+<text class="s" x="44" y="393">numeric</text>
+<text class="s" x="158" y="393">–</text>
+<text class="s" x="354" y="393">–</text>
+<rect class="wa" x="578" y="377" width="159" height="24" rx="12"/><text class="c ta" x="588" y="393" font-size="12">@IsInt … @IsDouble</text>
+<rect class="wa" x="754" y="377" width="159" height="24" rx="12"/><text class="c ta" x="764" y="393" font-size="12">@IsInt … @IsDouble</text>
+<rect class="sunk" x="754" y="405" width="159" height="24" rx="12"/><text class="c" x="764" y="421" font-size="12">@isInt … @isDouble</text>
+<rect class="sunk dash" x="28" y="456" width="904" height="64" rx="13"/>
+<text class="s" x="46" y="482">Decorator handlers run first on each node, then JSDoc handlers. A dash means the preset does not handle it there.</text>
+<text class="s" x="46" y="504">The numeric JSDoc tags narrow model properties only; on a method argument, use @IsInt … @IsDouble.</text>
+</svg>

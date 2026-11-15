@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="472" viewBox="0 0 960 472" role="img" aria-labelledby="pde-cm-title pde-cm-desc">
+<title id="pde-cm-title">A @decorators/express controller and the metadata the preset extracts</title>
+<desc id="pde-cm-desc">UserController carries @Tags('user') and @Controller with two mount paths. Its list method is decorated with @Get('/'), and its parameters with @Query('page'), @Headers('x-request-id'), @Request() and @Response(). The preset produces a Controller with paths users and realms/:realmId/users and tags user, and a Method list with method get, path empty, a queryProp parameter page of type double and a header parameter x-request-id of type string. The @Request and @Response parameters become context and are not emitted.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="pde-cm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="456" rx="22"/>
+<text class="h" x="30" y="44">One @decorators/express controller, the metadata this preset extracts</text>
+
+<rect class="sunk" x="28" y="70" width="452" height="296" rx="13"/>
+<text class="l" x="46" y="94">your controller</text>
+<text class="c" x="46" y="122"><tspan class="ta">@Tags</tspan>('user')</text>
+<text class="c" x="46" y="144"><tspan class="ta">@Controller</tspan>(['/users', '/realms/:realmId/users'])</text>
+<text class="c" x="46" y="166">export class UserController {</text>
+<text class="c" x="62" y="188"><tspan class="ta">@Get</tspan>('/')</text>
+<text class="c" x="62" y="210">list(</text>
+<text class="c" x="78" y="232"><tspan class="ta">@Query</tspan>('page') page: number,</text>
+<text class="c" x="78" y="254"><tspan class="ta">@Headers</tspan>('x-request-id') requestId: string,</text>
+<text class="c" x="78" y="276"><tspan class="td">@Request</tspan>() req: Request,</text>
+<text class="c" x="78" y="298"><tspan class="td">@Response</tspan>() res: Response,</text>
+<text class="c" x="62" y="320">): User[] { … }</text>
+<text class="c" x="46" y="342">}</text>
+
+<rect class="card" x="522" y="70" width="410" height="116" rx="13"/><rect class="ks" x="522" y="84" width="4" height="88" rx="2"/>
+<text class="t" x="540" y="98">Controller</text>
+<text class="c s" x="540" y="124">name: 'UserController'</text>
+<text class="c s" x="540" y="146">paths: ['users', 'realms/:realmId/users']</text>
+<text class="c s" x="540" y="168">tags: ['user']</text>
+
+<rect class="card" x="522" y="200" width="410" height="166" rx="13"/><rect class="ks" x="522" y="214" width="4" height="138" rx="2"/>
+<text class="t" x="540" y="228">Method</text>
+<text class="c s" x="540" y="254">name: 'list'<tspan x="664">method: 'get'</tspan><tspan x="796">path: ''</tspan></text>
+<text class="c s" x="540" y="276">parameters:</text>
+<text class="c" x="556" y="298"><tspan class="ts">queryProp</tspan><tspan x="664">page</tspan><tspan x="796">double</tspan></text>
+<text class="c" x="556" y="320"><tspan class="ts">header</tspan><tspan x="664">x-request-id</tspan><tspan x="796">string</tspan></text>
+<text class="c s" x="540" y="342">responses: 200 'Ok', User[]</text>
+
+<path class="rail" d="M482 140 H514" marker-end="url(#pde-cm-arrow)"/>
+<path class="rail" d="M482 284 H514" marker-end="url(#pde-cm-arrow)"/>
+
+<rect class="wd" x="28" y="380" width="272" height="26" rx="13"/><text class="td" x="164" y="398" text-anchor="middle" font-size="12" font-weight="600">@Request() → context, not emitted</text>
+<rect class="wd" x="312" y="380" width="284" height="26" rx="13"/><text class="td" x="454" y="398" text-anchor="middle" font-size="12" font-weight="600">@Response() → context, not emitted</text>
+
+<rect class="sunk dash" x="28" y="420" width="904" height="36" rx="13"/>
+<text class="s" x="46" y="443">Paths are stored without the leading slash. Context parameters are dropped before their type is resolved.</text>
+</svg>

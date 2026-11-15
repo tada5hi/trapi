@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="478" viewBox="0 0 960 478" role="img" aria-labelledby="meta-ca-title meta-ca-desc">
+<title id="meta-ca-title">What the cache key is made of, and when it is used</title>
+<desc id="meta-ca-desc">The cache key is a sha256 over five parts: CACHE_SCHEMA_VERSION, the path and full text of every non-ignored source file, the compiler options as stable JSON, the resolved registry (handler match, marker, replaces and apply source, plus finalizers) and the preset name. The file .trapi-metadata-&lt;cacheKey&gt;.json lives in directoryPath, os.tmpdir() by default, is written to a temporary file and renamed into place, and files older than maxAgeMs, 7 days by default, are deleted after a save. On a hit the stored Metadata is returned if cacheKey and schemaVersion match; on a miss every generator runs and the result is saved. strict or onUnmatchedDecorator bypass the cache for reading and writing. The cache is on unless cache is false.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="meta-ca-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="462" rx="22"/>
+<text class="h" x="30" y="44">What the cache key is made of, and when it is used</text>
+<rect class="sunk" x="28" y="70" width="380" height="204" rx="13"/>
+<text class="l" x="46" y="94">key: sha256 over five parts</text>
+<text class="c" x="46" y="122"><tspan class="ta">1</tspan></text>
+<text class="c" x="70" y="122">CACHE_SCHEMA_VERSION ('9')</text>
+<text class="c" x="46" y="154"><tspan class="ta">2</tspan></text>
+<text class="c" x="70" y="154">source files: path + full text</text>
+<text class="c" x="46" y="186"><tspan class="ta">3</tspan></text>
+<text class="c" x="70" y="186">compiler options, stable JSON</text>
+<text class="c" x="46" y="218"><tspan class="ta">4</tspan></text>
+<text class="c" x="70" y="218">registry: match, marker, apply</text>
+<text class="c" x="46" y="250"><tspan class="ta">5</tspan></text>
+<text class="c" x="70" y="250">preset name</text>
+<path class="rail" d="M412 172 H462" marker-end="url(#meta-ca-arrow)"/>
+<rect class="wa" x="414" y="140" width="48" height="22" rx="11"/><text class="c ta" font-size="11" x="438" y="155" text-anchor="middle">hash</text>
+<rect class="card" x="470" y="70" width="462" height="204" rx="13"/><rect class="ks" x="470" y="84" width="4" height="176" rx="2"/>
+<text class="t" x="488" y="104">cache file</text>
+<text class="c" x="488" y="134"><tspan class="ts">.trapi-metadata-&lt;cacheKey&gt;.json</tspan></text>
+<text class="s" x="488" y="168">in directoryPath (default os.tmpdir()); fileName = one fixed slot</text>
+<text class="s" x="488" y="196">written to a .tmp file first, then renamed into place</text>
+<text class="s" x="488" y="224">after a save, files older than maxAgeMs (7 days) are deleted</text>
+<text class="s" x="488" y="252">maxAgeMs: 0 keeps every file</text>
+<rect class="card" x="28" y="292" width="290" height="104" rx="13"/><rect class="ko" x="28" y="306" width="4" height="76" rx="2"/>
+<text class="t" x="46" y="326">hit</text>
+<text class="s" x="46" y="352">returns the stored Metadata when the</text>
+<text class="s" x="46" y="374">file's cacheKey and schemaVersion match</text>
+<rect class="card" x="335" y="292" width="290" height="104" rx="13"/><rect class="ks" x="335" y="306" width="4" height="76" rx="2"/>
+<text class="t" x="353" y="326">miss</text>
+<text class="s" x="353" y="352">every generator runs, then the result</text>
+<text class="s" x="353" y="374">is saved for the next call</text>
+<rect class="card" x="642" y="292" width="290" height="104" rx="13"/><rect class="kw" x="642" y="306" width="4" height="76" rx="2"/>
+<text class="t" x="660" y="326">bypass</text>
+<text class="s" x="660" y="352">strict or onUnmatchedDecorator set:</text>
+<text class="s" x="660" y="374">no read and no write</text>
+<rect class="sunk dash" x="28" y="414" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="442">The cache is on unless cache: false. On a hit the source files are still hashed and the preset still loads.</text>
+</svg>

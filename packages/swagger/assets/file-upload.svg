@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="446" viewBox="0 0 960 446" role="img" aria-labelledby="sw-file-title sw-file-desc">
+<title id="sw-file-title">File uploads: what 'buffer' and 'file' become</title>
+<desc id="sw-file-desc">A formData parameter of type buffer, which is what @trapi/metadata emits for an upload, becomes in Swagger 2.0 a formData parameter with type string and format byte, and in OpenAPI 3.x a property with type string and format byte in a multipart/form-data object schema. A formData parameter of type file, which only hand-built metadata contains, becomes type file in Swagger 2.0 and type string with format binary in OpenAPI 3.x.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-file-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="430" rx="22"/>
+<text class="h" x="30" y="44">File uploads: what 'buffer' and 'file' become</text>
+<rect class="ws" x="354" y="72" width="185" height="24" rx="12"/><text class="ts" x="446" y="88" text-anchor="middle" font-size="12" font-weight="600">v2: formData parameter</text>
+<rect class="ws" x="642" y="72" width="259" height="24" rx="12"/><text class="ts" x="772" y="88" text-anchor="middle" font-size="12" font-weight="600">v3: multipart/form-data property</text>
+<rect class="sunk" x="28" y="108" width="250" height="120" rx="13"/>
+<text class="c" x="46" y="142">typeName: 'buffer'</text>
+<text class="s" x="46" y="172">emitted by @trapi/metadata</text>
+<text class="s" x="46" y="192">for an upload argument</text>
+<rect class="card" x="296" y="108" width="300" height="120" rx="13"/><rect class="ks" x="296" y="122" width="4" height="92" rx="2"/>
+<text class="c" x="314" y="142">{ "in": "formData",</text>
+<text class="c" x="330" y="164">"type": "string",</text>
+<text class="c" x="330" y="186">"format": "byte" }</text>
+<rect class="ww" x="420" y="194" width="118" height="24" rx="12"/><text class="tw" x="479" y="210" text-anchor="middle" font-size="12" font-weight="600">no type: file</text>
+<rect class="card" x="612" y="108" width="320" height="120" rx="13"/><rect class="ks" x="612" y="122" width="4" height="92" rx="2"/>
+<text class="c" x="630" y="142">"file": {</text>
+<text class="c" x="646" y="164">"type": "string",</text>
+<text class="c" x="646" y="186">"format": "byte" }</text>
+<path class="rail" d="M280 168 H287" marker-end="url(#sw-file-arrow)"/>
+<rect class="sunk" x="28" y="240" width="250" height="120" rx="13"/>
+<text class="c" x="46" y="274">typeName: 'file'</text>
+<text class="s" x="46" y="304">only from hand-built</text>
+<text class="s" x="46" y="324">metadata</text>
+<rect class="card" x="296" y="240" width="300" height="120" rx="13"/><rect class="ks" x="296" y="254" width="4" height="92" rx="2"/>
+<text class="c" x="314" y="274">{ "in": "formData",</text>
+<text class="c" x="330" y="296"><tspan class="ts">"type": "file"</tspan> }</text>
+<rect class="wo" x="420" y="326" width="96" height="24" rx="12"/><text class="to" x="468" y="342" text-anchor="middle" font-size="12" font-weight="600">type: file</text>
+<rect class="card" x="612" y="240" width="320" height="120" rx="13"/><rect class="ks" x="612" y="254" width="4" height="92" rx="2"/>
+<text class="c" x="630" y="274">"file": {</text>
+<text class="c" x="646" y="296">"type": "string",</text>
+<text class="c" x="646" y="318">"format": "binary" }</text>
+<path class="rail" d="M280 300 H287" marker-end="url(#sw-file-arrow)"/>
+<rect class="sunk dash" x="28" y="380" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="408">Both versions set multipart/form-data for either type. In v3 every form field becomes a property of one object schema.</text>
+</svg>

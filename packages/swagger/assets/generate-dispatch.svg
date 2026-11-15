@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="410" viewBox="0 0 960 410" role="img" aria-labelledby="sw-gen-title sw-gen-desc">
+<title id="sw-gen-title">generateSwagger checks the Metadata, then picks an emitter</title>
+<desc id="sw-gen-desc">generateSwagger receives a version, a Metadata object and optional data. isMetadata checks that metadata has a controllers array and a referenceTypes object; anything else throws SwaggerError SWAGGER_METADATA_INVALID. Version v2 goes to V2Generator, which emits swagger 2.0 with references under #/definitions/. Versions v3, v3.1 and v3.2 go to V3Generator, which emits openapi 3.0.0, 3.1.0 or 3.2.0 with references under #/components/schemas/.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-gen-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="394" rx="22"/>
+<text class="h" x="30" y="44">generateSwagger checks the Metadata, then picks an emitter</text>
+<rect class="sunk" x="28" y="70" width="318" height="236" rx="13"/>
+<text class="l" x="46" y="94">your call</text>
+<text class="c" x="46" y="122">generateSwagger({</text>
+<text class="c" x="62" y="144">version: <tspan class="ta">'v3.1'</tspan>,</text>
+<text class="c" x="62" y="166">metadata,</text>
+<text class="c" x="62" y="188">data: { name: 'Roles' },</text>
+<text class="c" x="46" y="210">})</text>
+<text class="c" x="46" y="232"></text>
+<text class="c" x="46" y="254"><tspan class="s">// metadata: any producer</tspan></text>
+<text class="c" x="46" y="276"><tspan class="s">// { controllers, referenceTypes }</tspan></text>
+<rect class="card" x="366" y="70" width="224" height="128" rx="13"/><rect class="ka" x="366" y="84" width="4" height="100" rx="2"/>
+<text class="t" x="384" y="102">Metadata check</text>
+<text class="s" x="384" y="126">a shape check</text>
+<text class="c" x="384" y="150">isMetadata(metadata)</text>
+<path class="rail" d="M348 130 H357" marker-end="url(#sw-gen-arrow)"/>
+<rect class="wo" x="384" y="160" width="59" height="24" rx="12"/><text class="to" x="414" y="176" text-anchor="middle" font-size="12" font-weight="600">valid</text>
+<path class="rail dash" d="M478 200 V226" marker-end="url(#sw-gen-arrow)"/>
+<rect class="wd" x="366" y="232" width="188" height="24" rx="12"/><text class="c td" x="460" y="248" text-anchor="middle" font-size="11" style="font-size:11px">SWAGGER_METADATA_INVALID</text>
+<text class="s" x="372" y="284">thrown as SwaggerError</text>
+<rect class="card" x="628" y="70" width="304" height="104" rx="13"/><rect class="ks" x="628" y="84" width="4" height="76" rx="2"/>
+<text class="t" x="646" y="102">V2Generator</text>
+<text class="c" x="646" y="126">'v2'   → swagger: '2.0'</text>
+<text class="c" x="646" y="148"><tspan class="ts">#/definitions/</tspan></text>
+<rect class="card" x="628" y="188" width="304" height="148" rx="13"/><rect class="ks" x="628" y="202" width="4" height="120" rx="2"/>
+<text class="t" x="646" y="220">V3Generator</text>
+<text class="c" x="646" y="244">'v3'   → openapi: '3.0.0'</text>
+<text class="c" x="646" y="266">'v3.1' → openapi: '3.1.0'</text>
+<text class="c" x="646" y="288">'v3.2' → openapi: '3.2.0'</text>
+<text class="c" x="646" y="310"><tspan class="ts">#/components/schemas/</tspan></text>
+<path class="rail" d="M592 130 H606 V122 H619" marker-end="url(#sw-gen-arrow)"/>
+<path class="rail" d="M606 130 V262 H619" marker-end="url(#sw-gen-arrow)"/>
+<rect class="sunk dash" x="28" y="352" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="380">Without data, info is { title: 'Documentation', version: '1.0.0' }. Nothing is read from package.json.</text>
+</svg>

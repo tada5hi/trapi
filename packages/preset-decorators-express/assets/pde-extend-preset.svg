@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="488" viewBox="0 0 960 488" role="img" aria-labelledby="pde-ep-title pde-ep-desc">
+<title id="pde-ep-title">Extending the preset with extends and replaces</title>
+<desc id="pde-ep-desc">my-app/preset extends @trapi/preset-decorators-express. It adds an Internal method handler with marker hidden, and a Security method handler with replaces: true that shadows the parent's Security handler. On a controller, @Security(['admin']) then writes security bearer admin instead of the parent's default admin, and a method decorated with @Internal() is hidden and left out of the metadata.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="pde-ep-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="472" rx="22"/>
+<text class="h" x="30" y="44">Extending the preset: add one decorator, replace another</text>
+
+<rect class="card" x="28" y="70" width="430" height="150" rx="13"/><rect class="ka" x="28" y="84" width="4" height="122" rx="2"/>
+<text class="t" x="46" y="98">@trapi/preset-decorators-express</text>
+<text class="c s" x="46" y="128">Security<tspan x="150">→ { default: scopes }</tspan></text>
+<text class="c s" x="46" y="154">Hidden<tspan x="150">marker: 'hidden'</tspan></text>
+<text class="s" x="46" y="184">… 63 handlers in all, no extends of its own</text>
+
+<path class="rail" d="M500 145 H466" marker-end="url(#pde-ep-arrow)"/>
+
+<rect class="card" x="502" y="70" width="430" height="150" rx="13"/><rect class="ka" x="502" y="84" width="4" height="122" rx="2"/>
+<text class="t" x="520" y="98">my-app/preset</text>
+<text class="c s" x="520" y="128">extends: ['@trapi/preset-decorators-express']</text>
+<text class="c s" x="520" y="158">Internal<tspan x="610">marker: 'hidden'</tspan></text>
+<rect class="wo" x="838" y="141" width="76" height="24" rx="12"/><text class="to" x="876" y="158" text-anchor="middle" font-size="12" font-weight="600">added</text>
+<text class="c s" x="520" y="192">Security<tspan x="610">replaces: true</tspan></text>
+<rect class="ww" x="782" y="175" width="132" height="24" rx="12"/><text class="tw" x="848" y="192" text-anchor="middle" font-size="12" font-weight="600">shadows parent</text>
+
+<rect class="sunk" x="28" y="240" width="360" height="180" rx="13"/>
+<text class="l" x="46" y="264">your controller</text>
+<text class="c" x="46" y="290"><tspan class="ta">@Get</tspan>('/')</text>
+<text class="c" x="46" y="312"><tspan class="ta">@Security</tspan>(['admin'])</text>
+<text class="c" x="46" y="334">list(): string</text>
+<text class="c" x="46" y="362"><tspan class="ta">@Get</tspan>('/debug')</text>
+<text class="c" x="46" y="384"><tspan class="ta">@Internal</tspan>()</text>
+<text class="c" x="46" y="406">debug(): string</text>
+
+<path class="rail" d="M390 330 H404" marker-end="url(#pde-ep-arrow)"/>
+
+<rect class="card" x="412" y="240" width="520" height="180" rx="13"/><rect class="ks" x="412" y="254" width="4" height="152" rx="2"/>
+<text class="t" x="430" y="268">Method metadata</text>
+<text class="c" x="430" y="298">list<tspan x="500" class="ts">security: [{ bearer: ['admin'] }]</tspan></text>
+<rect class="wd" x="500" y="310" width="340" height="24" rx="12"/><text class="td" x="670" y="327" text-anchor="middle" font-size="12" font-weight="600">parent's { default: ['admin'] }: never written</text>
+<text class="c" x="430" y="372">debug</text>
+<rect class="wd" x="500" y="355" width="300" height="24" rx="12"/><text class="td" x="650" y="372" text-anchor="middle" font-size="12" font-weight="600">hidden: true, left out of the metadata</text>
+
+<rect class="sunk dash" x="28" y="436" width="904" height="36" rx="13"/>
+<text class="s" x="46" y="459">Without replaces both Security handlers would run. replaces: '@trapi/preset-decorators-express' scopes it to that parent.</text>
+</svg>

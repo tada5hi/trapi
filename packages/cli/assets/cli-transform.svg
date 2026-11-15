@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" role="img" aria-labelledby="cli-tx-title cli-tx-desc">
+<title id="cli-tx-title">swagger.transform runs between generation and the write</title>
+<desc id="cli-tx-desc">generateSwagger builds the document and swagger.transform receives it before saveSwagger writes it. Returning nothing or null writes the document with its in-place edits; returning an object writes that object; returning an array or a primitive fails with a CLIUserError and exit code 1; throwing writes nothing and leaves the previous file in place, with exit code 1 for a CLIUserError and 2 for any other error. The result is not revalidated.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+.tm{fill:var(--muted)}
+</style>
+<defs><marker id="cli-tx-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="454" rx="22"/>
+<text class="h" x="30" y="44">swagger.transform runs between generation and the write</text>
+<rect class="card" x="28" y="70" width="210" height="96" rx="13"/><rect class="ks" x="28" y="84" width="4" height="68" rx="2"/>
+<text class="t" x="46" y="100">generateSwagger</text>
+<text class="s" x="46" y="126">finished spec: paths,</text>
+<text class="s" x="46" y="148">operationIds, schemas</text>
+<rect class="card" x="270" y="70" width="210" height="96" rx="13"/><rect class="ka" x="270" y="84" width="4" height="68" rx="2"/>
+<text class="t" x="288" y="100">swagger.transform</text>
+<text class="c s" x="288" y="126">(spec) =&gt; spec | void</text>
+<path class="rail" d="M240 118 H268" marker-end="url(#cli-tx-arrow)"/>
+<rect class="sunk" x="28" y="196" width="452" height="180" rx="13"/>
+<text class="l" x="46" y="220">trapi.config.ts</text>
+<text class="c" x="46" y="248">swagger: {</text>
+<text class="c" x="62" y="270">transform(spec) {</text>
+<text class="c" x="78" y="292">spec.info['x-audience'] = 'internal';</text>
+<text class="c" x="78" y="314">if (!spec.paths['/users']) {</text>
+<text class="c" x="94" y="336"><tspan class="td">throw</tspan> new Error('missing /users');</text>
+<text class="c" x="78" y="358">}</text>
+<path class="rail" d="M482 118 H504 V112"/>
+<path class="rail" d="M504 103 V337"/>
+<rect class="card" x="534" y="70" width="398" height="66" rx="13"/><rect class="ko" x="534" y="84" width="4" height="38" rx="2"/>
+<text class="t" x="552" y="98" font-size="15">returns undefined or null</text>
+<text class="s" x="552" y="120">in-place edits kept, document written</text>
+<rect class="wo" x="814" y="91" width="104" height="24" rx="12"/><text class="to" x="866" y="107.5" text-anchor="middle" font-size="12" font-weight="600">written</text>
+<path class="rail" d="M504 103 H532" marker-end="url(#cli-tx-arrow)"/>
+<rect class="card" x="534" y="148" width="398" height="66" rx="13"/><rect class="ko" x="534" y="162" width="4" height="38" rx="2"/>
+<text class="t" x="552" y="176" font-size="15">returns an object</text>
+<text class="s" x="552" y="198">that object is written instead</text>
+<rect class="wo" x="814" y="169" width="104" height="24" rx="12"/><text class="to" x="866" y="185.5" text-anchor="middle" font-size="12" font-weight="600">replaced</text>
+<path class="rail" d="M504 181 H532" marker-end="url(#cli-tx-arrow)"/>
+<rect class="card" x="534" y="226" width="398" height="66" rx="13"/><rect class="kd" x="534" y="240" width="4" height="38" rx="2"/>
+<text class="t" x="552" y="254" font-size="15">returns an array or primitive</text>
+<text class="s" x="552" y="276">CLIUserError, nothing written</text>
+<rect class="wd" x="814" y="247" width="104" height="24" rx="12"/><text class="td" x="866" y="263.5" text-anchor="middle" font-size="12" font-weight="600">exit 1</text>
+<path class="rail" d="M504 259 H532" marker-end="url(#cli-tx-arrow)"/>
+<rect class="card" x="534" y="304" width="398" height="66" rx="13"/><rect class="kd" x="534" y="318" width="4" height="38" rx="2"/>
+<text class="t" x="552" y="332" font-size="15">throws</text>
+<text class="s" x="552" y="354">nothing written, previous file kept</text>
+<rect class="wd" x="814" y="325" width="104" height="24" rx="12"/><text class="td" x="866" y="341.5" text-anchor="middle" font-size="12" font-weight="600">exit 1 or 2</text>
+<path class="rail" d="M504 337 H532" marker-end="url(#cli-tx-arrow)"/>
+<rect class="sunk dash" x="28" y="398" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="426">The written document is not revalidated against the OpenAPI schema. A JSON config cannot carry a function.</text>
+</svg>

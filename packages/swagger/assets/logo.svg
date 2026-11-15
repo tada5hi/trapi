@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="trapi-logo-title trapi-logo-desc">
+    <title id="trapi-logo-title">TRAPI</title>
+    <desc id="trapi-logo-desc">The letter T inside a pair of generic type brackets: TypeScript types as the source of the API description.</desc>
+    <style>
+        :root { --accent: #6366d8; --second: #159cb2; }
+        @media (prefers-color-scheme: dark) { :root { --accent: #8f92f2; --second: #3dbdd2; } }
+    </style>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <!-- The brackets close in once and settle; the static attributes hold the settled state. -->
+        <path d="M82 64 L30 128 L82 192" stroke="var(--second)" stroke-width="17">
+            <animateTransform attributeName="transform" type="translate" values="-18 0;0 0" dur="0.9s" calcMode="spline" keySplines="0.2 0.8 0.2 1" repeatCount="1" fill="freeze"/>
+        </path>
+        <path d="M174 64 L226 128 L174 192" stroke="var(--second)" stroke-width="17">
+            <animateTransform attributeName="transform" type="translate" values="18 0;0 0" dur="0.9s" calcMode="spline" keySplines="0.2 0.8 0.2 1" repeatCount="1" fill="freeze"/>
+        </path>
+        <path d="M98 92 H158 M128 92 V168" stroke="var(--accent)" stroke-width="20">
+            <animate attributeName="opacity" values="0;1" dur="0.9s" repeatCount="1" fill="freeze"/>
+        </path>
+    </g>
+</svg>

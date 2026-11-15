@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400" viewBox="0 0 960 400" role="img" aria-labelledby="sw-null-title sw-null-desc">
+<title id="sw-null-title">One nullable property, three encodings</title>
+<desc id="sw-null-desc">The metadata property nickname has a union type of string and an enum whose only member is null. Swagger 2.0 emits type string with x-nullable true. OpenAPI 3.0 emits type string with nullable true. OpenAPI 3.1 and 3.2 emit anyOf with a string schema and a null schema.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-null-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="384" rx="22"/>
+<text class="h" x="30" y="44">One nullable property, three encodings</text>
+<rect class="sunk" x="28" y="70" width="340" height="230" rx="13"/>
+<text class="l" x="46" y="94">metadata property (string | null)</text>
+<text class="c" x="46" y="122">{ name: 'nickname',</text>
+<text class="c" x="62" y="144">type: { typeName: 'union',</text>
+<text class="c" x="78" y="166">members: [</text>
+<text class="c" x="94" y="188">{ typeName: 'string' },</text>
+<text class="c" x="94" y="210">{ typeName: 'enum',</text>
+<text class="c" x="110" y="232">members: [null] } ] } }</text>
+<rect class="card" x="408" y="70" width="524" height="62" rx="13"/><rect class="ks" x="408" y="84" width="4" height="34" rx="2"/>
+<rect class="ws" x="428" y="89" width="37" height="24" rx="12"/><text class="ts" x="446" y="105" text-anchor="middle" font-size="12" font-weight="600">v2</text>
+<text class="c" x="548" y="106">{ "type": "string", <tspan class="tw">"x-nullable": true</tspan> }</text>
+<rect class="card" x="408" y="144" width="524" height="62" rx="13"/><rect class="ks" x="408" y="158" width="4" height="34" rx="2"/>
+<rect class="ws" x="428" y="163" width="37" height="24" rx="12"/><text class="ts" x="446" y="179" text-anchor="middle" font-size="12" font-weight="600">v3</text>
+<text class="c" x="548" y="180">{ "type": "string", <tspan class="ts">"nullable": true</tspan> }</text>
+<rect class="card" x="408" y="218" width="524" height="84" rx="13"/><rect class="ks" x="408" y="232" width="4" height="56" rx="2"/>
+<rect class="ws" x="428" y="237" width="103" height="24" rx="12"/><text class="ts" x="480" y="253" text-anchor="middle" font-size="12" font-weight="600">v3.1 · v3.2</text>
+<text class="c" x="548" y="254">{ <tspan class="ts">"anyOf"</tspan>: [{ "type": "string" },</text>
+<text class="c" x="564" y="276">{ <tspan class="ts">"type": "null"</tspan> }] }</text>
+<path class="rail" d="M370 185 H386 V101 H399" marker-end="url(#sw-null-arrow)"/>
+<path class="rail" d="M386 185 V175 H399" marker-end="url(#sw-null-arrow)"/>
+<path class="rail" d="M386 185 V259 H399" marker-end="url(#sw-null-arrow)"/>
+<rect class="sunk dash" x="28" y="316" width="904" height="62" rx="13"/>
+<text class="s" x="46" y="338">Swagger 2.0 has no null type, so x-nullable is a vendor extension. In 3.1 and 3.2 a nullable enum</text>
+<text class="s" x="46" y="358">(members containing null) gets a type array instead: type: ['string', 'null'].</text>
+</svg>

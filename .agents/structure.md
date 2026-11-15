@@ -14,11 +14,14 @@ trapi/
 │   └── docs/              # VitePress documentation site
 ├── examples/
 │   └── decorators/        # Worked example: custom runtime + matching v2 Preset
+├── .github/assets/        # Logo + SVG diagrams referenced by the root README
 ├── nx.json                # NX workspace config (build/test/lint caching)
 ├── tsconfig.json          # Base TS config (noEmit, baseUrl)
 ├── tsconfig.build.json    # Build config (ES2022, ESNext, ESM, declarations)
 └── package.json           # NPM workspaces root
 ```
+
+Each published package keeps a copy of the root logo (`logo.svg`, identical to `.github/assets/logo.svg`) and the SVG diagrams of its own README in `packages/<name>/assets/`, references them relatively (`./assets/<file>.svg`) and ships the directory through `files` in its `package.json`. Diagrams share one palette and `<style>` block; ids are prefixed per file.
 
 ## Dependency Layers
 

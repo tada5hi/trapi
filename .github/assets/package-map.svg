@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="516" viewBox="0 0 960 516" role="img" aria-labelledby="tr-pkg-title tr-pkg-desc">
+<title id="tr-pkg-title">How the TRAPI packages depend on each other</title>
+<desc id="tr-pkg-desc">@trapi/preset-decorators-express and @trapi/preset-typescript-rest have a peer dependency on @trapi/core only. @trapi/cli depends on @trapi/swagger and @trapi/metadata. @trapi/swagger depends on @trapi/core only. @trapi/metadata depends on @trapi/core and has a peer dependency on typescript 5.0.0 or later. @trapi/core holds the Metadata and Type contracts, the handler builders and the preset loader, and has no typescript dependency. Installing @trapi/swagger or a preset therefore never pulls in the TypeScript compiler; @trapi/metadata, and through it @trapi/cli, needs it.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="tr-pkg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="500" rx="22"/>
+<text class="h" x="30" y="44">Package map: only @trapi/metadata needs the TypeScript compiler</text>
+
+<rect class="card" x="28" y="70" width="290" height="60" rx="13"/><rect class="ka" x="28" y="82" width="4" height="36" rx="2"/>
+<text class="c" x="46" y="96" font-weight="600">@trapi/preset-decorators-express</text>
+<text class="s" x="46" y="118">handlers for @decorators/express names</text>
+<rect class="card" x="28" y="146" width="290" height="60" rx="13"/><rect class="ka" x="28" y="158" width="4" height="36" rx="2"/>
+<text class="c" x="46" y="172" font-weight="600">@trapi/preset-typescript-rest</text>
+<text class="s" x="46" y="194">handlers for typescript-rest names</text>
+<rect class="card" x="28" y="262" width="290" height="60" rx="13"/><rect class="ka" x="28" y="274" width="4" height="36" rx="2"/>
+<text class="c" x="46" y="288" font-weight="600">@trapi/cli</text>
+<text class="s" x="46" y="310">trapi generate · watch · info · cache</text>
+
+<rect class="card" x="390" y="222" width="220" height="60" rx="13"/><rect class="ks" x="390" y="234" width="4" height="36" rx="2"/>
+<text class="c" x="408" y="248" font-weight="600">@trapi/swagger</text>
+<text class="s" x="408" y="270">OpenAPI 2.0 to 3.2 emitters</text>
+<rect class="card" x="390" y="302" width="220" height="60" rx="13"/><rect class="ka" x="390" y="314" width="4" height="36" rx="2"/>
+<text class="c" x="408" y="328" font-weight="600">@trapi/metadata</text>
+<text class="s" x="408" y="350">TypeScript compiler API</text>
+
+<rect class="card" x="668" y="70" width="264" height="140" rx="13"/><rect class="ks" x="668" y="84" width="4" height="112" rx="2"/>
+<text class="c" x="686" y="96" font-weight="600">@trapi/core</text>
+<text class="s" x="686" y="122">Metadata, Type, Preset, Registry</text>
+<text class="s" x="686" y="144">controller(), method(), parameter()</text>
+<text class="s" x="686" y="166">loadRegistry, validatePreset</text>
+<text class="s" x="686" y="188">no typescript dependency</text>
+
+<rect class="sunk dash" x="668" y="330" width="264" height="60" rx="13"/>
+<text class="c" x="686" y="356" font-weight="600">typescript</text>
+<text class="s" x="686" y="378">your project's compiler, &gt;= 5.0.0</text>
+
+<path class="rail dash" d="M320 100 H662" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail dash" d="M320 176 H662" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail" d="M320 292 H352 V252 H384" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail" d="M352 292 V332 H384" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail" d="M612 252 H710 V216" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail" d="M612 318 H770 V216" marker-end="url(#tr-pkg-arrow)"/>
+<path class="rail dash" d="M612 352 H662" marker-end="url(#tr-pkg-arrow)"/>
+
+<rect class="sunk" x="28" y="408" width="904" height="34" rx="13"/>
+<path class="rail" d="M46 425 H86"/><text class="s" x="96" y="430">dependency (installed with the package)</text>
+<path class="rail dash" d="M392 425 H432"/><text class="s" x="442" y="430">peerDependency (shared with your project)</text>
+
+<rect class="sunk dash" x="28" y="454" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="482">Installing @trapi/swagger or a preset never pulls in typescript; @trapi/metadata, and so @trapi/cli, need it as a peer.</text>
+</svg>

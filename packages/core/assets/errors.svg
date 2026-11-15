@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="594" viewBox="0 0 960 594" role="img" aria-labelledby="core-er-title core-er-desc">
+<title id="core-er-title">Which CoreError each failure throws</title>
+<desc id="core-er-desc">A method handler with match.on 'class' fails validation in loadRegistry with CORE_PRESET_INVALID and the message Property methods[0].match.on is invalid. resolvePresetByName('does-not-exist') throws CORE_PRESET_NOT_FOUND. Presets a and b that extend each other throw CORE_PRESET_CYCLE with the message Preset cycle detected: a -> b -> a. With strict: true, a Get handler with replaces: true and no parent Get throws CORE_PRESET_REPLACES_NO_MATCH. requireNumber on an argument that cannot be resolved throws CORE_DECORATOR_ARGUMENT_INVALID naming the decorator and host. loadRegistry wraps validation failures in CORE_PRESET_INVALID, while validatePreset called directly throws a ValidupError.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<rect class="canvas" x="8" y="8" width="944" height="578" rx="22"/>
+<text class="h" x="30" y="44">Which CoreError each failure throws</text>
+
+<text class="l" x="28" y="78">what you call, and what is wrong</text>
+<text class="l" x="420" y="78">error.code and error.message</text>
+
+<rect class="sunk" x="28" y="92" width="360" height="70" rx="13"/>
+<text class="c s" x="46" y="118">loadRegistry · validatePreset</text>
+<text class="c" x="46" y="144">methods: [{ match: { on: 'class' } }]</text>
+<rect class="card" x="420" y="92" width="512" height="70" rx="13"/><rect class="kd" x="420" y="104" width="4" height="46" rx="2"/>
+<rect class="wd" x="438" y="102" width="160" height="22" rx="11"/><text class="c td" x="518" y="117" text-anchor="middle" font-size="12">CORE_PRESET_INVALID</text>
+<text class="c s" x="438" y="148">Property methods[0].match.on is invalid</text>
+
+<rect class="sunk" x="28" y="174" width="360" height="70" rx="13"/>
+<text class="c s" x="46" y="200">resolvePresetByName</text>
+<text class="c" x="46" y="226">resolvePresetByName('does-not-exist')</text>
+<rect class="card" x="420" y="174" width="512" height="70" rx="13"/><rect class="kd" x="420" y="186" width="4" height="46" rx="2"/>
+<rect class="wd" x="438" y="184" width="174" height="22" rx="11"/><text class="c td" x="525" y="199" text-anchor="middle" font-size="12">CORE_PRESET_NOT_FOUND</text>
+<text class="c s" x="438" y="230">Preset 'does-not-exist' could not be resolved.</text>
+
+<rect class="sunk" x="28" y="256" width="360" height="70" rx="13"/>
+<text class="c s" x="46" y="282">loadRegistry · extends walk</text>
+<text class="c" x="46" y="308">a extends ['b'], b extends ['a']</text>
+<rect class="card" x="420" y="256" width="512" height="70" rx="13"/><rect class="kd" x="420" y="268" width="4" height="46" rx="2"/>
+<rect class="wd" x="438" y="266" width="146" height="22" rx="11"/><text class="c td" x="511" y="281" text-anchor="middle" font-size="12">CORE_PRESET_CYCLE</text>
+<text class="c s" x="438" y="312">Preset cycle detected: a -&gt; b -&gt; a</text>
+
+<rect class="sunk" x="28" y="338" width="360" height="70" rx="13"/>
+<text class="c s" x="46" y="364">loadRegistry({ strict: true })</text>
+<text class="c" x="46" y="390">Get replaces: true, no parent Get</text>
+<rect class="card" x="420" y="338" width="512" height="70" rx="13"/><rect class="kd" x="420" y="350" width="4" height="46" rx="2"/>
+<rect class="wd" x="438" y="348" width="234" height="22" rx="11"/><text class="c td" x="555" y="363" text-anchor="middle" font-size="12">CORE_PRESET_REPLACES_NO_MATCH</text>
+<text class="c s" x="438" y="394">… replaces=true on 'Get' did not match any parent handler</text>
+
+<rect class="sunk" x="28" y="420" width="360" height="92" rx="13"/>
+<text class="c s" x="46" y="446">requireNumber(ctx, 0) in apply</text>
+<text class="c" x="46" y="472"><tspan class="ta">@Status</tspan>(STATUS)</text>
+<text class="c s" x="46" y="494">STATUS cannot be resolved</text>
+<rect class="card" x="420" y="420" width="512" height="92" rx="13"/><rect class="kd" x="420" y="432" width="4" height="68" rx="2"/>
+<rect class="wd" x="438" y="430" width="256" height="22" rx="11"/><text class="c td" x="566" y="445" text-anchor="middle" font-size="12">CORE_DECORATOR_ARGUMENT_INVALID</text>
+<text class="c s" x="438" y="476">Argument 0 of '@Status' on 'UsersController.create'</text>
+<text class="c s" x="438" y="498">must be a number, but could not be resolved to one.</text>
+
+<rect class="sunk dash" x="28" y="528" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="556">loadRegistry wraps every validation failure in CORE_PRESET_INVALID; validatePreset called on its own throws a ValidupError.</text>
+</svg>

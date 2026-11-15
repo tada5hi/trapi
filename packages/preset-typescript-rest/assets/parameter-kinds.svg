@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="526" viewBox="0 0 960 526" role="img" aria-labelledby="ptr-par-title ptr-par-desc">
+<title id="ptr-par-title">Which parameter decorator becomes which parameter kind</title>
+<desc id="ptr-par-desc">Each typescript-rest parameter decorator sets the parameter's in kind: @PathParam gives path, @QueryParam and @Param give queryProp (emitted as an OpenAPI query parameter), @HeaderParam gives header, @CookieParam gives cookie, and @FileParam and @FilesParam give formData. A parameter without a decorator becomes the body. The five Context decorators (@ContextRequest, @ContextResponse, @ContextNext, @ContextLanguage, @ContextAccept) mark a context parameter, which produces no parameter and whose type is never resolved. @FormParam has no handler in this preset, so the parameter falls back to body.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="ptr-par-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="510" rx="22"/>
+<text class="h" x="30" y="44">Parameter decorators and the kind each one writes</text>
+<text class="l" x="30" y="78">decorator on a method argument</text>
+<text class="l" x="622" y="78">parameter in</text>
+<rect class="card" x="28" y="92" width="500" height="32" rx="10"/><rect class="ka" x="28" y="100" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="113"><tspan class="ta">@PathParam</tspan>('id')</text>
+<path class="rail" d="M532 108 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="92" width="312" height="32" rx="16"/><text class="ts" x="640" y="113" font-size="13" font-weight="600">path</text>
+<rect class="card" x="28" y="132" width="500" height="32" rx="10"/><rect class="ka" x="28" y="140" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="153"><tspan class="ta">@QueryParam</tspan>('q') · <tspan class="ta">@Param</tspan>('page')</text>
+<path class="rail" d="M532 148 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="132" width="312" height="32" rx="16"/><text class="ts" x="640" y="153" font-size="13" font-weight="600">queryProp (emitted as in: query)</text>
+<rect class="card" x="28" y="172" width="500" height="32" rx="10"/><rect class="ka" x="28" y="180" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="193"><tspan class="ta">@HeaderParam</tspan>('x-tenant')</text>
+<path class="rail" d="M532 188 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="172" width="312" height="32" rx="16"/><text class="ts" x="640" y="193" font-size="13" font-weight="600">header</text>
+<rect class="card" x="28" y="212" width="500" height="32" rx="10"/><rect class="ka" x="28" y="220" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="233"><tspan class="ta">@CookieParam</tspan>('session')</text>
+<path class="rail" d="M532 228 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="212" width="312" height="32" rx="16"/><text class="ts" x="640" y="233" font-size="13" font-weight="600">cookie</text>
+<rect class="card" x="28" y="252" width="500" height="32" rx="10"/><rect class="ka" x="28" y="260" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="273"><tspan class="ta">@FileParam</tspan>('file') · <tspan class="ta">@FilesParam</tspan>('files')</text>
+<path class="rail" d="M532 268 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="252" width="312" height="32" rx="16"/><text class="ts" x="640" y="273" font-size="13" font-weight="600">formData</text>
+<rect class="card" x="28" y="292" width="500" height="32" rx="10"/><rect class="ka" x="28" y="300" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="313">no decorator: create(user: User)</text>
+<path class="rail" d="M532 308 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ws" x="620" y="292" width="312" height="32" rx="16"/><text class="ts" x="640" y="313" font-size="13" font-weight="600">body (the undecorated default)</text>
+<rect class="card" x="28" y="332" width="500" height="52" rx="10"/><rect class="kd" x="28" y="340" width="4" height="36" rx="2"/>
+<text class="c" x="48" y="353"><tspan class="td">@ContextRequest</tspan> · <tspan class="td">@ContextResponse</tspan> · <tspan class="td">@ContextNext</tspan></text>
+<text class="c" x="48" y="373"><tspan class="td">@ContextLanguage</tspan> · <tspan class="td">@ContextAccept</tspan></text>
+<path class="rail dash" d="M532 358 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="wd" x="620" y="342" width="312" height="32" rx="16"/><text class="td" x="640" y="363" font-size="13" font-weight="600">context: no parameter, type not resolved</text>
+<rect class="card" x="28" y="392" width="500" height="32" rx="10"/><rect class="kw" x="28" y="400" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="413"><tspan class="tw">@FormParam</tspan>('caption')</text>
+<path class="rail dash" d="M532 408 H612" marker-end="url(#ptr-par-arrow)"/>
+<rect class="ww" x="620" y="392" width="312" height="32" rx="16"/><text class="tw" x="640" y="413" font-size="13" font-weight="600">no handler: falls back to body</text>
+<rect class="sunk dash" x="28" y="442" width="904" height="64" rx="13"/>
+<text class="s" x="46" y="468">The first string argument names the parameter; without one, the TypeScript argument name is used.</text>
+<text class="s" x="46" y="490">@Param binds query or form at runtime but is documented as query. Map @FormParam yourself to document form fields.</text>
+</svg>

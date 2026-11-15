@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="468" viewBox="0 0 960 468" role="img" aria-labelledby="tr-bt-title tr-bt-desc">
+<title id="tr-bt-title">What runs when you generate a document</title>
+<desc id="tr-bt-desc">Generation is a build step. Controller source is parsed by the TypeScript compiler and type checker, never executed: decorator calls such as @Controller('/users'), signatures such as findOne(): Promise&lt;User&gt;, type declarations, JSDoc tags and tsconfig.json are read; method bodies never run. Modules are loaded and their code runs: the preset and every preset in its extends chain, trapi.config.ts when you use the CLI, and your own script that calls generateMetadata. Not involved: the decorator runtime such as @decorators/express, reflect-metadata, and your server. The application later starts without any TRAPI code; the generated document is a static file.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="tr-bt-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="452" rx="22"/>
+<text class="h" x="30" y="44">Build-time analysis: what is read, what runs, what never starts</text>
+
+<rect class="card" x="28" y="64" width="290" height="214" rx="13"/><rect class="ka" x="28" y="78" width="4" height="186" rx="2"/>
+<text class="t" x="46" y="92">Parsed, never executed</text>
+<text class="s" x="46" y="114">TypeScript compiler + type checker</text>
+<text class="c" x="46" y="146"><tspan class="ta">@Controller</tspan>('/users')</text>
+<text class="c" x="46" y="168">findOne(): Promise&lt;User&gt;</text>
+<text class="c" x="46" y="190">type User = { … }</text>
+<text class="c" x="46" y="212">/** @deprecated */</text>
+<text class="c" x="46" y="234">tsconfig.json</text>
+<text class="s" x="46" y="260">method bodies never run</text>
+
+<rect class="card" x="335" y="64" width="290" height="214" rx="13"/><rect class="kw" x="335" y="78" width="4" height="186" rx="2"/>
+<text class="t" x="353" y="92">Loaded, their code runs</text>
+<text class="s" x="353" y="114">imported as modules</text>
+<text class="c" x="353" y="146">preset: '@trapi/preset-…'</text>
+<text class="s" x="353" y="168">and every preset it extends</text>
+<text class="c" x="353" y="200">trapi.config.ts</text>
+<text class="s" x="353" y="222">when you use the CLI</text>
+<text class="c" x="353" y="254">scripts/generate-openapi.ts</text>
+
+<rect class="sunk" x="642" y="64" width="290" height="214" rx="13"/>
+<text class="t" x="660" y="92">Not involved</text>
+<text class="s" x="660" y="114">never executed or started by TRAPI</text>
+<text class="c" x="660" y="146">@decorators/express</text>
+<text class="s" x="660" y="168">the decorator runtime</text>
+<text class="c" x="660" y="200">reflect-metadata</text>
+<text class="s" x="660" y="222">no emitted design types needed</text>
+<text class="c" x="660" y="254">app.listen(3000)</text>
+
+<rect class="sunk" x="28" y="294" width="904" height="44" rx="13"/>
+<text class="l" x="46" y="321">build</text>
+<rect class="wa" x="110" y="303" width="150" height="26" rx="13"/><text class="c ta" x="185" y="320" text-anchor="middle" font-size="12">tsc</text>
+<path class="rail" d="M262 316 H290" marker-end="url(#tr-bt-arrow)"/>
+<rect class="wa" x="296" y="303" width="300" height="26" rx="13"/><text class="c ta" x="446" y="320" text-anchor="middle" font-size="12">tsx scripts/generate-openapi.ts</text>
+<path class="rail" d="M598 316 H626" marker-end="url(#tr-bt-arrow)"/>
+<rect class="ws" x="632" y="303" width="200" height="26" rx="13"/><text class="c ts" x="732" y="320" text-anchor="middle" font-size="12">docs/openapi.json</text>
+
+<rect class="sunk" x="28" y="346" width="904" height="44" rx="13"/>
+<text class="l" x="46" y="373">runtime</text>
+<rect class="wo" x="110" y="355" width="236" height="26" rx="13"/><text class="c to" x="228" y="372" text-anchor="middle" font-size="12">node dist/server.js</text>
+<text class="s" x="364" y="373">no TRAPI package is loaded; serve the file if you want docs at runtime</text>
+
+<rect class="sunk dash" x="28" y="406" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="434">Presets and config files are code: load only ones you trust. Your framework's decorators still run when the app starts.</text>
+</svg>

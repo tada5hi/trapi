@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="526" viewBox="0 0 960 526" role="img" aria-labelledby="ptr-sec-title ptr-sec-desc">
+<title id="ptr-sec-title">@Security(scopes, name) argument shapes and the security entry each produces</title>
+<desc id="ptr-sec-desc">Security entries produced by this preset's @Security(scopes, name). @Security(['users:read'], 'oauth2') and @Security('users:read', 'oauth2') give { oauth2: ['users:read'] }. Without a name the scheme is called default: @Security('users:read') gives { default: ['users:read'] } and @Security() gives { default: [] }. Two decorators add two alternatives. A scopes array with a non-string entry keeps the entry but drops every scope. A name that is a constant instead of a string literal falls back to default, and the object form @Security({ oauth2: [...] }) is not read and gives { default: [] }.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="ptr-sec-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="510" rx="22"/>
+<text class="h" x="30" y="44">@Security(scopes, name): what each shape adds to Method.security</text>
+<text class="l" x="30" y="78">on a method</text>
+<text class="l" x="562" y="78">security entry</text>
+<rect class="card" x="28" y="92" width="480" height="32" rx="10"/><rect class="ka" x="28" y="100" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="113"><tspan class="ta">@Security</tspan>(['users:read'], 'oauth2')</text>
+<path class="rail" d="M512 108 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ws" x="560" y="92" width="372" height="32" rx="16"/>
+<text class="ts" x="578" y="113" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ oauth2: ['users:read'] }</tspan></text>
+<rect class="card" x="28" y="132" width="480" height="32" rx="10"/><rect class="ka" x="28" y="140" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="153"><tspan class="ta">@Security</tspan>('users:read', 'oauth2')</text>
+<path class="rail" d="M512 148 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ws" x="560" y="132" width="372" height="32" rx="16"/>
+<text class="ts" x="578" y="153" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ oauth2: ['users:read'] }</tspan></text>
+<rect class="card" x="28" y="172" width="480" height="32" rx="10"/><rect class="ka" x="28" y="180" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="193"><tspan class="ta">@Security</tspan>('users:read')</text>
+<path class="rail" d="M512 188 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ws" x="560" y="172" width="372" height="32" rx="16"/>
+<text class="ts" x="578" y="193" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ default: ['users:read'] }</tspan></text>
+<rect class="card" x="28" y="212" width="480" height="32" rx="10"/><rect class="ka" x="28" y="220" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="233"><tspan class="ta">@Security</tspan>()</text>
+<path class="rail" d="M512 228 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ws" x="560" y="212" width="372" height="32" rx="16"/>
+<text class="ts" x="578" y="233" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ default: [] }</tspan></text>
+<rect class="card" x="28" y="252" width="480" height="52" rx="10"/><rect class="ka" x="28" y="260" width="4" height="36" rx="2"/>
+<text class="c" x="48" y="273"><tspan class="ta">@Security</tspan>(['users:read'], 'oauth2')</text>
+<text class="c" x="48" y="293"><tspan class="ta">@Security</tspan>([], 'apiKey')</text>
+<path class="rail" d="M512 278 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ws" x="560" y="262" width="372" height="32" rx="16"/>
+<text class="ts" x="578" y="283" font-size="12" font-weight="600"><tspan class="c" font-size="12">[{ oauth2: [...] }, { apiKey: [] }]</tspan></text>
+<rect class="card" x="28" y="312" width="480" height="32" rx="10"/><rect class="kw" x="28" y="320" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="333"><tspan class="ta">@Security</tspan>(['users:read', scope()], 'oauth2')</text>
+<path class="rail dash" d="M512 328 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ww" x="560" y="312" width="372" height="32" rx="16"/>
+<text class="tw" x="578" y="333" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ oauth2: [] }</tspan><tspan dx="10">· non-string scope drops all</tspan></text>
+<rect class="card" x="28" y="352" width="480" height="32" rx="10"/><rect class="kw" x="28" y="360" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="373"><tspan class="ta">@Security</tspan>(['users:read'], SCHEME)</text>
+<path class="rail dash" d="M512 368 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ww" x="560" y="352" width="372" height="32" rx="16"/>
+<text class="tw" x="578" y="373" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ default: ['users:read'] }</tspan><tspan dx="10">· constant name</tspan></text>
+<rect class="card" x="28" y="392" width="480" height="32" rx="10"/><rect class="kw" x="28" y="400" width="4" height="16" rx="2"/>
+<text class="c" x="48" y="413"><tspan class="ta">@Security</tspan>({ oauth2: ['users:read'] })</text>
+<path class="rail dash" d="M512 408 H552" marker-end="url(#ptr-sec-arrow)"/>
+<rect class="ww" x="560" y="392" width="372" height="32" rx="16"/>
+<text class="tw" x="578" y="413" font-size="12" font-weight="600"><tspan class="c" font-size="12">{ default: [] }</tspan><tspan dx="10">· object form not read</tspan></text>
+<rect class="sunk dash" x="28" y="442" width="904" height="64" rx="13"/>
+<text class="s" x="46" y="468">Scopes come first, the scheme name second. Only methods are matched; a class-level @Security is not handled.</text>
+<text class="s" x="46" y="490">The name has to match a security scheme you configure in @trapi/swagger.</text>
+</svg>

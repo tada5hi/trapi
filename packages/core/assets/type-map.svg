@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="556" viewBox="0 0 960 556" role="img" aria-labelledby="core-tm-title core-tm-desc">
+<title id="core-tm-title">The Type union by typeName</title>
+<desc id="core-tm-desc">Every node of the Type union carries a typeName. PrimitiveType, checked by isPrimitiveType, covers string, boolean, bigint, any, object, undefined, file, byte, date, datetime, binary, buffer and the numeric kinds; a Date is datetime, or date under the JSDoc tag @isDate. The numeric kinds integer, long, float and double have the guards isIntegerType, isLongType, isFloatType and isDoubleType and come from the numeric markers int, long, float and double; a plain number without a marker is double. Composite types are array with elementType, tuple with elements, union and intersection with members, enum with members and nestedObjectLiteral with properties. ReferenceType, checked by isReferenceType, covers refObject with properties, refEnum with members and memberNames, and refAlias with type; each has a refName and is stored in Metadata.referenceTypes. void and never sit outside PrimitiveType. Every typeName has a guard named after it, which checks typeName only.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<rect class="canvas" x="8" y="8" width="944" height="540" rx="22"/>
+<text class="h" x="30" y="44">The Type union by typeName</text>
+
+<rect class="card" x="28" y="70" width="448" height="170" rx="13"/><rect class="ks" x="28" y="82" width="4" height="146" rx="2"/>
+<text class="t" x="46" y="98">PrimitiveType</text><text class="c s" x="170" y="98">isPrimitiveType(t)</text>
+<text class="c" x="46" y="126">'string'</text><text class="c" x="156" y="126">'boolean'</text><text class="c" x="266" y="126">'bigint'</text><text class="c" x="376" y="126">'any'</text>
+<text class="c" x="46" y="148">'object'</text><text class="c" x="156" y="148">'undefined'</text><text class="c" x="266" y="148">'file'</text><text class="c" x="376" y="148">'byte'</text>
+<text class="c" x="46" y="170">'date'</text><text class="c" x="156" y="170">'datetime'</text><text class="c" x="266" y="170">'binary'</text><text class="c" x="376" y="170">'buffer'</text>
+<text class="c s" x="46" y="198">+ the four numeric kinds</text>
+<text class="s" x="46" y="222">Date is 'datetime', or 'date' under JSDoc @isDate</text>
+
+<rect class="card" x="496" y="70" width="436" height="170" rx="13"/><rect class="ks" x="496" y="82" width="4" height="146" rx="2"/>
+<text class="t" x="514" y="98">Numeric kinds</text><text class="s" x="742" y="98">from marker</text>
+<text class="c" x="514" y="126">'integer'</text><text class="c s" x="608" y="126">isIntegerType</text><text class="c ta" x="742" y="126">{ numeric: 'int' }</text>
+<text class="c" x="514" y="148">'long'</text><text class="c s" x="608" y="148">isLongType</text><text class="c ta" x="742" y="148">{ numeric: 'long' }</text>
+<text class="c" x="514" y="170">'float'</text><text class="c s" x="608" y="170">isFloatType</text><text class="c ta" x="742" y="170">{ numeric: 'float' }</text>
+<text class="c" x="514" y="192">'double'</text><text class="c s" x="608" y="192">isDoubleType</text><text class="c ta" x="742" y="192">{ numeric: 'double' }</text>
+<text class="s" x="514" y="222">a plain number without a marker is 'double'</text>
+
+<rect class="card" x="28" y="256" width="448" height="170" rx="13"/><rect class="ks" x="28" y="268" width="4" height="146" rx="2"/>
+<text class="t" x="46" y="284">Composite</text>
+<text class="c" x="46" y="312">'array'</text><text class="c s" x="256" y="312">elementType</text>
+<text class="c" x="46" y="334">'tuple'</text><text class="c s" x="256" y="334">elements[]</text>
+<text class="c" x="46" y="356">'union', 'intersection'</text><text class="c s" x="256" y="356">members[]</text>
+<text class="c" x="46" y="378">'enum'</text><text class="c s" x="256" y="378">members[]</text>
+<text class="c" x="46" y="400">'nestedObjectLiteral'</text><text class="c s" x="256" y="400">properties[]</text>
+
+<rect class="card" x="496" y="256" width="436" height="170" rx="13"/><rect class="ks" x="496" y="268" width="4" height="146" rx="2"/>
+<text class="t" x="514" y="284">ReferenceType</text><text class="c s" x="638" y="284">isReferenceType(t)</text>
+<text class="c" x="514" y="312">'refObject'</text><text class="c s" x="626" y="312">properties[]</text>
+<text class="c" x="514" y="334">'refEnum'</text><text class="c s" x="626" y="334">members[], memberNames?</text>
+<text class="c" x="514" y="356">'refAlias'</text><text class="c s" x="626" y="356">type</text>
+<text class="s" x="514" y="384">each carries refName and deprecated, and is stored</text>
+<text class="s" x="514" y="404">once in Metadata.referenceTypes[refName]</text>
+
+<rect class="card" x="28" y="442" width="904" height="40" rx="12"/>
+<text class="c" x="46" y="467">'void'</text><text class="c" x="106" y="467">'never'</text>
+<text class="c s" x="196" y="467">isVoidType, isNeverType</text>
+<text class="s" x="408" y="467">part of Type, outside PrimitiveType</text>
+
+<rect class="sunk dash" x="28" y="494" width="904" height="42" rx="13"/>
+<text class="s" x="46" y="520">Each typeName has a guard named after it ('refAlias' → isRefAliasType). Guards compare typeName only.</text>
+</svg>

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="534" viewBox="0 0 960 534" role="img" aria-labelledby="core-fz-title core-fz-desc">
+<title id="core-fz-title">Finalizer order along extends</title>
+<desc id="core-fz-desc">Preset app extends left and right, which both extend root. root declares finalizeMethod R, app declares finalizeMethod A, and an inline registry passed to generateMetadata holds methodFinalizers I. loadRegistry collects parents first, so registry.methodFinalizers is R, A, I: root's finalizer appears once although root is reached through two extends paths. For each route method the decorator handlers run, then the JSDoc handlers, then R, A and I, then the success status check and the default response. A preset reached through several extends paths is collected once: root's handlers and its finalizer appear once in this registry.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="core-fz-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="518" rx="22"/>
+<text class="h" x="30" y="44">Finalizer order along extends</text>
+
+<text class="l" x="28" y="76">presets and the inline registry</text>
+<text class="l" x="490" y="76">registry.methodFinalizers</text>
+
+<rect class="card" x="138" y="88" width="200" height="66" rx="13"/><rect class="ka" x="138" y="100" width="4" height="42" rx="2"/>
+<text class="t" x="156" y="114">app</text>
+<text class="c" x="156" y="140">finalizeMethod: <tspan class="ta">A</tspan></text>
+
+<rect class="card" x="28" y="196" width="200" height="66" rx="13"/><rect class="ka" x="28" y="208" width="4" height="42" rx="2"/>
+<text class="t" x="46" y="222">left</text>
+<text class="c s" x="46" y="248">extends: ['root']</text>
+
+<rect class="card" x="248" y="196" width="200" height="66" rx="13"/><rect class="ka" x="248" y="208" width="4" height="42" rx="2"/>
+<text class="t" x="266" y="222">right</text>
+<text class="c s" x="266" y="248">extends: ['root']</text>
+
+<rect class="card" x="138" y="304" width="200" height="66" rx="13"/><rect class="ka" x="138" y="316" width="4" height="42" rx="2"/>
+<text class="t" x="156" y="330">root</text>
+<text class="c" x="156" y="356">finalizeMethod: <tspan class="ta">R</tspan></text>
+
+<path class="rail" d="M210 156 L150 190" marker-end="url(#core-fz-arrow)"/>
+<path class="rail" d="M266 156 L326 190" marker-end="url(#core-fz-arrow)"/>
+<path class="rail" d="M150 264 L210 298" marker-end="url(#core-fz-arrow)"/>
+<path class="rail" d="M326 264 L266 298" marker-end="url(#core-fz-arrow)"/>
+<rect class="wa" x="356" y="160" width="74" height="22" rx="11"/><text class="c ta" x="393" y="175" text-anchor="middle" font-size="11">extends</text>
+
+<rect class="sunk" x="28" y="386" width="420" height="66" rx="13"/>
+<text class="c" x="46" y="412">generateMetadata({ registry })</text>
+<text class="c" x="46" y="436">methodFinalizers: [<tspan class="ta">I</tspan>]</text>
+
+<rect class="card" x="490" y="88" width="442" height="40" rx="12"/><rect class="ks" x="490" y="96" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="113">1  R</text><text class="s" x="560" y="113">root, once despite two extends paths</text>
+<rect class="card" x="490" y="136" width="442" height="40" rx="12"/><rect class="ks" x="490" y="144" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="161">2  A</text><text class="s" x="560" y="161">app, after its parents</text>
+<rect class="card" x="490" y="184" width="442" height="40" rx="12"/><rect class="ks" x="490" y="192" width="4" height="24" rx="2"/>
+<text class="c" x="508" y="209">3  I</text><text class="s" x="560" y="209">inline registry, merged after the preset</text>
+
+<rect class="sunk" x="490" y="240" width="442" height="212" rx="13"/>
+<text class="l" x="508" y="266">per route method</text>
+<text class="c" x="508" y="294">1  decorator handlers</text>
+<text class="c" x="508" y="318">2  JSDoc handlers</text>
+<text class="c" x="508" y="342">3  verb set and not hidden?</text>
+<text class="c" x="508" y="366">4  finalizers R → A → I</text>
+<text class="c" x="508" y="390">5  verb set and not hidden?</text>
+<text class="c" x="508" y="414">6  successStatus check,</text>
+<text class="c" x="532" y="436">default response</text>
+<rect class="wd" x="772" y="327" width="140" height="22" rx="11"/><text class="td" x="842" y="342" text-anchor="middle" font-size="12" font-weight="600">else: not a route</text>
+<rect class="wd" x="772" y="375" width="140" height="22" rx="11"/><text class="td" x="842" y="390" text-anchor="middle" font-size="12" font-weight="600">else: dropped</text>
+
+<rect class="sunk dash" x="28" y="468" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="496">A preset reached through several extends paths is collected once: root's handlers and its finalizer appear once in this registry.</text>
+</svg>

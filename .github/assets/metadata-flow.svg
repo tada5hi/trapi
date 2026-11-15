@@ -1,17 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-labelledby="trp-title trp-desc">
-<title id="trp-title">Extract metadata once and reuse it</title><desc id="trp-desc">Decorated TypeScript is analysed with preset handlers by generateMetadata. Reuse the resulting controllers and referenceTypes with generateSwagger for OpenAPI 2.0, 3.0, 3.1 or 3.2, then save JSON or YAML.</desc>
-<style>:root{--canvas:#f6f7fb;--panel:#fff;--ink:#253447;--muted:#526278;--border:#c6cedc;--accent:#6366d8;--second:#159cb2;--arrow:#71819a}@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1}}text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink)}.small{font-size:15px;fill:var(--muted)}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:18px}</style>
-<defs><marker id="trp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
-<rect x="8" y="8" width="944" height="364" rx="22" fill="var(--canvas)" stroke="var(--border)"/>
-<text x="30" y="44" font-size="21" font-weight="650">One TypeScript analysis, multiple OpenAPI documents</text>
-<rect x="28" y="76" width="210" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="28" y="90" width="4" height="66" rx="2" fill="var(--accent)"/><text x="46" y="110" class="code">Your TypeScript</text><text x="46" y="137" class="small">Decorators + types</text>
-<rect x="285" y="76" width="280" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="285" y="90" width="4" height="66" rx="2" fill="var(--accent)"/><text x="303" y="110" class="code">generateMetadata()</text><text x="303" y="137" class="small">TypeScript + preset handlers</text>
-<rect x="612" y="76" width="314" height="94" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="612" y="90" width="4" height="66" rx="2" fill="var(--second)"/><text x="630" y="110" class="code">Metadata</text><text x="630" y="137" class="small">controllers + referenceTypes</text>
-<path d="M240 123 H276" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
-<path d="M567 123 H603" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
-<path d="M770 172 V208 H425 V227" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
-<text x="485" y="199" class="small">Reuse the same metadata</text>
-<rect x="285" y="236" width="280" height="104" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="285" y="250" width="4" height="76" rx="2" fill="var(--second)"/><text x="303" y="270" class="code">generateSwagger()</text><text x="303" y="297" class="small">v2 / v3 / v3.1 / v3.2</text><text x="303" y="324" class="small">No TypeScript compiler dependency</text>
-<rect x="612" y="236" width="314" height="104" rx="13" fill="var(--panel)" stroke="var(--border)"/><rect x="612" y="250" width="4" height="76" rx="2" fill="var(--second)"/><text x="630" y="270" class="code">OpenAPI documents</text><text x="630" y="297" class="small">saveSwagger(): JSON or YAML</text><text x="630" y="324" class="small">One file per save call</text>
-<path d="M567 288 H603" fill="none" stroke="var(--arrow)" stroke-width="2.5" marker-end="url(#trp-arrow)"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="466" viewBox="0 0 960 466" role="img" aria-labelledby="tr-flow-title tr-flow-desc">
+<title id="tr-flow-title">Extract Metadata once, emit every OpenAPI version from it</title>
+<desc id="tr-flow-desc">generateMetadata reads the entry point with the TypeScript compiler and the preset handlers and returns Metadata: controllers plus referenceTypes such as User. generateSwagger runs once per version on that same object: 'v2' emits swagger: "2.0" with $ref '#/definitions/User'; 'v3', 'v3.1' and 'v3.2' emit openapi 3.0.0, 3.1.0 and 3.2.0 with $ref '#/components/schemas/User'. saveSwagger(spec, { cwd: 'docs', name: 'openapi-v3.1', format: 'yaml' }) writes docs/openapi-v3.1.yaml; each call writes one file, JSON by default.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="tr-flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="450" rx="22"/>
+<text class="h" x="30" y="44">Extract once, emit every OpenAPI version from the same Metadata</text>
+
+<rect class="card" x="28" y="130" width="222" height="116" rx="13"/><rect class="ka" x="28" y="144" width="4" height="88" rx="2"/>
+<text class="t" x="46" y="160">generateMetadata()</text>
+<text class="c s" x="46" y="188">entryPoint, preset,</text>
+<text class="c s" x="46" y="210">tsconfig</text>
+<text class="s" x="46" y="232">TypeScript compiler API</text>
+
+<path class="rail" d="M252 188 H276" marker-end="url(#tr-flow-arrow)"/>
+
+<rect class="card" x="280" y="130" width="250" height="116" rx="13"/><rect class="ks" x="280" y="144" width="4" height="88" rx="2"/>
+<text class="t" x="298" y="160">Metadata</text>
+<text class="c" x="298" y="188">controllers: [ … ]</text>
+<text class="c" x="298" y="210">referenceTypes: { User }</text>
+<text class="s" x="298" y="232">plain, serialisable object</text>
+
+<rect class="ws" x="28" y="268" width="502" height="26" rx="13"/><text class="c ts" x="279" y="285" text-anchor="middle" font-size="12">generateSwagger({ version, metadata }), once per version</text>
+
+<path class="rail" d="M532 188 H550 V92 H566" marker-end="url(#tr-flow-arrow)"/>
+<path class="rail" d="M550 156 H566" marker-end="url(#tr-flow-arrow)"/>
+<path class="rail" d="M550 188 V220 H566" marker-end="url(#tr-flow-arrow)"/>
+<path class="rail" d="M550 220 V284 H566" marker-end="url(#tr-flow-arrow)"/>
+
+<rect class="card" x="572" y="64" width="360" height="56" rx="13"/><rect class="ks" x="572" y="74" width="4" height="36" rx="2"/>
+<text class="c ta" x="590" y="87">'v2'</text><text class="c" x="664" y="87">swagger: "2.0"</text>
+<text class="c s" x="590" y="108">$ref: '#/definitions/User'</text>
+<rect class="card" x="572" y="128" width="360" height="56" rx="13"/><rect class="ks" x="572" y="138" width="4" height="36" rx="2"/>
+<text class="c ta" x="590" y="151">'v3'</text><text class="c" x="664" y="151">openapi: 3.0.0</text>
+<text class="c s" x="590" y="172">$ref: '#/components/schemas/User'</text>
+<rect class="card" x="572" y="192" width="360" height="56" rx="13"/><rect class="ks" x="572" y="202" width="4" height="36" rx="2"/>
+<text class="c ta" x="590" y="215">'v3.1'</text><text class="c" x="664" y="215">openapi: 3.1.0</text>
+<text class="c s" x="590" y="236">$ref: '#/components/schemas/User'</text>
+<rect class="card" x="572" y="256" width="360" height="56" rx="13"/><rect class="ks" x="572" y="266" width="4" height="36" rx="2"/>
+<text class="c ta" x="590" y="279">'v3.2'</text><text class="c" x="664" y="279">openapi: 3.2.0</text>
+<text class="c s" x="590" y="300">$ref: '#/components/schemas/User'</text>
+
+<path class="rail" d="M752 314 V328" marker-end="url(#tr-flow-arrow)"/>
+<rect class="sunk" x="28" y="332" width="904" height="56" rx="13"/>
+<text class="c" x="46" y="365">saveSwagger(spec, { cwd: 'docs', name: 'openapi-v3.1', format: 'yaml' })</text>
+<path class="rail" d="M640 360 H690" marker-end="url(#tr-flow-arrow)"/>
+<rect class="ws" x="696" y="347" width="218" height="26" rx="13"/><text class="c ts" x="805" y="364" text-anchor="middle" font-size="12">docs/openapi-v3.1.yaml</text>
+
+<rect class="sunk dash" x="28" y="404" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="432">One saveSwagger call writes one file (JSON unless format: 'yaml'); @trapi/swagger never loads the TypeScript compiler.</text>
 </svg>

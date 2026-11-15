@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" role="img" aria-labelledby="cli-multi-title cli-multi-desc">
+<title id="cli-multi-title">One config, one extraction, two documents</title>
+<desc id="cli-multi-desc">A trapi.config.ts exports an array of two entries that share the same metadata options. trapi generate runs generateMetadata once, because both entries have the same metadata signature, then generateSwagger twice: version v3.2 written to dist/openapi.v3.2.json and version v2 written to dist/openapi.v2.yaml, in config order.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+.tm{fill:var(--muted)}
+</style>
+<defs><marker id="cli-multi-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="454" rx="22"/>
+<text class="h" x="30" y="44">One config, one extraction, two documents</text>
+<rect class="sunk" x="28" y="70" width="410" height="296" rx="13"/>
+<text class="l" x="46" y="94">trapi.config.ts</text>
+<text class="c" x="46" y="122">const shared = { metadata: {</text>
+<text class="c" x="62" y="144">entryPoint: 'src/controllers/**/*.ts',</text>
+<text class="c" x="62" y="166">preset: '@trapi/preset-decorators-express',</text>
+<text class="c" x="46" y="188">} };</text>
+<text class="c" x="46" y="210">export default defineConfig([</text>
+<text class="c" x="62" y="232">{ ...shared, swagger: { version: <tspan class="ta">'v3.2'</tspan> },</text>
+<text class="c" x="62" y="254">output: { path: 'dist/openapi.v3.2.json' } },</text>
+<text class="c" x="62" y="276">{ ...shared, swagger: { version: <tspan class="ta">'v2'</tspan> },</text>
+<text class="c" x="62" y="298">output: { path: 'dist/openapi.v2.yaml' } },</text>
+<text class="c" x="46" y="320">]);</text>
+<rect class="card" x="470" y="150" width="196" height="118" rx="13"/><rect class="ks" x="470" y="164" width="4" height="90" rx="2"/>
+<text class="t" x="488" y="180">generateMetadata</text>
+<text class="s" x="488" y="206">runs once:</text>
+<text class="s" x="488" y="228">same signature</text>
+<rect class="wo" x="482" y="284" width="172" height="24" rx="12"/><text class="to" x="568" y="300.5" text-anchor="middle" font-size="12" font-weight="600">2 entries, 1 extraction</text>
+<path class="rail" d="M440 209 H468" marker-end="url(#cli-multi-arrow)"/>
+<rect class="card" x="700" y="70" width="232" height="118" rx="13"/><rect class="ks" x="700" y="84" width="4" height="90" rx="2"/>
+<text class="t" x="718" y="100">generateSwagger</text>
+<text class="c s" x="718" y="126">version: 'v3.2'</text>
+<text class="c ts" x="718" y="148">dist/openapi.v3.2.json</text>
+<rect class="card" x="700" y="230" width="232" height="118" rx="13"/><rect class="ks" x="700" y="244" width="4" height="90" rx="2"/>
+<text class="t" x="718" y="260">generateSwagger</text>
+<text class="c s" x="718" y="286">version: 'v2'</text>
+<text class="c ts" x="718" y="308">dist/openapi.v2.yaml</text>
+<path class="rail" d="M668 196 C684 196 684 129 698 129" marker-end="url(#cli-multi-arrow)"/>
+<path class="rail" d="M668 222 C684 222 684 289 698 289" marker-end="url(#cli-multi-arrow)"/>
+<rect class="wa" x="781" y="200" width="70" height="24" rx="12"/><text class="c ta" x="816" y="216.5" text-anchor="middle" font-size="11" font-weight="600">1st</text>
+<rect class="wa" x="781" y="360" width="70" height="24" rx="12"/><text class="c ta" x="816" y="376.5" text-anchor="middle" font-size="11" font-weight="600">2nd</text>
+<rect class="sunk dash" x="28" y="406" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="434">An inline preset or tsconfig object, or a registry, gives each entry its own extraction run.</text>
+</svg>

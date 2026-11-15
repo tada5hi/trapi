@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="cli-prec-title cli-prec-desc">
+<title id="cli-prec-title">A CLI flag beats the config file, which beats the default</title>
+<desc id="cli-prec-desc">For each value the CLI flag wins over the config file, which wins over the built-in default. --version 3.1 beats swagger.version v3.2 and the default v3, giving v3.1. --output out/api.yml beats output.path and the default swagger.json; the file is written as out/api.yaml. Without --api-name, swagger.data.name My API beats the emitter default Documentation. With no entryPoint anywhere the run fails with exit code 1.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+.tm{fill:var(--muted)}
+</style>
+<defs><marker id="cli-prec-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="404" rx="22"/>
+<text class="h" x="30" y="44">A CLI flag beats the config file, which beats the default</text>
+<text class="l" x="160" y="86">CLI flag</text>
+<text class="l" x="362" y="86">trapi.config.ts</text>
+<text class="l" x="636" y="86">default</text>
+<text class="l" x="792" y="86">result</text>
+<text class="t" x="42" y="130" font-size="14">version</text>
+<rect class="wo" x="146" y="100" width="196" height="46" rx="11"/>
+<text class="c to" x="160" y="128">--version 3.1</text>
+<rect class="card" x="348" y="100" width="268" height="46" rx="11"/>
+<text class="c tm" x="362" y="128">swagger.version: 'v3.2'</text>
+<rect class="card" x="622" y="100" width="150" height="46" rx="11"/>
+<text class="c tm" x="636" y="128">'v3'</text>
+<rect class="wo" x="792" y="111" width="120" height="24" rx="12"/><text class="c to" x="852" y="127.5" text-anchor="middle" font-size="11" font-weight="600">v3.1</text>
+<text class="t" x="42" y="188" font-size="14">output</text>
+<rect class="wo" x="146" y="158" width="196" height="46" rx="11"/>
+<text class="c to" x="160" y="186">--output out/api.yml</text>
+<rect class="card" x="348" y="158" width="268" height="46" rx="11"/>
+<text class="c tm" x="362" y="186">output.path: 'openapi.json'</text>
+<rect class="card" x="622" y="158" width="150" height="46" rx="11"/>
+<text class="c tm" x="636" y="186">'swagger.json'</text>
+<rect class="wo" x="792" y="169" width="120" height="24" rx="12"/><text class="c to" x="852" y="185.5" text-anchor="middle" font-size="11" font-weight="600">out/api.yaml</text>
+<text class="t" x="42" y="246" font-size="14">info.title</text>
+<rect class="card" x="146" y="216" width="196" height="46" rx="11"/>
+<text class="c tm" x="160" y="244">(no --api-name)</text>
+<rect class="wo" x="348" y="216" width="268" height="46" rx="11"/>
+<text class="c to" x="362" y="244">swagger.data.name: 'My API'</text>
+<rect class="card" x="622" y="216" width="150" height="46" rx="11"/>
+<text class="c tm" x="636" y="244">'Documentation'</text>
+<rect class="wo" x="792" y="227" width="120" height="24" rx="12"/><text class="c to" x="852" y="243.5" text-anchor="middle" font-size="11" font-weight="600">My API</text>
+<text class="t" x="42" y="304" font-size="14">entryPoint</text>
+<rect class="card" x="146" y="274" width="196" height="46" rx="11"/>
+<text class="c tm" x="160" y="302">(no --entry-point)</text>
+<rect class="card" x="348" y="274" width="268" height="46" rx="11"/>
+<text class="c tm" x="362" y="302">(not set)</text>
+<rect class="card" x="622" y="274" width="150" height="46" rx="11"/>
+<text class="c tm" x="636" y="302">none</text>
+<rect class="wd" x="792" y="285" width="120" height="24" rx="12"/><text class="td" x="852" y="301.5" text-anchor="middle" font-size="12" font-weight="600">exit 1</text>
+<rect class="sunk dash" x="28" y="346" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="374">Flags apply to every entry: --output on a two-entry config writes both documents to one path, the last one wins.</text>
+</svg>

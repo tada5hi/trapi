@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="362" viewBox="0 0 960 362" role="img" aria-labelledby="meta-ha-title meta-ha-desc">
+<title id="meta-ha-title">Where handlers come from, and the order they run in</title>
+<desc id="meta-ha-desc">The preset option, a package name, a relative path, a module: specifier or an inline Preset object, is loaded into a Registry after its extends chain and replaces rules are resolved. An inline registry, built with createRegistry, is appended after it by mergeRegistries. On each class, method and parameter, matching decorator handlers run first, then JSDoc handlers, then, for classes and methods, the finalizers. Inline handlers run last, so they win scalar writes and add to appended fields.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="meta-ha-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="346" rx="22"/>
+<text class="h" x="30" y="44">Where handlers come from, and the order they run in</text>
+<rect class="card" x="28" y="70" width="330" height="110" rx="13"/><rect class="ka" x="28" y="84" width="4" height="82" rx="2"/>
+<text class="t" x="46" y="104">preset</text>
+<text class="c s" x="46" y="130">'@trapi/preset-decorators-express'</text>
+<text class="s" x="46" y="158">or ./path, module:name, or a Preset object</text>
+<rect class="card" x="28" y="196" width="330" height="84" rx="13"/><rect class="ka" x="28" y="210" width="4" height="56" rx="2"/>
+<text class="t" x="46" y="230">registry</text>
+<text class="c s" x="46" y="256">createRegistry({ methods: [...] })</text>
+<rect class="card" x="404" y="70" width="250" height="210" rx="13"/><rect class="ka" x="404" y="84" width="4" height="182" rx="2"/>
+<text class="t" x="422" y="104">Registry</text>
+<text class="s" x="422" y="132">1. preset handlers, after</text>
+<text class="s" x="422" y="152">extends and replaces resolve</text>
+<text class="s" x="422" y="184">2. inline registry handlers</text>
+<text class="c s" x="422" y="226">mergeRegistries(</text>
+<text class="c s" x="438" y="248">preset, inline)</text>
+<path class="rail" d="M360 125 H396" marker-end="url(#meta-ha-arrow)"/>
+<path class="rail" d="M360 238 H396" marker-end="url(#meta-ha-arrow)"/>
+<rect class="card" x="700" y="70" width="232" height="210" rx="13"/><rect class="ks" x="700" y="84" width="4" height="182" rx="2"/>
+<text class="t" x="718" y="104">on each node</text>
+<text class="s" x="718" y="132">class, method, parameter:</text>
+<text x="718" y="164">1. decorator handlers</text>
+<text x="718" y="194">2. JSDoc handlers</text>
+<text x="718" y="224">3. finalizers</text>
+<text class="s" x="718" y="250">class and method only</text>
+<path class="rail" d="M656 175 H692" marker-end="url(#meta-ha-arrow)"/>
+<rect class="sunk dash" x="28" y="298" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="326">Inline handlers run last, so they win scalar writes such as into('path') and add to append() fields.</text>
+</svg>

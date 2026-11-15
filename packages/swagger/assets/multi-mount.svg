@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="sw-mount-title sw-mount-desc">
+<title id="sw-mount-title">One controller, two mounts: paths, operation ids, path parameters</title>
+<desc id="sw-mount-desc">A controller mounted at /roles and /realms/:realmId/roles with the methods list and get emits four operations. With the default method strategy their operationIds are List, List_2, Get and Get_2; with operationIdStrategy path they are getRoles, getRealmsByRealmIdRoles, getRolesById and getRealmsByRealmIdRolesById. The declared path parameter id appears only where the URL contains {id}; realmId, which no argument declares, is synthesized as a required string path parameter.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-mount-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="524" rx="22"/>
+<text class="h" x="30" y="44">One controller, two mounts: paths, operation ids, path parameters</text>
+<rect class="sunk" x="28" y="70" width="440" height="160" rx="13"/>
+<text class="l" x="46" y="94">metadata controller</text>
+<text class="c" x="46" y="122">paths: ['/roles', '/realms/:realmId/roles'],</text>
+<text class="c" x="46" y="144">methods: [</text>
+<text class="c" x="62" y="166">{ name: 'list', method: 'get', path: '' },</text>
+<text class="c" x="62" y="188">{ name: 'get', method: 'get', path: ':id',</text>
+<text class="c" x="78" y="210">parameters: [{ name: 'id', in: 'path' }] } ]</text>
+<rect class="card" x="488" y="70" width="444" height="160" rx="13"/><rect class="ka" x="488" y="84" width="4" height="132" rx="2"/>
+<text class="t" x="506" y="102">data.operationIdStrategy</text>
+<text class="c" x="506" y="130">'method'</text>
+<text class="s" x="600" y="130">default: Ucfirst(name), repeats get _2</text>
+<text class="c" x="506" y="160">'path'</text>
+<text class="s" x="600" y="160">verb + URL segments, {x} → ByX</text>
+<text class="s" x="506" y="196">An explicit method.operationId wins over both.</text>
+<rect class="card" x="28" y="250" width="904" height="196" rx="13"/><rect class="ks" x="28" y="264" width="4" height="168" rx="2"/>
+<text class="l" x="46" y="280">emitted path</text>
+<text class="l" x="330" y="280">'method'</text>
+<text class="l" x="450" y="280">'path'</text>
+<text class="l" x="720" y="280">path parameters</text>
+<text class="c" x="46" y="314"><tspan class="ts">/roles</tspan></text>
+<text class="c" x="330" y="314">List</text>
+<text class="c" x="450" y="314">getRoles</text>
+<text class="s" x="720" y="314">none</text>
+<text class="c" x="46" y="348"><tspan class="ts">/realms/{realmId}/roles</tspan></text>
+<text class="c" x="330" y="348">List_2</text>
+<text class="c" x="450" y="348">getRealmsByRealmIdRoles</text>
+<rect class="ww" x="720" y="332" width="170" height="24" rx="12"/><text class="tw" x="805" y="348" text-anchor="middle" font-size="12" font-weight="600">realmId: synthesized</text>
+<text class="c" x="46" y="382"><tspan class="ts">/roles/{id}</tspan></text>
+<text class="c" x="330" y="382">Get</text>
+<text class="c" x="450" y="382">getRolesById</text>
+<text class="c" x="720" y="382">id</text>
+<text class="c" x="46" y="416"><tspan class="ts">/realms/{realmId}/roles/{id}</tspan></text>
+<text class="c" x="330" y="416">Get_2</text>
+<text class="c" x="450" y="416">getRealmsByRealmIdRolesById</text>
+<text class="c" x="720" y="416">id</text>
+<rect class="ww" x="750" y="400" width="170" height="24" rx="12"/><text class="tw" x="835" y="416" text-anchor="middle" font-size="12" font-weight="600">realmId: synthesized</text>
+<rect class="sunk dash" x="28" y="462" width="904" height="62" rx="13"/>
+<text class="s" x="46" y="484">id is left off operations whose URL has no {id}. realmId has no decorated argument, so it is added as required: true,</text>
+<text class="s" x="46" y="504">type string, described by data.pathParameters.realmId when set. The _2 suffix follows emission order.</text>
+</svg>

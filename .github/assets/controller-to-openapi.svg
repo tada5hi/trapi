@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="636" viewBox="0 0 960 636" role="img" aria-labelledby="tr-c2o-title tr-c2o-desc">
+<title id="tr-c2o-title">One controller as source, Metadata and OpenAPI 3.1</title>
+<desc id="tr-c2o-desc">A @decorators/express controller declares @Controller('/users') and @Get('/:id') on findOne(@Params('id') id: string, @Query('expand') expand?: string): Promise&lt;User&gt;. With @trapi/preset-decorators-express, generateMetadata returns a controller with paths ['users'] and a get method at path ':id' whose parameters are { in: 'path', name: 'id', required: true } and { in: 'queryProp', name: 'expand' }; the return type is a refAlias to User, which is also listed in referenceTypes. generateSwagger with version v3.1 turns ':id' into '{id}', queryProp into in: query and the alias into a $ref, and emits paths./users/{id}.get with operationId FindOne, both parameters and a 200 response whose schema is $ref: '#/components/schemas/User'.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="tr-c2o-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="620" rx="22"/>
+<text class="h" x="30" y="44">One controller: the source, its Metadata, the OpenAPI 3.1 it becomes</text>
+
+<rect class="sunk" x="28" y="64" width="420" height="242" rx="13"/>
+<text class="l" x="46" y="88">src/controllers/user.controller.ts</text>
+<text class="c" x="46" y="116">type User = { id: string; name: string };</text>
+<text class="c" x="46" y="138"><tspan class="ta">@Controller</tspan>('/users')</text>
+<text class="c" x="46" y="160">export class UserController {</text>
+<text class="c" x="62" y="182"><tspan class="ta">@Get</tspan>('/:id')</text>
+<text class="c" x="62" y="204">async findOne(</text>
+<text class="c" x="78" y="226"><tspan class="ta">@Params</tspan>('id') id: string,</text>
+<text class="c" x="78" y="248"><tspan class="ta">@Query</tspan>('expand') expand?: string,</text>
+<text class="c" x="62" y="270">): Promise&lt;User&gt; { … }</text>
+<text class="c" x="46" y="292">}</text>
+
+<path class="rail" d="M442 185 H478" marker-end="url(#tr-c2o-arrow)"/>
+
+<rect class="card" x="484" y="64" width="448" height="242" rx="13"/><rect class="ks" x="484" y="78" width="4" height="214" rx="2"/>
+<text class="t" x="502" y="92">Metadata</text><text class="s" x="580" y="92">returned by generateMetadata()</text>
+<text class="c" x="502" y="122">controllers[0]</text>
+<text class="c" x="518" y="144">name: 'UserController', paths: ['users']</text>
+<text class="c" x="518" y="166">methods[0]: { method: 'get', path: ':id' }</text>
+<text class="c" x="534" y="188">parameters: [</text>
+<text class="c" x="550" y="210">{ in: 'path', name: 'id', required: true },</text>
+<text class="c" x="550" y="232">{ in: <tspan class="ts">'queryProp'</tspan>, name: 'expand' } ]</text>
+<text class="c" x="534" y="254">type: { typeName: 'refAlias', refName: 'User' }</text>
+<text class="c" x="502" y="276">referenceTypes: { User: { typeName: 'refAlias' } }</text>
+<rect class="wa" x="360" y="174" width="80" height="22" rx="11"/><text class="c ta" x="400" y="189" text-anchor="middle" font-size="11">preset</text>
+
+<rect class="ws" x="28" y="320" width="392" height="26" rx="13"/><text class="c ts" x="224" y="337" text-anchor="middle" font-size="12">generateSwagger({ version: 'v3.1', metadata })</text>
+<rect class="ws" x="432" y="320" width="112" height="26" rx="13"/><text class="c ts" x="488" y="337" text-anchor="middle" font-size="12">:id → {id}</text>
+<rect class="ws" x="556" y="320" width="182" height="26" rx="13"/><text class="c ts" x="647" y="337" text-anchor="middle" font-size="12">queryProp → in: query</text>
+<rect class="ws" x="750" y="320" width="140" height="26" rx="13"/><text class="c ts" x="820" y="337" text-anchor="middle" font-size="12">refAlias → $ref</text>
+<path class="rail" d="M900 308 V366" marker-end="url(#tr-c2o-arrow)"/>
+
+<rect class="sunk" x="28" y="372" width="904" height="238" rx="13"/><rect class="ks" x="28" y="386" width="4" height="210" rx="2"/>
+<text class="l" x="46" y="396">docs/openapi-v3.1.yaml, excerpt (empty fields left out)</text>
+<text class="c" x="46" y="424">openapi: 3.1.0</text>
+<text class="c" x="46" y="446">paths:</text>
+<text class="c" x="62" y="468"><tspan class="ts">/users/{id}</tspan>:</text>
+<text class="c" x="78" y="490">get:</text>
+<text class="c" x="94" y="512">operationId: FindOne</text>
+<text class="c" x="94" y="534">parameters:</text>
+<text class="c" x="110" y="556">- { in: query, name: expand, required: false }</text>
+<text class="c" x="110" y="578">- { in: path, name: id, required: true }</text>
+<text class="c s" x="530" y="424"># paths./users/{id}.get, continued</text>
+<text class="c" x="530" y="446">responses:</text>
+<text class="c" x="546" y="468">"200":</text>
+<text class="c" x="562" y="490">description: Ok</text>
+<text class="c" x="562" y="512">content:</text>
+<text class="c" x="578" y="534">application/json:</text>
+<text class="c" x="594" y="556">schema:</text>
+<text class="c" x="610" y="578">$ref: "<tspan class="ts">#/components/schemas/User</tspan>"</text>
+</svg>

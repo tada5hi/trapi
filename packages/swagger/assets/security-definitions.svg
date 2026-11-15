@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="500" viewBox="0 0 960 500" role="img" aria-labelledby="sw-sec-title sw-sec-desc">
+<title id="sw-sec-title">data.securityDefinitions in 2.0 and in 3.x</title>
+<desc id="sw-sec-desc">An http bearer scheme with bearerFormat JWT and an oauth2 scheme with an authorizationCode flow become, in Swagger 2.0 securityDefinitions, an apiKey in the Authorization header and an oauth2 definition renamed oauth2AccessCode with flow accessCode. In OpenAPI 3.x components.securitySchemes both are emitted as given.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="sw-sec-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="484" rx="22"/>
+<text class="h" x="30" y="44">data.securityDefinitions in 2.0 and in 3.x</text>
+<rect class="sunk" x="28" y="70" width="400" height="300" rx="13"/>
+<text class="l" x="46" y="94">data.securityDefinitions</text>
+<text class="c" x="46" y="122">bearer: {</text>
+<text class="c" x="62" y="144">type: 'http',</text>
+<text class="c" x="62" y="166">scheme: 'bearer',</text>
+<text class="c" x="62" y="188">bearerFormat: 'JWT' },</text>
+<text class="c" x="46" y="210">oauth2: {</text>
+<text class="c" x="62" y="232">type: 'oauth2',</text>
+<text class="c" x="62" y="254">flows: { authorizationCode: {</text>
+<text class="c" x="78" y="276">authorizationUrl, tokenUrl,</text>
+<text class="c" x="78" y="298">scopes } } },</text>
+<rect class="card" x="468" y="70" width="464" height="144" rx="13"/><rect class="ks" x="468" y="84" width="4" height="116" rx="2"/>
+<text class="t" x="486" y="102">v2: securityDefinitions</text>
+<text class="c" x="486" y="126">"bearer": { "type": <tspan class="tw">"apiKey"</tspan>,</text>
+<text class="c" x="502" y="148">"in": "header", "name": "Authorization" },</text>
+<text class="c" x="486" y="170"><tspan class="tw">"oauth2AccessCode"</tspan>: { "type": "oauth2",</text>
+<text class="c" x="502" y="192">"flow": "accessCode", … }</text>
+<rect class="card" x="468" y="226" width="464" height="144" rx="13"/><rect class="ks" x="468" y="240" width="4" height="116" rx="2"/>
+<text class="t" x="486" y="258">v3: components.securitySchemes</text>
+<text class="c" x="486" y="282">"bearer": { "type": "http",</text>
+<text class="c" x="502" y="304">"scheme": "bearer", "bearerFormat": "JWT" },</text>
+<text class="c" x="486" y="326">"oauth2": { "type": "oauth2",</text>
+<text class="c" x="502" y="348">"flows": { "authorizationCode": { … } } }</text>
+<path class="rail" d="M430 220 H446 V142 H459" marker-end="url(#sw-sec-arrow)"/>
+<path class="rail" d="M446 220 V298 H459" marker-end="url(#sw-sec-arrow)"/>
+<rect class="sunk dash" x="28" y="386" width="904" height="86" rx="13"/>
+<text class="s" x="46" y="408">v2 has only basic for http: other schemes become apiKey with the description</text>
+<text class="s" x="46" y="428">HTTP bearer authentication: send "Authorization: Bearer &lt;JWT&gt;". OAuth2 flows get a suffix per flow:</text>
+<text class="s" x="46" y="448">implicit → Implicit, password → Password, authorizationCode → AccessCode, clientCredentials → Application.</text>
+</svg>

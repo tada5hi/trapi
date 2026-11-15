@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="572" viewBox="0 0 960 572" role="img" aria-labelledby="meta-pa-title meta-pa-desc">
+<title id="meta-pa-title">Every parameter ends in one concrete location</title>
+<desc id="meta-pa-desc">An object-typed @Query() filter: UserFilter decomposes into one queryProp per property: name (string, required: false) and limit (double, required: true); UserFilter is stored in referenceTypes. A named scalar @Query('sort') sort: string becomes queryProp sort. A @Request() context parameter produces no parameter and its type is never resolved, so ExpressRequest does not reach referenceTypes. An undecorated argument such as create(data: UserCreate) defaults to body; on head or options that throws. in: 'query' never reaches Metadata.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="meta-pa-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="556" rx="22"/>
+<text class="h" x="30" y="44">Every parameter ends in one concrete location</text>
+<rect class="sunk" x="28" y="70" width="420" height="152" rx="13"/>
+<text class="l" x="46" y="94">object type</text>
+<text class="c" x="46" y="120">interface UserFilter {</text>
+<text class="c" x="62" y="142">name?: string;</text>
+<text class="c" x="62" y="164">limit: number;</text>
+<text class="c" x="46" y="186">}</text>
+<text class="c" x="46" y="208"><tspan class="ta">@Query</tspan>() filter: UserFilter</text>
+<rect class="card" x="490" y="70" width="442" height="152" rx="13"/><rect class="ks" x="490" y="84" width="4" height="124" rx="2"/>
+<text class="t" x="508" y="104">queryProp × 2, one per property</text>
+<text class="c" x="508" y="134">name · string · required: false</text>
+<text class="c" x="508" y="156">limit · double · required: true</text>
+<text class="c s" x="508" y="192">UserFilter is stored in referenceTypes</text>
+<path class="rail" d="M452 146 H484" marker-end="url(#meta-pa-arrow)"/>
+<rect class="sunk" x="28" y="238" width="420" height="72" rx="13"/>
+<text class="l" x="46" y="262">named scalar</text>
+<text class="c" x="46" y="290"><tspan class="ta">@Query</tspan>('sort') sort: string</text>
+<rect class="card" x="490" y="238" width="442" height="72" rx="13"/><rect class="ks" x="490" y="252" width="4" height="44" rx="2"/>
+<text class="t" x="508" y="272">queryProp · sort</text>
+<text class="c s" x="508" y="292">string · required: true</text>
+<path class="rail" d="M452 274 H484" marker-end="url(#meta-pa-arrow)"/>
+<rect class="sunk" x="28" y="326" width="420" height="72" rx="13"/>
+<text class="l" x="46" y="350">context</text>
+<text class="c" x="46" y="378"><tspan class="ta">@Request</tspan>() req: ExpressRequest</text>
+<rect class="card" x="490" y="326" width="442" height="72" rx="13"/><rect class="kd" x="490" y="340" width="4" height="44" rx="2"/>
+<text class="t" x="508" y="360">dropped: no parameter</text>
+<text class="c s" x="508" y="380">type never resolved, referenceTypes stays {}</text>
+<path class="rail" d="M452 362 H484" marker-end="url(#meta-pa-arrow)"/>
+<rect class="sunk" x="28" y="414" width="420" height="72" rx="13"/>
+<text class="l" x="46" y="438">no decorator, inside @Post()</text>
+<text class="c" x="46" y="466">create(data: UserCreate)</text>
+<rect class="card" x="490" y="414" width="442" height="72" rx="13"/><rect class="ks" x="490" y="428" width="4" height="44" rx="2"/>
+<text class="t" x="508" y="448">body · data</text>
+<text class="c s" x="508" y="468">refObject UserCreate; head/options throw</text>
+<path class="rail" d="M452 450 H484" marker-end="url(#meta-pa-arrow)"/>
+<rect class="sunk dash" x="28" y="502" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="530">in: 'query' never reaches Metadata. Both @trapi/swagger emitters drop it, so it always ends as queryProp.</text>
+</svg>

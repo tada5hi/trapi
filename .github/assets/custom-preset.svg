@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="404" viewBox="0 0 960 404" role="img" aria-labelledby="tr-cp-title tr-cp-desc">
+<title id="tr-cp-title">A custom preset adds names on top of a shipped preset</title>
+<desc id="tr-cp-desc">The preset example-routes extends @trapi/preset-decorators-express and adds two handlers: Route on classes and HttpGet on methods. loadRegistry puts the inherited handlers first (Controller, Get, Post, Query, Params, Body and the rest) and appends the own ones. In health.controller.ts, @Route('/health') and @HttpGet('/') are matched by the own handlers and @Query('verbose') by the inherited Query handler. The Metadata holds paths ['health'], method 'get', path '' and a queryProp parameter verbose of type boolean, which OpenAPI 3.1 emits as GET /health with a query parameter verbose of type boolean. replaces: true on an own handler would remove inherited handlers with the same match name and target.</desc>
+<style>
+:root{--canvas:#f6f7fb;--panel:#ffffff;--sunk:#eceff6;--ink:#253447;--muted:#526278;--border:#c6cedc;--arrow:#71819a;
+--accent:#6366d8;--second:#159cb2;--ok:#2e9d6e;--warn:#c9820f;--drop:#d0456a;
+--accent-wash:#6366d81f;--second-wash:#159cb21f;--ok-wash:#2e9d6e1f;--warn-wash:#c9820f1f;--drop-wash:#d0456a1f}
+@media(prefers-color-scheme:dark){:root{--canvas:#141c29;--panel:#1f2b3d;--sunk:#18222f;--ink:#edf2fa;--muted:#bbc8dc;--border:#43536d;--arrow:#a4b5d1;
+--accent:#8f92f2;--second:#3dbdd2;--ok:#4cc391;--warn:#e0a23c;--drop:#ee7394;
+--accent-wash:#8f92f226;--second-wash:#3dbdd226;--ok-wash:#4cc39126;--warn-wash:#e0a23c26;--drop-wash:#ee739426}}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--ink);font-size:14px}
+.h{font-size:20px;font-weight:650}
+.t{font-size:16px;font-weight:600}
+.s{font-size:13px;fill:var(--muted)}
+.l{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;fill:var(--muted)}
+.c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.canvas{fill:var(--canvas);stroke:var(--border)}
+.card{fill:var(--panel);stroke:var(--border)}
+.sunk{fill:var(--sunk);stroke:var(--border)}
+.rail{fill:none;stroke:var(--arrow);stroke-width:2}
+.dash{stroke-dasharray:5 5}
+.ka{fill:var(--accent)}.ks{fill:var(--second)}.ko{fill:var(--ok)}.kw{fill:var(--warn)}.kd{fill:var(--drop)}
+.wa{fill:var(--accent-wash);stroke:var(--accent)}.ws{fill:var(--second-wash);stroke:var(--second)}.wo{fill:var(--ok-wash);stroke:var(--ok)}.ww{fill:var(--warn-wash);stroke:var(--warn)}.wd{fill:var(--drop-wash);stroke:var(--drop)}
+.ta{fill:var(--accent)}.ts{fill:var(--second)}.to{fill:var(--ok)}.tw{fill:var(--warn)}.td{fill:var(--drop)}
+</style>
+<defs><marker id="tr-cp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--arrow)"/></marker></defs>
+<rect class="canvas" x="8" y="8" width="944" height="388" rx="22"/>
+<text class="h" x="30" y="44">Custom preset: your names on top of a shipped preset</text>
+
+<rect class="sunk" x="28" y="64" width="372" height="202" rx="13"/>
+<text class="l" x="46" y="88">src/controllers/health.controller.ts</text>
+<text class="c" x="46" y="116"><tspan class="to">@Route</tspan>('/health')</text>
+<text class="c" x="46" y="138">export class HealthController {</text>
+<text class="c" x="62" y="160"><tspan class="to">@HttpGet</tspan>('/')</text>
+<text class="c" x="62" y="182">check(</text>
+<text class="c" x="78" y="204"><tspan class="to">@Query</tspan>('verbose') verbose?: boolean,</text>
+<text class="c" x="62" y="226">): Promise&lt;{ ok: boolean }&gt;</text>
+<text class="c" x="46" y="248">}</text>
+
+<path class="rail" d="M402 165 H426" marker-end="url(#tr-cp-arrow)"/>
+
+<rect class="card" x="432" y="64" width="236" height="202" rx="13"/><rect class="ka" x="432" y="78" width="4" height="174" rx="2"/>
+<text class="t" x="450" y="92">Registry</text><text class="s" x="530" y="92">example-routes</text>
+<text class="l" x="450" y="120">inherited, via extends</text>
+<text class="c" x="450" y="144">Controller · Get · Post</text>
+<text class="c" x="450" y="166"><tspan class="to">Query</tspan> · Params · Body …</text>
+<text class="l" x="450" y="198">own, appended after</text>
+<rect class="wo" x="450" y="212" width="72" height="26" rx="13"/><text class="c to" x="486" y="229" text-anchor="middle" font-size="12">Route</text>
+<rect class="wo" x="532" y="212" width="90" height="26" rx="13"/><text class="c to" x="577" y="229" text-anchor="middle" font-size="12">HttpGet</text>
+
+<path class="rail" d="M670 165 H694" marker-end="url(#tr-cp-arrow)"/>
+
+<rect class="card" x="700" y="64" width="232" height="202" rx="13"/><rect class="ks" x="700" y="78" width="4" height="174" rx="2"/>
+<text class="t" x="718" y="92">Metadata</text>
+<text class="c" x="718" y="122">paths: ['health']</text>
+<text class="c" x="718" y="144">method: 'get'</text>
+<text class="c" x="718" y="166">path: ''</text>
+<text class="c" x="718" y="196">in: 'queryProp'</text>
+<text class="c" x="718" y="218">name: 'verbose'</text>
+<text class="c" x="718" y="240">type: boolean</text>
+
+<rect class="sunk" x="28" y="282" width="904" height="44" rx="13"/><rect class="ks" x="28" y="292" width="4" height="24" rx="2"/>
+<text class="l" x="46" y="309">openapi 3.1</text>
+<text class="c" x="150" y="309">/health: get: parameters: [{ in: query, name: verbose, schema: { type: boolean } }]</text>
+
+<rect class="sunk dash" x="28" y="342" width="904" height="46" rx="13"/>
+<text class="s" x="46" y="370">replaces: true on an own handler removes the inherited handlers with the same match name and target.</text>
+</svg>

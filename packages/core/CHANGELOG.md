@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/tada5hi/trapi/compare/core-v2.2.0...core-v2.3.0) (2026-11-15)
+
+
+### Features
+
+* preset finalize hooks, success media types, strict readers ([#961](https://github.com/tada5hi/trapi/issues/961)) ([78da6da](https://github.com/tada5hi/trapi/commit/78da6da27672d46f9a0ce2a4dd40791f60bff081))
+
+
+### Bug Fixes
+
+* **core,metadata:** diamond preset duplicates, last duplicate success response ([#963](https://github.com/tada5hi/trapi/issues/963)) ([a5819a3](https://github.com/tada5hi/trapi/commit/a5819a356612ac49f2c3112df0b16cf529c8ccc0))
+
 ## [2.2.0](https://github.com/tada5hi/trapi/compare/core-v2.1.2...core-v2.2.0) (2026-11-13)
 
 

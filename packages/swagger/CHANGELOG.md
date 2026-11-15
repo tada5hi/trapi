@@ -178,6 +178,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [2.3.0](https://github.com/tada5hi/trapi/compare/swagger-v2.2.0...swagger-v2.3.0) (2026-11-15)
+
+
+### Features
+
+* preset finalize hooks, success media types, strict readers ([#961](https://github.com/tada5hi/trapi/issues/961)) ([78da6da](https://github.com/tada5hi/trapi/commit/78da6da27672d46f9a0ce2a4dd40791f60bff081))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @trapi/core bumped from 2.2.0 to 2.3.0
+
 ## [2.2.0](https://github.com/tada5hi/trapi/compare/swagger-v2.1.2...swagger-v2.2.0) (2026-11-13)
 
 

@@ -51,7 +51,7 @@ export const HttpReasonPhrase = {
     415: 'Unsupported Media Type',
     416: 'Range Not Satisfiable',
     417: 'Expectation Failed',
-    418: '(Unused)',
+    418: 'I\'m a teapot',
     421: 'Misdirected Request',
     422: 'Unprocessable Content',
     423: 'Locked',
@@ -71,7 +71,7 @@ export const HttpReasonPhrase = {
     506: 'Variant Also Negotiates',
     507: 'Insufficient Storage',
     508: 'Loop Detected',
-    510: 'Not Extended (OBSOLETED)',
+    510: 'Not Extended',
     511: 'Network Authentication Required',
 } as const;
 

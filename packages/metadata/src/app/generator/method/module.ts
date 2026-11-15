@@ -105,9 +105,21 @@ export class MethodGenerator {
             returnType: resolveReturnType(),
             examples: draft.defaultResponseExamples,
             successStatus: draft.successStatus,
-            successProduces: draft.successProduces.length > 0 ? draft.successProduces : controllerSuccessProduces,
         });
-        const responses = mergeDefaultResponse(draft.responses, defaultResponse, draft.successStatus !== undefined);
+        // A method's own list overrides the controller's; an explicit
+        // no-content status documents no body to describe.
+        let successProduces = draft.successProduces.length > 0 ? draft.successProduces : controllerSuccessProduces;
+
+        if (isNoContentStatus(draft.successStatus)) {
+            successProduces = [];
+        }
+
+        const responses = mergeDefaultResponse(
+            draft.responses,
+            defaultResponse,
+            draft.successStatus !== undefined,
+            successProduces,
+        );
 
         // Walk parameters. Handler-contributed ones are appended after the
         // signature-derived ones, so a handler can add to the operation but
@@ -274,7 +286,6 @@ type DefaultResponseInput = {
     returnType: BaseType,
     examples: Example[],
     successStatus?: string,
-    successProduces: string[],
 };
 
 function buildDefaultResponse(input: DefaultResponseInput): Response {
@@ -283,7 +294,7 @@ function buildDefaultResponse(input: DefaultResponseInput): Response {
     const status = input.successStatus ?? (isVoid ? '204' : '200');
     // Only an explicit no-content status drops the body: an implicit 204 (a
     // void method) keeps documenting its void schema as it always has.
-    const noContent = explicit && isNoContentStatus(status);
+    const noContent = isNoContentStatus(input.successStatus);
 
     let description: string;
 
@@ -294,25 +305,34 @@ function buildDefaultResponse(input: DefaultResponseInput): Response {
         description = isVoid ? 'No content' : 'Ok';
     }
 
-    const response: Response = {
+    return {
         description,
         examples: input.examples,
         schema: noContent ? undefined : input.returnType,
         status,
         name: status,
     };
-
-    // Set only when there is a body to describe, so a method without
-    // `successProduces` keeps a response without the key.
-    if (input.successProduces.length > 0 && !isVoid && !noContent) {
-        response.produces = [...input.successProduces];
-    }
-
-    return response;
 }
 
-function isNoContentStatus(status: string): boolean {
-    return (NO_CONTENT_STATUSES as readonly string[]).includes(status);
+/**
+ * Gives the response carrying the return type the success media types, but
+ * only when it documents a body and declares no media types of its own. An
+ * empty list adds no key, so output without `successProduces` is unchanged.
+ */
+function attachSuccessProduces(response: Response, successProduces: string[]): void {
+    if (successProduces.length === 0 || (response.produces && response.produces.length > 0)) {
+        return;
+    }
+
+    if (!response.schema || isVoidType(response.schema)) {
+        return;
+    }
+
+    response.produces = [...successProduces];
+}
+
+function isNoContentStatus(status: string | undefined): boolean {
+    return status !== undefined && (NO_CONTENT_STATUSES as readonly string[]).includes(status);
 }
 
 function describeStatus(status: string): string {
@@ -329,31 +349,30 @@ function mergeDefaultResponse(
     handlerResponses: Response[],
     defaultResponse: Response,
     explicit: boolean,
+    successProduces: string[],
 ): Response[] {
-    if (handlerResponses.length === 0) {
-        return [defaultResponse];
-    }
-
     const target = handlerResponses.find((r) => r.status === defaultResponse.status);
 
-    if (target) {
-        if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
-            (!target.examples || target.examples.length === 0)) {
-            target.examples = defaultResponse.examples;
-        }
+    if (!target) {
+        attachSuccessProduces(defaultResponse, successProduces);
 
-        // An explicit no-content status leaves `defaultResponse.schema`
-        // unset, so the handler response stays without a body too.
-        if (explicit && !target.schema && defaultResponse.schema) {
-            target.schema = defaultResponse.schema;
-        }
-
-        if (defaultResponse.produces && (!target.produces || target.produces.length === 0)) {
-            target.produces = defaultResponse.produces;
-        }
-
-        return handlerResponses;
+        return [...handlerResponses, defaultResponse];
     }
 
-    return [...handlerResponses, defaultResponse];
+    if (defaultResponse.examples && defaultResponse.examples.length > 0 &&
+        (!target.examples || target.examples.length === 0)) {
+        target.examples = defaultResponse.examples;
+    }
+
+    // An explicit no-content status leaves `defaultResponse.schema` unset, so
+    // the handler response stays without a body too.
+    if (explicit && !target.schema && defaultResponse.schema) {
+        target.schema = defaultResponse.schema;
+    }
+
+    // Judged on the final schema: a handler response may document a body
+    // even when the method itself returns `void`.
+    attachSuccessProduces(target, successProduces);
+
+    return handlerResponses;
 }

@@ -181,6 +181,37 @@ describe('success response', () => {
             expect('produces' in response).toBe(false);
         });
 
+        it('attaches successProduces to a handler response with its own schema on a void method', () => {
+            const { responses } = own('voidWithSchema');
+
+            expect(responses).toEqual([{
+                name: '200',
+                status: '200',
+                description: 'Pdf',
+                examples: [],
+                schema: { typeName: 'string' },
+                produces: ['application/pdf'],
+            }]);
+        });
+
+        it('does not attach successProduces to a schema-less handler response on a void method', () => {
+            const { responses } = own('voidSchemaless');
+
+            expect(responses).toHaveLength(1);
+            expect(responses[0]!.status).toEqual('200');
+            expect(responses[0]!.schema).toEqual({ typeName: 'void' });
+            expect('produces' in responses[0]!).toBe(false);
+        });
+
+        it('does not attach under an explicit 204 even when the handler response has a schema', () => {
+            const { responses } = own('noContentWithSchema');
+
+            expect(responses).toHaveLength(1);
+            expect(responses[0]!.status).toEqual('204');
+            expect(responses[0]!.schema).toEqual({ typeName: 'string' });
+            expect('produces' in responses[0]!).toBe(false);
+        });
+
         it('should keep the method-wide produces untouched', () => {
             expect(own('pdf').produces).toEqual([]);
         });
@@ -218,6 +249,8 @@ describe('success response', () => {
             ['created', '201', 'Created'],
             ['accepted', '202', 'Accepted'],
             ['unknown', '299', 'Ok'],
+            ['teapot', '418', 'I\'m a teapot'],
+            ['notExtended', '510', 'Not Extended'],
         ])('should describe %s by its status %s', (name, status, description) => {
             const response = successResponse(own(name));
 

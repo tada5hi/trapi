@@ -191,12 +191,7 @@ describe('finalize hooks', () => {
 
         const metadata = await withFinalizers({
             controllerFinalizers: [(draft, ctx) => {
-                // Finalizers see every named class; only a claimed one has paths.
-                if (draft.paths === undefined) {
-                    return;
-                }
-
-                log.push(`controller:${ctx.host.name}:${draft.paths.join(',')}`);
+                log.push(`controller:${ctx.host.name}:${draft.paths!.join(',')}`);
                 draft.tags.push('finalized');
             }],
             methodFinalizers: [(draft) => {
@@ -212,20 +207,19 @@ describe('finalize hooks', () => {
         expect(metadata.controllers[0]!.tags).toEqual(['finalized']);
     });
 
-    it('runs controller finalizers before the controller check', async () => {
+    it('does not run controller finalizers for a class no controller handler claimed', async () => {
+        const seen: string[] = [];
+
         const metadata = await withFinalizers({
-            controllerFinalizers: [(draft, ctx) => {
-                if (ctx.host.name === 'UnclaimedController') {
-                    draft.paths = ['/claimed'];
-                }
+            controllerFinalizers: [(_draft, ctx) => {
+                seen.push(ctx.host.name);
             }],
         });
 
-        const claimed = metadata.controllers.find((c) => c.name === 'UnclaimedController')!;
-
-        expect(metadata.controllers.map((c) => c.name)).toEqual(['FinalizeController', 'UnclaimedController']);
-        expect(claimed.paths).toEqual(['claimed']);
-        expect(claimed.methods.map((m) => m.name)).toEqual(['ping']);
+        // `UnclaimedController` and the TypeScript lib classes in the program
+        // carry no `@Controller`, so only the one claimed controller is seen.
+        expect(metadata.controllers.map((c) => c.name)).toEqual(['FinalizeController']);
+        expect(seen).toEqual(['FinalizeController']);
     });
 
     it('runs finalizers in registry order', async () => {

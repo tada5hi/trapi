@@ -104,6 +104,42 @@ export class SuccessResponseController {
         return { id: '1' };
     }
 
+    @Post('/teapot')
+    @Status(418)
+    public teapot(): IReport {
+        return { id: '1' };
+    }
+
+    @Post('/not-extended')
+    @Status(510)
+    public notExtended(): IReport {
+        return { id: '1' };
+    }
+
+    @Get('/void-with-schema')
+    @Status(200)
+    @Description<string>(200, 'Pdf')
+    @SuccessProduces('application/pdf')
+    public voidWithSchema(): void {
+        // the handler response documents the body
+    }
+
+    @Get('/void-schemaless')
+    @Status(200)
+    @Description(200, 'Pdf')
+    @SuccessProduces('application/pdf')
+    public voidSchemaless(): void {
+        // nothing documents a body
+    }
+
+    @Delete('/no-content-with-schema')
+    @Status(204)
+    @Description<string>(204, 'Gone')
+    @SuccessProduces('application/pdf')
+    public noContentWithSchema(): void {
+        // no-content status: never a body
+    }
+
     @Delete('/handler-no-content')
     @Status(204)
     @Description(204, 'Deleted')

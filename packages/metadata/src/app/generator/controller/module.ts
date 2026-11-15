@@ -77,18 +77,17 @@ export class ControllerGenerator implements IControllerGenerator {
         applyDecoratorHandlers(this.node, this.current.registry.controllers, draft, options);
         applyJsDocHandlers(this.node, this.current.registry.controllerJsDoc, draft, options);
 
-        // Before the controller check, so a finalizer sees (and may settle) the
-        // state every handler left behind; methods are generated afterwards.
-        // It therefore runs for every named class: `draft.paths` is still
-        // unset on one no controller handler claimed.
-        for (const finalize of this.current.registry.controllerFinalizers ?? []) {
-            finalize(draft, { host: options.host });
-        }
-
         // A class is a controller iff a controller-target handler claimed it
         // (convention: the Controller handler sets `draft.paths` to a non-undefined value).
         if (draft.paths === undefined) {
             return null;
+        }
+
+        // Only for a claimed controller (never for every class in the
+        // program), and before paths are normalised and methods generated, so
+        // the finalizer settles the state both build on.
+        for (const finalize of this.current.registry.controllerFinalizers ?? []) {
+            finalize(draft, { host: options.host });
         }
 
         // Normalize and dedupe — a user passing `@Controller(['/roles', '/roles'])`

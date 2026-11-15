@@ -61,6 +61,14 @@ export class SuccessResponseController {
         return { id: '1' };
     }
 
+    @Get('/respond-twice')
+    @Description<string>(200, 'First')
+    @Description<string>(200, 'Second')
+    @SuccessProduces('application/pdf')
+    public respondTwice(): IReport {
+        return { id: '1' };
+    }
+
     @Delete('/void-produces')
     @SuccessProduces('application/pdf')
     public voidProduces(): void {

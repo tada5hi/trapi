@@ -146,6 +146,18 @@ describe('success response', () => {
             });
         });
 
+        it('should give the media types to every handler response at the status', () => {
+            const { responses } = own('respondTwice');
+
+            // Both emitters keep the last response of a status, so the
+            // media types must not land on the first one only.
+            expect(responses.map((r) => [r.status, r.produces])).toEqual([
+                ['200', ['application/pdf']],
+                ['200', ['application/pdf']],
+            ]);
+            expect(responses[0]!.produces).not.toBe(responses[1]!.produces);
+        });
+
         it('should apply the controller media types to every method without its own', () => {
             expect(successResponse(xml('xml'))).toMatchObject({ status: '200', produces: ['application/xml'] });
         });

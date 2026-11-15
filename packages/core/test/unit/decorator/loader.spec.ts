@@ -337,6 +337,44 @@ describe('loadRegistry', () => {
         expect(registry.controllerFinalizers![1]).toBe(ownController);
     });
 
+    it('collects a shared ancestor finalizer once', async () => {
+        const baseMethod: MethodFinalizer = () => { /* base */ };
+        const baseController: ControllerFinalizer = () => { /* base */ };
+        const leftMethod: MethodFinalizer = () => { /* left */ };
+        const rightMethod: MethodFinalizer = () => { /* right */ };
+        const ownMethod: MethodFinalizer = () => { /* own */ };
+
+        const base: Preset = {
+            name: 'base',
+            finalizeMethod: baseMethod,
+            finalizeController: baseController,
+        };
+        const left: Preset = {
+            name: 'left',
+            extends: ['base'],
+            finalizeMethod: leftMethod,
+        };
+        const right: Preset = {
+            name: 'right',
+            extends: ['base'],
+            finalizeMethod: rightMethod,
+        };
+        const child: Preset = {
+            name: 'child',
+            extends: ['left', 'right'],
+            finalizeMethod: ownMethod,
+        };
+        const registry = await loadRegistry(child, { resolver: makeResolver([base, left, right]) });
+
+        expect(registry.methodFinalizers).toHaveLength(4);
+        expect(registry.methodFinalizers![0]).toBe(baseMethod);
+        expect(registry.methodFinalizers![1]).toBe(leftMethod);
+        expect(registry.methodFinalizers![2]).toBe(rightMethod);
+        expect(registry.methodFinalizers![3]).toBe(ownMethod);
+        expect(registry.controllerFinalizers).toHaveLength(1);
+        expect(registry.controllerFinalizers![0]).toBe(baseController);
+    });
+
     it('wraps a non-function finalizeMethod as CoreError(PRESET_INVALID)', async () => {
         const invalid = { name: 'bad', finalizeMethod: 'not-a-fn' } as unknown as Preset;
 

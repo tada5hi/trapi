@@ -384,9 +384,15 @@ function mergeDefaultResponse(
         target.schema = defaultResponse.schema;
     }
 
-    // Judged on the final schema: a handler response may document a body
-    // even when the method itself returns `void`.
-    attachSuccessProduces(target, successProduces);
+    // Every handler response at the status, not only the first: both
+    // emitters keep the last one. Each is judged on its own final schema, as
+    // a handler response may document a body even when the method itself
+    // returns `void`.
+    for (const response of handlerResponses) {
+        if (response.status === defaultResponse.status) {
+            attachSuccessProduces(response, successProduces);
+        }
+    }
 
     return handlerResponses;
 }

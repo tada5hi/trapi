@@ -42,9 +42,10 @@ type TaggedRegistry = {
     controllerJsDoc: { origin: string; handler: ControllerJsDocHandler }[];
     methodJsDoc: { origin: string; handler: MethodJsDocHandler }[];
     parameterJsDoc: { origin: string; handler: ParameterJsDocHandler }[];
-    // Finalizers carry no origin: they have no `replaces` semantics.
-    methodFinalizers: MethodFinalizer[];
-    controllerFinalizers: ControllerFinalizer[];
+    // The origin keeps a preset reached through several `extends` paths
+    // from contributing its finalizer once per path.
+    methodFinalizers: { origin: string; finalizer: MethodFinalizer }[];
+    controllerFinalizers: { origin: string; finalizer: ControllerFinalizer }[];
 };
 
 function emptyTaggedRegistry(): TaggedRegistry {
@@ -145,11 +146,11 @@ function applyOwnHandlers(
     }
 
     if (preset.finalizeMethod) {
-        merged.methodFinalizers.push(preset.finalizeMethod);
+        merged.methodFinalizers.push({ origin: preset.name, finalizer: preset.finalizeMethod });
     }
 
     if (preset.finalizeController) {
-        merged.controllerFinalizers.push(preset.finalizeController);
+        merged.controllerFinalizers.push({ origin: preset.name, finalizer: preset.finalizeController });
     }
 }
 
@@ -258,8 +259,23 @@ function appendTagged(target: TaggedRegistry, source: TaggedRegistry): void {
         (target[kind] as TaggedJsDocHandler[]).push(...(source[kind] as TaggedJsDocHandler[]));
     }
 
-    target.methodFinalizers.push(...source.methodFinalizers);
-    target.controllerFinalizers.push(...source.controllerFinalizers);
+    appendFinalizers(target.methodFinalizers, source.methodFinalizers);
+    appendFinalizers(target.controllerFinalizers, source.controllerFinalizers);
+}
+
+/**
+ * A finalizer runs once per method or controller, so a preset inherited
+ * through more than one `extends` path (a diamond) contributes it once: the
+ * first occurrence wins, which keeps the parents-first order.
+ */
+function appendFinalizers<T extends { origin: string }>(target: T[], source: T[]): void {
+    for (const entry of source) {
+        const isNew = target.every((existing) => existing.origin !== entry.origin);
+
+        if (isNew) {
+            target.push(entry);
+        }
+    }
 }
 
 function stripOrigins(tagged: TaggedRegistry): Registry {
@@ -271,8 +287,8 @@ function stripOrigins(tagged: TaggedRegistry): Registry {
     registry.controllerJsDoc = tagged.controllerJsDoc.map((e) => e.handler);
     registry.methodJsDoc = tagged.methodJsDoc.map((e) => e.handler);
     registry.parameterJsDoc = tagged.parameterJsDoc.map((e) => e.handler);
-    registry.methodFinalizers = [...tagged.methodFinalizers];
-    registry.controllerFinalizers = [...tagged.controllerFinalizers];
+    registry.methodFinalizers = tagged.methodFinalizers.map((e) => e.finalizer);
+    registry.controllerFinalizers = tagged.controllerFinalizers.map((e) => e.finalizer);
 
     return registry;
 }

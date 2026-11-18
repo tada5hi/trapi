@@ -5,5 +5,5 @@
     "packages/swagger": "2.3.0",
     "packages/preset-decorators-express": "0.2.12",
     "packages/preset-typescript-rest": "2.1.0",
-    "packages/docs": "3.4.0"
+    "packages/docs": "3.4.1"
 }

@@ -57,7 +57,7 @@
         "@trapi/core": "2.3.0",
         "flatted": "^3.4.4",
         "locter": "^4.1.2",
-        "minimatch": "^10.2.6",
+        "minimatch": "^11.0.8",
         "smob": "^1.6.2"
     },
     "peerDependencies": {
